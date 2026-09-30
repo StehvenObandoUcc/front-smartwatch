@@ -3,7 +3,10 @@ package com.smartwatch.recordatorios.di
 import android.app.AlarmManager
 import android.content.Context
 import androidx.room.Room
+import com.smartwatch.recordatorios.alarm.FullScreenIntentPolicy
+import com.smartwatch.recordatorios.alarm.SystemFullScreenIntentPolicy
 import com.smartwatch.recordatorios.data.local.AppDatabase
+import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -20,6 +23,13 @@ import javax.inject.Singleton
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
 annotation class ApplicationScope
+
+@Module
+@InstallIn(SingletonComponent::class)
+abstract class AlarmBindings {
+    @Binds
+    abstract fun fullScreenIntentPolicy(impl: SystemFullScreenIntentPolicy): FullScreenIntentPolicy
+}
 
 @Module
 @InstallIn(SingletonComponent::class)

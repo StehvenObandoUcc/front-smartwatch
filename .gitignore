@@ -42,3 +42,7 @@ yarn-error.*
 .vscode/
 .DS_Store
 Thumbs.db
+
+# Volcados de la JVM
+hs_err_pid*.log
+replay_pid*.log

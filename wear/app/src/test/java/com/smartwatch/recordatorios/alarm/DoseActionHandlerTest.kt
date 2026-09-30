@@ -53,6 +53,19 @@ class DoseActionHandlerTest {
         }
 
     @Test
+    fun `sin permiso de pantalla completa suena igual, solo con la notificacion`() =
+        runTest {
+            graph.fullScreenAllowed = false
+            seedAndSchedule()
+
+            assertThat(graph.firing.fire("demo-1")).isTrue()
+
+            val notification = shadowOf(notifications).allNotifications.single()
+            assertThat(notification.fullScreenIntent).isNull()
+            assertThat(notification.channelId).isEqualTo(DoseNotifier.CHANNEL_ID)
+        }
+
+    @Test
     fun `tras 3 posposiciones la notificacion ya no ofrece Posponer`() =
         runTest {
             seedAndSchedule()

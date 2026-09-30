@@ -8,6 +8,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
 import androidx.wear.compose.material3.Button
+import androidx.wear.compose.material3.ButtonDefaults
 import androidx.wear.compose.material3.Card
 import androidx.wear.compose.material3.FilledTonalButton
 import androidx.wear.compose.material3.ListHeader
@@ -36,11 +37,10 @@ fun HomeScreen(
     val listState = rememberTransformingLazyColumnState()
     ScreenScaffold(scrollState = listState) { contentPadding ->
         TransformingLazyColumn(state = listState, contentPadding = contentPadding) {
-            item { ListHeader { Text(stringResource(R.string.home_title)) } }
-
+            // Avisos arriba del todo: sin estos permisos la alarma puede no sonar.
             if (!notificationsAllowed) {
                 item {
-                    PermissionButton(
+                    PermissionWarning(
                         title = stringResource(R.string.permission_notifications_title),
                         body = stringResource(R.string.permission_notifications_body),
                         onClick = onRequestNotifications,
@@ -49,13 +49,15 @@ fun HomeScreen(
             }
             if (!exactAlarmsAllowed) {
                 item {
-                    PermissionButton(
+                    PermissionWarning(
                         title = stringResource(R.string.permission_exact_title),
                         body = stringResource(R.string.permission_exact_body),
                         onClick = onRequestExactAlarms,
                     )
                 }
             }
+
+            item { ListHeader { Text(stringResource(R.string.home_title)) } }
 
             when {
                 doses == null -> Unit
@@ -91,8 +93,9 @@ fun HomeScreen(
     }
 }
 
+/** Aviso de permiso: color de error, icono y texto (nunca solo color). */
 @Composable
-private fun PermissionButton(
+private fun PermissionWarning(
     title: String,
     body: String,
     onClick: () -> Unit,
@@ -100,8 +103,15 @@ private fun PermissionButton(
     Button(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
-        label = { Text(title) },
-        secondaryLabel = { Text(body, maxLines = 3) },
+        colors =
+            ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.error,
+                contentColor = MaterialTheme.colorScheme.onError,
+                secondaryContentColor = MaterialTheme.colorScheme.onError,
+            ),
+        icon = { Text(stringResource(R.string.warning_icon), style = MaterialTheme.typography.titleLarge) },
+        label = { Text(title, maxLines = 2) },
+        secondaryLabel = { Text(body, maxLines = 4) },
     )
 }
 

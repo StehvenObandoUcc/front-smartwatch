@@ -43,7 +43,8 @@ class TestGraph(
 
     val repository = DoseRepository(db, clock)
     val scheduler = DoseAlarmScheduler(context, alarmManager, clock)
-    val notifier = DoseNotifier(context)
+    var fullScreenAllowed = true
+    val notifier = DoseNotifier(context) { fullScreenAllowed }
     val handler = DoseActionHandler(repository, scheduler, notifier)
     val rescheduler = AlarmRescheduler(repository, scheduler)
     val firing = DoseAlarmFiring(repository, notifier)

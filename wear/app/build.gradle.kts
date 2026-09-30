@@ -55,6 +55,8 @@ tasks.withType<Test>().configureEach {
         "--add-exports=java.base/jdk.internal.access=ALL-UNNAMED",
         "--add-opens=java.base/java.io=ALL-UNNAMED",
     )
+    maxHeapSize = "1g"
+    maxParallelForks = 1
 }
 
 room {
@@ -78,6 +80,7 @@ dependencies {
     implementation(libs.wear.compose.foundation)
     implementation(libs.wear.compose.ui.tooling)
     debugImplementation(libs.compose.ui.tooling)
+    debugImplementation(libs.compose.ui.test.manifest)
 
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
@@ -95,4 +98,6 @@ dependencies {
     testImplementation(libs.androidx.test.junit)
     testImplementation(libs.truth)
     testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(platform(libs.compose.bom))
+    testImplementation(libs.compose.ui.test.junit4)
 }

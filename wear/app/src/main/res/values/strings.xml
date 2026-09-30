@@ -7,10 +7,11 @@
     <string name="home_reset_demo">Reiniciar prueba</string>
     <string name="home_reset_demo_hint">Dosis en 1 y 2 min</string>
 
-    <string name="permission_exact_title">Permitir alarmas</string>
-    <string name="permission_exact_body">Sin este permiso la alarma puede sonar tarde</string>
-    <string name="permission_notifications_title">Permitir avisos</string>
-    <string name="permission_notifications_body">Necesario para mostrar la alarma</string>
+    <string name="warning_icon">⚠</string>
+    <string name="permission_exact_title">Alarmas desactivadas</string>
+    <string name="permission_exact_body">La alarma puede sonar tarde. Toca para permitir alarmas exactas</string>
+    <string name="permission_notifications_title">Avisos desactivados</string>
+    <string name="permission_notifications_body">La alarma no sonará. Toca para permitir notificaciones</string>
 
     <string name="status_scheduled">Pendiente</string>
     <string name="status_taken">Tomada</string>

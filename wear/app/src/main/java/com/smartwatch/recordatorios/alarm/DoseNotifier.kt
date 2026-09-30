@@ -29,6 +29,7 @@ class DoseNotifier
     @Inject
     constructor(
         @param:ApplicationContext private val context: Context,
+        private val fullScreenPolicy: FullScreenIntentPolicy,
     ) {
         private val manager = NotificationManagerCompat.from(context)
 
@@ -91,13 +92,16 @@ class DoseNotifier
                     .setAutoCancel(false)
                     .setTimeoutAfter(RING_TIMEOUT.toMillis())
                     .setContentIntent(alertIntent)
-                    // Abre la pantalla de alerta aunque el reloj esté en reposo.
-                    .setFullScreenIntent(alertIntent, true)
                     .addAction(
                         0,
                         context.getString(R.string.action_take),
                         actionIntent(DoseIntents.ACTION_TAKE, dose.id),
                     )
+
+            // La pantalla completa es opcional: sin ese permiso basta la notificación con sonido y vibración.
+            if (fullScreenPolicy.canUseFullScreenIntent()) {
+                builder.setFullScreenIntent(alertIntent, true)
+            }
 
             if (SnoozePolicy.canSnooze(dose.snoozeCount)) {
                 builder.addAction(
