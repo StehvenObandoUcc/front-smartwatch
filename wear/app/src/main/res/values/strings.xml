@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Recordatorios</string>
+
+    <string name="home_title">Hoy</string>
+    <string name="home_empty">No hay dosis programadas</string>
+    <string name="home_reset_demo">Reiniciar prueba</string>
+    <string name="home_reset_demo_hint">Dosis en 1 y 2 min</string>
+
+    <string name="permission_exact_title">Permitir alarmas</string>
+    <string name="permission_exact_body">Sin este permiso la alarma puede sonar tarde</string>
+    <string name="permission_notifications_title">Permitir avisos</string>
+    <string name="permission_notifications_body">Necesario para mostrar la alarma</string>
+
+    <string name="status_scheduled">Pendiente</string>
+    <string name="status_taken">Tomada</string>
+    <string name="status_skipped">Omitida</string>
+    <string name="snoozed_times">Pospuesta %1$d de 3</string>
+
+    <string name="action_take">Tomada</string>
+    <string name="action_snooze">Posponer 10 min</string>
+    <string name="action_skip">Omitir</string>
+    <string name="skip_confirm_title">¿Omitir esta dosis?</string>
+    <string name="skip_confirm_yes">Sí, omitir</string>
+    <string name="skip_confirm_no">No</string>
+
+    <string name="alert_title">Hora de tu medicamento</string>
+    <string name="alert_done">Registrado</string>
+
+    <string name="channel_alarm_name">Alarmas de dosis</string>
+    <string name="channel_alarm_description">Suena cuando toca tomar un medicamento</string>
+    <string name="notification_title">%1$s · %2$s</string>
+    <string name="notification_text">%1$s a las %2$s</string>
+
+    <string name="color_red">rojo</string>
+    <string name="color_orange">naranja</string>
+    <string name="color_yellow">amarillo</string>
+    <string name="color_green">verde</string>
+    <string name="color_teal">turquesa</string>
+    <string name="color_blue">azul</string>
+    <string name="color_purple">morado</string>
+    <string name="color_pink">rosado</string>
+</resources>
