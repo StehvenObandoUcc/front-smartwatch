@@ -1,0 +1,12 @@
+@import 'tailwindcss';
+@import './design/tokens/tokens.css';
+
+@layer base {
+  html {
+    @apply bg-bg font-sans text-body text-text antialiased;
+  }
+
+  :focus-visible {
+    @apply outline-3 outline-offset-2 outline-focus;
+  }
+}
