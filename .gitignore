@@ -1,0 +1,44 @@
+# Configuración local de Claude (CLAUDE.md sí se versiona)
+.claude/settings.local.json
+
+# Secretos y entorno
+.env
+.env.*
+!.env.example
+*.jks
+*.keystore
+*.p8
+*.p12
+*.key
+*.pem
+google-services.json
+local.properties
+
+# Reloj Wear OS (wear/): Gradle / Android Studio / Kotlin
+.gradle/
+build/
+.kotlin/
+captures/
+.externalNativeBuild/
+.cxx/
+*.apk
+*.aab
+*.iml
+.idea/
+
+# Panel web (web/): Node / Vite
+node_modules/
+dist/
+coverage/
+storybook-static/
+playwright-report/
+test-results/
+*.tsbuildinfo
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# SO / IDE
+.vscode/
+.DS_Store
+Thumbs.db
