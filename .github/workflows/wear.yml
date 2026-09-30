@@ -1,0 +1,42 @@
+name: wear
+
+on:
+  pull_request:
+    paths: ['wear/**', '.github/workflows/wear.yml']
+  push:
+    branches: [main]
+    paths: ['wear/**', '.github/workflows/wear.yml']
+
+concurrency:
+  group: wear-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: wear
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: ktlint, detekt y pruebas
+        run: ./gradlew ktlintCheck detekt test
+
+      - name: Compilar APK de depuración
+        run: ./gradlew assembleDebug
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: reports
+          path: wear/app/build/reports
+          retention-days: 7
