@@ -1,0 +1,16 @@
+# Se construye sobre la configuración por defecto de detekt (buildUponDefaultConfig = true).
+naming:
+  FunctionNaming:
+    # Los @Composable empiezan en mayúscula.
+    ignoreAnnotated: ['Composable']
+complexity:
+  LongParameterList:
+    # Pantallas presentacionales reciben datos y callbacks por parámetros.
+    ignoreAnnotated: ['Composable']
+  LongMethod:
+    ignoreAnnotated: ['Composable']
+style:
+  MagicNumber:
+    excludes: ['**/test/**', '**/ui/theme/Tokens.kt']
+  UnusedPrivateMember:
+    ignoreAnnotated: ['Preview', 'WearPreviewDevices']
