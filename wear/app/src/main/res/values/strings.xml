@@ -2,10 +2,23 @@
 <resources>
     <string name="app_name">Recordatorios</string>
 
-    <string name="home_title">Hoy</string>
-    <string name="home_empty">No hay dosis programadas</string>
-    <string name="home_reset_demo">Reiniciar prueba</string>
-    <string name="home_reset_demo_hint">Dosis en 1 y 2 min</string>
+    <string name="home_title">Inicio</string>
+    <string name="home_next">Próxima dosis</string>
+    <string name="home_no_next">Sin dosis próximas</string>
+    <string name="home_today_button">Ver las de hoy</string>
+    <string name="today_title">Hoy</string>
+    <string name="today_empty">No hay dosis hoy</string>
+
+    <string name="plan_never">Plan aún sin descargar</string>
+    <string name="plan_valid_until">Plan válido hasta %1$s</string>
+    <string name="plan_consent">Falta aceptar el uso de datos de salud en el panel web</string>
+    <string name="plan_failed">No se pudo actualizar el plan</string>
+
+    <string name="pair_title">Vincular reloj</string>
+    <string name="pair_loading">Pidiendo código…</string>
+    <string name="pair_instructions">Escribe este código en el panel web: Ajustes, Vincular reloj</string>
+    <string name="pair_error">No hay conexión con el servidor</string>
+    <string name="pair_retry">Reintentar</string>
 
     <string name="warning_icon">⚠</string>
     <string name="permission_exact_title">Alarmas desactivadas</string>

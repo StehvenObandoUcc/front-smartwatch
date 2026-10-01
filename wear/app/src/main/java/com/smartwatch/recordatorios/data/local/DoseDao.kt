@@ -18,8 +18,14 @@ interface DoseDao {
     @Query("SELECT * FROM doses WHERE status = 'SCHEDULED' ORDER BY nextAlarmAt")
     suspend fun scheduled(): List<DoseEntity>
 
-    @Query("SELECT COUNT(*) FROM doses")
-    suspend fun count(): Int
+    @Query("SELECT * FROM doses")
+    suspend fun all(): List<DoseEntity>
+
+    @Query("DELETE FROM doses WHERE id IN (:ids)")
+    suspend fun delete(ids: List<String>)
+
+    @Query("DELETE FROM doses WHERE status != 'SCHEDULED' AND scheduledAt < :before")
+    suspend fun deleteResolvedBefore(before: Long)
 
     @Upsert
     suspend fun upsert(doses: List<DoseEntity>)
@@ -36,8 +42,14 @@ interface DoseEventDao {
     @Insert
     suspend fun insert(event: DoseEventEntity)
 
-    @Query("SELECT * FROM dose_events WHERE syncState = 'PENDING' ORDER BY occurredAt")
-    suspend fun pending(): List<DoseEventEntity>
+    @Query(
+        "SELECT * FROM dose_events WHERE syncState = 'PENDING' AND action != 'SNOOZED' " +
+            "ORDER BY occurredAt LIMIT :limit",
+    )
+    suspend fun pending(limit: Int): List<DoseEventEntity>
+
+    @Query("UPDATE dose_events SET syncState = 'CONFIRMED' WHERE eventId IN (:ids)")
+    suspend fun markConfirmed(ids: List<String>)
 
     @Query("SELECT * FROM dose_events WHERE doseId = :doseId ORDER BY occurredAt")
     suspend fun forDose(doseId: String): List<DoseEventEntity>

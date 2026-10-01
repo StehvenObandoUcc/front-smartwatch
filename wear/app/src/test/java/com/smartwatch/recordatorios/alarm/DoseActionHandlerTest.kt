@@ -34,7 +34,7 @@ class DoseActionHandlerTest {
     fun tearDown() = graph.close()
 
     private suspend fun seedAndSchedule() {
-        graph.scheduler.scheduleAll(graph.repository.seedDemoDoses())
+        graph.scheduler.scheduleAll(graph.seed())
     }
 
     @Test

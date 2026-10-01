@@ -18,21 +18,24 @@ import androidx.wear.compose.material3.Text
 import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 import com.smartwatch.recordatorios.R
 import com.smartwatch.recordatorios.data.local.DoseEntity
-import com.smartwatch.recordatorios.data.repository.DemoDoses
+import com.smartwatch.recordatorios.data.remote.PlanInfo
+import com.smartwatch.recordatorios.data.remote.PlanStatus
 import com.smartwatch.recordatorios.ui.components.MedicationLabel
-import com.smartwatch.recordatorios.ui.components.doseStatusText
 import com.smartwatch.recordatorios.ui.theme.RecordatoriosTheme
+import com.smartwatch.recordatorios.ui.theme.formatDateTime
+import com.smartwatch.recordatorios.ui.theme.formatTime
 
-/** Pantalla presentacional: los datos y permisos entran por parámetros. */
+/** Inicio: avisos de permisos, próxima dosis y estado del plan. Los datos y permisos entran por parámetros. */
 @Composable
 fun HomeScreen(
-    doses: List<DoseEntity>?,
+    next: DoseEntity?,
+    planInfo: PlanInfo,
     exactAlarmsAllowed: Boolean,
     notificationsAllowed: Boolean,
     onRequestExactAlarms: () -> Unit,
     onRequestNotifications: () -> Unit,
     onOpenDose: (DoseEntity) -> Unit,
-    onResetDemo: () -> Unit,
+    onOpenToday: () -> Unit,
 ) {
     val listState = rememberTransformingLazyColumnState()
     ScreenScaffold(scrollState = listState) { contentPadding ->
@@ -59,39 +62,51 @@ fun HomeScreen(
 
             item { ListHeader { Text(stringResource(R.string.home_title)) } }
 
-            when {
-                doses == null -> Unit
-                doses.isEmpty() ->
-                    item {
-                        Text(
-                            text = stringResource(R.string.home_empty),
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.fillMaxWidth(),
-                        )
+            item {
+                if (next == null) {
+                    Text(
+                        text = stringResource(R.string.home_no_next),
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                } else {
+                    Card(onClick = { onOpenDose(next) }, modifier = Modifier.fillMaxWidth()) {
+                        Text(stringResource(R.string.home_next), style = MaterialTheme.typography.labelMedium)
+                        MedicationLabel(name = next.medicationName, colorKey = next.colorKey)
+                        Text(next.doseLabel, style = MaterialTheme.typography.bodyMedium)
+                        Text(formatTime(next.nextAlarmAt), style = MaterialTheme.typography.titleMedium)
                     }
-                else ->
-                    doses.forEach { dose ->
-                        item(key = dose.id) {
-                            Card(onClick = { onOpenDose(dose) }, modifier = Modifier.fillMaxWidth()) {
-                                MedicationLabel(name = dose.medicationName, colorKey = dose.colorKey)
-                                Text(dose.doseLabel, style = MaterialTheme.typography.bodyMedium)
-                                Text(doseStatusText(dose), style = MaterialTheme.typography.bodyMedium)
-                            }
-                        }
-                    }
+                }
             }
 
             item {
                 FilledTonalButton(
-                    onClick = onResetDemo,
+                    onClick = onOpenToday,
                     modifier = Modifier.fillMaxWidth(),
-                    label = { Text(stringResource(R.string.home_reset_demo)) },
-                    secondaryLabel = { Text(stringResource(R.string.home_reset_demo_hint)) },
+                    label = { Text(stringResource(R.string.home_today_button)) },
+                )
+            }
+
+            item {
+                Text(
+                    text = planStatusText(planInfo),
+                    style = MaterialTheme.typography.bodySmall,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth(),
                 )
             }
         }
     }
 }
+
+@Composable
+private fun planStatusText(info: PlanInfo): String =
+    when (info.status) {
+        PlanStatus.NEVER -> stringResource(R.string.plan_never)
+        PlanStatus.OK -> stringResource(R.string.plan_valid_until, formatDateTime(info.validUntil))
+        PlanStatus.CONSENT_REQUIRED -> stringResource(R.string.plan_consent)
+        PlanStatus.FAILED -> stringResource(R.string.plan_failed)
+    }
 
 /** Aviso de permiso: color de error, icono y texto (nunca solo color). */
 @Composable
@@ -120,13 +135,23 @@ private fun PermissionWarning(
 private fun HomeScreenPreview() {
     RecordatoriosTheme {
         HomeScreen(
-            doses = DemoDoses.create(0),
+            next =
+                DoseEntity(
+                    id = "preview",
+                    scheduleId = "preview",
+                    medicationName = "Losartán",
+                    colorKey = "blue",
+                    doseLabel = "1 tableta",
+                    scheduledAt = 0,
+                    nextAlarmAt = 0,
+                ),
+            planInfo = PlanInfo(PlanStatus.OK, 0),
             exactAlarmsAllowed = false,
             notificationsAllowed = true,
             onRequestExactAlarms = {},
             onRequestNotifications = {},
             onOpenDose = {},
-            onResetDemo = {},
+            onOpenToday = {},
         )
     }
 }

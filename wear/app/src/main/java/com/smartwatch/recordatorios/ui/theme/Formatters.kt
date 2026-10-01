@@ -14,3 +14,12 @@ fun formatTime(
         .ofLocalizedTime(FormatStyle.SHORT)
         .withZone(zone)
         .format(Instant.ofEpochMilli(epochMillis))
+
+fun formatDateTime(
+    epochMillis: Long,
+    zone: ZoneId = ZoneId.systemDefault(),
+): String =
+    DateTimeFormatter
+        .ofLocalizedDateTime(FormatStyle.SHORT)
+        .withZone(zone)
+        .format(Instant.ofEpochMilli(epochMillis))

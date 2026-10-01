@@ -3,7 +3,7 @@ package com.smartwatch.recordatorios.data.repository
 import com.smartwatch.recordatorios.data.local.DoseEntity
 import java.time.Duration
 
-/** Datos falsos del prototipo de alarma (fase 0). Se retiran cuando el plan llegue del backend. */
+/** Dosis de ejemplo para las pruebas: una en 1 min y otra en 2 min. */
 object DemoDoses {
     private val FIRST_OFFSET: Duration = Duration.ofMinutes(1)
     private val SECOND_OFFSET: Duration = Duration.ofMinutes(2)
@@ -14,6 +14,7 @@ object DemoDoses {
         return listOf(
             DoseEntity(
                 id = "demo-1",
+                scheduleId = "00000000-0000-0000-0000-000000000001",
                 medicationName = "Losartán",
                 colorKey = "blue",
                 doseLabel = "50 mg",
@@ -22,6 +23,7 @@ object DemoDoses {
             ),
             DoseEntity(
                 id = "demo-2",
+                scheduleId = "00000000-0000-0000-0000-000000000002",
                 medicationName = "Metformina",
                 colorKey = "orange",
                 doseLabel = "850 mg",

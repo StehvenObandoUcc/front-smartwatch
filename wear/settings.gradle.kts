@@ -15,4 +15,4 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "recordatorios-wear"
-include(":app")
+include(":app", ":api")
