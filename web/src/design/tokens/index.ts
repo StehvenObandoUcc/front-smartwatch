@@ -31,3 +31,22 @@ export const viewports = {
   tablet: { name: 'Tablet (820)', styles: { width: '820px', height: '1180px' } },
   desktop: { name: 'Escritorio (1440)', styles: { width: '1440px', height: '900px' } },
 } as const;
+
+// Valor hexadecimal que viaja en el contrato (`Color`); espejo de tokens.css.
+export const medicationHex: Record<MedicationColor, string> = {
+  red: '#c62828',
+  orange: '#d4661a',
+  yellow: '#b08900',
+  green: '#2e7d32',
+  teal: '#00796b',
+  blue: '#1565c0',
+  purple: '#6a1b9a',
+  pink: '#ad1457',
+};
+
+export function colorFromHex(hex: string | undefined): MedicationColor {
+  const found = medicationColors.find(
+    (key) => medicationHex[key].toLowerCase() === hex?.toLowerCase(),
+  );
+  return found ?? 'blue';
+}
