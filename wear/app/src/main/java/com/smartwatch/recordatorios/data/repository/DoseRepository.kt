@@ -7,6 +7,7 @@ import com.smartwatch.recordatorios.data.local.DoseAction
 import com.smartwatch.recordatorios.data.local.DoseEntity
 import com.smartwatch.recordatorios.data.local.DoseEventEntity
 import com.smartwatch.recordatorios.data.local.DoseStatus
+import com.smartwatch.recordatorios.data.local.SyncState
 import kotlinx.coroutines.flow.Flow
 import java.time.Clock
 import java.util.UUID
@@ -41,11 +42,11 @@ class DoseRepository
             action: DoseAction,
         ): DoseEntity? =
             db.withTransaction {
-                val dose = doseDao.get(doseId)
+                val dose = doseDao.get(doseId) ?: return@withTransaction null
                 val now = clock.millis()
                 val updated =
                     when {
-                        dose == null || dose.status != DoseStatus.SCHEDULED -> null
+                        dose.status != DoseStatus.SCHEDULED -> null
                         action == DoseAction.TAKEN -> dose.copy(status = DoseStatus.TAKEN)
                         action == DoseAction.SKIPPED -> dose.copy(status = DoseStatus.SKIPPED)
                         SnoozePolicy.canSnooze(dose.snoozeCount) ->
@@ -61,23 +62,14 @@ class DoseRepository
                         DoseEventEntity(
                             eventId = UUID.randomUUID().toString(),
                             doseId = doseId,
+                            scheduleId = dose.scheduleId,
+                            scheduledAt = dose.scheduledAt,
                             action = action,
                             occurredAt = now,
+                            syncState = if (action == DoseAction.SNOOZED) SyncState.CONFIRMED else SyncState.PENDING,
                         ),
                     )
                 }
                 updated
             }
-
-        /** Prototipo de la fase 0: reemplaza el plan por dos dosis falsas en 1 y 2 minutos. */
-        suspend fun seedDemoDoses(): List<DoseEntity> {
-            val doses = DemoDoses.create(clock.millis())
-            db.withTransaction {
-                doseDao.deleteAll()
-                doseDao.upsert(doses)
-            }
-            return doses
-        }
-
-        suspend fun seedDemoIfEmpty(): List<DoseEntity>? = if (doseDao.count() == 0) seedDemoDoses() else null
     }

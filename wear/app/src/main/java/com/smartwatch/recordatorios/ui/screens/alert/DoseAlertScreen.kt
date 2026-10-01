@@ -23,7 +23,6 @@ import com.smartwatch.recordatorios.R
 import com.smartwatch.recordatorios.alarm.SnoozePolicy
 import com.smartwatch.recordatorios.data.local.DoseEntity
 import com.smartwatch.recordatorios.data.local.DoseStatus
-import com.smartwatch.recordatorios.data.repository.DemoDoses
 import com.smartwatch.recordatorios.ui.components.MedicationLabel
 import com.smartwatch.recordatorios.ui.components.doseStatusText
 import com.smartwatch.recordatorios.ui.theme.RecordatoriosTheme
@@ -111,10 +110,21 @@ fun DoseAlertScreen(
     }
 }
 
+private val previewDose =
+    DoseEntity(
+        id = "preview",
+        scheduleId = "preview",
+        medicationName = "Losartán",
+        colorKey = "blue",
+        doseLabel = "1 tableta",
+        scheduledAt = 0,
+        nextAlarmAt = 0,
+    )
+
 @WearPreviewDevices
 @Composable
 private fun DoseAlertScreenPreview() {
     RecordatoriosTheme {
-        DoseAlertScreen(dose = DemoDoses.create(0).first(), onTake = {}, onSnooze = {}, onSkip = {})
+        DoseAlertScreen(dose = previewDose, onTake = {}, onSnooze = {}, onSkip = {})
     }
 }

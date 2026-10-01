@@ -11,9 +11,11 @@ enum class DoseStatus { SCHEDULED, TAKEN, SKIPPED }
 @Entity(tableName = "doses")
 data class DoseEntity(
     @PrimaryKey val id: String,
+    val scheduleId: String,
     val medicationName: String,
     /** Clave de la paleta de medicamentos; en pantalla siempre va junto al nombre. */
     val colorKey: String,
+    /** Dosis por toma ("1 tableta"). */
     val doseLabel: String,
     /** Hora prevista de la toma. */
     val scheduledAt: Long,

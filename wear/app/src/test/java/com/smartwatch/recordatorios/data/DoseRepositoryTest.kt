@@ -30,7 +30,7 @@ class DoseRepositoryTest {
     @Test
     fun `la prueba crea 2 dosis falsas en 1 y 2 minutos`() =
         runTest {
-            val doses = graph.repository.seedDemoDoses()
+            val doses = graph.seed()
 
             assertThat(doses).hasSize(2)
             assertThat(doses.map { it.nextAlarmAt }).containsExactly(T0 + MINUTE, T0 + 2 * MINUTE)
@@ -38,19 +38,9 @@ class DoseRepositoryTest {
         }
 
     @Test
-    fun `seedDemoIfEmpty no pisa un plan existente`() =
-        runTest {
-            graph.repository.seedDemoDoses()
-            graph.repository.record("demo-1", DoseAction.TAKEN)
-
-            assertThat(graph.repository.seedDemoIfEmpty()).isNull()
-            assertThat(graph.repository.get("demo-1")?.status).isEqualTo(DoseStatus.TAKEN)
-        }
-
-    @Test
     fun `tomada guarda un evento PENDING con eventId UUID`() =
         runTest {
-            graph.repository.seedDemoDoses()
+            graph.seed()
 
             val updated = graph.repository.record("demo-1", DoseAction.TAKEN)
 
@@ -65,7 +55,7 @@ class DoseRepositoryTest {
     @Test
     fun `una segunda accion sobre una dosis resuelta se ignora`() =
         runTest {
-            graph.repository.seedDemoDoses()
+            graph.seed()
             graph.repository.record("demo-1", DoseAction.TAKEN)
 
             assertThat(graph.repository.record("demo-1", DoseAction.TAKEN)).isNull()
@@ -76,7 +66,7 @@ class DoseRepositoryTest {
     @Test
     fun `posponer mueve la alarma 10 minutos y se limita a 3 veces`() =
         runTest {
-            graph.repository.seedDemoDoses()
+            graph.seed()
 
             repeat(3) { i ->
                 graph.now = T0 + i * MINUTE
@@ -93,7 +83,7 @@ class DoseRepositoryTest {
     @Test
     fun `omitir marca la dosis como omitida`() =
         runTest {
-            graph.repository.seedDemoDoses()
+            graph.seed()
 
             val skipped = graph.repository.record("demo-2", DoseAction.SKIPPED)
 

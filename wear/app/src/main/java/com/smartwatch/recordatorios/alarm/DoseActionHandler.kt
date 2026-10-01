@@ -3,12 +3,13 @@ package com.smartwatch.recordatorios.alarm
 import com.smartwatch.recordatorios.data.local.DoseAction
 import com.smartwatch.recordatorios.data.local.DoseEntity
 import com.smartwatch.recordatorios.data.repository.DoseRepository
+import com.smartwatch.recordatorios.sync.UploadTrigger
 import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
  * Punto único para Tomada / Posponer / Omitir, lo use la notificación o la pantalla de alerta.
- * Guarda el evento (PENDING) y ajusta alarma y notificación.
+ * Guarda el evento (PENDING), ajusta alarma y notificación y pide subirlo.
  */
 @Singleton
 class DoseActionHandler
@@ -17,6 +18,7 @@ class DoseActionHandler
         private val repository: DoseRepository,
         private val scheduler: DoseAlarmScheduler,
         private val notifier: DoseNotifier,
+        private val upload: UploadTrigger,
     ) {
         /** Devuelve la dosis actualizada, o null si la acción no aplicaba. */
         suspend fun handle(
@@ -28,7 +30,10 @@ class DoseActionHandler
             when {
                 updated == null -> Unit
                 action == DoseAction.SNOOZED -> scheduler.schedule(updated)
-                else -> scheduler.cancel(doseId)
+                else -> {
+                    scheduler.cancel(doseId)
+                    upload.request()
+                }
             }
             return updated
         }

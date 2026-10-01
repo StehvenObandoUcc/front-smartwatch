@@ -38,7 +38,11 @@ object AppModule {
     @Singleton
     fun database(
         @ApplicationContext context: Context,
-    ): AppDatabase = Room.databaseBuilder(context, AppDatabase::class.java, AppDatabase.NAME).build()
+    ): AppDatabase =
+        Room
+            .databaseBuilder(context, AppDatabase::class.java, AppDatabase.NAME)
+            .fallbackToDestructiveMigration(true) // antes de publicar: el plan se vuelve a descargar
+            .build()
 
     @Provides
     fun alarmManager(

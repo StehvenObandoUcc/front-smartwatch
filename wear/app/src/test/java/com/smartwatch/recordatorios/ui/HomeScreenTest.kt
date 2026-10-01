@@ -6,6 +6,8 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
+import com.smartwatch.recordatorios.data.remote.PlanInfo
+import com.smartwatch.recordatorios.data.remote.PlanStatus
 import com.smartwatch.recordatorios.data.repository.DemoDoses
 import com.smartwatch.recordatorios.ui.screens.home.HomeScreen
 import com.smartwatch.recordatorios.ui.theme.RecordatoriosTheme
@@ -30,13 +32,14 @@ class HomeScreenTest {
         compose.setContent {
             RecordatoriosTheme {
                 HomeScreen(
-                    doses = DemoDoses.create(0),
+                    next = DemoDoses.create(0).first(),
+                    planInfo = PlanInfo(PlanStatus.OK, 0),
                     exactAlarmsAllowed = exact,
                     notificationsAllowed = notifications,
                     onRequestExactAlarms = { exactRequests++ },
                     onRequestNotifications = { notificationRequests++ },
                     onOpenDose = {},
-                    onResetDemo = {},
+                    onOpenToday = {},
                 )
             }
         }
