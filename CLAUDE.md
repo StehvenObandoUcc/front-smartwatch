@@ -17,7 +17,7 @@ Trabajas en paralelo con el Agente Backend (repo `back-smartwatch`). El plan com
 ## Reloj (`wear/`)
 
 ### Stack
-Kotlin, Compose for Wear OS (Material 3), Horologist, Room, AlarmManager, NotificationManager, WorkManager, DataStore + Android Keystore, Retrofit/OkHttp o Ktor, Firebase Cloud Messaging, Tiles y Complications, Hilt, Coroutines/Flow. Calidad: ktlint, detekt, JUnit, Turbine, Robolectric, Compose UI tests.
+Kotlin, Compose for Wear OS (Material 3), Horologist, Room, AlarmManager, NotificationManager, WorkManager, DataStore + Android Keystore, Retrofit/OkHttp o Ktor, Hilt, Coroutines/Flow. Calidad: ktlint, detekt, JUnit, Turbine, Robolectric, Compose UI tests.
 
 ### Reglas
 - App **standalone**: `com.google.android.wearable.standalone = true` en el manifiesto. No se usa Data Layer.
@@ -25,7 +25,7 @@ Kotlin, Compose for Wear OS (Material 3), Horologist, Room, AlarmManager, Notifi
 - Alarmas con `setAlarmClock()`; comprobar `canScheduleExactAlarms()` y guiar al usuario al permiso. `BootReceiver` reprograma todo tras reiniciar.
 - Alerta = notificación con acciones Tomada / Posponer (Omitir con confirmación). Posponer 10 min, máximo 3 veces.
 - Cada acción se guarda en Room con `eventId` UUID y estado `PENDING`; `EventUploadWorker` (WorkManager, restricción de red, backoff) la sube en lote y la marca `CONFIRMED`.
-- Plan nuevo: push FCM de datos → `PlanSyncWorker` descarga `GET /devices/me/plan` con `ETag` y reprograma alarmas. Sincronización periódica de respaldo espaciada (batería).
+- Plan: `PlanSyncWorker` (WorkManager) descarga `GET /devices/me/plan` con `ETag` cada 30 min y al abrir la app, y reprograma alarmas. **Sin FCM ni Firebase** hasta el cierre.
 - Vinculación sin teclado: el reloj muestra un código corto y consulta `POST /devices/token` hasta que el usuario lo confirma en la web. Tokens solo en Keystore.
 - `scheduledAt` en epoch UTC; se formatea con la zona del reloj.
 - Chat por voz: `RecognizerIntent` → backend → respuesta corta en pantalla y leída con `TextToSpeech`.
@@ -57,20 +57,17 @@ src/pages/               pantalla = template + organismos, sin estilos propios
 - Toda pantalla con datos maneja cargando (skeleton), vacío, error con reintento y éxito.
 - Tokens de sesión en cookie `httpOnly` si el backend lo permite; nunca en `localStorage`.
 
-## Pruebas (obligatorias en cada PR)
-- Reloj: `./gradlew ktlintCheck detekt test` en verde.
-- Web: `eslint`, `tsc --noEmit`, `vitest` en verde; Playwright para cada criterio de salida de fase.
+## Plan exprés (vigente; ver `../back-smartwatch/docs/plan-expres.md`)
+- Un contrato por sprint. Si el contrato del sprint no está en `main` de `../back-smartwatch`, **detente** (no lo edites ni lo inventes).
+- Aprobación dada para todo el sprint: fusiona tú cada PR cuando la CI esté en verde. Detente solo si algo no se puede poner en verde.
+- Sprint A (fases 2+3): web = formulario de medicamento y horarios simples, agenda de hoy, historial con % de adherencia; reloj = plan con WorkManager, alarmas, pantallas Inicio y Hoy, subida de eventos pendientes.
+- Pospuesto al cierre: Storybook completo, Tiles y Complications, FCM, Playwright amplio, cobertura alta.
+- **No abras el emulador**: lo prueba Steve al cierre de cada sprint. Al terminar, un único resumen con los PR fusionados y los pasos para probar en el emulador.
+
+## Pruebas
+- En local solo lint y pruebas unitarias rápidas (`./gradlew ktlintCheck detekt testDebugUnitTest`; web: `eslint`, `tsc --noEmit`, `vitest run --project unit`). Lo demás corre en CI.
+- Pruebas obligatorias solo para: alarmas, sincronización (plan y cola de eventos) y formularios. El resto, opcional.
 
 ## Flujo de trabajo
-- Una rama y un PR por tarea (`feat/wear-<tema>`, `feat/web-<tema>`), commits convencionales, PR pequeños.
-- Descripción del PR: qué cambia, capturas (reloj redondo y web en móvil/escritorio), cómo se probó.
-- Al cerrar cada fase: reloj (emulador) y web contra la API real.
-
-## Fases (tu parte)
-0 Fundaciones: proyecto Wear OS standalone con **prototipo de alarma** (2 dosis falsas en Room, suena con el reloj en reposo, Tomada/Posponer, BootReceiver, permiso de alarmas exactas). Web: Vite, tokens, átomos, Storybook, AppShell responsive, CI.
-1 Cuentas y vinculación: reloj muestra el código y guarda tokens; web con login/registro, consentimientos y "Vincular reloj".
-2 Medicamentos y plan: reloj descarga el plan, Room, reprograma alarmas, pantallas Inicio y Hoy, Tile; web con formulario de medicamento y horarios, agenda de hoy y semana.
-3 Tomas y adherencia: cola offline con WorkManager en el reloj; historial y gráfico de adherencia en la web.
-4 Notificaciones y reportes: web con "Conectar Telegram", correo, preferencias y reportes.
-5 IA: chat por voz en el reloj; chat en la web (opcional).
-6 Lanzamiento: batería y pruebas en reloj físico, Play Store (Wear); accesibilidad, E2E y despliegue de la web.
+- Una rama y un PR por tarea (`feat/wear-<tema>`, `feat/web-<tema>`), commits convencionales, PR pequeños; se fusionan solos con CI en verde.
+- Descripción del PR: qué cambia y cómo se probó.
