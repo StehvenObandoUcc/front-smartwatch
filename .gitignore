@@ -46,3 +46,4 @@ Thumbs.db
 # Volcados de la JVM
 hs_err_pid*.log
 replay_pid*.log
+.contract/

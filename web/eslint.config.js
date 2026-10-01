@@ -11,7 +11,7 @@ const tokensOnly =
   'Usa los tokens de src/design/tokens: ningún valor visual literal fuera de ellos.';
 
 export default defineConfig([
-  globalIgnores(['dist', 'storybook-static', 'coverage']),
+  globalIgnores(['src/api/generated.ts', 'dist', 'storybook-static', 'coverage']),
   {
     files: ['**/*.{ts,tsx}'],
     extends: [
@@ -42,7 +42,7 @@ export default defineConfig([
     },
   },
   {
-    files: ['src/**/*.stories.tsx', 'src/**/*.test.tsx'],
+    files: ['src/**/*.stories.tsx', 'src/**/*.test.tsx', 'src/features/**/*.tsx'],
     rules: { 'react-refresh/only-export-components': 'off' },
   },
 ]);
