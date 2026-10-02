@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import type { MedicationCreate, ScheduleCreate } from '../../api/generated';
+import type { Medication, MedicationCreate, Schedule, ScheduleCreate } from '../../api/generated';
 
 const time = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, 'Hora no válida');
 
@@ -48,5 +48,24 @@ export function toPayload(values: MedicationFormValues): {
       startDate: values.startDate,
       endDate: values.endDate || null,
     },
+  };
+}
+
+/** Valores iniciales del formulario al editar un medicamento y su (primer) horario. */
+export function toFormValues(
+  medication: Medication,
+  schedule: Schedule | null,
+): MedicationFormValues {
+  return {
+    name: medication.name,
+    dosage: medication.dosage,
+    instructions: medication.instructions ?? '',
+    color: medication.color,
+    times: (schedule?.times ?? ['08:00']).map((value) => ({ value })),
+    daysOfWeek: (schedule?.daysOfWeek ?? [1, 2, 3, 4, 5, 6, 7]).map(
+      String,
+    ) as MedicationFormValues['daysOfWeek'],
+    startDate: schedule?.startDate ?? '',
+    endDate: schedule?.endDate ?? '',
   };
 }

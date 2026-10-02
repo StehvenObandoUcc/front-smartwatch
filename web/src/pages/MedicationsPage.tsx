@@ -4,6 +4,11 @@ import { useQueryClient } from '@tanstack/react-query';
 import {
   createMedication,
   createSchedule,
+  listSchedules,
+  updateMedication,
+  updateSchedule,
+  type Medication,
+  type Schedule,
   getListMedicationsQueryKey,
   useArchiveMedication,
   useListMedications,
@@ -13,7 +18,7 @@ import { ColorDot } from '../components/atoms/ColorDot/ColorDot';
 import { Spinner } from '../components/atoms/Spinner/Spinner';
 import { Text } from '../components/atoms/Text/Text';
 import { MedicationForm } from '../features/medications/MedicationForm';
-import { toPayload, type MedicationFormValues } from '../features/medications/schema';
+import { toFormValues, toPayload, type MedicationFormValues } from '../features/medications/schema';
 import { usePatient } from '../features/patients/PatientGate';
 import { errorMessage } from '../lib/errors';
 
@@ -21,6 +26,11 @@ export function MedicationsPage() {
   const { patientId, timezone } = usePatient();
   const queryClient = useQueryClient();
   const [adding, setAdding] = useState(false);
+  const [editing, setEditing] = useState<{
+    medication: Medication;
+    schedule: Schedule | null;
+  } | null>(null);
+  const [loadingEdit, setLoadingEdit] = useState<string>();
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string>();
   const medications = useListMedications(patientId);
@@ -31,15 +41,37 @@ export function MedicationsPage() {
     },
   });
 
+  async function startEdit(medication: Medication) {
+    setLoadingEdit(medication.id);
+    setSaveError(undefined);
+    try {
+      // El formulario maneja un horario; si hay varios se edita el primero.
+      const { items } = await listSchedules(patientId, medication.id);
+      setEditing({ medication, schedule: items[0] ?? null });
+    } catch (error) {
+      setSaveError(errorMessage(error));
+    } finally {
+      setLoadingEdit(undefined);
+    }
+  }
+
   async function save(values: MedicationFormValues) {
     const { medication, schedule } = toPayload(values);
     setSaving(true);
     setSaveError(undefined);
     try {
-      const created = await createMedication(patientId, medication);
-      await createSchedule(patientId, created.id, schedule);
+      if (editing) {
+        const { id } = editing.medication;
+        await updateMedication(patientId, id, medication);
+        if (editing.schedule) await updateSchedule(patientId, id, editing.schedule.id, schedule);
+        else await createSchedule(patientId, id, schedule);
+      } else {
+        const created = await createMedication(patientId, medication);
+        await createSchedule(patientId, created.id, schedule);
+      }
       await queryClient.invalidateQueries();
       setAdding(false);
+      setEditing(null);
     } catch (error) {
       setSaveError(errorMessage(error));
     } finally {
@@ -47,14 +79,18 @@ export function MedicationsPage() {
     }
   }
 
-  if (adding) {
+  if (adding || editing) {
     return (
       <MedicationForm
         timezone={timezone}
+        initial={editing ? toFormValues(editing.medication, editing.schedule) : undefined}
         submitting={saving}
         error={saveError}
         onSubmit={(values) => void save(values)}
-        onCancel={() => setAdding(false)}
+        onCancel={() => {
+          setAdding(false);
+          setEditing(null);
+        }}
       />
     );
   }
@@ -97,14 +133,24 @@ export function MedicationsPage() {
                 <Text tone="muted">{med.dosage}</Text>
               </div>
             </div>
-            <Button
-              variant="ghost"
-              aria-label={`Archivar ${med.name}`}
-              loading={archive.isPending && archive.variables.medicationId === med.id}
-              onClick={() => archive.mutate({ patientId, medicationId: med.id })}
-            >
-              Archivar
-            </Button>
+            <div className="flex gap-1">
+              <Button
+                variant="ghost"
+                aria-label={`Editar ${med.name}`}
+                loading={loadingEdit === med.id}
+                onClick={() => void startEdit(med)}
+              >
+                Editar
+              </Button>
+              <Button
+                variant="ghost"
+                aria-label={`Archivar ${med.name}`}
+                loading={archive.isPending && archive.variables.medicationId === med.id}
+                onClick={() => archive.mutate({ patientId, medicationId: med.id })}
+              >
+                Archivar
+              </Button>
+            </div>
           </li>
         ))}
       </ul>

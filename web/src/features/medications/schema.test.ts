@@ -1,7 +1,7 @@
 import { medicationHex } from '../../design/tokens';
 import { describe, expect, it } from 'vitest';
 
-import { medicationFormSchema, toPayload, type MedicationFormValues } from './schema';
+import { medicationFormSchema, toFormValues, toPayload, type MedicationFormValues } from './schema';
 
 const valid: MedicationFormValues = {
   name: 'Losartán',
@@ -51,6 +51,40 @@ describe('toPayload', () => {
       color: medicationHex.blue,
     });
     expect(schedule).toEqual({
+      times: ['08:00', '20:00'],
+      daysOfWeek: [1, 5],
+      startDate: '2026-10-01',
+      endDate: null,
+    });
+  });
+});
+
+describe('toFormValues', () => {
+  it('convierte medicamento y horario al formulario y vuelve igual con toPayload', () => {
+    const values = toFormValues(
+      {
+        id: 'm1',
+        patientId: 'p1',
+        name: 'Losartán',
+        dosage: '1 tableta',
+        instructions: null,
+        color: medicationHex.blue,
+        archived: false,
+        createdAt: '2026-10-01T00:00:00Z',
+        updatedAt: '2026-10-01T00:00:00Z',
+      },
+      {
+        id: 's1',
+        medicationId: 'm1',
+        times: ['08:00', '20:00'],
+        daysOfWeek: [1, 5],
+        startDate: '2026-10-01',
+        endDate: null,
+      },
+    );
+    expect(medicationFormSchema.safeParse(values).success).toBe(true);
+    expect(values.daysOfWeek).toEqual(['1', '5']);
+    expect(toPayload(values).schedule).toEqual({
       times: ['08:00', '20:00'],
       daysOfWeek: [1, 5],
       startDate: '2026-10-01',
