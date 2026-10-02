@@ -6,6 +6,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
+import android.speech.RecognizerIntent
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -27,6 +28,8 @@ import com.smartwatch.recordatorios.data.local.DoseEntity
 import com.smartwatch.recordatorios.data.remote.TokenStore
 import com.smartwatch.recordatorios.sync.SyncScheduler
 import com.smartwatch.recordatorios.ui.screens.alert.DoseAlertActivity
+import com.smartwatch.recordatorios.ui.screens.chat.ChatScreen
+import com.smartwatch.recordatorios.ui.screens.chat.ChatViewModel
 import com.smartwatch.recordatorios.ui.screens.home.HomeScreen
 import com.smartwatch.recordatorios.ui.screens.home.HomeViewModel
 import com.smartwatch.recordatorios.ui.screens.pairing.PairingRoute
@@ -45,6 +48,8 @@ class MainActivity : ComponentActivity() {
 
     private val viewModel: HomeViewModel by viewModels()
 
+    private val chatViewModel: ChatViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -59,7 +64,15 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     private fun MainRoute() {
-        var showToday by rememberSaveable { mutableStateOf(false) }
+        var screen by rememberSaveable { mutableStateOf(Screen.HOME) }
+        val chatState by chatViewModel.state.collectAsStateWithLifecycle()
+        val speechLauncher =
+            rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+                result.data
+                    ?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
+                    ?.firstOrNull()
+                    ?.let(chatViewModel::ask)
+            }
         val next by viewModel.next.collectAsStateWithLifecycle()
         val today by viewModel.today.collectAsStateWithLifecycle()
         val planInfo by viewModel.planInfo.collectAsStateWithLifecycle()
@@ -76,21 +89,39 @@ class MainActivity : ComponentActivity() {
             syncScheduler.syncNow()
             onPauseOrDispose { }
         }
-        BackHandler(enabled = showToday) { showToday = false }
+        BackHandler(enabled = screen != Screen.HOME) {
+            screen = Screen.HOME
+            chatViewModel.reset()
+        }
 
-        if (showToday) {
-            TodayScreen(doses = today, onOpenDose = ::openDose)
-        } else {
-            HomeScreen(
-                next = next,
-                planInfo = planInfo,
-                exactAlarmsAllowed = exactAllowed,
-                notificationsAllowed = notificationsAllowed,
-                onRequestExactAlarms = ::openExactAlarmSettings,
-                onRequestNotifications = { notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS) },
-                onOpenDose = ::openDose,
-                onOpenToday = { showToday = true },
-            )
+        when (screen) {
+            Screen.TODAY -> TodayScreen(doses = today, onOpenDose = ::openDose)
+            Screen.CHAT ->
+                ChatScreen(state = chatState, onAsk = { askByVoice { speechLauncher.launch(it) } })
+            Screen.HOME ->
+                HomeScreen(
+                    next = next,
+                    planInfo = planInfo,
+                    exactAlarmsAllowed = exactAllowed,
+                    notificationsAllowed = notificationsAllowed,
+                    onRequestExactAlarms = ::openExactAlarmSettings,
+                    onRequestNotifications = { notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS) },
+                    onOpenDose = ::openDose,
+                    onOpenToday = { screen = Screen.TODAY },
+                    onOpenChat = { screen = Screen.CHAT },
+                )
+        }
+    }
+
+    private fun askByVoice(launch: (Intent) -> Unit) {
+        val intent =
+            Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
+                .putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+                .putExtra(RecognizerIntent.EXTRA_PROMPT, getString(R.string.chat_prompt))
+        try {
+            launch(intent)
+        } catch (_: ActivityNotFoundException) {
+            chatViewModel.speechUnavailable()
         }
     }
 
@@ -108,3 +139,5 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+
+private enum class Screen { HOME, TODAY, CHAT }

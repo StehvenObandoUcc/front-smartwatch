@@ -12,6 +12,16 @@
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <!-- Android 11+: visibilidad del reconocimiento de voz y del motor de TextToSpeech. -->
+    <queries>
+        <intent>
+            <action android:name="android.speech.action.RECOGNIZE_SPEECH" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.TTS_SERVICE" />
+        </intent>
+    </queries>
+
     <application
         android:name=".RecordatoriosApp"
         android:allowBackup="false"

@@ -40,6 +40,7 @@ class HomeScreenTest {
                     onRequestNotifications = { notificationRequests++ },
                     onOpenDose = {},
                     onOpenToday = {},
+                    onOpenChat = {},
                 )
             }
         }

@@ -8,10 +8,6 @@ import com.smartwatch.recordatorios.api.models.PlannedDose
 import com.smartwatch.recordatorios.data.local.AppDatabase
 import com.smartwatch.recordatorios.data.local.DoseEntity
 import com.smartwatch.recordatorios.data.local.DoseStatus
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.contentOrNull
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
 import retrofit2.Response
 import java.time.Clock
 import java.time.Duration
@@ -107,15 +103,6 @@ class PlanRepository
 
         private fun DoseEntity.keepLocalState(fresh: DoseEntity) =
             fresh.copy(status = status, snoozeCount = snoozeCount, nextAlarmAt = nextAlarmAt)
-
-        private fun <T> Response<T>.problemCode(): String? =
-            runCatching {
-                Json
-                    .parseToJsonElement(errorBody()?.string().orEmpty())
-                    .jsonObject["code"]
-                    ?.jsonPrimitive
-                    ?.contentOrNull
-            }.getOrNull()
 
         private companion object {
             const val HTTP_NOT_MODIFIED = 304
