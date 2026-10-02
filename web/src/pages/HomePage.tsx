@@ -22,6 +22,9 @@ export function HomePage() {
         <li>
           <Link to="/adherencia">Adherencia</Link>
         </li>
+        <li>
+          <Link to="/asistente">Asistente</Link>
+        </li>
       </ul>
     </section>
   );

@@ -3,6 +3,7 @@ import { createBrowserRouter } from 'react-router';
 import { AdherencePage } from '../pages/AdherencePage';
 import { AgendaPage } from '../pages/AgendaPage';
 import { ForgotPasswordPage } from '../pages/ForgotPasswordPage';
+import { ChatPage } from '../pages/ChatPage';
 import { HomePage } from '../pages/HomePage';
 import { LoginPage } from '../pages/LoginPage';
 import { MedicationsPage } from '../pages/MedicationsPage';
@@ -31,6 +32,7 @@ export const router = createBrowserRouter([
       { path: 'ajustes', element: <SettingsPage /> },
       { path: 'notificaciones', element: <NotificationsPage /> },
       { path: 'reportes', element: <ReportsPage /> },
+      { path: 'asistente', element: <ChatPage /> },
       { path: 'patients/:patientId/reports/:reportId', element: <ReportPage /> },
     ],
   },

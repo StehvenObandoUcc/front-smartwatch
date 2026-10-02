@@ -71,7 +71,7 @@ export function refreshSession(): Promise<boolean> {
   return refreshing;
 }
 
-export async function http<T>(config: RequestConfig, options?: RequestInit): Promise<T> {
+async function sendWithRefresh(config: RequestConfig, options?: RequestInit): Promise<Response> {
   let res = await send(config, options);
   const isAuthCall = config.url.startsWith('/auth/');
   if (res.status === 401 && !isAuthCall) {
@@ -82,12 +82,29 @@ export async function http<T>(config: RequestConfig, options?: RequestInit): Pro
       onSessionLost();
     }
   }
+  return res;
+}
+
+async function toApiError(res: Response): Promise<ApiError> {
+  const problem = ((await res.json().catch(() => undefined)) ?? {}) as {
+    code?: string;
+    detail?: string;
+    title?: string;
+  };
+  return new ApiError(res.status, problem.code, problem.detail ?? problem.title ?? res.statusText);
+}
+
+export async function http<T>(config: RequestConfig, options?: RequestInit): Promise<T> {
+  const res = await sendWithRefresh(config, options);
   if (res.status === 204) return undefined as T;
-  if (res.ok && config.responseType === 'blob') return (await res.blob()) as T;
-  const body: unknown = await res.json().catch(() => undefined);
-  if (!res.ok) {
-    const problem = (body ?? {}) as { code?: string; detail?: string; title?: string };
-    throw new ApiError(res.status, problem.code, problem.detail ?? problem.title ?? res.statusText);
-  }
-  return body as T;
+  if (!res.ok) throw await toApiError(res);
+  if (config.responseType === 'blob') return (await res.blob()) as T;
+  return (await res.json().catch(() => undefined)) as T;
+}
+
+/** Respuesta en flujo (SSE): devuelve la Response abierta o lanza ApiError si el servidor respondió un error. */
+export async function httpStream(config: RequestConfig): Promise<Response> {
+  const res = await sendWithRefresh(config);
+  if (!res.ok) throw await toApiError(res);
+  return res;
 }
