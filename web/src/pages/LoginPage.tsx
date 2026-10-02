@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { Link, Navigate } from 'react-router';
+import { Link, Navigate, useSearchParams } from 'react-router';
 
 import { useLogin } from '../api/generated';
 import { Button } from '../components/atoms/Button/Button';
@@ -14,11 +14,14 @@ import { errorMessage } from '../lib/errors';
 
 export function LoginPage() {
   const { auth, signIn } = useAuth();
+  const requested = useSearchParams()[0].get('next');
+  // Solo rutas internas: evita redirigir a otro sitio.
+  const next = requested?.startsWith('/') && !requested.startsWith('//') ? requested : '/';
   const login = useLogin();
   const { register, handleSubmit, formState } = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
   });
-  if (auth.status === 'authed') return <Navigate to="/" replace />;
+  if (auth.status === 'authed') return <Navigate to={next} replace />;
   const { errors } = formState;
   return (
     <AuthLayout title="Iniciar sesión">
