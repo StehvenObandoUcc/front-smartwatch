@@ -59,7 +59,7 @@ export function MedicationForm({
   const isCustomColor = !Object.values(medicationHex).includes(selectedColor.toLowerCase());
 
   return (
-    <form noValidate onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+    <form noValidate onSubmit={handleSubmit(onSubmit)} className="flex max-w-xl flex-col gap-4">
       <FormField label="Medicamento" error={errors.name?.message}>
         {(p) => <Input {...p} {...register('name')} />}
       </FormField>

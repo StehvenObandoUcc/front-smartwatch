@@ -5,7 +5,6 @@ export const navItems: NavItem[] = [
   { to: '/medicamentos', label: 'Medicamentos', icon: 'pill' },
   { to: '/agenda', label: 'Agenda', icon: 'calendar' },
   { to: '/adherencia', label: 'Adherencia', icon: 'chart' },
-  { to: '/reportes', label: 'Reportes', icon: 'bell' },
   { to: '/ajustes', label: 'Ajustes', icon: 'settings' },
 ];
 
@@ -13,6 +12,7 @@ export const navItems: NavItem[] = [
 export const extraTitles: Record<string, string> = {
   '/notificaciones': 'Avisos y Telegram',
   '/asistente': 'Asistente',
+  '/reportes': 'Reportes',
   // Enlace directo desde correo o Telegram.
   '/patients': 'Reporte',
 };
