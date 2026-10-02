@@ -57,7 +57,7 @@
  *   (alerta de dosis omitida, reporte semanal) lo hace un worker en segundo plano: no hay
  *   endpoint para dispararlos.
  *
- * OpenAPI spec version: 0.4.0
+ * OpenAPI spec version: 0.5.0
  */
 import {
   useMutation,
@@ -245,8 +245,8 @@ export interface User {
   locale: Locale;
   /** Perfil de paciente propio (solo rol `patient`). */
   patientId: string | null;
-  /** Presente desde el sprint B (si falta, tratar como false). */
-  emailVerified?: boolean;
+  /** El correo se verificó con el enlace que llega al registrarse. */
+  emailVerified: boolean;
   createdAt: string;
 }
 
@@ -1235,8 +1235,8 @@ export function useGetReadiness<TData = Awaited<ReturnType<typeof getReadiness>>
  * su registro en `/patients` (`managed: false`, con el `displayName` y `timezone` del
  * registro) y `user.patientId` apunta a él. Si `role` es `caregiver`, `user.patientId` es
  * null. Devuelve el token de acceso en el JSON y el refresh token en la cookie
- * `__Secure-refresh-token`. Límite de peticiones por IP (429). Sin verificación de correo
- * hasta la fase 4.
+ * `__Secure-refresh-token`. Límite de peticiones por IP (429). Encola un correo de
+ * verificación (`POST /auth/verify-email`); no hace falta verificarlo para usar la cuenta.
  * @summary Crear cuenta
  */
 export const register = (
@@ -4834,7 +4834,7 @@ export const createTelegramLink = (
 
 export const getCreateTelegramLinkMutationKey = () => ['createTelegramLink'] as const;
 
-export const getCreateTelegramLinkMutationOptions = <TError = UnauthorizedResponse | ForbiddenResponse | TooManyRequestsResponse,
+export const getCreateTelegramLinkMutationOptions = <TError = UnauthorizedResponse | ForbiddenResponse | TooManyRequestsResponse | Problem,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createTelegramLink>>, TError,void, TContext>, request?: SecondParameter<typeof http>}
 ): UseMutationOptions<Awaited<ReturnType<typeof createTelegramLink>>, TError,void, TContext> => {
 
@@ -4863,13 +4863,13 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
     export type CreateTelegramLinkMutationResult = NonNullable<Awaited<ReturnType<typeof createTelegramLink>>>
 
-    export type CreateTelegramLinkMutationError = UnauthorizedResponse | ForbiddenResponse | TooManyRequestsResponse
+    export type CreateTelegramLinkMutationError = UnauthorizedResponse | ForbiddenResponse | TooManyRequestsResponse | Problem
 
 
     /**
  * @summary Pedir el enlace para vincular Telegram
  */
-export const useCreateTelegramLink = <TError = UnauthorizedResponse | ForbiddenResponse | TooManyRequestsResponse,
+export const useCreateTelegramLink = <TError = UnauthorizedResponse | ForbiddenResponse | TooManyRequestsResponse | Problem,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createTelegramLink>>, TError,void, TContext>, request?: SecondParameter<typeof http>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof createTelegramLink>>,
@@ -5139,7 +5139,7 @@ export const telegramWebhook = (
 
 export const getTelegramWebhookMutationKey = () => ['telegramWebhook'] as const;
 
-export const getTelegramWebhookMutationOptions = <TError = UnauthorizedResponse,
+export const getTelegramWebhookMutationOptions = <TError = UnauthorizedResponse | ValidationErrorResponse,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof telegramWebhook>>, TError,TelegramWebhookMutationVariables, TContext>, request?: SecondParameter<typeof http>}
 ): UseMutationOptions<Awaited<ReturnType<typeof telegramWebhook>>, TError,TelegramWebhookMutationVariables, TContext> => {
 
@@ -5168,13 +5168,13 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
     export type TelegramWebhookMutationResult = NonNullable<Awaited<ReturnType<typeof telegramWebhook>>>
     export type TelegramWebhookMutationBody = TelegramWebhookBody
-    export type TelegramWebhookMutationError = UnauthorizedResponse
+    export type TelegramWebhookMutationError = UnauthorizedResponse | ValidationErrorResponse
     export type TelegramWebhookMutationVariables = {data: TelegramWebhookBody}
 
     /**
  * @summary Webhook del bot de Telegram (no lo usan la web ni el reloj)
  */
-export const useTelegramWebhook = <TError = UnauthorizedResponse,
+export const useTelegramWebhook = <TError = UnauthorizedResponse | ValidationErrorResponse,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof telegramWebhook>>, TError,TelegramWebhookMutationVariables, TContext>, request?: SecondParameter<typeof http>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof telegramWebhook>>,
@@ -5575,8 +5575,8 @@ export function useDownloadReportPdf<TData = Awaited<ReturnType<typeof downloadR
  * - `event: done` con `data: {"remainingMessages": 27}` al terminar.
  * - `event: error` con `data: {"code": "chat_unavailable"}` si el proveedor falla a medias.
  * Los errores previos al flujo (sin acceso, sin consentimiento, límite) son problem+json
- * normales con su código HTTP. Requiere vínculo con el paciente (404 si no) y consentimiento
- * `ai_chat` del paciente (403 `consent_required`).
+ * normales con su código HTTP. Requiere vínculo con el paciente (404 si no) y los consentimientos
+ * `health_data` y `ai_chat` del paciente (403 `consent_required`): el modelo recibe su plan.
  *
  * El asistente conoce el plan del paciente (medicamentos, dosis y horarios) sin nombre,
  * documento ni datos de contacto. No cambia dosis ni diagnostica. Sin estado en el servidor:
@@ -5653,7 +5653,7 @@ export const useSendChatMessage = <TError = UnauthorizedResponse | ForbiddenResp
 
 /**
  * Solo con token de reloj (403 con token de usuario). Mismas reglas, guardarraíles y
- * consentimiento (`ai_chat` del paciente) que el chat web, pero responde JSON sin streaming y
+ * consentimientos (`health_data` y `ai_chat` del paciente) que el chat web, pero responde JSON sin streaming y
  * con una respuesta corta (como máximo 3 frases, sin listas ni formato) para leerla en voz
  * alta. El límite diario cuenta por reloj.
  * @summary Preguntar al asistente desde el reloj (respuesta corta)

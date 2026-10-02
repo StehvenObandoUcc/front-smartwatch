@@ -23,6 +23,7 @@ interface NotificationsApi {
      *  - 401: Falta el token, es inválido o caducó (o credenciales incorrectas en login).
      *  - 403: Autenticado pero sin permiso: rol que no permite la acción sobre un recurso accesible, o tipo de token equivocado (`wrong_token_type`). Nunca se usa para pacientes sin vínculo (eso es 404). 
      *  - 429: Límite de peticiones superado.
+     *  - 503: El bot no está configurado en el servidor (`code: telegram_not_configured`).
      *
      * @return [TelegramLink]
      */

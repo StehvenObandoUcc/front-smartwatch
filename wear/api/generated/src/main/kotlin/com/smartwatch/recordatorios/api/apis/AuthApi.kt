@@ -79,7 +79,7 @@ interface AuthApi {
     /**
      * POST auth/register
      * Crear cuenta
-     * Crea un usuario y abre sesión web. Si &#x60;role&#x60; es &#x60;patient&#x60;, en la misma transacción se crea su registro en &#x60;/patients&#x60; (&#x60;managed: false&#x60;, con el &#x60;displayName&#x60; y &#x60;timezone&#x60; del registro) y &#x60;user.patientId&#x60; apunta a él. Si &#x60;role&#x60; es &#x60;caregiver&#x60;, &#x60;user.patientId&#x60; es null. Devuelve el token de acceso en el JSON y el refresh token en la cookie &#x60;__Secure-refresh-token&#x60;. Límite de peticiones por IP (429). Sin verificación de correo hasta la fase 4. 
+     * Crea un usuario y abre sesión web. Si &#x60;role&#x60; es &#x60;patient&#x60;, en la misma transacción se crea su registro en &#x60;/patients&#x60; (&#x60;managed: false&#x60;, con el &#x60;displayName&#x60; y &#x60;timezone&#x60; del registro) y &#x60;user.patientId&#x60; apunta a él. Si &#x60;role&#x60; es &#x60;caregiver&#x60;, &#x60;user.patientId&#x60; es null. Devuelve el token de acceso en el JSON y el refresh token en la cookie &#x60;__Secure-refresh-token&#x60;. Límite de peticiones por IP (429). Encola un correo de verificación (&#x60;POST /auth/verify-email&#x60;); no hace falta verificarlo para usar la cuenta. 
      * Responses:
      *  - 201: Cuenta creada y sesión abierta.
      *  - 409: Conflicto con el estado actual (por ejemplo, correo ya registrado).
