@@ -4,11 +4,54 @@ All URIs are relative to *http://localhost:8000*
 
 | Method | HTTP request | Description |
 | ------------- | ------------- | ------------- |
+| [**forgotPassword**](AuthApi.md#forgotPassword) | **POST** auth/forgot-password | Pedir el correo de recuperación de contraseña |
 | [**login**](AuthApi.md#login) | **POST** auth/login | Iniciar sesión |
 | [**logout**](AuthApi.md#logout) | **POST** auth/logout | Cerrar sesión web |
 | [**refreshTokens**](AuthApi.md#refreshTokens) | **POST** auth/refresh | Renovar la sesión web |
 | [**register**](AuthApi.md#register) | **POST** auth/register | Crear cuenta |
+| [**resendVerification**](AuthApi.md#resendVerification) | **POST** auth/resend-verification | Reenviar el correo de verificación |
+| [**resetPassword**](AuthApi.md#resetPassword) | **POST** auth/reset-password | Fijar una contraseña nueva con el token de recuperación |
+| [**verifyEmail**](AuthApi.md#verifyEmail) | **POST** auth/verify-email | Verificar el correo con el token recibido |
 
+
+
+Pedir el correo de recuperación de contraseña
+
+Responde siempre 202, exista o no el correo, para no revelar qué cuentas existen. Si existe y está verificado, se envía un enlace al panel (&#x60;{WEB_ORIGIN}/reset-password?token&#x3D;...&#x60;) con un token de un solo uso que caduca a la hora. Límite de peticiones por IP y por correo (429). 
+
+### Example
+```kotlin
+// Import classes:
+//import com.smartwatch.recordatorios.api.*
+//import com.smartwatch.recordatorios.api.infrastructure.*
+//import com.smartwatch.recordatorios.api.models.*
+
+val apiClient = ApiClient()
+val webService = apiClient.createWebservice(AuthApi::class.java)
+val forgotPasswordRequest : ForgotPasswordRequest =  // ForgotPasswordRequest | 
+
+launch(Dispatchers.IO) {
+    webService.forgotPassword(forgotPasswordRequest)
+}
+```
+
+### Parameters
+| Name | Type | Description  | Notes |
+| ------------- | ------------- | ------------- | ------------- |
+| **forgotPasswordRequest** | [**ForgotPasswordRequest**](ForgotPasswordRequest.md)|  | |
+
+### Return type
+
+null (empty response body)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/problem+json
 
 
 Iniciar sesión
@@ -165,4 +208,121 @@ No authorization required
 
  - **Content-Type**: application/json
  - **Accept**: application/json, application/problem+json
+
+
+Reenviar el correo de verificación
+
+Solo con sesión de usuario. Invalida el token anterior. Si el correo ya está verificado devuelve 204 sin enviar nada. Límite de peticiones por usuario (429). 
+
+### Example
+```kotlin
+// Import classes:
+//import com.smartwatch.recordatorios.api.*
+//import com.smartwatch.recordatorios.api.infrastructure.*
+//import com.smartwatch.recordatorios.api.models.*
+
+val apiClient = ApiClient()
+apiClient.setBearerToken("TOKEN")
+val webService = apiClient.createWebservice(AuthApi::class.java)
+
+launch(Dispatchers.IO) {
+    webService.resendVerification()
+}
+```
+
+### Parameters
+This endpoint does not need any parameter.
+
+### Return type
+
+null (empty response body)
+
+### Authorization
+
+
+Configure bearerAuth:
+    ApiClient().setBearerToken("TOKEN")
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/problem+json
+
+
+Fijar una contraseña nueva con el token de recuperación
+
+Token inválido, caducado o ya usado: 400 (&#x60;code: invalid_token&#x60;). Al cambiar la contraseña se revocan todos los refresh tokens del usuario (web); los relojes vinculados no se tocan. No abre sesión: la web lleva al usuario a iniciarla. 
+
+### Example
+```kotlin
+// Import classes:
+//import com.smartwatch.recordatorios.api.*
+//import com.smartwatch.recordatorios.api.infrastructure.*
+//import com.smartwatch.recordatorios.api.models.*
+
+val apiClient = ApiClient()
+val webService = apiClient.createWebservice(AuthApi::class.java)
+val resetPasswordRequest : ResetPasswordRequest =  // ResetPasswordRequest | 
+
+launch(Dispatchers.IO) {
+    webService.resetPassword(resetPasswordRequest)
+}
+```
+
+### Parameters
+| Name | Type | Description  | Notes |
+| ------------- | ------------- | ------------- | ------------- |
+| **resetPasswordRequest** | [**ResetPasswordRequest**](ResetPasswordRequest.md)|  | |
+
+### Return type
+
+null (empty response body)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/problem+json
+
+
+Verificar el correo con el token recibido
+
+El token llega por correo en un enlace al panel (&#x60;{WEB_ORIGIN}/verify-email?token&#x3D;...&#x60;), es de un solo uso y caduca a las 24 horas. Token inválido, caducado o ya usado: 400 (&#x60;code: invalid_token&#x60;). Verificar un correo ya verificado con un token válido devuelve 204. 
+
+### Example
+```kotlin
+// Import classes:
+//import com.smartwatch.recordatorios.api.*
+//import com.smartwatch.recordatorios.api.infrastructure.*
+//import com.smartwatch.recordatorios.api.models.*
+
+val apiClient = ApiClient()
+val webService = apiClient.createWebservice(AuthApi::class.java)
+val tokenBody : TokenBody =  // TokenBody | 
+
+launch(Dispatchers.IO) {
+    webService.verifyEmail(tokenBody)
+}
+```
+
+### Parameters
+| Name | Type | Description  | Notes |
+| ------------- | ------------- | ------------- | ------------- |
+| **tokenBody** | [**TokenBody**](TokenBody.md)|  | |
+
+### Return type
+
+null (empty response body)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/problem+json
 

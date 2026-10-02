@@ -12,6 +12,7 @@
 | **locale** | [**Locale**](Locale.md) |  |  |
 | **patientId** | [**java.util.UUID**](java.util.UUID.md) |  |  |
 | **createdAt** | [**java.time.OffsetDateTime**](java.time.OffsetDateTime.md) |  |  |
+| **emailVerified** | **kotlin.Boolean** | Presente desde el sprint B (si falta, tratar como false). |  [optional] |
 
 
 

@@ -33,6 +33,7 @@ import kotlinx.serialization.Contextual
  * @param locale 
  * @param patientId 
  * @param createdAt 
+ * @param emailVerified Presente desde el sprint B (si falta, tratar como false).
  */
 @Serializable
 
@@ -61,7 +62,11 @@ data class User (
     val patientId: java.util.UUID?,
 
     @Contextual @SerialName(value = "createdAt")
-    val createdAt: java.time.OffsetDateTime
+    val createdAt: java.time.OffsetDateTime,
+
+    /* Presente desde el sprint B (si falta, tratar como false). */
+    @SerialName(value = "emailVerified")
+    val emailVerified: kotlin.Boolean? = null
 
 ) {
 

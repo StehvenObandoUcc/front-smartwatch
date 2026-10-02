@@ -2,3 +2,5 @@ dist
 storybook-static
 coverage
 src/api/generated.ts
+src/api/generated.msw.ts
+public/mockServiceWorker.js
