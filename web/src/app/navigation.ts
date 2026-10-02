@@ -7,3 +7,8 @@ export const navItems: NavItem[] = [
   { to: '/adherencia', label: 'Adherencia', icon: 'chart' },
   { to: '/ajustes', label: 'Ajustes', icon: 'settings' },
 ];
+
+// Pantallas fuera del menú principal: solo aportan el título de la cabecera.
+export const extraTitles: Record<string, string> = {
+  '/notificaciones': 'Avisos y Telegram',
+};

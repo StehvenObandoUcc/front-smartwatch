@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router';
 import { useQueryClient } from '@tanstack/react-query';
 
 import {
@@ -71,6 +72,16 @@ export function SettingsPage() {
             </Button>
           </div>
         </form>
+      </section>
+
+      <section aria-labelledby="notif-title" className="flex flex-col gap-2">
+        <Text id="notif-title" variant="subtitle" as="h2">
+          Avisos
+        </Text>
+        <Text tone="muted">Conecta Telegram y elige qué avisos recibir por correo o Telegram.</Text>
+        <Link to="/notificaciones" className="underline">
+          Avisos y Telegram
+        </Link>
       </section>
 
       <section aria-labelledby="dev-title" className="flex flex-col gap-2">

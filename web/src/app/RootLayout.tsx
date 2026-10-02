@@ -7,14 +7,17 @@ import { AppShell } from '../components/templates/AppShell/AppShell';
 import { useAuth } from '../features/auth/AuthContext';
 import { PatientGate } from '../features/patients/PatientGate';
 import { VerifyEmailBanner } from '../features/auth/VerifyEmailBanner';
-import { navItems } from './navigation';
+import { extraTitles, navItems } from './navigation';
 
 export function RootLayout() {
   const { pathname } = useLocation();
   const { auth, signOut } = useAuth();
   if (auth.status === 'loading') return <Spinner label="Abriendo sesión" className="p-4" />;
   if (auth.status === 'anon') return <Navigate to="/login" replace />;
-  const title = navItems.find((item) => item.to === pathname)?.label ?? 'Recordatorios';
+  const title =
+    navItems.find((item) => item.to === pathname)?.label ??
+    extraTitles[pathname] ??
+    'Recordatorios';
   return (
     <AppShell
       appName="Recordatorios"
