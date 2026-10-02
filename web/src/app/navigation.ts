@@ -5,10 +5,13 @@ export const navItems: NavItem[] = [
   { to: '/medicamentos', label: 'Medicamentos', icon: 'pill' },
   { to: '/agenda', label: 'Agenda', icon: 'calendar' },
   { to: '/adherencia', label: 'Adherencia', icon: 'chart' },
+  { to: '/reportes', label: 'Reportes', icon: 'bell' },
   { to: '/ajustes', label: 'Ajustes', icon: 'settings' },
 ];
 
 // Pantallas fuera del menú principal: solo aportan el título de la cabecera.
 export const extraTitles: Record<string, string> = {
   '/notificaciones': 'Avisos y Telegram',
+  // Enlace directo desde correo o Telegram.
+  '/patients': 'Reporte',
 };

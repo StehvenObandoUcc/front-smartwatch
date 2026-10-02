@@ -8,6 +8,8 @@ import { LoginPage } from '../pages/LoginPage';
 import { MedicationsPage } from '../pages/MedicationsPage';
 import { NotificationsPage } from '../pages/NotificationsPage';
 import { RegisterPage } from '../pages/RegisterPage';
+import { ReportPage } from '../pages/ReportPage';
+import { ReportsPage } from '../pages/ReportsPage';
 import { ResetPasswordPage } from '../pages/ResetPasswordPage';
 import { SettingsPage } from '../pages/SettingsPage';
 import { VerifyEmailPage } from '../pages/VerifyEmailPage';
@@ -28,6 +30,8 @@ export const router = createBrowserRouter([
       { path: 'adherencia', element: <AdherencePage /> },
       { path: 'ajustes', element: <SettingsPage /> },
       { path: 'notificaciones', element: <NotificationsPage /> },
+      { path: 'reportes', element: <ReportsPage /> },
+      { path: 'patients/:patientId/reports/:reportId', element: <ReportPage /> },
     ],
   },
 ]);

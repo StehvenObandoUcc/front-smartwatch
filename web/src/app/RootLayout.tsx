@@ -10,10 +10,13 @@ import { VerifyEmailBanner } from '../features/auth/VerifyEmailBanner';
 import { extraTitles, navItems } from './navigation';
 
 export function RootLayout() {
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
   const { auth, signOut } = useAuth();
   if (auth.status === 'loading') return <Spinner label="Abriendo sesión" className="p-4" />;
-  if (auth.status === 'anon') return <Navigate to="/login" replace />;
+  if (auth.status === 'anon') {
+    const next = pathname === '/' ? '' : `?next=${encodeURIComponent(pathname + search)}`;
+    return <Navigate to={`/login${next}`} replace />;
+  }
   const title =
     navItems.find((item) => item.to === pathname)?.label ??
     extraTitles[pathname] ??
