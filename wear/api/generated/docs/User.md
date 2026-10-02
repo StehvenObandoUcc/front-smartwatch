@@ -11,8 +11,8 @@
 | **timezone** | **kotlin.String** | Zona horaria IANA. |  |
 | **locale** | [**Locale**](Locale.md) |  |  |
 | **patientId** | [**java.util.UUID**](java.util.UUID.md) |  |  |
+| **emailVerified** | **kotlin.Boolean** | El correo se verificó con el enlace que llega al registrarse. |  |
 | **createdAt** | [**java.time.OffsetDateTime**](java.time.OffsetDateTime.md) |  |  |
-| **emailVerified** | **kotlin.Boolean** | Presente desde el sprint B (si falta, tratar como false). |  [optional] |
 
 
 
