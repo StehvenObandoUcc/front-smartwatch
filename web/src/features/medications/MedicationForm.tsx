@@ -25,16 +25,24 @@ const colorNames: Record<(typeof medicationColors)[number], string> = {
 
 type Props = {
   timezone: string;
+  initial?: MedicationFormValues;
   submitting: boolean;
   error?: string | undefined;
   onSubmit: (values: MedicationFormValues) => void;
   onCancel: () => void;
 };
 
-export function MedicationForm({ timezone, submitting, error, onSubmit, onCancel }: Props) {
+export function MedicationForm({
+  timezone,
+  initial,
+  submitting,
+  error,
+  onSubmit,
+  onCancel,
+}: Props) {
   const { register, handleSubmit, control, formState, setValue } = useForm<MedicationFormValues>({
     resolver: zodResolver(medicationFormSchema),
-    defaultValues: {
+    defaultValues: initial ?? {
       name: '',
       dosage: '',
       instructions: '',
