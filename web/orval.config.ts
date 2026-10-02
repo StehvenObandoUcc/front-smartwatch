@@ -9,6 +9,7 @@ export default defineConfig({
       httpClient: 'axios',
       mode: 'single',
       clean: true,
+      mock: { generators: [{ type: 'msw' }], delay: false },
       prettier: true,
       override: {
         mutator: { path: './src/lib/http.ts', name: 'http' },

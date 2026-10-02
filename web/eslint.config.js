@@ -11,7 +11,14 @@ const tokensOnly =
   'Usa los tokens de src/design/tokens: ningún valor visual literal fuera de ellos.';
 
 export default defineConfig([
-  globalIgnores(['src/api/generated.ts', 'dist', 'storybook-static', 'coverage']),
+  globalIgnores([
+    'src/api/generated.ts',
+    'src/api/generated.msw.ts',
+    'public/mockServiceWorker.js',
+    'dist',
+    'storybook-static',
+    'coverage',
+  ]),
   {
     files: ['**/*.{ts,tsx}'],
     extends: [

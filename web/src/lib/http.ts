@@ -5,6 +5,7 @@ type RequestConfig = {
   data?: unknown;
   headers?: Record<string, string>;
   signal?: AbortSignal;
+  responseType?: 'json' | 'blob';
 };
 
 export class ApiError extends Error {
@@ -82,6 +83,7 @@ export async function http<T>(config: RequestConfig, options?: RequestInit): Pro
     }
   }
   if (res.status === 204) return undefined as T;
+  if (res.ok && config.responseType === 'blob') return (await res.blob()) as T;
   const body: unknown = await res.json().catch(() => undefined);
   if (!res.ok) {
     const problem = (body ?? {}) as { code?: string; detail?: string; title?: string };

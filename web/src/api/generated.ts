@@ -51,8 +51,13 @@
  * - 2 Sprint A (plan exprés, fases 2 y 3 juntas): medicamentos, horarios simples (horas del día,
  *   días de la semana, fechas de inicio y fin; sin RRULE), plan de 7 días versionado, eventos
  *   de toma idempotentes, historial y adherencia. `MISSED` se calcula al consultar.
+ * - 3 Sprint B (plan exprés, fases 4 y 5 juntas): verificación de correo y recuperación de
+ *   contraseña, canales y preferencias de notificación (Telegram y correo), reportes semanales
+ *   en PDF y chat con IA (SSE para la web, respuesta corta para el reloj). El envío de avisos
+ *   (alerta de dosis omitida, reporte semanal) lo hace un worker en segundo plano: no hay
+ *   endpoint para dispararlos.
  *
- * OpenAPI spec version: 0.3.0
+ * OpenAPI spec version: 0.4.0
  */
 import {
   useMutation,
@@ -240,6 +245,8 @@ export interface User {
   locale: Locale;
   /** Perfil de paciente propio (solo rol `patient`). */
   patientId: string | null;
+  /** Presente desde el sprint B (si falta, tratar como false). */
+  emailVerified?: boolean;
   createdAt: string;
 }
 
@@ -678,6 +685,182 @@ export interface Adherence {
   percentage: number | null;
 }
 
+export interface TokenBody {
+  /**
+     * @minLength 16
+     * @maxLength 512
+     */
+  token: string;
+}
+
+export interface ForgotPasswordRequest {
+  /** @maxLength 254 */
+  email: string;
+}
+
+export interface ResetPasswordRequest {
+  /**
+     * @minLength 16
+     * @maxLength 512
+     */
+  token: string;
+  /**
+     * @minLength 10
+     * @maxLength 128
+     */
+  newPassword: string;
+}
+
+export type NotificationChannelType = typeof NotificationChannelType[keyof typeof NotificationChannelType];
+
+
+export const NotificationChannelType = {
+  email: 'email',
+  telegram: 'telegram',
+} as const;
+
+export interface NotificationChannel {
+  channel: NotificationChannelType;
+  linked: boolean;
+  /** Correo verificado; en Telegram es igual a `linked`. */
+  verified: boolean;
+  /** Correo enmascarado (`a***@example.com`) o usuario de Telegram; null si no está vinculado. */
+  label: string | null;
+  linkedAt: string | null;
+}
+
+export interface NotificationChannelList {
+  items: NotificationChannel[];
+}
+
+export interface TelegramLink {
+  /** `https://t.me/<Bot>?start=<token>`; la web lo abre o lo muestra como botón y código QR. */
+  url: string;
+  expiresAt: string;
+}
+
+export interface ChannelToggles {
+  email: boolean;
+  telegram: boolean;
+}
+
+export interface NotificationPreferences {
+  /**
+     * Alerta de dosis omitida (una por dosis, cuando pasan 60 minutos sin evento). La reciben
+     * los cuidadores con vínculo activo del paciente.
+     */
+  missedDose: ChannelToggles;
+  /**
+     * Aviso del reporte semanal, con resumen mínimo y enlace al reporte en el panel. Lo
+     * reciben los cuidadores y el propio paciente si tiene cuenta.
+     */
+  weeklyReport: ChannelToggles;
+}
+
+export type ReportStatus = typeof ReportStatus[keyof typeof ReportStatus];
+
+
+export const ReportStatus = {
+  pending: 'pending',
+  ready: 'ready',
+  failed: 'failed',
+} as const;
+
+export type ReportTrigger = typeof ReportTrigger[keyof typeof ReportTrigger];
+
+
+export const ReportTrigger = {
+  weekly: 'weekly',
+  manual: 'manual',
+} as const;
+
+export interface MedicationAdherence {
+  medicationId: string;
+  medicationName: string;
+  /** @minimum 0 */
+  taken: number;
+  /** @minimum 0 */
+  skipped: number;
+  /** @minimum 0 */
+  missed: number;
+  percentage: number | null;
+}
+
+/**
+ * Mismas reglas que `GET /patients/{patientId}/adherence` sobre el periodo del reporte.
+ */
+export interface ReportSummary {
+  /** @minimum 0 */
+  taken: number;
+  /** @minimum 0 */
+  skipped: number;
+  /** @minimum 0 */
+  missed: number;
+  percentage: number | null;
+  byMedication: MedicationAdherence[];
+}
+
+export interface Report {
+  id: string;
+  patientId: string;
+  periodStart: string;
+  /** Inclusive; el periodo son 7 días. */
+  periodEnd: string;
+  trigger: ReportTrigger;
+  status: ReportStatus;
+  createdAt: string;
+  generatedAt: string | null;
+  /** Solo con `status: ready`. */
+  summary: ReportSummary | null;
+}
+
+export interface ReportCreate {
+  /** Último día del periodo (fecha local del paciente); por defecto ayer. */
+  periodEnd?: string;
+}
+
+export interface ReportPage {
+  items: Report[];
+  nextCursor: string | null;
+}
+
+export type ChatRole = typeof ChatRole[keyof typeof ChatRole];
+
+
+export const ChatRole = {
+  user: 'user',
+  assistant: 'assistant',
+} as const;
+
+export interface ChatTurn {
+  role: ChatRole;
+  /**
+     * @minLength 1
+     * @maxLength 1000
+     */
+  content: string;
+}
+
+export interface ChatRequest {
+  /**
+     * @minLength 1
+     * @maxLength 500
+     */
+  message: string;
+  /**
+     * Turnos anteriores, del más antiguo al más reciente.
+     * @maxItems 10
+     */
+  history?: ChatTurn[];
+}
+
+export interface WatchChatReply {
+  /** Texto plano de hasta 3 frases, listo para leerse en voz alta. */
+  reply: string;
+  /** @minimum 0 */
+  remainingMessages: number;
+}
+
 /**
  * Falta el token, es inválido o caducó (o credenciales incorrectas en login).
  */
@@ -711,6 +894,17 @@ export type ValidationErrorResponse = ValidationProblem;
  * Límite de peticiones superado.
  */
 export type TooManyRequestsResponse = Problem;
+
+/**
+ * Token de un solo uso inválido, caducado o ya usado (`code: invalid_token`).
+ */
+export type InvalidTokenResponse = Problem;
+
+/**
+ * El proveedor externo (modelo de IA) no responde (`code: chat_unavailable`). Se puede
+ * reintentar; no consume el límite diario.
+ */
+export type ServiceUnavailableResponse = Problem;
 
 /**
  * Cursor opaco devuelto como `nextCursor` en la página anterior.
@@ -812,6 +1006,21 @@ from?: FromQueryParameter;
  * Fin del rango (inclusive), fecha local del paciente.
  */
 to?: ToQueryParameter;
+};
+
+export type TelegramWebhookBody = { [key: string]: unknown };
+
+export type ListReportsParams = {
+/**
+ * Cursor opaco devuelto como `nextCursor` en la página anterior.
+ * @maxLength 512
+ */
+cursor?: CursorParameter;
+/**
+ * @minimum 1
+ * @maximum 100
+ */
+limit?: LimitParameter;
 };
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
@@ -4216,3 +4425,1300 @@ export function useGetAdherence<TData = Awaited<ReturnType<typeof getAdherence>>
 
   return withQueryKey(query, queryOptions.queryKey);
 }
+
+
+
+
+
+
+
+/**
+ * El token llega por correo en un enlace al panel (`{WEB_ORIGIN}/verify-email?token=...`),
+ * es de un solo uso y caduca a las 24 horas. Token inválido, caducado o ya usado: 400
+ * (`code: invalid_token`). Verificar un correo ya verificado con un token válido devuelve 204.
+ * @summary Verificar el correo con el token recibido
+ */
+export const verifyEmail = (
+    tokenBody: TokenBody,
+ options?: SecondParameter<typeof http>,signal?: AbortSignal
+) => {
+
+
+      return http<void>(
+      {url: `/auth/verify-email`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: tokenBody, signal
+    },
+      options);
+    }
+
+
+
+
+export const getVerifyEmailMutationKey = () => ['verifyEmail'] as const;
+
+export const getVerifyEmailMutationOptions = <TError = InvalidTokenResponse | ValidationErrorResponse | TooManyRequestsResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof verifyEmail>>, TError,VerifyEmailMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+): UseMutationOptions<Awaited<ReturnType<typeof verifyEmail>>, TError,VerifyEmailMutationVariables, TContext> => {
+
+const mutationKey = getVerifyEmailMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof verifyEmail>>, VerifyEmailMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  verifyEmail(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type VerifyEmailMutationResult = NonNullable<Awaited<ReturnType<typeof verifyEmail>>>
+    export type VerifyEmailMutationBody = TokenBody
+    export type VerifyEmailMutationError = InvalidTokenResponse | ValidationErrorResponse | TooManyRequestsResponse
+    export type VerifyEmailMutationVariables = {data: TokenBody}
+
+    /**
+ * @summary Verificar el correo con el token recibido
+ */
+export const useVerifyEmail = <TError = InvalidTokenResponse | ValidationErrorResponse | TooManyRequestsResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof verifyEmail>>, TError,VerifyEmailMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof verifyEmail>>,
+        TError,
+        VerifyEmailMutationVariables,
+        TContext
+      > => {
+      return useMutation(getVerifyEmailMutationOptions(options), queryClient);
+    }
+
+/**
+ * Solo con sesión de usuario. Invalida el token anterior. Si el correo ya está verificado
+ * devuelve 204 sin enviar nada. Límite de peticiones por usuario (429).
+ * @summary Reenviar el correo de verificación
+ */
+export const resendVerification = (
+
+ options?: SecondParameter<typeof http>,signal?: AbortSignal
+) => {
+
+
+      return http<void>(
+      {url: `/auth/resend-verification`, method: 'POST', signal
+    },
+      options);
+    }
+
+
+
+
+export const getResendVerificationMutationKey = () => ['resendVerification'] as const;
+
+export const getResendVerificationMutationOptions = <TError = UnauthorizedResponse | ForbiddenResponse | TooManyRequestsResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof resendVerification>>, TError,void, TContext>, request?: SecondParameter<typeof http>}
+): UseMutationOptions<Awaited<ReturnType<typeof resendVerification>>, TError,void, TContext> => {
+
+const mutationKey = getResendVerificationMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof resendVerification>>, void> = () => {
+
+
+          return  resendVerification(requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ResendVerificationMutationResult = NonNullable<Awaited<ReturnType<typeof resendVerification>>>
+
+    export type ResendVerificationMutationError = UnauthorizedResponse | ForbiddenResponse | TooManyRequestsResponse
+
+
+    /**
+ * @summary Reenviar el correo de verificación
+ */
+export const useResendVerification = <TError = UnauthorizedResponse | ForbiddenResponse | TooManyRequestsResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof resendVerification>>, TError,void, TContext>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof resendVerification>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getResendVerificationMutationOptions(options), queryClient);
+    }
+
+/**
+ * Responde siempre 202, exista o no el correo, para no revelar qué cuentas existen. Si existe
+ * y está verificado, se envía un enlace al panel (`{WEB_ORIGIN}/reset-password?token=...`) con
+ * un token de un solo uso que caduca a la hora. Límite de peticiones por IP y por correo (429).
+ * @summary Pedir el correo de recuperación de contraseña
+ */
+export const forgotPassword = (
+    forgotPasswordRequest: ForgotPasswordRequest,
+ options?: SecondParameter<typeof http>,signal?: AbortSignal
+) => {
+
+
+      return http<void>(
+      {url: `/auth/forgot-password`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: forgotPasswordRequest, signal
+    },
+      options);
+    }
+
+
+
+
+export const getForgotPasswordMutationKey = () => ['forgotPassword'] as const;
+
+export const getForgotPasswordMutationOptions = <TError = ValidationErrorResponse | TooManyRequestsResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof forgotPassword>>, TError,ForgotPasswordMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+): UseMutationOptions<Awaited<ReturnType<typeof forgotPassword>>, TError,ForgotPasswordMutationVariables, TContext> => {
+
+const mutationKey = getForgotPasswordMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof forgotPassword>>, ForgotPasswordMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  forgotPassword(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ForgotPasswordMutationResult = NonNullable<Awaited<ReturnType<typeof forgotPassword>>>
+    export type ForgotPasswordMutationBody = ForgotPasswordRequest
+    export type ForgotPasswordMutationError = ValidationErrorResponse | TooManyRequestsResponse
+    export type ForgotPasswordMutationVariables = {data: ForgotPasswordRequest}
+
+    /**
+ * @summary Pedir el correo de recuperación de contraseña
+ */
+export const useForgotPassword = <TError = ValidationErrorResponse | TooManyRequestsResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof forgotPassword>>, TError,ForgotPasswordMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof forgotPassword>>,
+        TError,
+        ForgotPasswordMutationVariables,
+        TContext
+      > => {
+      return useMutation(getForgotPasswordMutationOptions(options), queryClient);
+    }
+
+/**
+ * Token inválido, caducado o ya usado: 400 (`code: invalid_token`). Al cambiar la contraseña
+ * se revocan todos los refresh tokens del usuario (web); los relojes vinculados no se tocan.
+ * No abre sesión: la web lleva al usuario a iniciarla.
+ * @summary Fijar una contraseña nueva con el token de recuperación
+ */
+export const resetPassword = (
+    resetPasswordRequest: ResetPasswordRequest,
+ options?: SecondParameter<typeof http>,signal?: AbortSignal
+) => {
+
+
+      return http<void>(
+      {url: `/auth/reset-password`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: resetPasswordRequest, signal
+    },
+      options);
+    }
+
+
+
+
+export const getResetPasswordMutationKey = () => ['resetPassword'] as const;
+
+export const getResetPasswordMutationOptions = <TError = InvalidTokenResponse | ValidationErrorResponse | TooManyRequestsResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof resetPassword>>, TError,ResetPasswordMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+): UseMutationOptions<Awaited<ReturnType<typeof resetPassword>>, TError,ResetPasswordMutationVariables, TContext> => {
+
+const mutationKey = getResetPasswordMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof resetPassword>>, ResetPasswordMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  resetPassword(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ResetPasswordMutationResult = NonNullable<Awaited<ReturnType<typeof resetPassword>>>
+    export type ResetPasswordMutationBody = ResetPasswordRequest
+    export type ResetPasswordMutationError = InvalidTokenResponse | ValidationErrorResponse | TooManyRequestsResponse
+    export type ResetPasswordMutationVariables = {data: ResetPasswordRequest}
+
+    /**
+ * @summary Fijar una contraseña nueva con el token de recuperación
+ */
+export const useResetPassword = <TError = InvalidTokenResponse | ValidationErrorResponse | TooManyRequestsResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof resetPassword>>, TError,ResetPasswordMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof resetPassword>>,
+        TError,
+        ResetPasswordMutationVariables,
+        TContext
+      > => {
+      return useMutation(getResetPasswordMutationOptions(options), queryClient);
+    }
+
+/**
+ * Siempre devuelve los dos canales. `email` es el correo de la cuenta (`linked` siempre
+ * true; `verified` indica si se verificó). `telegram` está vinculado cuando el usuario
+ * abrió el enlace de `POST /users/me/notification-channels/telegram/link`.
+ * @summary Canales de notificación del usuario
+ */
+export const listMyNotificationChannels = (
+
+ options?: SecondParameter<typeof http>,signal?: AbortSignal
+) => {
+
+
+      return http<NotificationChannelList>(
+      {url: `/users/me/notification-channels`, method: 'GET', signal
+    },
+      options);
+    }
+
+
+
+
+export const getListMyNotificationChannelsQueryKey = () => {
+    return [
+    `/users/me/notification-channels`
+    ] as const;
+    }
+
+
+export const getListMyNotificationChannelsQueryOptions = <TData = Awaited<ReturnType<typeof listMyNotificationChannels>>, TError = UnauthorizedResponse | ForbiddenResponse>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listMyNotificationChannels>>, TError, TData>>, request?: SecondParameter<typeof http>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListMyNotificationChannelsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listMyNotificationChannels>>> = ({ signal }) => listMyNotificationChannels(requestOptions, signal);
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listMyNotificationChannels>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ListMyNotificationChannelsQueryResult = NonNullable<Awaited<ReturnType<typeof listMyNotificationChannels>>>
+export type ListMyNotificationChannelsQueryError = UnauthorizedResponse | ForbiddenResponse
+
+
+export function useListMyNotificationChannels<TData = Awaited<ReturnType<typeof listMyNotificationChannels>>, TError = UnauthorizedResponse | ForbiddenResponse>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof listMyNotificationChannels>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listMyNotificationChannels>>,
+          TError,
+          Awaited<ReturnType<typeof listMyNotificationChannels>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListMyNotificationChannels<TData = Awaited<ReturnType<typeof listMyNotificationChannels>>, TError = UnauthorizedResponse | ForbiddenResponse>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listMyNotificationChannels>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listMyNotificationChannels>>,
+          TError,
+          Awaited<ReturnType<typeof listMyNotificationChannels>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListMyNotificationChannels<TData = Awaited<ReturnType<typeof listMyNotificationChannels>>, TError = UnauthorizedResponse | ForbiddenResponse>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listMyNotificationChannels>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Canales de notificación del usuario
+ */
+
+export function useListMyNotificationChannels<TData = Awaited<ReturnType<typeof listMyNotificationChannels>>, TError = UnauthorizedResponse | ForbiddenResponse>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listMyNotificationChannels>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getListMyNotificationChannelsQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+/**
+ * Devuelve `https://t.me/<Bot>?start=<token>`. El token es de un solo uso y caduca a los 15
+ * minutos; pedir otro invalida el anterior. Al abrir el enlace y pulsar "Iniciar", el bot
+ * recibe el token por el webhook y vincula el chat con el usuario; el bot solo puede escribir
+ * a quien lo inició. La web consulta `GET /users/me/notification-channels` hasta ver
+ * `telegram.linked: true`. Límite de peticiones por usuario (429).
+ * @summary Pedir el enlace para vincular Telegram
+ */
+export const createTelegramLink = (
+
+ options?: SecondParameter<typeof http>,signal?: AbortSignal
+) => {
+
+
+      return http<TelegramLink>(
+      {url: `/users/me/notification-channels/telegram/link`, method: 'POST', signal
+    },
+      options);
+    }
+
+
+
+
+export const getCreateTelegramLinkMutationKey = () => ['createTelegramLink'] as const;
+
+export const getCreateTelegramLinkMutationOptions = <TError = UnauthorizedResponse | ForbiddenResponse | TooManyRequestsResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createTelegramLink>>, TError,void, TContext>, request?: SecondParameter<typeof http>}
+): UseMutationOptions<Awaited<ReturnType<typeof createTelegramLink>>, TError,void, TContext> => {
+
+const mutationKey = getCreateTelegramLinkMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createTelegramLink>>, void> = () => {
+
+
+          return  createTelegramLink(requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateTelegramLinkMutationResult = NonNullable<Awaited<ReturnType<typeof createTelegramLink>>>
+
+    export type CreateTelegramLinkMutationError = UnauthorizedResponse | ForbiddenResponse | TooManyRequestsResponse
+
+
+    /**
+ * @summary Pedir el enlace para vincular Telegram
+ */
+export const useCreateTelegramLink = <TError = UnauthorizedResponse | ForbiddenResponse | TooManyRequestsResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createTelegramLink>>, TError,void, TContext>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof createTelegramLink>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getCreateTelegramLinkMutationOptions(options), queryClient);
+    }
+
+/**
+ * Idempotente: si no estaba vinculado devuelve 204.
+ * @summary Desvincular Telegram
+ */
+export const unlinkTelegram = (
+
+ options?: SecondParameter<typeof http>,signal?: AbortSignal
+) => {
+
+
+      return http<void>(
+      {url: `/users/me/notification-channels/telegram`, method: 'DELETE', signal
+    },
+      options);
+    }
+
+
+
+
+export const getUnlinkTelegramMutationKey = () => ['unlinkTelegram'] as const;
+
+export const getUnlinkTelegramMutationOptions = <TError = UnauthorizedResponse | ForbiddenResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof unlinkTelegram>>, TError,void, TContext>, request?: SecondParameter<typeof http>}
+): UseMutationOptions<Awaited<ReturnType<typeof unlinkTelegram>>, TError,void, TContext> => {
+
+const mutationKey = getUnlinkTelegramMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof unlinkTelegram>>, void> = () => {
+
+
+          return  unlinkTelegram(requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UnlinkTelegramMutationResult = NonNullable<Awaited<ReturnType<typeof unlinkTelegram>>>
+
+    export type UnlinkTelegramMutationError = UnauthorizedResponse | ForbiddenResponse
+
+
+    /**
+ * @summary Desvincular Telegram
+ */
+export const useUnlinkTelegram = <TError = UnauthorizedResponse | ForbiddenResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof unlinkTelegram>>, TError,void, TContext>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof unlinkTelegram>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getUnlinkTelegramMutationOptions(options), queryClient);
+    }
+
+/**
+ * Qué avisos llegan por qué canal. Por defecto todo activado; un aviso solo se envía si el
+ * canal está vinculado (y el correo verificado) y el usuario concedió el consentimiento
+ * `notifications` (el del paciente, si el usuario es un paciente con cuenta).
+ * @summary Preferencias de notificación
+ */
+export const getMyNotificationPreferences = (
+
+ options?: SecondParameter<typeof http>,signal?: AbortSignal
+) => {
+
+
+      return http<NotificationPreferences>(
+      {url: `/users/me/notification-preferences`, method: 'GET', signal
+    },
+      options);
+    }
+
+
+
+
+export const getGetMyNotificationPreferencesQueryKey = () => {
+    return [
+    `/users/me/notification-preferences`
+    ] as const;
+    }
+
+
+export const getGetMyNotificationPreferencesQueryOptions = <TData = Awaited<ReturnType<typeof getMyNotificationPreferences>>, TError = UnauthorizedResponse | ForbiddenResponse>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyNotificationPreferences>>, TError, TData>>, request?: SecondParameter<typeof http>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetMyNotificationPreferencesQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getMyNotificationPreferences>>> = ({ signal }) => getMyNotificationPreferences(requestOptions, signal);
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getMyNotificationPreferences>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetMyNotificationPreferencesQueryResult = NonNullable<Awaited<ReturnType<typeof getMyNotificationPreferences>>>
+export type GetMyNotificationPreferencesQueryError = UnauthorizedResponse | ForbiddenResponse
+
+
+export function useGetMyNotificationPreferences<TData = Awaited<ReturnType<typeof getMyNotificationPreferences>>, TError = UnauthorizedResponse | ForbiddenResponse>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyNotificationPreferences>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getMyNotificationPreferences>>,
+          TError,
+          Awaited<ReturnType<typeof getMyNotificationPreferences>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetMyNotificationPreferences<TData = Awaited<ReturnType<typeof getMyNotificationPreferences>>, TError = UnauthorizedResponse | ForbiddenResponse>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyNotificationPreferences>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getMyNotificationPreferences>>,
+          TError,
+          Awaited<ReturnType<typeof getMyNotificationPreferences>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetMyNotificationPreferences<TData = Awaited<ReturnType<typeof getMyNotificationPreferences>>, TError = UnauthorizedResponse | ForbiddenResponse>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyNotificationPreferences>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Preferencias de notificación
+ */
+
+export function useGetMyNotificationPreferences<TData = Awaited<ReturnType<typeof getMyNotificationPreferences>>, TError = UnauthorizedResponse | ForbiddenResponse>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyNotificationPreferences>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetMyNotificationPreferencesQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+/**
+ * Reemplazo completo e idempotente.
+ * @summary Guardar las preferencias de notificación
+ */
+export const setMyNotificationPreferences = (
+    notificationPreferences: NotificationPreferences,
+ options?: SecondParameter<typeof http>,signal?: AbortSignal
+) => {
+
+
+      return http<NotificationPreferences>(
+      {url: `/users/me/notification-preferences`, method: 'PUT',
+      headers: {'Content-Type': 'application/json', },
+      data: notificationPreferences, signal
+    },
+      options);
+    }
+
+
+
+
+export const getSetMyNotificationPreferencesMutationKey = () => ['setMyNotificationPreferences'] as const;
+
+export const getSetMyNotificationPreferencesMutationOptions = <TError = UnauthorizedResponse | ForbiddenResponse | ValidationErrorResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setMyNotificationPreferences>>, TError,SetMyNotificationPreferencesMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+): UseMutationOptions<Awaited<ReturnType<typeof setMyNotificationPreferences>>, TError,SetMyNotificationPreferencesMutationVariables, TContext> => {
+
+const mutationKey = getSetMyNotificationPreferencesMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof setMyNotificationPreferences>>, SetMyNotificationPreferencesMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  setMyNotificationPreferences(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SetMyNotificationPreferencesMutationResult = NonNullable<Awaited<ReturnType<typeof setMyNotificationPreferences>>>
+    export type SetMyNotificationPreferencesMutationBody = NotificationPreferences
+    export type SetMyNotificationPreferencesMutationError = UnauthorizedResponse | ForbiddenResponse | ValidationErrorResponse
+    export type SetMyNotificationPreferencesMutationVariables = {data: NotificationPreferences}
+
+    /**
+ * @summary Guardar las preferencias de notificación
+ */
+export const useSetMyNotificationPreferences = <TError = UnauthorizedResponse | ForbiddenResponse | ValidationErrorResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setMyNotificationPreferences>>, TError,SetMyNotificationPreferencesMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof setMyNotificationPreferences>>,
+        TError,
+        SetMyNotificationPreferencesMutationVariables,
+        TContext
+      > => {
+      return useMutation(getSetMyNotificationPreferencesMutationOptions(options), queryClient);
+    }
+
+/**
+ * Lo llama Telegram con cada actualización. Se autentica con la cabecera
+ * `X-Telegram-Bot-Api-Secret-Token` (el `secret_token` fijado al registrar el webhook); si
+ * no coincide, 401. Con `/start <token>` vincula el chat al usuario dueño del token (un token
+ * inválido o caducado se responde por chat, no con un error HTTP); `/stop` desvincula.
+ * Cualquier otra actualización se ignora. Responde 200 salvo secreto incorrecto.
+ * @summary Webhook del bot de Telegram (no lo usan la web ni el reloj)
+ */
+export const telegramWebhook = (
+    telegramWebhookBody: TelegramWebhookBody,
+ options?: SecondParameter<typeof http>,signal?: AbortSignal
+) => {
+
+
+      return http<void>(
+      {url: `/telegram/webhook`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: telegramWebhookBody, signal
+    },
+      options);
+    }
+
+
+
+
+export const getTelegramWebhookMutationKey = () => ['telegramWebhook'] as const;
+
+export const getTelegramWebhookMutationOptions = <TError = UnauthorizedResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof telegramWebhook>>, TError,TelegramWebhookMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+): UseMutationOptions<Awaited<ReturnType<typeof telegramWebhook>>, TError,TelegramWebhookMutationVariables, TContext> => {
+
+const mutationKey = getTelegramWebhookMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof telegramWebhook>>, TelegramWebhookMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  telegramWebhook(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type TelegramWebhookMutationResult = NonNullable<Awaited<ReturnType<typeof telegramWebhook>>>
+    export type TelegramWebhookMutationBody = TelegramWebhookBody
+    export type TelegramWebhookMutationError = UnauthorizedResponse
+    export type TelegramWebhookMutationVariables = {data: TelegramWebhookBody}
+
+    /**
+ * @summary Webhook del bot de Telegram (no lo usan la web ni el reloj)
+ */
+export const useTelegramWebhook = <TError = UnauthorizedResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof telegramWebhook>>, TError,TelegramWebhookMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof telegramWebhook>>,
+        TError,
+        TelegramWebhookMutationVariables,
+        TContext
+      > => {
+      return useMutation(getTelegramWebhookMutationOptions(options), queryClient);
+    }
+
+/**
+ * Del más reciente al más antiguo. Hay un reporte automático por semana (lunes a domingo)
+ * que se genera el lunes a las 08:00 en la zona horaria del paciente; también pueden
+ * pedirse a mano. Requiere vínculo con el paciente (404 si no) y consentimiento
+ * `health_data` (403 `consent_required`).
+ * @summary Reportes semanales de un paciente
+ */
+export const listReports = (
+    patientId: string,
+    params?: ListReportsParams,
+ options?: SecondParameter<typeof http>,signal?: AbortSignal
+) => {
+
+
+      return http<ReportPage>(
+      {url: `/patients/${patientId}/reports`, method: 'GET',
+        params, signal
+    },
+      options);
+    }
+
+
+
+
+export const getListReportsQueryKey = (patientId: string,
+    params?: ListReportsParams,) => {
+    return [
+    `/patients/${patientId}/reports`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getListReportsQueryOptions = <TData = Awaited<ReturnType<typeof listReports>>, TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | ValidationErrorResponse>(patientId: string,
+    params?: ListReportsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listReports>>, TError, TData>>, request?: SecondParameter<typeof http>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListReportsQueryKey(patientId,params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listReports>>> = ({ signal }) => listReports(patientId,params, requestOptions, signal);
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: patientId !== null && patientId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listReports>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ListReportsQueryResult = NonNullable<Awaited<ReturnType<typeof listReports>>>
+export type ListReportsQueryError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | ValidationErrorResponse
+
+
+export function useListReports<TData = Awaited<ReturnType<typeof listReports>>, TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | ValidationErrorResponse>(
+ patientId: string,
+    params: undefined |  ListReportsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof listReports>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listReports>>,
+          TError,
+          Awaited<ReturnType<typeof listReports>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListReports<TData = Awaited<ReturnType<typeof listReports>>, TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | ValidationErrorResponse>(
+ patientId: string,
+    params?: ListReportsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listReports>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listReports>>,
+          TError,
+          Awaited<ReturnType<typeof listReports>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListReports<TData = Awaited<ReturnType<typeof listReports>>, TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | ValidationErrorResponse>(
+ patientId: string,
+    params?: ListReportsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listReports>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Reportes semanales de un paciente
+ */
+
+export function useListReports<TData = Awaited<ReturnType<typeof listReports>>, TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | ValidationErrorResponse>(
+ patientId: string,
+    params?: ListReportsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listReports>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getListReportsQueryOptions(patientId,params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+/**
+ * Genera el reporte de los 7 días que terminan en `periodEnd` (por defecto ayer, en la zona
+ * del paciente; no puede ser futuro). La generación es asíncrona: responde 202 con
+ * `status: pending` y la web consulta `GET /patients/{patientId}/reports/{reportId}` hasta
+ * `ready` o `failed`. Pedir el mismo `periodEnd` otra vez devuelve el reporte existente.
+ * Límite de peticiones por paciente (429).
+ * @summary Pedir un reporte a mano
+ */
+export const createReport = (
+    patientId: string,
+    reportCreate?: ReportCreate,
+ options?: SecondParameter<typeof http>,signal?: AbortSignal
+) => {
+
+
+      return http<Report>(
+      {url: `/patients/${patientId}/reports`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: reportCreate, signal
+    },
+      options);
+    }
+
+
+
+
+export const getCreateReportMutationKey = () => ['createReport'] as const;
+
+export const getCreateReportMutationOptions = <TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | ValidationErrorResponse | TooManyRequestsResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createReport>>, TError,CreateReportMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+): UseMutationOptions<Awaited<ReturnType<typeof createReport>>, TError,CreateReportMutationVariables, TContext> => {
+
+const mutationKey = getCreateReportMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createReport>>, CreateReportMutationVariables> = (props) => {
+          const {patientId,data} = props ?? {};
+
+          return  createReport(patientId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateReportMutationResult = NonNullable<Awaited<ReturnType<typeof createReport>>>
+    export type CreateReportMutationBody = ReportCreate | undefined
+    export type CreateReportMutationError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | ValidationErrorResponse | TooManyRequestsResponse
+    export type CreateReportMutationVariables = {patientId: string;data?: ReportCreate}
+
+    /**
+ * @summary Pedir un reporte a mano
+ */
+export const useCreateReport = <TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | ValidationErrorResponse | TooManyRequestsResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createReport>>, TError,CreateReportMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof createReport>>,
+        TError,
+        CreateReportMutationVariables,
+        TContext
+      > => {
+      return useMutation(getCreateReportMutationOptions(options), queryClient);
+    }
+
+/**
+ * Con `status: ready` incluye el resumen; el PDF está en `.../pdf`.
+ * @summary Un reporte
+ */
+export const getReport = (
+    patientId: string,
+    reportId: string,
+ options?: SecondParameter<typeof http>,signal?: AbortSignal
+) => {
+
+
+      return http<Report>(
+      {url: `/patients/${patientId}/reports/${reportId}`, method: 'GET', signal
+    },
+      options);
+    }
+
+
+
+
+export const getGetReportQueryKey = (patientId: string,
+    reportId: string,) => {
+    return [
+    `/patients/${patientId}/reports/${reportId}`
+    ] as const;
+    }
+
+
+export const getGetReportQueryOptions = <TData = Awaited<ReturnType<typeof getReport>>, TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse>(patientId: string,
+    reportId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getReport>>, TError, TData>>, request?: SecondParameter<typeof http>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetReportQueryKey(patientId,reportId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getReport>>> = ({ signal }) => getReport(patientId,reportId, requestOptions, signal);
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: patientId !== null && patientId !== undefined && reportId !== null && reportId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getReport>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetReportQueryResult = NonNullable<Awaited<ReturnType<typeof getReport>>>
+export type GetReportQueryError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse
+
+
+export function useGetReport<TData = Awaited<ReturnType<typeof getReport>>, TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse>(
+ patientId: string,
+    reportId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getReport>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getReport>>,
+          TError,
+          Awaited<ReturnType<typeof getReport>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetReport<TData = Awaited<ReturnType<typeof getReport>>, TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse>(
+ patientId: string,
+    reportId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getReport>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getReport>>,
+          TError,
+          Awaited<ReturnType<typeof getReport>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetReport<TData = Awaited<ReturnType<typeof getReport>>, TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse>(
+ patientId: string,
+    reportId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getReport>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Un reporte
+ */
+
+export function useGetReport<TData = Awaited<ReturnType<typeof getReport>>, TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse>(
+ patientId: string,
+    reportId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getReport>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetReportQueryOptions(patientId,reportId,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+/**
+ * Con sesión de usuario (cabecera `Authorization`), no por enlace público: la web lo pide con
+ * `fetch` y lo descarga como blob. Reporte aún en generación o fallido: 409
+ * (`code: report_not_ready`).
+ * @summary Descargar el reporte en PDF
+ */
+export const downloadReportPdf = (
+    patientId: string,
+    reportId: string,
+ options?: SecondParameter<typeof http>,signal?: AbortSignal
+) => {
+
+
+      return http<Blob>(
+      {url: `/patients/${patientId}/reports/${reportId}/pdf`, method: 'GET',
+        responseType: 'blob', signal
+    },
+      options);
+    }
+
+
+
+
+export const getDownloadReportPdfQueryKey = (patientId: string,
+    reportId: string,) => {
+    return [
+    `/patients/${patientId}/reports/${reportId}/pdf`
+    ] as const;
+    }
+
+
+export const getDownloadReportPdfQueryOptions = <TData = Awaited<ReturnType<typeof downloadReportPdf>>, TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | ConflictResponse>(patientId: string,
+    reportId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof downloadReportPdf>>, TError, TData>>, request?: SecondParameter<typeof http>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getDownloadReportPdfQueryKey(patientId,reportId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof downloadReportPdf>>> = ({ signal }) => downloadReportPdf(patientId,reportId, requestOptions, signal);
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: patientId !== null && patientId !== undefined && reportId !== null && reportId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof downloadReportPdf>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type DownloadReportPdfQueryResult = NonNullable<Awaited<ReturnType<typeof downloadReportPdf>>>
+export type DownloadReportPdfQueryError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | ConflictResponse
+
+
+export function useDownloadReportPdf<TData = Awaited<ReturnType<typeof downloadReportPdf>>, TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | ConflictResponse>(
+ patientId: string,
+    reportId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof downloadReportPdf>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof downloadReportPdf>>,
+          TError,
+          Awaited<ReturnType<typeof downloadReportPdf>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useDownloadReportPdf<TData = Awaited<ReturnType<typeof downloadReportPdf>>, TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | ConflictResponse>(
+ patientId: string,
+    reportId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof downloadReportPdf>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof downloadReportPdf>>,
+          TError,
+          Awaited<ReturnType<typeof downloadReportPdf>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useDownloadReportPdf<TData = Awaited<ReturnType<typeof downloadReportPdf>>, TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | ConflictResponse>(
+ patientId: string,
+    reportId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof downloadReportPdf>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Descargar el reporte en PDF
+ */
+
+export function useDownloadReportPdf<TData = Awaited<ReturnType<typeof downloadReportPdf>>, TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | ConflictResponse>(
+ patientId: string,
+    reportId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof downloadReportPdf>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getDownloadReportPdfQueryOptions(patientId,reportId,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+/**
+ * La respuesta llega como flujo `text/event-stream` (SSE) con tres tipos de evento:
+ * - `event: delta` con `data: {"text": "..."}` (trozos de la respuesta, en orden).
+ * - `event: done` con `data: {"remainingMessages": 27}` al terminar.
+ * - `event: error` con `data: {"code": "chat_unavailable"}` si el proveedor falla a medias.
+ * Los errores previos al flujo (sin acceso, sin consentimiento, límite) son problem+json
+ * normales con su código HTTP. Requiere vínculo con el paciente (404 si no) y consentimiento
+ * `ai_chat` del paciente (403 `consent_required`).
+ *
+ * El asistente conoce el plan del paciente (medicamentos, dosis y horarios) sin nombre,
+ * documento ni datos de contacto. No cambia dosis ni diagnostica. Sin estado en el servidor:
+ * el cliente envía en `history` los últimos turnos (máximo 10) y el servidor **no guarda el
+ * texto de la conversación**, solo el recuento de mensajes y tokens. Límite diario de
+ * mensajes por usuario: al superarlo, 429 con `code: chat_limit_reached` y `Retry-After`.
+ * @summary Preguntar al asistente sobre el plan de un paciente (web, SSE)
+ */
+export const sendChatMessage = (
+    patientId: string,
+    chatRequest: ChatRequest,
+ options?: SecondParameter<typeof http>,signal?: AbortSignal
+) => {
+
+
+      return http<string>(
+      {url: `/patients/${patientId}/chat/messages`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: chatRequest, signal
+    },
+      options);
+    }
+
+
+
+
+export const getSendChatMessageMutationKey = () => ['sendChatMessage'] as const;
+
+export const getSendChatMessageMutationOptions = <TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | ValidationErrorResponse | TooManyRequestsResponse | ServiceUnavailableResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof sendChatMessage>>, TError,SendChatMessageMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+): UseMutationOptions<Awaited<ReturnType<typeof sendChatMessage>>, TError,SendChatMessageMutationVariables, TContext> => {
+
+const mutationKey = getSendChatMessageMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof sendChatMessage>>, SendChatMessageMutationVariables> = (props) => {
+          const {patientId,data} = props ?? {};
+
+          return  sendChatMessage(patientId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SendChatMessageMutationResult = NonNullable<Awaited<ReturnType<typeof sendChatMessage>>>
+    export type SendChatMessageMutationBody = ChatRequest
+    export type SendChatMessageMutationError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | ValidationErrorResponse | TooManyRequestsResponse | ServiceUnavailableResponse
+    export type SendChatMessageMutationVariables = {patientId: string;data: ChatRequest}
+
+    /**
+ * @summary Preguntar al asistente sobre el plan de un paciente (web, SSE)
+ */
+export const useSendChatMessage = <TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | ValidationErrorResponse | TooManyRequestsResponse | ServiceUnavailableResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof sendChatMessage>>, TError,SendChatMessageMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof sendChatMessage>>,
+        TError,
+        SendChatMessageMutationVariables,
+        TContext
+      > => {
+      return useMutation(getSendChatMessageMutationOptions(options), queryClient);
+    }
+
+/**
+ * Solo con token de reloj (403 con token de usuario). Mismas reglas, guardarraíles y
+ * consentimiento (`ai_chat` del paciente) que el chat web, pero responde JSON sin streaming y
+ * con una respuesta corta (como máximo 3 frases, sin listas ni formato) para leerla en voz
+ * alta. El límite diario cuenta por reloj.
+ * @summary Preguntar al asistente desde el reloj (respuesta corta)
+ */
+export const sendMyChatMessage = (
+    chatRequest: ChatRequest,
+ options?: SecondParameter<typeof http>,signal?: AbortSignal
+) => {
+
+
+      return http<WatchChatReply>(
+      {url: `/devices/me/chat/messages`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: chatRequest, signal
+    },
+      options);
+    }
+
+
+
+
+export const getSendMyChatMessageMutationKey = () => ['sendMyChatMessage'] as const;
+
+export const getSendMyChatMessageMutationOptions = <TError = UnauthorizedResponse | ForbiddenResponse | ValidationErrorResponse | TooManyRequestsResponse | ServiceUnavailableResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof sendMyChatMessage>>, TError,SendMyChatMessageMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+): UseMutationOptions<Awaited<ReturnType<typeof sendMyChatMessage>>, TError,SendMyChatMessageMutationVariables, TContext> => {
+
+const mutationKey = getSendMyChatMessageMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof sendMyChatMessage>>, SendMyChatMessageMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  sendMyChatMessage(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SendMyChatMessageMutationResult = NonNullable<Awaited<ReturnType<typeof sendMyChatMessage>>>
+    export type SendMyChatMessageMutationBody = ChatRequest
+    export type SendMyChatMessageMutationError = UnauthorizedResponse | ForbiddenResponse | ValidationErrorResponse | TooManyRequestsResponse | ServiceUnavailableResponse
+    export type SendMyChatMessageMutationVariables = {data: ChatRequest}
+
+    /**
+ * @summary Preguntar al asistente desde el reloj (respuesta corta)
+ */
+export const useSendMyChatMessage = <TError = UnauthorizedResponse | ForbiddenResponse | ValidationErrorResponse | TooManyRequestsResponse | ServiceUnavailableResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof sendMyChatMessage>>, TError,SendMyChatMessageMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof sendMyChatMessage>>,
+        TError,
+        SendMyChatMessageMutationVariables,
+        TContext
+      > => {
+      return useMutation(getSendMyChatMessageMutationOptions(options), queryClient);
+    }

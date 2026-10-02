@@ -17,6 +17,12 @@ const queryClient = new QueryClient({
   },
 });
 
+// VITE_USE_MOCKS=true sirve los endpoints pendientes del backend con MSW.
+if (import.meta.env.VITE_USE_MOCKS === 'true') {
+  const { worker } = await import('./mocks/browser');
+  await worker.start({ onUnhandledRequest: 'bypass' });
+}
+
 const root = document.getElementById('root');
 if (!root) throw new Error('Falta el elemento #root');
 
