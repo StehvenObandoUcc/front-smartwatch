@@ -45,4 +45,9 @@ export default defineConfig([
     files: ['src/**/*.stories.tsx', 'src/**/*.test.tsx', 'src/features/**/*.tsx'],
     rules: { 'react-refresh/only-export-components': 'off' },
   },
+  {
+    // Las pruebas afirman datos literales (por ejemplo colores hexadecimales).
+    files: ['src/**/*.test.{ts,tsx}'],
+    rules: { 'no-restricted-syntax': 'off' },
+  },
 ]);

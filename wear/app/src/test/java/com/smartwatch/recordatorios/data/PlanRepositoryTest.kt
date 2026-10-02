@@ -75,6 +75,21 @@ class PlanRepositoryTest {
         }
 
     @Test
+    fun `un color fuera de la paleta se conserva como hexadecimal`() =
+        runTest {
+            graph.planApi.next = { ok(plan(dose(scheduleA, 60, color = "#12AB9F"))) }
+
+            graph.planRepository.sync()
+
+            assertThat(
+                graph.repository
+                    .scheduledDoses()
+                    .single()
+                    .colorKey,
+            ).isEqualTo("#12AB9F")
+        }
+
+    @Test
     fun `la siguiente consulta envia If-None-Match y un 304 no toca nada`() =
         runTest {
             graph.planApi.next = { ok(plan(dose(scheduleA, 60))) }

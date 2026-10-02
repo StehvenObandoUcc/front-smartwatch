@@ -3,7 +3,6 @@ import { Button } from '../components/atoms/Button/Button';
 import { ColorDot } from '../components/atoms/ColorDot/ColorDot';
 import { Spinner } from '../components/atoms/Spinner/Spinner';
 import { Text } from '../components/atoms/Text/Text';
-import { colorFromHex } from '../design/tokens';
 import { groupByDay } from '../features/plan/groupByDay';
 import { usePatient } from '../features/patients/PatientGate';
 import { formatDay, formatTime, localDate } from '../lib/dates';
@@ -47,7 +46,7 @@ export function AgendaPage() {
                 <Text variant="subtitle" as="p">
                   {formatTime(dose.scheduledAt, tz)}
                 </Text>
-                <ColorDot color={colorFromHex(dose.color)} />
+                <ColorDot hex={dose.color} />
                 <div>
                   <Text as="p">{dose.medicationName}</Text>
                   <Text tone="muted" variant="caption">

@@ -16,7 +16,10 @@ private val medicationPalette =
         "pink" to Color(0xFFF06292),
     )
 
-fun medicationColor(colorKey: String): Color = medicationPalette[colorKey] ?: medicationPalette.getValue("blue")
+fun medicationColor(colorKey: String): Color =
+    medicationPalette[colorKey]
+        ?: runCatching { Color(android.graphics.Color.parseColor(colorKey)) }.getOrNull()
+        ?: medicationPalette.getValue("blue")
 
 object Spacing {
     val xs = 4.dp

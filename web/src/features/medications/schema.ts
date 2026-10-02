@@ -1,7 +1,6 @@
 import { z } from 'zod';
 
 import type { MedicationCreate, ScheduleCreate } from '../../api/generated';
-import { medicationColors, medicationHex } from '../../design/tokens';
 
 const time = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, 'Hora no válida');
 
@@ -10,7 +9,7 @@ export const medicationFormSchema = z
     name: z.string().trim().min(1, 'Escribe el nombre').max(120),
     dosage: z.string().trim().min(1, 'Escribe la dosis, por ejemplo "1 tableta"').max(80),
     instructions: z.string().trim().max(500),
-    color: z.enum(medicationColors),
+    color: z.string().regex(/^#[0-9a-fA-F]{6}$/, 'Color no válido'),
     times: z
       .array(z.object({ value: time }))
       .min(1, 'Añade al menos una hora')
@@ -41,7 +40,7 @@ export function toPayload(values: MedicationFormValues): {
       name: values.name,
       dosage: values.dosage,
       instructions: values.instructions || null,
-      color: medicationHex[values.color],
+      color: values.color,
     },
     schedule: {
       times: values.times.map((t) => t.value).sort(),

@@ -1,12 +1,13 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useFieldArray, useForm } from 'react-hook-form';
+import { useFieldArray, useForm, useWatch } from 'react-hook-form';
 
 import { Button } from '../../components/atoms/Button/Button';
 import { ColorDot } from '../../components/atoms/ColorDot/ColorDot';
 import { Input } from '../../components/atoms/Input/Input';
 import { Text } from '../../components/atoms/Text/Text';
 import { FormField } from '../../components/molecules/FormField';
-import { medicationColors } from '../../design/tokens';
+import { medicationColors, medicationHex } from '../../design/tokens';
+import { cn } from '../../lib/cn';
 import { localDate } from '../../lib/dates';
 import { medicationFormSchema, type MedicationFormValues } from './schema';
 
@@ -31,13 +32,13 @@ type Props = {
 };
 
 export function MedicationForm({ timezone, submitting, error, onSubmit, onCancel }: Props) {
-  const { register, handleSubmit, control, formState } = useForm<MedicationFormValues>({
+  const { register, handleSubmit, control, formState, setValue } = useForm<MedicationFormValues>({
     resolver: zodResolver(medicationFormSchema),
     defaultValues: {
       name: '',
       dosage: '',
       instructions: '',
-      color: 'blue',
+      color: medicationHex.blue,
       times: [{ value: '08:00' }],
       daysOfWeek: ['1', '2', '3', '4', '5', '6', '7'],
       startDate: localDate(new Date(), timezone),
@@ -46,6 +47,8 @@ export function MedicationForm({ timezone, submitting, error, onSubmit, onCancel
   });
   const times = useFieldArray({ control, name: 'times' });
   const { errors } = formState;
+  const selectedColor = useWatch({ control, name: 'color' });
+  const isCustomColor = !Object.values(medicationHex).includes(selectedColor.toLowerCase());
 
   return (
     <form noValidate onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
@@ -67,12 +70,39 @@ export function MedicationForm({ timezone, submitting, error, onSubmit, onCancel
               key={color}
               className="flex min-h-touch items-center gap-2 rounded-md border-2 border-border px-3 has-checked:border-primary has-checked:bg-surface-raised"
             >
-              <input type="radio" value={color} className="sr-only" {...register('color')} />
+              <input
+                type="radio"
+                value={medicationHex[color]}
+                className="sr-only"
+                {...register('color')}
+              />
               <ColorDot color={color} />
               {colorNames[color]}
             </label>
           ))}
+          <label
+            className={cn(
+              'flex min-h-touch items-center gap-2 rounded-md border-2 px-3',
+              isCustomColor ? 'border-primary bg-surface-raised' : 'border-border',
+            )}
+          >
+            <input
+              type="color"
+              aria-label="Elegir otro color"
+              value={selectedColor}
+              onChange={(event) =>
+                setValue('color', event.target.value, { shouldValidate: true, shouldDirty: true })
+              }
+              className="size-6 cursor-pointer"
+            />
+            Otro color
+          </label>
         </div>
+        {errors.color?.message && (
+          <p role="alert" className="text-caption text-danger">
+            {errors.color.message}
+          </p>
+        )}
       </fieldset>
 
       <fieldset className="flex flex-col gap-2">

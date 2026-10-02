@@ -43,10 +43,3 @@ export const medicationHex: Record<MedicationColor, string> = {
   purple: '#6a1b9a',
   pink: '#ad1457',
 };
-
-export function colorFromHex(hex: string | undefined): MedicationColor {
-  const found = medicationColors.find(
-    (key) => medicationHex[key].toLowerCase() === hex?.toLowerCase(),
-  );
-  return found ?? 'blue';
-}

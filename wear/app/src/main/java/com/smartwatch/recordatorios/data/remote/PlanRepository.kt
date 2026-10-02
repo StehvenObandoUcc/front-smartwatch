@@ -97,7 +97,8 @@ class PlanRepository
                 id = "$scheduleId@$at",
                 scheduleId = scheduleId.toString(),
                 medicationName = medicationName,
-                colorKey = COLOR_KEYS[color.lowercase()] ?: "blue",
+                // Un color fuera de la paleta se guarda tal cual (#RRGGBB) y la UI lo pinta directo.
+                colorKey = COLOR_KEYS[color.lowercase()] ?: color,
                 doseLabel = dosage,
                 scheduledAt = at,
                 nextAlarmAt = at,
