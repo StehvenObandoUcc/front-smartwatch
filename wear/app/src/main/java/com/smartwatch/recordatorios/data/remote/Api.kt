@@ -1,6 +1,7 @@
 package com.smartwatch.recordatorios.data.remote
 
 import com.smartwatch.recordatorios.BuildConfig
+import com.smartwatch.recordatorios.api.apis.ChatApi
 import com.smartwatch.recordatorios.api.apis.DevicesApi
 import com.smartwatch.recordatorios.api.apis.DosesApi
 import com.smartwatch.recordatorios.api.apis.PlanApi
@@ -54,6 +55,7 @@ class Api
 
         val plan: PlanApi = authenticated.createService(PlanApi::class.java)
         val doses: DosesApi = authenticated.createService(DosesApi::class.java)
+        val chat: ChatApi = authenticated.createService(ChatApi::class.java)
 
         private fun bearer() =
             Interceptor { chain ->

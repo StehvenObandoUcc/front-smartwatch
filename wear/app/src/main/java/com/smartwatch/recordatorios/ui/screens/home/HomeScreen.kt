@@ -36,6 +36,7 @@ fun HomeScreen(
     onRequestNotifications: () -> Unit,
     onOpenDose: (DoseEntity) -> Unit,
     onOpenToday: () -> Unit,
+    onOpenChat: () -> Unit,
 ) {
     val listState = rememberTransformingLazyColumnState()
     ScreenScaffold(scrollState = listState) { contentPadding ->
@@ -84,6 +85,14 @@ fun HomeScreen(
                     onClick = onOpenToday,
                     modifier = Modifier.fillMaxWidth(),
                     label = { Text(stringResource(R.string.home_today_button)) },
+                )
+            }
+
+            item {
+                FilledTonalButton(
+                    onClick = onOpenChat,
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text(stringResource(R.string.chat_ask)) },
                 )
             }
 
@@ -152,6 +161,7 @@ private fun HomeScreenPreview() {
             onRequestNotifications = {},
             onOpenDose = {},
             onOpenToday = {},
+            onOpenChat = {},
         )
     }
 }

@@ -14,6 +14,18 @@
     <string name="plan_consent">Falta aceptar el uso de datos de salud en el panel web</string>
     <string name="plan_failed">No se pudo actualizar el plan</string>
 
+    <string name="chat_title">Asistente</string>
+    <string name="chat_ask">Preguntar por voz</string>
+    <string name="chat_prompt">Pregunta por tu plan</string>
+    <string name="chat_thinking">Pensando…</string>
+    <string name="chat_remaining">Te quedan %1$d mensajes hoy</string>
+    <string name="chat_again">Preguntar otra vez</string>
+    <string name="chat_error_limit">Llegaste al límite de mensajes de hoy. Vuelve mañana.</string>
+    <string name="chat_error_consent">Acepta el uso del asistente en el panel web</string>
+    <string name="chat_error_offline">Sin conexión. Inténtalo de nuevo</string>
+    <string name="chat_error_unavailable">El asistente no está disponible ahora</string>
+    <string name="chat_error_no_speech">Este reloj no tiene reconocimiento de voz</string>
+
     <string name="pair_title">Vincular reloj</string>
     <string name="pair_loading">Pidiendo código…</string>
     <string name="pair_instructions">Escribe este código en el panel web: Ajustes, Vincular reloj</string>
