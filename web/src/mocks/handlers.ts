@@ -54,7 +54,26 @@ const readySummary = {
   ],
 };
 
+const sse = (event: string, data: unknown) => `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
+
+const chatReply = ['Esta noche te toca ', 'la metformina ', 'a las 20:00.'];
+
 export const handlers: RequestHandler[] = [
+  // El generador no modela SSE: se responde el flujo a mano.
+  http.post('*/patients/:patientId/chat/messages', () => {
+    const encoder = new TextEncoder();
+    const stream = new ReadableStream<Uint8Array>({
+      async start(controller) {
+        for (const text of chatReply) {
+          controller.enqueue(encoder.encode(sse('delta', { text })));
+          await new Promise((resolve) => setTimeout(resolve, 300));
+        }
+        controller.enqueue(encoder.encode(sse('done', { remainingMessages: 27 })));
+        controller.close();
+      },
+    });
+    return new HttpResponse(stream, { headers: { 'Content-Type': 'text/event-stream' } });
+  }),
   getListReportsMockHandler(() => ({ items: reports, nextCursor: null })),
   getCreateReportMockHandler(({ params }) => {
     const id = crypto.randomUUID();
