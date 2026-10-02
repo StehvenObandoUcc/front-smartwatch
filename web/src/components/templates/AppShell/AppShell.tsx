@@ -85,7 +85,7 @@ export function AppShell({ appName, title, nav, actions, children }: Props) {
             end
             className={({ isActive }) =>
               cn(
-                'flex min-h-16 flex-1 flex-col items-center justify-center gap-0.5 text-caption font-semibold',
+                'flex min-h-16 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 px-1 text-center text-caption font-semibold',
                 isActive ? 'text-primary' : 'text-text-muted',
               )
             }
