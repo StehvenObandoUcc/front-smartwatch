@@ -12,5 +12,21 @@ export const registerSchema = z.object({
   role: z.enum(['patient', 'caregiver']),
 });
 
+export const forgotPasswordSchema = z.object({
+  email: z.email('Escribe un correo válido'),
+});
+
+export const resetPasswordSchema = z
+  .object({
+    newPassword: z.string().min(10, 'Mínimo 10 caracteres').max(128),
+    confirm: z.string(),
+  })
+  .refine((v) => v.newPassword === v.confirm, {
+    path: ['confirm'],
+    message: 'Las contraseñas no coinciden',
+  });
+
+export type ForgotPasswordValues = z.infer<typeof forgotPasswordSchema>;
+export type ResetPasswordValues = z.infer<typeof resetPasswordSchema>;
 export type LoginValues = z.infer<typeof loginSchema>;
 export type RegisterValues = z.infer<typeof registerSchema>;

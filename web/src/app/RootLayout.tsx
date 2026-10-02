@@ -6,6 +6,7 @@ import { Spinner } from '../components/atoms/Spinner/Spinner';
 import { AppShell } from '../components/templates/AppShell/AppShell';
 import { useAuth } from '../features/auth/AuthContext';
 import { PatientGate } from '../features/patients/PatientGate';
+import { VerifyEmailBanner } from '../features/auth/VerifyEmailBanner';
 import { navItems } from './navigation';
 
 export function RootLayout() {
@@ -28,6 +29,7 @@ export function RootLayout() {
         </div>
       }
     >
+      {auth.user.emailVerified === false && <VerifyEmailBanner />}
       <PatientGate>
         <Outlet />
       </PatientGate>

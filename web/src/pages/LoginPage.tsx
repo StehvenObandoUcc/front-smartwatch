@@ -50,6 +50,11 @@ export function LoginPage() {
         </Button>
       </form>
       <Text tone="muted">
+        <Link to="/recuperar" className="underline">
+          ¿Olvidaste tu contraseña?
+        </Link>
+      </Text>
+      <Text tone="muted">
         ¿Sin cuenta?{' '}
         <Link to="/registro" className="underline">
           Crear cuenta
