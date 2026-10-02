@@ -12,6 +12,8 @@ import { Button } from '../components/atoms/Button/Button';
 import { Input } from '../components/atoms/Input/Input';
 import { Text } from '../components/atoms/Text/Text';
 import { FormField } from '../components/molecules/FormField';
+import { useAuth } from '../features/auth/AuthContext';
+import { CaregiversSection } from '../features/caregivers/CaregiversSection';
 import { usePatient } from '../features/patients/PatientGate';
 import { errorMessage } from '../lib/errors';
 
@@ -19,6 +21,7 @@ const CODE_PATTERN = /^[BCDFGHJKLMNPQRSTVWXZ]{4}-[BCDFGHJKLMNPQRSTVWXZ]{4}$/;
 
 export function SettingsPage() {
   const { patientId } = usePatient();
+  const { auth } = useAuth();
   const queryClient = useQueryClient();
   const [code, setCode] = useState('');
   const devices = useListPatientDevices(patientId);
@@ -73,6 +76,8 @@ export function SettingsPage() {
           </div>
         </form>
       </section>
+
+      {auth.status === 'authed' && auth.user.role === 'patient' && <CaregiversSection />}
 
       <section aria-labelledby="notif-title" className="flex flex-col gap-2">
         <Text id="notif-title" variant="subtitle" as="h2">

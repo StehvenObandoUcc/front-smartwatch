@@ -18,6 +18,7 @@ import { Text } from '../../components/atoms/Text/Text';
 import { FormField } from '../../components/molecules/FormField';
 import { errorMessage } from '../../lib/errors';
 import { useAuth } from '../auth/AuthContext';
+import { AcceptInvitationForm } from '../caregivers/AcceptInvitationForm';
 
 const CONSENT_VERSION = '1';
 
@@ -173,14 +174,23 @@ export function PatientGate({ children }: { children: ReactNode }) {
     navigate('/ajustes');
   }
 
+  function joined(id: string) {
+    setSelected(id);
+    setAdding(false);
+    navigate('/');
+  }
+
   if (isCaregiver && list.isPending) return <Spinner label="Cargando personas" />;
   if (isCaregiver && (patients.length === 0 || adding)) {
     return (
-      <NewPersonForm
-        first={patients.length === 0}
-        onCreated={created}
-        onCancel={patients.length > 0 ? () => setAdding(false) : undefined}
-      />
+      <div className="flex flex-col gap-8">
+        <NewPersonForm
+          first={patients.length === 0}
+          onCreated={created}
+          onCancel={patients.length > 0 ? () => setAdding(false) : undefined}
+        />
+        <AcceptInvitationForm onJoined={joined} />
+      </div>
     );
   }
   if (!patientId) return <Spinner label="Cargando datos" />;
