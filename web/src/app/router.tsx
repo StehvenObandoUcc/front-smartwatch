@@ -6,6 +6,7 @@ import { ForgotPasswordPage } from '../pages/ForgotPasswordPage';
 import { HomePage } from '../pages/HomePage';
 import { LoginPage } from '../pages/LoginPage';
 import { MedicationsPage } from '../pages/MedicationsPage';
+import { NotificationsPage } from '../pages/NotificationsPage';
 import { RegisterPage } from '../pages/RegisterPage';
 import { ResetPasswordPage } from '../pages/ResetPasswordPage';
 import { SettingsPage } from '../pages/SettingsPage';
@@ -26,6 +27,7 @@ export const router = createBrowserRouter([
       { path: 'agenda', element: <AgendaPage /> },
       { path: 'adherencia', element: <AdherencePage /> },
       { path: 'ajustes', element: <SettingsPage /> },
+      { path: 'notificaciones', element: <NotificationsPage /> },
     ],
   },
 ]);
