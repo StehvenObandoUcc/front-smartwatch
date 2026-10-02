@@ -1,5 +1,6 @@
 import { Navigate, Outlet, useLocation } from 'react-router';
 
+import { Badge } from '../components/atoms/Badge/Badge';
 import { Button } from '../components/atoms/Button/Button';
 import { Spinner } from '../components/atoms/Spinner/Spinner';
 import { AppShell } from '../components/templates/AppShell/AppShell';
@@ -19,9 +20,12 @@ export function RootLayout() {
       title={title}
       nav={navItems}
       actions={
-        <Button variant="ghost" onClick={() => void signOut()}>
-          Salir
-        </Button>
+        <div className="flex items-center gap-2">
+          <Badge>{auth.user.role === 'caregiver' ? 'Cuidador' : 'Particular'}</Badge>
+          <Button variant="ghost" onClick={() => void signOut()}>
+            Salir
+          </Button>
+        </div>
       }
     >
       <PatientGate>

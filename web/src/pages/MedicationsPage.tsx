@@ -12,7 +12,6 @@ import { Button } from '../components/atoms/Button/Button';
 import { ColorDot } from '../components/atoms/ColorDot/ColorDot';
 import { Spinner } from '../components/atoms/Spinner/Spinner';
 import { Text } from '../components/atoms/Text/Text';
-import { colorFromHex } from '../design/tokens';
 import { MedicationForm } from '../features/medications/MedicationForm';
 import { toPayload, type MedicationFormValues } from '../features/medications/schema';
 import { usePatient } from '../features/patients/PatientGate';
@@ -90,7 +89,7 @@ export function MedicationsPage() {
             className="flex items-center justify-between gap-4 rounded-md border-2 border-border bg-surface-raised p-4"
           >
             <div className="flex items-center gap-3">
-              <ColorDot color={colorFromHex(med.color)} />
+              <ColorDot hex={med.color} />
               <div>
                 <Text variant="subtitle" as="p">
                   {med.name}

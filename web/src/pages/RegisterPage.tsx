@@ -12,6 +12,19 @@ import { useAuth } from '../features/auth/AuthContext';
 import { registerSchema, type RegisterValues } from '../features/auth/forms';
 import { errorMessage } from '../lib/errors';
 
+const roles = [
+  {
+    value: 'patient',
+    title: 'Para mí (particular)',
+    help: 'Tomo mis propios medicamentos y uso mi reloj.',
+  },
+  {
+    value: 'caregiver',
+    title: 'Cuido a otras personas (cuidador)',
+    help: 'Cargo los medicamentos y vinculo el reloj de cada persona a mi cargo.',
+  },
+] as const;
+
 export function RegisterPage() {
   const { auth, signIn } = useAuth();
   const registerUser = useRegister();
@@ -45,18 +58,19 @@ export function RegisterPage() {
             <Input type="password" autoComplete="new-password" {...p} {...register('password')} />
           )}
         </FormField>
-        <FormField label="Soy">
-          {({ id }) => (
-            <select
-              id={id}
-              className="min-h-touch w-full rounded-md border-2 border-border bg-surface-raised px-3 text-body"
-              {...register('role')}
+        <fieldset className="flex flex-col gap-2">
+          <legend className="text-body font-semibold">¿Cómo vas a usar la app?</legend>
+          {roles.map((option) => (
+            <label
+              key={option.value}
+              className="flex min-h-touch cursor-pointer flex-col rounded-md border-2 border-border p-3 has-checked:border-primary has-checked:bg-surface-raised"
             >
-              <option value="patient">Paciente</option>
-              <option value="caregiver">Cuidador</option>
-            </select>
-          )}
-        </FormField>
+              <input type="radio" value={option.value} className="sr-only" {...register('role')} />
+              <span className="text-body font-semibold">{option.title}</span>
+              <span className="text-caption text-text-muted">{option.help}</span>
+            </label>
+          ))}
+        </fieldset>
         {registerUser.error && (
           <Text tone="danger" as="p">
             {errorMessage(registerUser.error)}

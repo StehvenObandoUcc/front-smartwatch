@@ -7,7 +7,7 @@ const valid: MedicationFormValues = {
   name: 'Losartán',
   dosage: '1 tableta',
   instructions: '',
-  color: 'blue',
+  color: medicationHex.blue,
   times: [{ value: '20:00' }, { value: '08:00' }],
   daysOfWeek: ['5', '1'],
   startDate: '2026-10-01',
@@ -25,6 +25,11 @@ describe('medicationFormSchema', () => {
       times: [{ value: '08:00' }, { value: '08:00' }],
     });
     expect(result.success).toBe(false);
+  });
+
+  it('acepta cualquier color hexadecimal y rechaza otros formatos', () => {
+    expect(medicationFormSchema.safeParse({ ...valid, color: '#12ab9F' }).success).toBe(true);
+    expect(medicationFormSchema.safeParse({ ...valid, color: 'azul' }).success).toBe(false);
   });
 
   it('rechaza sin días, hora mal formada o fin anterior al inicio', () => {
