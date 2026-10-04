@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMutation } from '@tanstack/react-query';
 import { Link, useParams } from 'react-router';
 
 import { useGetReport } from '../api/generated';
@@ -18,20 +18,9 @@ export function ReportPage() {
       refetchInterval: (query) => (query.state.data?.status === 'pending' ? POLL_MS : false),
     },
   });
-  const [downloading, setDownloading] = useState(false);
-  const [downloadError, setDownloadError] = useState<string>();
-
-  async function download(periodEnd: string) {
-    setDownloading(true);
-    setDownloadError(undefined);
-    try {
-      await saveReportPdf(patientId, reportId, periodEnd);
-    } catch (error) {
-      setDownloadError(errorMessage(error));
-    } finally {
-      setDownloading(false);
-    }
-  }
+  const download = useMutation({
+    mutationFn: (periodEnd: string) => saveReportPdf(patientId, reportId, periodEnd),
+  });
 
   if (report.isPending) return <Spinner label="Cargando reporte" />;
   if (report.isError) {
@@ -63,9 +52,9 @@ export function ReportPage() {
       {status === 'ready' && summary && (
         <>
           <ReportView summary={summary} />
-          {downloadError && <Text tone="danger">{downloadError}</Text>}
+          {download.isError && <Text tone="danger">{errorMessage(download.error)}</Text>}
           <div>
-            <Button loading={downloading} onClick={() => void download(periodEnd)}>
+            <Button loading={download.isPending} onClick={() => download.mutate(periodEnd)}>
               Descargar PDF
             </Button>
           </div>
