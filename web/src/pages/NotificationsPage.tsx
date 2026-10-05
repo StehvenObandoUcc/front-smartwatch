@@ -17,6 +17,7 @@ import { Badge } from '../components/atoms/Badge/Badge';
 import { Button } from '../components/atoms/Button/Button';
 import { Spinner } from '../components/atoms/Spinner/Spinner';
 import { Text } from '../components/atoms/Text/Text';
+import { ErrorRetry } from '../components/molecules/ErrorRetry';
 import { errorMessage } from '../lib/errors';
 
 const POLL_MS = 3000;
@@ -277,7 +278,12 @@ export function NotificationsPage() {
       <ConsentToggle />
       <TelegramCard />
       {preferences.isPending && <Spinner label="Cargando preferencias" />}
-      {preferences.isError && <Text tone="danger">{errorMessage(preferences.error)}</Text>}
+      {preferences.isError && (
+        <ErrorRetry
+          message={errorMessage(preferences.error)}
+          onRetry={() => void preferences.refetch()}
+        />
+      )}
       {preferences.data && <PreferencesForm initial={preferences.data} />}
     </div>
   );

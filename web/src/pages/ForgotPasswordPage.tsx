@@ -19,16 +19,26 @@ export function ForgotPasswordPage() {
   return (
     <AuthLayout title="Recuperar contraseña">
       {forgot.isSuccess ? (
-        <Text tone="success">
-          Si la cuenta existe y su correo está verificado, te enviamos un enlace para elegir una
-          contraseña nueva. Caduca en una hora.
-        </Text>
+        <div role="status" className="flex flex-col gap-2">
+          <Text tone="success">
+            Si el correo existe, te enviamos instrucciones para elegir una contraseña nueva. El
+            enlace caduca en una hora.
+          </Text>
+          <Text tone="muted">
+            Solo llega si la cuenta tiene el correo verificado. Si no te llega, revisa la carpeta de
+            spam o verifica tu correo desde el panel.
+          </Text>
+        </div>
       ) : (
         <form
           noValidate
           onSubmit={handleSubmit((data) => forgot.mutate({ data }))}
           className="flex flex-col gap-4"
         >
+          <Text tone="muted">
+            Te enviaremos un enlace para elegir una contraseña nueva. La cuenta debe tener el correo
+            verificado.
+          </Text>
           <FormField label="Correo de tu cuenta" error={formState.errors.email?.message}>
             {(p) => <Input type="email" autoComplete="email" {...p} {...register('email')} />}
           </FormField>

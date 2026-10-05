@@ -8,7 +8,9 @@ import {
 } from '../../api/generated';
 import { Badge } from '../../components/atoms/Badge/Badge';
 import { Button } from '../../components/atoms/Button/Button';
+import { Spinner } from '../../components/atoms/Spinner/Spinner';
 import { Text } from '../../components/atoms/Text/Text';
+import { ErrorRetry } from '../../components/molecules/ErrorRetry';
 import { formatDay, formatTime } from '../../lib/dates';
 import { errorMessage } from '../../lib/errors';
 import { usePatient } from '../patients/PatientGate';
@@ -32,6 +34,13 @@ export function CaregiversSection() {
         Un cuidador puede ver tus medicamentos, agenda y reportes. Invítalo con un código; él lo
         escribe al entrar como cuidador.
       </Text>
+      {caregivers.isPending && <Spinner label="Cargando cuidadores" />}
+      {caregivers.isError && (
+        <ErrorRetry
+          message={errorMessage(caregivers.error)}
+          onRetry={() => void caregivers.refetch()}
+        />
+      )}
       {caregivers.data?.items.length === 0 && <Text tone="muted">Aún no tienes cuidadores.</Text>}
       <ul className="flex flex-col gap-2">
         {caregivers.data?.items.map((link) => (

@@ -12,10 +12,12 @@ import { ColorDot } from '../components/atoms/ColorDot/ColorDot';
 import { Spinner } from '../components/atoms/Spinner/Spinner';
 import { Text } from '../components/atoms/Text/Text';
 import { InfoCard } from '../components/molecules/InfoCard';
+import { ErrorRetry } from '../components/molecules/ErrorRetry';
 import { useAuth } from '../features/auth/AuthContext';
 import { usePatient } from '../features/patients/PatientGate';
 import { percentText } from '../features/reports/ReportView';
 import { formatDay, formatTime } from '../lib/dates';
+import { errorMessage } from '../lib/errors';
 
 const links = [
   { to: '/medicamentos', label: 'Medicamentos', help: 'Cargar y editar' },
@@ -36,7 +38,9 @@ function NextDoseCard() {
   return (
     <InfoCard title="Próxima dosis">
       {plan.isPending && <Spinner label="Cargando" />}
-      {plan.isError && <Text tone="danger">No se pudo cargar el plan.</Text>}
+      {plan.isError && (
+        <ErrorRetry message={errorMessage(plan.error)} onRetry={() => void plan.refetch()} />
+      )}
       {plan.data && !next && <Text tone="muted">Sin dosis en los próximos 7 días.</Text>}
       {next && (
         <>
@@ -61,7 +65,12 @@ function AdherenceCard() {
   return (
     <InfoCard title="Adherencia (7 días)">
       {adherence.isPending && <Spinner label="Cargando" />}
-      {adherence.isError && <Text tone="danger">No se pudo cargar.</Text>}
+      {adherence.isError && (
+        <ErrorRetry
+          message={errorMessage(adherence.error)}
+          onRetry={() => void adherence.refetch()}
+        />
+      )}
       {adherence.data && (
         <>
           <Text variant="display" as="p">
@@ -83,7 +92,9 @@ function WatchCard() {
   return (
     <InfoCard title="Reloj">
       {devices.isPending && <Spinner label="Cargando" />}
-      {devices.isError && <Text tone="danger">No se pudo cargar.</Text>}
+      {devices.isError && (
+        <ErrorRetry message={errorMessage(devices.error)} onRetry={() => void devices.refetch()} />
+      )}
       {devices.data && !device && (
         <>
           <Text>Aún no hay un reloj vinculado.</Text>
@@ -116,7 +127,12 @@ function NotificationsCard() {
   return (
     <InfoCard title="Avisos">
       {channels.isPending && <Spinner label="Cargando" />}
-      {channels.isError && <Text tone="danger">No se pudo cargar.</Text>}
+      {channels.isError && (
+        <ErrorRetry
+          message={errorMessage(channels.error)}
+          onRetry={() => void channels.refetch()}
+        />
+      )}
       {channels.data && (
         <>
           <div className="flex flex-wrap gap-2">

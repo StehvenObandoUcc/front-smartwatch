@@ -16,6 +16,7 @@ import { Input } from '../../components/atoms/Input/Input';
 import { Spinner } from '../../components/atoms/Spinner/Spinner';
 import { Text } from '../../components/atoms/Text/Text';
 import { FormField } from '../../components/molecules/FormField';
+import { ErrorRetry } from '../../components/molecules/ErrorRetry';
 import { errorMessage } from '../../lib/errors';
 import { useAuth } from '../auth/AuthContext';
 import { AcceptInvitationForm } from '../caregivers/AcceptInvitationForm';
@@ -180,6 +181,9 @@ export function PatientGate({ children }: { children: ReactNode }) {
     navigate('/');
   }
 
+  if (isCaregiver && list.isError) {
+    return <ErrorRetry message={errorMessage(list.error)} onRetry={() => void list.refetch()} />;
+  }
   if (isCaregiver && list.isPending) return <Spinner label="Cargando personas" />;
   if (isCaregiver && (patients.length === 0 || adding)) {
     return (
@@ -196,7 +200,17 @@ export function PatientGate({ children }: { children: ReactNode }) {
   if (!patientId) return <Spinner label="Cargando datos" />;
 
   let content: ReactNode;
-  if (patient.isPending || consents.isPending) {
+  if (patient.isError || consents.isError) {
+    content = (
+      <ErrorRetry
+        message={errorMessage(patient.error ?? consents.error)}
+        onRetry={() => {
+          void patient.refetch();
+          void consents.refetch();
+        }}
+      />
+    );
+  } else if (patient.isPending || consents.isPending) {
     content = <Spinner label="Cargando datos" />;
   } else if (!consents.data?.items.some((c) => c.purpose === 'health_data' && c.granted)) {
     content = (
