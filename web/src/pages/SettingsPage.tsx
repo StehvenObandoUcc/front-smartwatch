@@ -98,10 +98,7 @@ export function SettingsPage() {
         {devices.data?.items.length === 0 && <Text tone="muted">Ningún reloj vinculado.</Text>}
         <ul className="flex flex-col gap-2">
           {devices.data?.items.map((device) => (
-            <li
-              key={device.id}
-              className="flex items-center justify-between gap-4 rounded-md border-2 border-border bg-surface-raised p-4"
-            >
+            <li key={device.id} className="flex items-center justify-between gap-4 card p-4">
               <Text as="p">{device.model}</Text>
               <Button
                 variant="danger"

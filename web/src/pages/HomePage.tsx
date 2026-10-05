@@ -24,7 +24,6 @@ const links = [
   { to: '/medicamentos', label: 'Medicamentos', help: 'Cargar y editar' },
   { to: '/agenda', label: 'Agenda', help: 'Hoy y la semana' },
   { to: '/adherencia', label: 'Adherencia', help: 'Historial' },
-  { to: '/avisos', label: 'Avisos', help: 'Telegram y correo' },
   { to: '/reportes', label: 'Reportes', help: 'Semanales y PDF' },
   { to: '/asistente', label: 'Asistente', help: 'Pregunta por tu plan' },
   { to: '/ajustes', label: 'Ajustes', help: 'Reloj y cuidadores' },
@@ -160,7 +159,7 @@ export function HomePage() {
   const name = auth.status === 'authed' ? auth.user.displayName : '';
   return (
     <div className="flex flex-col gap-6">
-      <Text variant="subtitle" as="h2">
+      <Text variant="title" as="h2">
         Hola, {name}
       </Text>
       <div className="grid gap-4 tablet:grid-cols-2 desktop:grid-cols-3">
@@ -168,17 +167,17 @@ export function HomePage() {
         <AdherenceCard />
         <WatchCard />
         <NotificationsCard />
+        <InfoCard title="Dosis tomadas por día (últimos 7 días)" className="tablet:col-span-2">
+          <AdherenceChart />
+        </InfoCard>
       </div>
-      <InfoCard title="Dosis tomadas por día (últimos 7 días)">
-        <AdherenceChart />
-      </InfoCard>
       <nav aria-label="Accesos rápidos">
         <ul className="grid gap-2 tablet:grid-cols-2 desktop:grid-cols-3">
           {links.map((link) => (
             <li key={link.to}>
               <Link
                 to={link.to}
-                className="flex min-h-touch flex-col justify-center rounded-md border-2 border-border bg-surface p-3 hover:bg-surface-raised"
+                className="flex min-h-touch flex-col justify-center card p-3 transition-shadow hover:shadow-raised-sm active:shadow-inset motion-reduce:transition-none"
               >
                 <span className="text-body font-semibold">{link.label}</span>
                 <span className="text-caption text-text-muted">{link.help}</span>

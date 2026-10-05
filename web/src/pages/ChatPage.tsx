@@ -67,10 +67,8 @@ function Conversation({ patientId }: { patientId: string }) {
           <li
             key={index}
             className={cn(
-              'max-w-prose rounded-md border-2 p-3 whitespace-pre-wrap',
-              message.role === 'user'
-                ? 'self-end border-primary bg-surface-raised'
-                : 'self-start border-border bg-surface',
+              'max-w-prose p-3 whitespace-pre-wrap',
+              message.role === 'user' ? 'card self-end border-2 border-primary' : 'well self-start',
             )}
           >
             <span className="sr-only">{message.role === 'user' ? 'Tú: ' : 'Asistente: '}</span>

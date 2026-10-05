@@ -97,7 +97,7 @@ function TelegramCard() {
         </div>
       )}
       {email && (
-        <div className="flex items-center justify-between gap-2 rounded-md border-2 border-border bg-surface-raised p-4">
+        <div className="flex items-center justify-between gap-2 card p-4">
           <div>
             <Text as="p">Correo</Text>
             <Text tone="muted" variant="caption">
@@ -110,7 +110,7 @@ function TelegramCard() {
         </div>
       )}
       {telegram && (
-        <div className="flex flex-col gap-3 rounded-md border-2 border-border bg-surface-raised p-4">
+        <div className="flex flex-col gap-3 card p-4">
           <div className="flex items-center justify-between gap-2">
             <Text as="p">Telegram</Text>
             <Badge tone={linked ? 'success' : 'neutral'}>
@@ -150,9 +150,7 @@ function TelegramCard() {
                           Si el bot te pide la clave (pasa en Telegram para navegador), pégale este
                           mensaje:
                         </Text>
-                        <code className="rounded-md border-2 border-border bg-surface px-3 py-2 break-all">
-                          {command}
-                        </code>
+                        <code className="well px-3 py-2 break-all">{command}</code>
                         <Button variant="secondary" onClick={() => void copy(command)}>
                           {copied ? 'Copiado' : 'Copiar mensaje'}
                         </Button>

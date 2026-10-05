@@ -5,7 +5,7 @@ import { cn } from '../../../lib/cn';
 type Tone = 'neutral' | 'success' | 'warning' | 'danger';
 
 const toneClass: Record<Tone, string> = {
-  neutral: 'border-border text-text-muted',
+  neutral: 'border-border-strong text-text-muted',
   success: 'border-success text-success',
   warning: 'border-warning text-warning',
   danger: 'border-danger text-danger',

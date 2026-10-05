@@ -10,3 +10,12 @@
     @apply outline-3 outline-offset-2 outline-focus;
   }
 }
+
+/* Superficies neumórficas reutilizables: tarjeta elevada y zona hundida. */
+@utility card {
+  @apply rounded-lg bg-surface-raised shadow-raised;
+}
+
+@utility well {
+  @apply rounded-lg bg-surface shadow-inset;
+}

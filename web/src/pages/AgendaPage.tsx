@@ -46,7 +46,7 @@ export function AgendaPage() {
             {dayDoses.map((dose) => (
               <li
                 key={`${dose.scheduleId}-${dose.scheduledAt}`}
-                className="flex flex-wrap items-center gap-4 rounded-md border-2 border-border bg-surface-raised p-4"
+                className="flex flex-wrap items-center gap-4 card p-4"
               >
                 <Text variant="subtitle" as="p">
                   {formatTime(dose.scheduledAt, tz)}

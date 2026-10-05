@@ -66,7 +66,7 @@ export function ReportsPage() {
           <li key={report.id}>
             <Link
               to={`/patients/${patientId}/reports/${report.id}`}
-              className="flex min-h-touch items-center justify-between gap-4 rounded-md border-2 border-border bg-surface-raised p-4"
+              className="flex min-h-touch items-center justify-between gap-4 card p-4"
             >
               <div>
                 <Text as="p">

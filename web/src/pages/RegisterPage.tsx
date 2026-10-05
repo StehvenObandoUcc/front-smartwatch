@@ -63,7 +63,7 @@ export function RegisterPage() {
           {roles.map((option) => (
             <label
               key={option.value}
-              className="flex min-h-touch cursor-pointer flex-col rounded-md border-2 border-border p-3 has-checked:border-primary has-checked:bg-surface-raised"
+              className="flex min-h-touch cursor-pointer flex-col rounded-md border-2 border-border-strong p-3 has-checked:border-primary has-checked:bg-surface-raised"
             >
               <input type="radio" value={option.value} className="sr-only" {...register('role')} />
               <span className="text-body font-semibold">{option.title}</span>
@@ -72,9 +72,11 @@ export function RegisterPage() {
           ))}
         </fieldset>
         {registerUser.error && (
-          <Text tone="danger" as="p">
-            {errorMessage(registerUser.error)}
-          </Text>
+          <div role="alert">
+            <Text tone="danger" as="p">
+              {errorMessage(registerUser.error)}
+            </Text>
+          </div>
         )}
         <Button type="submit" loading={registerUser.isPending} fullWidth>
           Crear cuenta

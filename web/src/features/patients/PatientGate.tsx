@@ -129,13 +129,13 @@ function CaregiverBar({
   onAdd: () => void;
 }) {
   return (
-    <div className="mb-4 flex flex-wrap items-end gap-2 rounded-md border-2 border-border bg-surface p-3">
+    <div className="mb-4 flex flex-wrap items-end gap-2 well p-3">
       <label className="flex min-w-0 flex-1 flex-col gap-1 text-caption font-semibold">
         Gestionando a
         <select
           value={activeId}
           onChange={(event) => onSelect(event.target.value)}
-          className="min-h-touch w-full rounded-md border-2 border-border bg-surface-raised px-3 text-body font-normal"
+          className="min-h-touch w-full card px-3 text-body font-normal"
         >
           {patients.map((patient) => (
             <option key={patient.id} value={patient.id}>
