@@ -9,8 +9,11 @@ import {
 } from '../api/generated';
 import { Button } from '../components/atoms/Button/Button';
 import { Input } from '../components/atoms/Input/Input';
+import { Spinner } from '../components/atoms/Spinner/Spinner';
 import { Text } from '../components/atoms/Text/Text';
+import { ErrorRetry } from '../components/molecules/ErrorRetry';
 import { FormField } from '../components/molecules/FormField';
+import { AccountSection } from '../features/auth/AccountSection';
 import { useAuth } from '../features/auth/AuthContext';
 import { CaregiversSection } from '../features/caregivers/CaregiversSection';
 import { usePatient } from '../features/patients/PatientGate';
@@ -40,6 +43,8 @@ export function SettingsPage() {
 
   return (
     <div className="flex flex-col gap-6">
+      <AccountSection />
+
       <section aria-labelledby="pair-title" className="flex flex-col gap-4">
         <Text id="pair-title" variant="subtitle" as="h2">
           Vincular reloj
@@ -82,6 +87,14 @@ export function SettingsPage() {
         <Text id="dev-title" variant="subtitle" as="h2">
           Relojes vinculados
         </Text>
+        {devices.isPending && <Spinner label="Cargando relojes" />}
+        {devices.isError && (
+          <ErrorRetry
+            message={errorMessage(devices.error)}
+            onRetry={() => void devices.refetch()}
+          />
+        )}
+        {unpair.error && <Text tone="danger">{errorMessage(unpair.error)}</Text>}
         {devices.data?.items.length === 0 && <Text tone="muted">Ningún reloj vinculado.</Text>}
         <ul className="flex flex-col gap-2">
           {devices.data?.items.map((device) => (
