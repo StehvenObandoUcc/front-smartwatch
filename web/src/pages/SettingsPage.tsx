@@ -13,7 +13,6 @@ import { Text } from '../components/atoms/Text/Text';
 import { FormField } from '../components/molecules/FormField';
 import { useAuth } from '../features/auth/AuthContext';
 import { CaregiversSection } from '../features/caregivers/CaregiversSection';
-import { NotificationsSection } from '../features/notifications/NotificationsSection';
 import { usePatient } from '../features/patients/PatientGate';
 import { errorMessage } from '../lib/errors';
 
@@ -78,8 +77,6 @@ export function SettingsPage() {
       </section>
 
       {auth.status === 'authed' && auth.user.role === 'patient' && <CaregiversSection />}
-
-      <NotificationsSection />
 
       <section aria-labelledby="dev-title" className="flex flex-col gap-2">
         <Text id="dev-title" variant="subtitle" as="h2">
