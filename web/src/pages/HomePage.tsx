@@ -14,6 +14,7 @@ import { Text } from '../components/atoms/Text/Text';
 import { InfoCard } from '../components/molecules/InfoCard';
 import { ErrorRetry } from '../components/molecules/ErrorRetry';
 import { useAuth } from '../features/auth/AuthContext';
+import { AdherenceChart } from '../features/doses/AdherenceChart';
 import { usePatient } from '../features/patients/PatientGate';
 import { percentText } from '../features/reports/ReportView';
 import { formatDay, formatTime } from '../lib/dates';
@@ -168,6 +169,9 @@ export function HomePage() {
         <WatchCard />
         <NotificationsCard />
       </div>
+      <InfoCard title="Dosis tomadas por día (últimos 7 días)">
+        <AdherenceChart />
+      </InfoCard>
       <nav aria-label="Accesos rápidos">
         <ul className="grid gap-2 tablet:grid-cols-2 desktop:grid-cols-3">
           {links.map((link) => (
