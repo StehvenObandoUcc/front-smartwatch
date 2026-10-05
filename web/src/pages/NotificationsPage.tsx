@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 
@@ -20,11 +20,16 @@ import { Text } from '../components/atoms/Text/Text';
 import { errorMessage } from '../lib/errors';
 
 const POLL_MS = 3000;
+// Si el backend no manda una fecha válida, el enlace se da por caducado a los 15 min (su vida real).
+const LINK_TTL_MS = 15 * 60 * 1000;
+// setTimeout dispara de inmediato con retardos mayores a 2^31-1 ms.
+const MAX_TIMEOUT_MS = 2 ** 31 - 1;
 const CONSENT_VERSION = '1';
 
 function TelegramCard() {
   const queryClient = useQueryClient();
   const [waiting, setWaiting] = useState(false);
+  const [expiresAt, setExpiresAt] = useState<number>();
   const channels = useListMyNotificationChannels({
     query: {
       refetchInterval: (query) =>
@@ -38,15 +43,22 @@ function TelegramCard() {
   const link = useCreateTelegramLink({
     mutation: {
       onSuccess: (data) => {
+        const expiry = Date.parse(data.expiresAt);
+        setExpiresAt(Number.isNaN(expiry) ? Date.now() + LINK_TTL_MS : expiry);
         setWaiting(true);
-        // El enlace caduca: se deja de consultar y se ofrece pedir otro.
-        setTimeout(
-          () => setWaiting(false),
-          Math.max(0, new Date(data.expiresAt).getTime() - Date.now()),
-        );
       },
     },
   });
+  // El enlace caduca: se deja de consultar y se ofrece pedir otro. El temporizador se limpia
+  // al desmontar o al generar otro enlace, para que uno viejo no cierre la espera del nuevo.
+  useEffect(() => {
+    if (!waiting || expiresAt === undefined) return;
+    const id = setTimeout(
+      () => setWaiting(false),
+      Math.min(MAX_TIMEOUT_MS, Math.max(0, expiresAt - Date.now())),
+    );
+    return () => clearTimeout(id);
+  }, [waiting, expiresAt]);
   const unlink = useUnlinkTelegram({ mutation: { onSuccess: refresh } });
 
   const telegram = channels.data?.items.find((c) => c.channel === 'telegram');
