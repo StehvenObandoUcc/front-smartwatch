@@ -1,7 +1,13 @@
 import { useState } from 'react';
 import { Link } from 'react-router';
 
-import { useGetAdherence, useGetPatientPlan, useListPatientDevices } from '../api/generated';
+import {
+  useGetAdherence,
+  useGetPatientPlan,
+  useListMyNotificationChannels,
+  useListPatientDevices,
+} from '../api/generated';
+import { Badge } from '../components/atoms/Badge/Badge';
 import { ColorDot } from '../components/atoms/ColorDot/ColorDot';
 import { Spinner } from '../components/atoms/Spinner/Spinner';
 import { Text } from '../components/atoms/Text/Text';
@@ -15,9 +21,10 @@ const links = [
   { to: '/medicamentos', label: 'Medicamentos', help: 'Cargar y editar' },
   { to: '/agenda', label: 'Agenda', help: 'Hoy y la semana' },
   { to: '/adherencia', label: 'Adherencia', help: 'Historial' },
+  { to: '/avisos', label: 'Avisos', help: 'Telegram y correo' },
   { to: '/reportes', label: 'Reportes', help: 'Semanales y PDF' },
   { to: '/asistente', label: 'Asistente', help: 'Pregunta por tu plan' },
-  { to: '/ajustes', label: 'Ajustes', help: 'Reloj, avisos y cuidadores' },
+  { to: '/ajustes', label: 'Ajustes', help: 'Reloj y cuidadores' },
 ];
 
 function NextDoseCard() {
@@ -101,6 +108,36 @@ function WatchCard() {
   );
 }
 
+function NotificationsCard() {
+  const channels = useListMyNotificationChannels();
+  const items = channels.data?.items ?? [];
+  const telegram = items.find((c) => c.channel === 'telegram');
+  const email = items.find((c) => c.channel === 'email');
+  return (
+    <InfoCard title="Avisos">
+      {channels.isPending && <Spinner label="Cargando" />}
+      {channels.isError && <Text tone="danger">No se pudo cargar.</Text>}
+      {channels.data && (
+        <>
+          <div className="flex flex-wrap gap-2">
+            <Badge tone={telegram?.linked ? 'success' : 'neutral'}>
+              Telegram: {telegram?.linked ? 'conectado' : 'no conectado'}
+            </Badge>
+            {email && (
+              <Badge tone={email.verified ? 'success' : 'warning'}>
+                Correo: {email.verified ? 'verificado' : 'sin verificar'}
+              </Badge>
+            )}
+          </div>
+          <Link to="/avisos" className="min-h-touch underline">
+            {telegram?.linked ? 'Configurar avisos' : 'Conectar Telegram'}
+          </Link>
+        </>
+      )}
+    </InfoCard>
+  );
+}
+
 export function HomePage() {
   const { auth } = useAuth();
   const name = auth.status === 'authed' ? auth.user.displayName : '';
@@ -113,6 +150,7 @@ export function HomePage() {
         <NextDoseCard />
         <AdherenceCard />
         <WatchCard />
+        <NotificationsCard />
       </div>
       <nav aria-label="Accesos rápidos">
         <ul className="grid gap-2 tablet:grid-cols-2 desktop:grid-cols-3">

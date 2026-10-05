@@ -7,6 +7,7 @@ import { ChatPage } from '../pages/ChatPage';
 import { HomePage } from '../pages/HomePage';
 import { LoginPage } from '../pages/LoginPage';
 import { MedicationsPage } from '../pages/MedicationsPage';
+import { NotificationsPage } from '../pages/NotificationsPage';
 import { RegisterPage } from '../pages/RegisterPage';
 import { ReportPage } from '../pages/ReportPage';
 import { ReportsPage } from '../pages/ReportsPage';
@@ -29,8 +30,9 @@ export const router = createBrowserRouter([
       { path: 'agenda', element: <AgendaPage /> },
       { path: 'adherencia', element: <AdherencePage /> },
       { path: 'ajustes', element: <SettingsPage /> },
-      // Los avisos viven ahora en Ajustes; se conserva la ruta vieja para enlaces guardados.
-      { path: 'notificaciones', element: <Navigate to="/ajustes" replace /> },
+      { path: 'avisos', element: <NotificationsPage /> },
+      // Ruta antigua: enlaces guardados.
+      { path: 'notificaciones', element: <Navigate to="/avisos" replace /> },
       { path: 'reportes', element: <ReportsPage /> },
       { path: 'asistente', element: <ChatPage /> },
       { path: 'patients/:patientId/reports/:reportId', element: <ReportPage /> },

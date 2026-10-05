@@ -12,12 +12,12 @@ import {
   useSetMyNotificationPreferences,
   useUnlinkTelegram,
   type NotificationPreferences,
-} from '../../api/generated';
-import { Badge } from '../../components/atoms/Badge/Badge';
-import { Button } from '../../components/atoms/Button/Button';
-import { Spinner } from '../../components/atoms/Spinner/Spinner';
-import { Text } from '../../components/atoms/Text/Text';
-import { errorMessage } from '../../lib/errors';
+} from '../api/generated';
+import { Badge } from '../components/atoms/Badge/Badge';
+import { Button } from '../components/atoms/Button/Button';
+import { Spinner } from '../components/atoms/Spinner/Spinner';
+import { Text } from '../components/atoms/Text/Text';
+import { errorMessage } from '../lib/errors';
 
 const POLL_MS = 3000;
 // Si el backend no manda una fecha válida, el enlace se da por caducado a los 15 min (su vida real).
@@ -66,6 +66,16 @@ function TelegramCard() {
     return () => clearTimeout(id);
   }, [waiting, expiresAt]);
   const unlink = useUnlinkTelegram({ mutation: { onSuccess: refresh } });
+  const command = link.data ? startCommand(link.data.url) : undefined;
+  const [copied, setCopied] = useState(false);
+  async function copy(text: string) {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+    } catch {
+      // Sin permiso de portapapeles: el mensaje sigue visible para copiarlo a mano.
+    }
+  }
 
   const telegram = channels.data?.items.find((c) => c.channel === 'telegram');
   const email = channels.data?.items.find((c) => c.channel === 'email');
@@ -73,7 +83,7 @@ function TelegramCard() {
 
   return (
     <section aria-labelledby="channels-title" className="flex flex-col gap-3">
-      <Text id="channels-title" variant="subtitle" as="h3">
+      <Text id="channels-title" variant="subtitle" as="h2">
         Canales
       </Text>
       {channels.isPending && <Spinner label="Cargando canales" />}
@@ -119,25 +129,35 @@ function TelegramCard() {
           ) : (
             <>
               {link.data && waiting ? (
-                <div className="flex flex-col gap-2" role="status">
-                  <Text>
-                    Abre el enlace, pulsa «Iniciar» en Telegram y vuelve aquí. Esperando la
-                    conexión…
-                  </Text>
-                  <a
-                    href={link.data.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex min-h-touch items-center self-start rounded-md bg-primary px-5 font-semibold text-on-primary"
-                  >
-                    Abrir Telegram
-                  </a>
-                  {startCommand(link.data.url) && (
-                    <Text tone="muted">
-                      ¿El bot no responde? Escríbele este mensaje:{' '}
-                      <code>{startCommand(link.data.url)}</code>
-                    </Text>
-                  )}
+                <div className="flex flex-col gap-3" role="status">
+                  <Text>Esperando la conexión con Telegram…</Text>
+                  <ol className="flex list-decimal flex-col gap-3 pl-6">
+                    <li className="flex flex-col items-start gap-2">
+                      <Text>Abre Telegram y pulsa «Iniciar» en el chat del bot.</Text>
+                      <a
+                        href={link.data.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex min-h-touch items-center rounded-md bg-primary px-5 font-semibold text-on-primary"
+                      >
+                        Abrir Telegram
+                      </a>
+                    </li>
+                    {command && (
+                      <li className="flex flex-col items-start gap-2">
+                        <Text>
+                          Si el bot te pide la clave (pasa en Telegram para navegador), pégale este
+                          mensaje:
+                        </Text>
+                        <code className="rounded-md border-2 border-border bg-surface px-3 py-2 break-all">
+                          {command}
+                        </code>
+                        <Button variant="secondary" onClick={() => void copy(command)}>
+                          {copied ? 'Copiado' : 'Copiar mensaje'}
+                        </Button>
+                      </li>
+                    )}
+                  </ol>
                 </div>
               ) : (
                 <>
@@ -174,7 +194,7 @@ function PreferencesForm({ initial }: { initial: NotificationPreferences }) {
       className="flex flex-col gap-3"
       aria-labelledby="prefs-title"
     >
-      <Text id="prefs-title" variant="subtitle" as="h3">
+      <Text id="prefs-title" variant="subtitle" as="h2">
         Qué avisos recibir
       </Text>
       <table className="w-full text-left">
@@ -250,18 +270,15 @@ function ConsentToggle() {
   );
 }
 
-export function NotificationsSection() {
+export function NotificationsPage() {
   const preferences = useGetMyNotificationPreferences();
   return (
-    <section aria-labelledby="notif-title" className="flex flex-col gap-6">
-      <Text id="notif-title" variant="subtitle" as="h2">
-        Avisos
-      </Text>
+    <div className="flex flex-col gap-6">
       <ConsentToggle />
       <TelegramCard />
       {preferences.isPending && <Spinner label="Cargando preferencias" />}
       {preferences.isError && <Text tone="danger">{errorMessage(preferences.error)}</Text>}
       {preferences.data && <PreferencesForm initial={preferences.data} />}
-    </section>
+    </div>
   );
 }

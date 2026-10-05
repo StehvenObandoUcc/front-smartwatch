@@ -5,6 +5,7 @@ export const navItems: NavItem[] = [
   { to: '/medicamentos', label: 'Medicamentos', icon: 'pill' },
   { to: '/agenda', label: 'Agenda', icon: 'calendar' },
   { to: '/adherencia', label: 'Adherencia', icon: 'chart' },
+  { to: '/avisos', label: 'Avisos', icon: 'bell' },
   { to: '/ajustes', label: 'Ajustes', icon: 'settings' },
 ];
 
