@@ -44,6 +44,11 @@ class FakeDosesApi : DosesApi {
         return Response.success(DoseEventBatchResult(results))
     }
 
+    override suspend fun createPatientDoseEvents(
+        patientId: UUID,
+        doseEventBatch: DoseEventBatch,
+    ): Response<DoseEventBatchResult> = error("no se usa en el reloj")
+
     override suspend fun getAdherence(
         patientId: UUID,
         from: LocalDate?,

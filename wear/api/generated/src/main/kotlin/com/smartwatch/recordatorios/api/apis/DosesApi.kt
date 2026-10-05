@@ -32,6 +32,24 @@ interface DosesApi {
     suspend fun createMyDoseEvents(@Body doseEventBatch: DoseEventBatch): Response<DoseEventBatchResult>
 
     /**
+     * POST patients/{patientId}/dose-events
+     * Registrar tomas desde la web (lote, idempotente)
+     * Para el paciente con cuenta (su propio perfil) o un cuidador con vínculo activo, cuando el paciente no tiene reloj a mano o se olvidó de marcar. Mismas reglas, cuerpo y respuesta que &#x60;POST /devices/me/dose-events&#x60;: hasta 100 eventos, idempotente por &#x60;eventId&#x60; (lo genera el cliente), cada evento se resuelve por separado y el lote responde 200, y una dosis tiene como mucho un evento (&#x60;dose_already_recorded&#x60;). Requiere el consentimiento &#x60;health_data&#x60; (403 &#x60;consent_required&#x60;). Un paciente sin vínculo con el usuario es 404. Los eventos guardados quedan sin dispositivo asociado. 
+     * Responses:
+     *  - 200: Resultado por evento, en el mismo orden.
+     *  - 401: Falta el token, es inválido o caducó (o credenciales incorrectas en login).
+     *  - 403: Autenticado pero sin permiso: rol que no permite la acción sobre un recurso accesible, o tipo de token equivocado (`wrong_token_type`). Nunca se usa para pacientes sin vínculo (eso es 404). 
+     *  - 404: No existe o el usuario no tiene acceso: un cuidador que pide un paciente sin vínculo activo (o sus recursos) recibe 404, igual que si no existiera, para no revelar datos ajenos. 
+     *  - 422: La petición no cumple el esquema.
+     *
+     * @param patientId 
+     * @param doseEventBatch 
+     * @return [DoseEventBatchResult]
+     */
+    @POST("patients/{patientId}/dose-events")
+    suspend fun createPatientDoseEvents(@Path("patientId") patientId: java.util.UUID, @Body doseEventBatch: DoseEventBatch): Response<DoseEventBatchResult>
+
+    /**
      * GET patients/{patientId}/adherence
      * Porcentaje de adherencia de un paciente
      * &#x60;percentage &#x3D; taken / (taken + skipped + missed) * 100&#x60; sobre las dosis vencidas del rango (mismas reglas y rango por defecto que el historial). &#x60;null&#x60; si no hubo dosis vencidas. 

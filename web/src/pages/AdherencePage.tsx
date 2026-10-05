@@ -5,6 +5,7 @@ import { Badge } from '../components/atoms/Badge/Badge';
 import { Button } from '../components/atoms/Button/Button';
 import { Spinner } from '../components/atoms/Spinner/Spinner';
 import { Text } from '../components/atoms/Text/Text';
+import { DoseActions } from '../features/doses/DoseActions';
 import { usePatient } from '../features/patients/PatientGate';
 import { daysAgo, formatDay, formatTime, localDate } from '../lib/dates';
 import { errorMessage } from '../lib/errors';
@@ -74,7 +75,7 @@ export function AdherencePage() {
           {history.data.items.map((item) => (
             <li
               key={`${item.scheduleId}-${item.scheduledAt}`}
-              className="flex items-center justify-between gap-4 rounded-md border-2 border-border bg-surface-raised p-4"
+              className="flex flex-wrap items-center justify-between gap-4 rounded-md border-2 border-border bg-surface-raised p-4"
             >
               <div>
                 <Text as="p">
@@ -84,7 +85,18 @@ export function AdherencePage() {
                   {formatDay(item.scheduledAt, timezone)}, {formatTime(item.scheduledAt, timezone)}
                 </Text>
               </div>
-              <Badge tone={statusView[item.status].tone}>{statusView[item.status].label}</Badge>
+              <div className="flex flex-col items-end gap-2">
+                <Badge tone={statusView[item.status].tone}>{statusView[item.status].label}</Badge>
+                {/* Se olvidó de marcarla en el reloj: se puede registrar desde aquí. */}
+                {item.status === 'MISSED' && (
+                  <DoseActions
+                    patientId={patientId}
+                    scheduleId={item.scheduleId}
+                    scheduledAt={item.scheduledAt}
+                    label={item.medicationName}
+                  />
+                )}
+              </div>
             </li>
           ))}
         </ul>

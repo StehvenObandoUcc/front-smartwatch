@@ -57,7 +57,7 @@
  *   (alerta de dosis omitida, reporte semanal) lo hace un worker en segundo plano: no hay
  *   endpoint para dispararlos.
  *
- * OpenAPI spec version: 0.5.0
+ * OpenAPI spec version: 0.6.0
  */
 import {
   faker
@@ -189,6 +189,8 @@ export const getGetMyPlanResponseMock = (overrideResponse: Partial<Extract<Plan,
 export const getGetPatientPlanResponseMock = (overrideResponse: Partial<Extract<Plan, object>> = {}): Plan => ({version: faker.number.int({min: 0}), patientTimezone: faker.string.alpha({length: {min: 1, max: 64}}), generatedAt: faker.date.past().toISOString().slice(0, 19) + 'Z', validFrom: faker.date.past().toISOString().slice(0, 19) + 'Z', validUntil: faker.date.past().toISOString().slice(0, 19) + 'Z', doses: Array.from({ length: faker.number.int({min: 1, max: 10}) }, (_, i) => i + 1).map(() => ({scheduleId: faker.string.uuid(), medicationId: faker.string.uuid(), medicationName: faker.string.alpha({length: {min: 10, max: 20}}), dosage: faker.string.alpha({length: {min: 10, max: 20}}), instructions: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), color: faker.helpers.fromRegExp("^#[0-9A-Fa-f]{6}$"), scheduledAt: faker.date.past().toISOString().slice(0, 19) + 'Z'})), ...overrideResponse})
 
 export const getCreateMyDoseEventsResponseMock = (overrideResponse: Partial<Extract<DoseEventBatchResult, object>> = {}): DoseEventBatchResult => ({results: Array.from({ length: faker.number.int({min: 1, max: 10}) }, (_, i) => i + 1).map(() => ({eventId: faker.string.uuid(), outcome: faker.helpers.arrayElement(['created','duplicate','rejected'] as const), code: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null])})), ...overrideResponse})
+
+export const getCreatePatientDoseEventsResponseMock = (overrideResponse: Partial<Extract<DoseEventBatchResult, object>> = {}): DoseEventBatchResult => ({results: Array.from({ length: faker.number.int({min: 1, max: 10}) }, (_, i) => i + 1).map(() => ({eventId: faker.string.uuid(), outcome: faker.helpers.arrayElement(['created','duplicate','rejected'] as const), code: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null])})), ...overrideResponse})
 
 export const getListDoseHistoryResponseMock = (overrideResponse: Partial<Extract<DoseHistoryPage, object>> = {}): DoseHistoryPage => ({items: Array.from({ length: faker.number.int({min: 1, max: 10}) }, (_, i) => i + 1).map(() => ({scheduleId: faker.string.uuid(), medicationId: faker.string.uuid(), medicationName: faker.string.alpha({length: {min: 10, max: 20}}), dosage: faker.string.alpha({length: {min: 10, max: 20}}), scheduledAt: faker.date.past().toISOString().slice(0, 19) + 'Z', status: faker.helpers.arrayElement(Object.values(DoseStatus)), actedAt: faker.helpers.arrayElement([faker.date.past().toISOString().slice(0, 19) + 'Z',null,])})), nextCursor: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}),null,]), ...overrideResponse})
 
@@ -677,6 +679,18 @@ export const getCreateMyDoseEventsMockHandler = (overrideResponse?: DoseEventBat
   }, options)
 }
 
+export const getCreatePatientDoseEventsMockHandler = (overrideResponse?: DoseEventBatchResult | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Promise<DoseEventBatchResult> | DoseEventBatchResult), options?: RequestHandlerOptions) => {
+  return http.post('*/patients/:patientId/dose-events', async (info: Parameters<Parameters<typeof http.post>[1]>[0]) => {
+
+
+    return HttpResponse.json(overrideResponse !== undefined
+    ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse)
+    : getCreatePatientDoseEventsResponseMock(),
+      { status: 200
+      })
+  }, options)
+}
+
 export const getListDoseHistoryMockHandler = (overrideResponse?: DoseHistoryPage | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<DoseHistoryPage> | DoseHistoryPage), options?: RequestHandlerOptions) => {
   return http.get('*/patients/:patientId/dose-history', async (info: Parameters<Parameters<typeof http.get>[1]>[0]) => {
 
@@ -922,6 +936,7 @@ export const getAPIDeRecordatoriosDeMedicamentosMock = () => [
   getGetMyPlanMockHandler(),
   getGetPatientPlanMockHandler(),
   getCreateMyDoseEventsMockHandler(),
+  getCreatePatientDoseEventsMockHandler(),
   getListDoseHistoryMockHandler(),
   getGetAdherenceMockHandler(),
   getVerifyEmailMockHandler(),
