@@ -12,12 +12,12 @@ import {
   useSetMyNotificationPreferences,
   useUnlinkTelegram,
   type NotificationPreferences,
-} from '../api/generated';
-import { Badge } from '../components/atoms/Badge/Badge';
-import { Button } from '../components/atoms/Button/Button';
-import { Spinner } from '../components/atoms/Spinner/Spinner';
-import { Text } from '../components/atoms/Text/Text';
-import { errorMessage } from '../lib/errors';
+} from '../../api/generated';
+import { Badge } from '../../components/atoms/Badge/Badge';
+import { Button } from '../../components/atoms/Button/Button';
+import { Spinner } from '../../components/atoms/Spinner/Spinner';
+import { Text } from '../../components/atoms/Text/Text';
+import { errorMessage } from '../../lib/errors';
 
 const POLL_MS = 3000;
 // Si el backend no manda una fecha válida, el enlace se da por caducado a los 15 min (su vida real).
@@ -25,6 +25,12 @@ const LINK_TTL_MS = 15 * 60 * 1000;
 // setTimeout dispara de inmediato con retardos mayores a 2^31-1 ms.
 const MAX_TIMEOUT_MS = 2 ** 31 - 1;
 const CONSENT_VERSION = '1';
+
+/** `/start <token>` sacado del enlace: respaldo para Telegram Web, que a veces abre el chat sin enviarlo. */
+function startCommand(url: string): string | undefined {
+  const token = /[?&]start=([^&#]+)/.exec(url)?.[1];
+  return token ? `/start ${decodeURIComponent(token)}` : undefined;
+}
 
 function TelegramCard() {
   const queryClient = useQueryClient();
@@ -67,7 +73,7 @@ function TelegramCard() {
 
   return (
     <section aria-labelledby="channels-title" className="flex flex-col gap-3">
-      <Text id="channels-title" variant="subtitle" as="h2">
+      <Text id="channels-title" variant="subtitle" as="h3">
         Canales
       </Text>
       {channels.isPending && <Spinner label="Cargando canales" />}
@@ -126,6 +132,12 @@ function TelegramCard() {
                   >
                     Abrir Telegram
                   </a>
+                  {startCommand(link.data.url) && (
+                    <Text tone="muted">
+                      ¿El bot no responde? Escríbele este mensaje:{' '}
+                      <code>{startCommand(link.data.url)}</code>
+                    </Text>
+                  )}
                 </div>
               ) : (
                 <>
@@ -162,7 +174,7 @@ function PreferencesForm({ initial }: { initial: NotificationPreferences }) {
       className="flex flex-col gap-3"
       aria-labelledby="prefs-title"
     >
-      <Text id="prefs-title" variant="subtitle" as="h2">
+      <Text id="prefs-title" variant="subtitle" as="h3">
         Qué avisos recibir
       </Text>
       <table className="w-full text-left">
@@ -238,15 +250,18 @@ function ConsentToggle() {
   );
 }
 
-export function NotificationsPage() {
+export function NotificationsSection() {
   const preferences = useGetMyNotificationPreferences();
   return (
-    <div className="flex flex-col gap-6">
+    <section aria-labelledby="notif-title" className="flex flex-col gap-6">
+      <Text id="notif-title" variant="subtitle" as="h2">
+        Avisos
+      </Text>
       <ConsentToggle />
       <TelegramCard />
       {preferences.isPending && <Spinner label="Cargando preferencias" />}
       {preferences.isError && <Text tone="danger">{errorMessage(preferences.error)}</Text>}
       {preferences.data && <PreferencesForm initial={preferences.data} />}
-    </div>
+    </section>
   );
 }
