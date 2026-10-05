@@ -5,6 +5,7 @@ All URIs are relative to *http://localhost:8000*
 | Method | HTTP request | Description |
 | ------------- | ------------- | ------------- |
 | [**createMyDoseEvents**](DosesApi.md#createMyDoseEvents) | **POST** devices/me/dose-events | Subir eventos de toma (lote, idempotente) |
+| [**createPatientDoseEvents**](DosesApi.md#createPatientDoseEvents) | **POST** patients/{patientId}/dose-events | Registrar tomas desde la web (lote, idempotente) |
 | [**getAdherence**](DosesApi.md#getAdherence) | **GET** patients/{patientId}/adherence | Porcentaje de adherencia de un paciente |
 | [**listDoseHistory**](DosesApi.md#listDoseHistory) | **GET** patients/{patientId}/dose-history | Historial de dosis de un paciente |
 
@@ -32,6 +33,50 @@ launch(Dispatchers.IO) {
 ```
 
 ### Parameters
+| Name | Type | Description  | Notes |
+| ------------- | ------------- | ------------- | ------------- |
+| **doseEventBatch** | [**DoseEventBatch**](DoseEventBatch.md)|  | |
+
+### Return type
+
+[**DoseEventBatchResult**](DoseEventBatchResult.md)
+
+### Authorization
+
+
+Configure bearerAuth:
+    ApiClient().setBearerToken("TOKEN")
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json, application/problem+json
+
+
+Registrar tomas desde la web (lote, idempotente)
+
+Para el paciente con cuenta (su propio perfil) o un cuidador con vínculo activo, cuando el paciente no tiene reloj a mano o se olvidó de marcar. Mismas reglas, cuerpo y respuesta que &#x60;POST /devices/me/dose-events&#x60;: hasta 100 eventos, idempotente por &#x60;eventId&#x60; (lo genera el cliente), cada evento se resuelve por separado y el lote responde 200, y una dosis tiene como mucho un evento (&#x60;dose_already_recorded&#x60;). Requiere el consentimiento &#x60;health_data&#x60; (403 &#x60;consent_required&#x60;). Un paciente sin vínculo con el usuario es 404. Los eventos guardados quedan sin dispositivo asociado. 
+
+### Example
+```kotlin
+// Import classes:
+//import com.smartwatch.recordatorios.api.*
+//import com.smartwatch.recordatorios.api.infrastructure.*
+//import com.smartwatch.recordatorios.api.models.*
+
+val apiClient = ApiClient()
+apiClient.setBearerToken("TOKEN")
+val webService = apiClient.createWebservice(DosesApi::class.java)
+val patientId : java.util.UUID = 38400000-8cf0-11bd-b23e-10b96e4ef00d // java.util.UUID | 
+val doseEventBatch : DoseEventBatch =  // DoseEventBatch | 
+
+launch(Dispatchers.IO) {
+    val result : DoseEventBatchResult = webService.createPatientDoseEvents(patientId, doseEventBatch)
+}
+```
+
+### Parameters
+| **patientId** | **java.util.UUID**|  | |
 | Name | Type | Description  | Notes |
 | ------------- | ------------- | ------------- | ------------- |
 | **doseEventBatch** | [**DoseEventBatch**](DoseEventBatch.md)|  | |

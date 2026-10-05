@@ -1,8 +1,11 @@
+import { useState } from 'react';
+
 import { useGetPatientPlan } from '../api/generated';
 import { Button } from '../components/atoms/Button/Button';
 import { ColorDot } from '../components/atoms/ColorDot/ColorDot';
 import { Spinner } from '../components/atoms/Spinner/Spinner';
 import { Text } from '../components/atoms/Text/Text';
+import { DoseActions } from '../features/doses/DoseActions';
 import { groupByDay } from '../features/plan/groupByDay';
 import { usePatient } from '../features/patients/PatientGate';
 import { formatDay, formatTime, localDate } from '../lib/dates';
@@ -11,6 +14,8 @@ import { errorMessage } from '../lib/errors';
 export function AgendaPage() {
   const { patientId } = usePatient();
   const plan = useGetPatientPlan(patientId);
+  // Hora de referencia fija por visita: al volver a la pantalla se recalcula.
+  const [now] = useState(() => Date.now());
 
   if (plan.isPending) return <Spinner label="Cargando agenda" />;
   if (plan.isError) {
@@ -28,7 +33,7 @@ export function AgendaPage() {
   if (doses.length === 0) {
     return <Text tone="muted">No hay tomas en los próximos 7 días.</Text>;
   }
-  const today = localDate(new Date(), tz);
+  const today = localDate(new Date(now), tz);
 
   return (
     <div className="flex flex-col gap-6">
@@ -41,18 +46,27 @@ export function AgendaPage() {
             {dayDoses.map((dose) => (
               <li
                 key={`${dose.scheduleId}-${dose.scheduledAt}`}
-                className="flex items-center gap-4 rounded-md border-2 border-border bg-surface-raised p-4"
+                className="flex flex-wrap items-center gap-4 rounded-md border-2 border-border bg-surface-raised p-4"
               >
                 <Text variant="subtitle" as="p">
                   {formatTime(dose.scheduledAt, tz)}
                 </Text>
                 <ColorDot hex={dose.color} />
-                <div>
+                <div className="min-w-0 flex-1">
                   <Text as="p">{dose.medicationName}</Text>
                   <Text tone="muted" variant="caption">
                     {dose.dosage}
                   </Text>
                 </div>
+                {/* Solo las de hoy que ya llegaron a su hora; si el reloj ya la registró, el backend lo indica. */}
+                {day === today && new Date(dose.scheduledAt).getTime() <= now && (
+                  <DoseActions
+                    patientId={patientId}
+                    scheduleId={dose.scheduleId}
+                    scheduledAt={dose.scheduledAt}
+                    label={dose.medicationName}
+                  />
+                )}
               </li>
             ))}
           </ul>

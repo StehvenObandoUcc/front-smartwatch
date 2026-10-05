@@ -57,7 +57,7 @@
  *   (alerta de dosis omitida, reporte semanal) lo hace un worker en segundo plano: no hay
  *   endpoint para dispararlos.
  *
- * OpenAPI spec version: 0.5.0
+ * OpenAPI spec version: 0.6.0
  */
 import {
   useMutation,
@@ -4218,6 +4218,82 @@ export const useCreateMyDoseEvents = <TError = UnauthorizedResponse | ForbiddenR
         TContext
       > => {
       return useMutation(getCreateMyDoseEventsMutationOptions(options), queryClient);
+    }
+
+/**
+ * Para el paciente con cuenta (su propio perfil) o un cuidador con vínculo activo, cuando el
+ * paciente no tiene reloj a mano o se olvidó de marcar. Mismas reglas, cuerpo y respuesta que
+ * `POST /devices/me/dose-events`: hasta 100 eventos, idempotente por `eventId` (lo genera el
+ * cliente), cada evento se resuelve por separado y el lote responde 200, y una dosis tiene
+ * como mucho un evento (`dose_already_recorded`). Requiere el consentimiento `health_data`
+ * (403 `consent_required`). Un paciente sin vínculo con el usuario es 404. Los eventos
+ * guardados quedan sin dispositivo asociado.
+ * @summary Registrar tomas desde la web (lote, idempotente)
+ */
+export const createPatientDoseEvents = (
+    patientId: string,
+    doseEventBatch: DoseEventBatch,
+ options?: SecondParameter<typeof http>,signal?: AbortSignal
+) => {
+
+
+      return http<DoseEventBatchResult>(
+      {url: `/patients/${patientId}/dose-events`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: doseEventBatch, signal
+    },
+      options);
+    }
+
+
+
+
+export const getCreatePatientDoseEventsMutationKey = () => ['createPatientDoseEvents'] as const;
+
+export const getCreatePatientDoseEventsMutationOptions = <TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | ValidationErrorResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createPatientDoseEvents>>, TError,CreatePatientDoseEventsMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+): UseMutationOptions<Awaited<ReturnType<typeof createPatientDoseEvents>>, TError,CreatePatientDoseEventsMutationVariables, TContext> => {
+
+const mutationKey = getCreatePatientDoseEventsMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createPatientDoseEvents>>, CreatePatientDoseEventsMutationVariables> = (props) => {
+          const {patientId,data} = props ?? {};
+
+          return  createPatientDoseEvents(patientId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreatePatientDoseEventsMutationResult = NonNullable<Awaited<ReturnType<typeof createPatientDoseEvents>>>
+    export type CreatePatientDoseEventsMutationBody = DoseEventBatch
+    export type CreatePatientDoseEventsMutationError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | ValidationErrorResponse
+    export type CreatePatientDoseEventsMutationVariables = {patientId: string;data: DoseEventBatch}
+
+    /**
+ * @summary Registrar tomas desde la web (lote, idempotente)
+ */
+export const useCreatePatientDoseEvents = <TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | ValidationErrorResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createPatientDoseEvents>>, TError,CreatePatientDoseEventsMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof createPatientDoseEvents>>,
+        TError,
+        CreatePatientDoseEventsMutationVariables,
+        TContext
+      > => {
+      return useMutation(getCreatePatientDoseEventsMutationOptions(options), queryClient);
     }
 
 /**
