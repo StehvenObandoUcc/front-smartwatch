@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Link } from 'react-router';
 import { useQueryClient } from '@tanstack/react-query';
 
 import {
@@ -14,6 +13,7 @@ import { Text } from '../components/atoms/Text/Text';
 import { FormField } from '../components/molecules/FormField';
 import { useAuth } from '../features/auth/AuthContext';
 import { CaregiversSection } from '../features/caregivers/CaregiversSection';
+import { NotificationsSection } from '../features/notifications/NotificationsSection';
 import { usePatient } from '../features/patients/PatientGate';
 import { errorMessage } from '../lib/errors';
 
@@ -79,15 +79,7 @@ export function SettingsPage() {
 
       {auth.status === 'authed' && auth.user.role === 'patient' && <CaregiversSection />}
 
-      <section aria-labelledby="notif-title" className="flex flex-col gap-2">
-        <Text id="notif-title" variant="subtitle" as="h2">
-          Avisos
-        </Text>
-        <Text tone="muted">Conecta Telegram y elige qué avisos recibir por correo o Telegram.</Text>
-        <Link to="/notificaciones" className="underline">
-          Avisos y Telegram
-        </Link>
-      </section>
+      <NotificationsSection />
 
       <section aria-labelledby="dev-title" className="flex flex-col gap-2">
         <Text id="dev-title" variant="subtitle" as="h2">

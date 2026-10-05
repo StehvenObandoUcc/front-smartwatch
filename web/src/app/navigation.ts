@@ -10,7 +10,6 @@ export const navItems: NavItem[] = [
 
 // Pantallas fuera del menú principal: solo aportan el título de la cabecera.
 export const extraTitles: Record<string, string> = {
-  '/notificaciones': 'Avisos y Telegram',
   '/asistente': 'Asistente',
   '/reportes': 'Reportes',
   // Enlace directo desde correo o Telegram.
