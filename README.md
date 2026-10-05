@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="docs/assets/logo.svg" alt="Logo de front-smartwatch" width="120" />
+
 # front-smartwatch
 
 **Reloj Wear OS y panel web para gestionar recordatorios de medicamentos.**
