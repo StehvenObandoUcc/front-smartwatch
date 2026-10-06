@@ -41,7 +41,7 @@ export function AppShell({ appName, title, nav, actions, children }: Props) {
 
       <nav
         aria-label="Principal"
-        className="hidden bg-bg shadow-raised tablet:sticky tablet:top-0 tablet:flex tablet:h-dvh tablet:w-28 tablet:flex-col tablet:gap-1 tablet:p-2 desktop:w-sidebar desktop:p-4"
+        className="hidden border-r-2 border-border bg-surface-raised tablet:sticky tablet:top-0 tablet:flex tablet:h-dvh tablet:w-28 tablet:flex-col tablet:gap-1 tablet:p-2 desktop:w-sidebar desktop:p-4"
       >
         <Text as="p" variant="subtitle" className="hidden px-3 pb-4 desktop:block">
           {appName}
@@ -53,10 +53,8 @@ export function AppShell({ appName, title, nav, actions, children }: Props) {
             end
             className={({ isActive }) =>
               cn(
-                'flex min-h-touch flex-col items-center justify-center gap-1 rounded-md px-3 py-2 text-caption font-semibold desktop:flex-row desktop:justify-start desktop:gap-3 desktop:text-body',
-                isActive
-                  ? 'bg-primary text-on-primary shadow-inset'
-                  : 'text-text transition-shadow hover:shadow-raised-sm motion-reduce:transition-none',
+                'flex min-h-touch flex-col items-center justify-center gap-1 rounded-xl px-3 py-2 text-caption font-semibold desktop:flex-row desktop:justify-start desktop:gap-3 desktop:text-body',
+                isActive ? 'bg-primary text-on-primary shadow-key' : 'text-text hover:bg-surface',
               )
             }
           >
@@ -67,7 +65,7 @@ export function AppShell({ appName, title, nav, actions, children }: Props) {
       </nav>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-10 flex min-h-16 items-center justify-between gap-4 bg-bg px-4 shadow-raised-sm tablet:px-6">
+        <header className="sticky top-0 z-10 flex min-h-16 items-center justify-between gap-4 border-b-2 border-border bg-bg px-4 tablet:px-6">
           <Text variant="title" as="h1" className="min-w-0 truncate">
             {title}
           </Text>
@@ -85,7 +83,7 @@ export function AppShell({ appName, title, nav, actions, children }: Props) {
 
       <nav
         aria-label="Principal móvil"
-        className="fixed inset-x-0 bottom-0 z-10 flex bg-bg pb-safe-bottom shadow-raised tablet:hidden"
+        className="fixed inset-x-0 bottom-0 z-10 flex border-t-2 border-border bg-surface-raised pb-safe-bottom tablet:hidden"
       >
         {nav
           .filter((item) => item.mobile !== false)
