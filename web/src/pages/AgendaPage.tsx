@@ -48,7 +48,7 @@ export function AgendaPage() {
                 key={`${dose.scheduleId}-${dose.scheduledAt}`}
                 className="flex flex-wrap items-center gap-4 card p-4"
               >
-                <Text variant="subtitle" as="p">
+                <Text variant="subtitle" as="p" className="min-w-16 tabular-nums">
                   {formatTime(dose.scheduledAt, tz)}
                 </Text>
                 <ColorDot hex={dose.color} />

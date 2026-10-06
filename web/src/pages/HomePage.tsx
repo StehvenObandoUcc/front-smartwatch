@@ -15,6 +15,7 @@ import { InfoCard } from '../components/molecules/InfoCard';
 import { ErrorRetry } from '../components/molecules/ErrorRetry';
 import { useAuth } from '../features/auth/AuthContext';
 import { AdherenceChart } from '../features/doses/AdherenceChart';
+import { TodayPillbox } from '../features/doses/TodayPillbox';
 import { usePatient } from '../features/patients/PatientGate';
 import { percentText } from '../features/reports/ReportView';
 import { formatDay, formatTime } from '../lib/dates';
@@ -162,6 +163,7 @@ export function HomePage() {
       <Text variant="title" as="h2">
         Hola, {name}
       </Text>
+      <TodayPillbox />
       <div className="grid gap-4 tablet:grid-cols-2 desktop:grid-cols-3">
         <NextDoseCard />
         <AdherenceCard />
@@ -177,7 +179,7 @@ export function HomePage() {
             <li key={link.to}>
               <Link
                 to={link.to}
-                className="flex min-h-touch flex-col justify-center card p-3 transition-shadow hover:shadow-raised-sm active:shadow-inset motion-reduce:transition-none"
+                className="flex min-h-touch flex-col justify-center card p-3 transition-colors hover:bg-surface motion-reduce:transition-none"
               >
                 <span className="text-body font-semibold">{link.label}</span>
                 <span className="text-caption text-text-muted">{link.help}</span>

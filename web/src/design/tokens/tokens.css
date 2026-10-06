@@ -1,30 +1,39 @@
 /*
  * Tokens de diseño. Único lugar con valores visuales literales.
  * Se reinician las escalas por defecto de Tailwind para que solo existan estas.
+ *
+ * Dirección: un pastillero. Tres franjas del día (mañana, tarde, noche) con color propio,
+ * botones en forma de cápsula con un borde inferior que se hunde al pulsar y tarjetas con borde.
  */
 
 :root {
   color-scheme: light dark;
 
-  /* Neumorfismo: el fondo, las tarjetas y los controles comparten el mismo tono; la profundidad
-     la dan las sombras. El contraste lo siguen dando el texto, el color de acción y --border-strong. */
-  --bg: #e8edf3;
-  --surface: #dde4ec;
-  --surface-raised: #e8edf3;
-  --text: #14202b;
-  --text-muted: #4a5968;
-  --border: #c9d2dc;
-  --border-strong: #76838f;
-  --shadow-light: rgb(255 255 255 / 0.9);
-  --shadow-dark: rgb(120 138 158 / 0.45);
-  --primary: #0b5cad;
-  --primary-hover: #094a8c;
+  --bg: #f4f1fb;
+  --surface: #e9e4f7;
+  --surface-raised: #ffffff;
+  --text: #1e1b3a;
+  --text-muted: #55537a;
+  --border: #d9d3ee;
+  --border-strong: #7c79a6;
+  --primary: #4338ca;
+  --primary-hover: #372fb0;
   --on-primary: #ffffff;
+  --primary-ledge: #2a2390;
   --danger: #b3261e;
   --on-danger: #ffffff;
-  --success: #1b6e3a;
+  --danger-ledge: #7f1b15;
+  --success: #16794a;
   --warning: #8a5300;
-  --focus: #0b5cad;
+  --focus: #4338ca;
+
+  /* Franjas del día: cada una se muestra siempre con su nombre. */
+  --morning: #ffd66b;
+  --on-morning: #3b2a00;
+  --afternoon: #ffb59c;
+  --on-afternoon: #4a1b0c;
+  --night: #2d2a6e;
+  --on-night: #ffffff;
 
   /* Paleta de medicamentos: siempre se muestra junto al nombre. */
   --med-red: #c62828;
@@ -39,44 +48,46 @@
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
-    --bg: #1c2733;
-    --surface: #17212b;
-    --surface-raised: #1c2733;
-    --text: #f1f5f9;
-    --text-muted: #b6c2ce;
-    --border: #2f3d4b;
-    --border-strong: #7d8b99;
-    --shadow-light: rgb(255 255 255 / 0.06);
-    --shadow-dark: rgb(0 0 0 / 0.55);
-    --primary: #7db8f5;
-    --primary-hover: #a3cdf8;
-    --on-primary: #0f1720;
-    --danger: #f2b8b5;
-    --on-danger: #3a0b08;
-    --success: #8fd4a4;
+    --bg: #14122b;
+    --surface: #1e1b3f;
+    --surface-raised: #221f47;
+    --text: #f3f1ff;
+    --text-muted: #bdbbe0;
+    --border: #3a3669;
+    --border-strong: #8d8ac0;
+    --primary: #a5a0ff;
+    --primary-hover: #bdb9ff;
+    --on-primary: #14122b;
+    --primary-ledge: #5a53c9;
+    --danger: #ffb4ab;
+    --on-danger: #4a0b06;
+    --danger-ledge: #c0554b;
+    --success: #7fdca8;
     --warning: #f0c070;
-    --focus: #7db8f5;
+    --focus: #a5a0ff;
+    --night: #3b3880;
   }
 }
 
 :root[data-theme='dark'] {
-  --bg: #1c2733;
-  --surface: #17212b;
-  --surface-raised: #1c2733;
-  --text: #f1f5f9;
-  --text-muted: #b6c2ce;
-  --border: #2f3d4b;
-  --border-strong: #7d8b99;
-  --shadow-light: rgb(255 255 255 / 0.06);
-  --shadow-dark: rgb(0 0 0 / 0.55);
-  --primary: #7db8f5;
-  --primary-hover: #a3cdf8;
-  --on-primary: #0f1720;
-  --danger: #f2b8b5;
-  --on-danger: #3a0b08;
-  --success: #8fd4a4;
+  --bg: #14122b;
+  --surface: #1e1b3f;
+  --surface-raised: #221f47;
+  --text: #f3f1ff;
+  --text-muted: #bdbbe0;
+  --border: #3a3669;
+  --border-strong: #8d8ac0;
+  --primary: #a5a0ff;
+  --primary-hover: #bdb9ff;
+  --on-primary: #14122b;
+  --primary-ledge: #5a53c9;
+  --danger: #ffb4ab;
+  --on-danger: #4a0b06;
+  --danger-ledge: #c0554b;
+  --success: #7fdca8;
   --warning: #f0c070;
-  --focus: #7db8f5;
+  --focus: #a5a0ff;
+  --night: #3b3880;
 }
 
 @theme inline {
@@ -97,6 +108,12 @@
   --color-warning: var(--warning);
   --color-focus: var(--focus);
   --color-transparent: transparent;
+  --color-morning: var(--morning);
+  --color-on-morning: var(--on-morning);
+  --color-afternoon: var(--afternoon);
+  --color-on-afternoon: var(--on-afternoon);
+  --color-night: var(--night);
+  --color-on-night: var(--on-night);
   --color-med-red: var(--med-red);
   --color-med-orange: var(--med-orange);
   --color-med-yellow: var(--med-yellow);
@@ -105,20 +122,20 @@
   --color-med-blue: var(--med-blue);
   --color-med-purple: var(--med-purple);
   --color-med-pink: var(--med-pink);
-}
 
-@theme inline {
-  /* Elevaciones neumórficas: raised = sale de la superficie, inset = hundido (campos, estado presionado). */
+  /* Bordes inferiores que dan volumen sin sombras difusas: "key" = tecla de color, "ledge" = tarjeta. */
   --shadow-*: initial;
-  --shadow-raised: 6px 6px 14px var(--shadow-dark), -6px -6px 14px var(--shadow-light);
-  --shadow-raised-sm: 3px 3px 7px var(--shadow-dark), -3px -3px 7px var(--shadow-light);
-  --shadow-inset: inset 3px 3px 7px var(--shadow-dark), inset -3px -3px 7px var(--shadow-light);
+  --shadow-ledge: 0 3px 0 var(--border);
+  --shadow-key: 0 4px 0 var(--primary-ledge);
+  --shadow-key-danger: 0 4px 0 var(--danger-ledge);
+  --shadow-key-quiet: 0 3px 0 var(--border-strong);
 }
 
 @theme {
-  /* Tipografía: texto base 17 px. */
+  /* Tipografía: texto base 17 px. Títulos con Bricolage Grotesque, texto con Atkinson Hyperlegible. */
   --font-*: initial;
   --font-sans: 'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Bricolage Grotesque', 'Atkinson Hyperlegible', system-ui, sans-serif;
 
   --text-*: initial;
   --text-caption: 0.9375rem;
@@ -142,8 +159,9 @@
 
   --radius-*: initial;
   --radius-sm: 0.375rem;
-  --radius-md: 0.625rem;
+  --radius-md: 0.75rem;
   --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
   --radius-full: 9999px;
 
   /* Breakpoints: móvil < 640, tablet 640–1024, escritorio > 1024. */

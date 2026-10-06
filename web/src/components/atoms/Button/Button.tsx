@@ -13,12 +13,13 @@ type Props = ButtonHTMLAttributes<HTMLButtonElement> & {
 };
 
 const variantClass: Record<Variant, string> = {
-  // Elevados en reposo; al presionar se hunden (active) sin depender solo de la sombra: cambia también el color.
-  primary: 'bg-primary text-on-primary shadow-raised-sm hover:bg-primary-hover active:shadow-inset',
+  // Teclas con borde inferior: al pulsar bajan 3 px y el borde desaparece.
+  primary:
+    'bg-primary text-on-primary shadow-key hover:bg-primary-hover active:translate-y-0.75 active:shadow-none',
   secondary:
-    'border-2 border-primary bg-surface-raised text-primary shadow-raised-sm hover:bg-surface active:bg-surface active:shadow-inset',
-  danger: 'bg-danger text-on-danger shadow-raised-sm active:shadow-inset active:brightness-90',
-  ghost: 'bg-transparent text-primary hover:bg-surface active:shadow-inset',
+    'border-2 border-primary bg-surface-raised text-primary shadow-key-quiet hover:bg-surface active:translate-y-0.75 active:shadow-none',
+  danger: 'bg-danger text-on-danger shadow-key-danger active:translate-y-0.75 active:shadow-none',
+  ghost: 'bg-transparent text-primary hover:bg-surface',
 };
 
 export function Button({
@@ -39,7 +40,7 @@ export function Button({
       disabled={inactive}
       aria-busy={loading || undefined}
       className={cn(
-        'inline-flex min-h-touch min-w-touch items-center justify-center gap-2 rounded-md px-5 text-body font-semibold transition-all duration-150 motion-reduce:transition-none',
+        'inline-flex min-h-touch min-w-touch items-center justify-center gap-2 rounded-full px-6 text-body font-semibold transition-all duration-100 motion-reduce:transition-none',
         'disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none',
         variantClass[variant],
         fullWidth && 'w-full',

@@ -15,9 +15,9 @@ type Props = {
 };
 
 const variantClass: Record<Variant, string> = {
-  display: 'text-2xl font-bold',
-  title: 'text-xl font-bold',
-  subtitle: 'text-lg font-semibold',
+  display: 'font-display text-2xl font-bold',
+  title: 'font-display text-xl font-bold',
+  subtitle: 'font-display text-lg font-semibold',
   body: 'text-body',
   caption: 'text-caption',
 };

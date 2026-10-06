@@ -12,7 +12,7 @@ export function Input({ invalid = false, className, ...rest }: Props) {
     <input
       aria-invalid={invalid || undefined}
       className={cn(
-        'min-h-touch w-full rounded-md border-2 bg-surface px-3 text-body text-text shadow-inset transition-shadow motion-reduce:transition-none',
+        'min-h-touch w-full rounded-lg border-2 bg-surface-raised px-4 text-body text-text',
         'placeholder:text-text-muted disabled:cursor-not-allowed disabled:opacity-50',
         invalid ? 'border-danger' : 'border-border-strong',
         className,
