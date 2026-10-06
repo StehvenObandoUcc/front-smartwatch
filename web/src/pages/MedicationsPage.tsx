@@ -120,10 +120,7 @@ export function MedicationsPage() {
       )}
       <ul className="flex flex-col gap-2">
         {medications.data?.items.map((med) => (
-          <li
-            key={med.id}
-            className="flex items-center justify-between gap-4 rounded-md border-2 border-border bg-surface-raised p-4"
-          >
+          <li key={med.id} className="card flex flex-wrap items-center justify-between gap-4 p-4">
             <div className="flex items-center gap-3">
               <ColorDot hex={med.color} />
               <div>

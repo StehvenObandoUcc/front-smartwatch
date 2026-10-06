@@ -44,10 +44,7 @@ export function CaregiversSection() {
       {caregivers.data?.items.length === 0 && <Text tone="muted">Aún no tienes cuidadores.</Text>}
       <ul className="flex flex-col gap-2">
         {caregivers.data?.items.map((link) => (
-          <li
-            key={link.caregiverId}
-            className="flex items-center justify-between gap-2 rounded-md border-2 border-border bg-surface-raised p-4"
-          >
+          <li key={link.caregiverId} className="flex items-center justify-between gap-2 card p-4">
             <div className="flex items-center gap-2">
               <Text as="p">{link.caregiverDisplayName}</Text>
               {!link.active && <Badge tone="warning">Revocado</Badge>}

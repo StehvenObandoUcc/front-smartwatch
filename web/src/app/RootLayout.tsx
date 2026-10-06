@@ -28,7 +28,10 @@ export function RootLayout() {
       nav={navItems}
       actions={
         <div className="flex items-center gap-2">
-          <Badge>{auth.user.role === 'caregiver' ? 'Cuidador' : 'Particular'}</Badge>
+          {/* En móvil no cabe junto al título y al botón Salir. */}
+          <span className="hidden tablet:inline-flex">
+            <Badge>{auth.user.role === 'caregiver' ? 'Cuidador' : 'Particular'}</Badge>
+          </span>
           <Button variant="ghost" onClick={() => void signOut()}>
             Salir
           </Button>

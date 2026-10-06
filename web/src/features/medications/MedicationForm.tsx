@@ -76,7 +76,7 @@ export function MedicationForm({
           {medicationColors.map((color) => (
             <label
               key={color}
-              className="flex min-h-touch items-center gap-2 rounded-md border-2 border-border px-3 has-checked:border-primary has-checked:bg-surface-raised"
+              className="flex min-h-touch items-center gap-2 rounded-md border-2 border-border-strong px-3 has-checked:border-primary has-checked:bg-surface-raised"
             >
               <input
                 type="radio"
@@ -91,7 +91,7 @@ export function MedicationForm({
           <label
             className={cn(
               'flex min-h-touch items-center gap-2 rounded-md border-2 px-3',
-              isCustomColor ? 'border-primary bg-surface-raised' : 'border-border',
+              isCustomColor ? 'border-primary bg-surface-raised' : 'border-border-strong',
             )}
           >
             <input
@@ -152,7 +152,7 @@ export function MedicationForm({
           {dayLabels.map((label, index) => (
             <label
               key={label}
-              className="flex min-h-touch min-w-touch items-center justify-center rounded-md border-2 border-border px-3 has-checked:border-primary has-checked:bg-primary has-checked:text-on-primary"
+              className="flex min-h-touch min-w-touch items-center justify-center rounded-md border-2 border-border-strong px-3 has-checked:border-primary has-checked:bg-primary has-checked:text-on-primary"
             >
               <input
                 type="checkbox"

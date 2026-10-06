@@ -13,10 +13,12 @@ type Props = ButtonHTMLAttributes<HTMLButtonElement> & {
 };
 
 const variantClass: Record<Variant, string> = {
-  primary: 'bg-primary text-on-primary hover:bg-primary-hover',
-  secondary: 'border-2 border-primary bg-surface-raised text-primary hover:bg-surface',
-  danger: 'bg-danger text-on-danger',
-  ghost: 'bg-transparent text-primary hover:bg-surface',
+  // Elevados en reposo; al presionar se hunden (active) sin depender solo de la sombra: cambia también el color.
+  primary: 'bg-primary text-on-primary shadow-raised-sm hover:bg-primary-hover active:shadow-inset',
+  secondary:
+    'border-2 border-primary bg-surface-raised text-primary shadow-raised-sm hover:bg-surface active:bg-surface active:shadow-inset',
+  danger: 'bg-danger text-on-danger shadow-raised-sm active:shadow-inset active:brightness-90',
+  ghost: 'bg-transparent text-primary hover:bg-surface active:shadow-inset',
 };
 
 export function Button({
@@ -37,8 +39,8 @@ export function Button({
       disabled={inactive}
       aria-busy={loading || undefined}
       className={cn(
-        'inline-flex min-h-touch min-w-touch items-center justify-center gap-2 rounded-md px-5 text-body font-semibold transition-colors',
-        'disabled:cursor-not-allowed disabled:opacity-50',
+        'inline-flex min-h-touch min-w-touch items-center justify-center gap-2 rounded-md px-5 text-body font-semibold transition-all duration-150 motion-reduce:transition-none',
+        'disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none',
         variantClass[variant],
         fullWidth && 'w-full',
         className,

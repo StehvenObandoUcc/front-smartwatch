@@ -75,7 +75,7 @@ export function AdherencePage() {
           {history.data.items.map((item) => (
             <li
               key={`${item.scheduleId}-${item.scheduledAt}`}
-              className="flex flex-wrap items-center justify-between gap-4 rounded-md border-2 border-border bg-surface-raised p-4"
+              className="flex flex-wrap items-center justify-between gap-4 card p-4"
             >
               <div>
                 <Text as="p">

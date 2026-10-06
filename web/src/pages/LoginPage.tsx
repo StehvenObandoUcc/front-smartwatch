@@ -44,9 +44,11 @@ export function LoginPage() {
           )}
         </FormField>
         {login.error && (
-          <Text tone="danger" as="p">
-            {errorMessage(login.error)}
-          </Text>
+          <div role="alert">
+            <Text tone="danger" as="p">
+              {errorMessage(login.error)}
+            </Text>
+          </div>
         )}
         <Button type="submit" loading={login.isPending} fullWidth>
           Entrar

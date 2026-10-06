@@ -6,12 +6,17 @@
 :root {
   color-scheme: light dark;
 
-  --bg: #ffffff;
-  --surface: #f3f5f8;
-  --surface-raised: #ffffff;
+  /* Neumorfismo: el fondo, las tarjetas y los controles comparten el mismo tono; la profundidad
+     la dan las sombras. El contraste lo siguen dando el texto, el color de acción y --border-strong. */
+  --bg: #e8edf3;
+  --surface: #dde4ec;
+  --surface-raised: #e8edf3;
   --text: #14202b;
   --text-muted: #4a5968;
-  --border: #b8c3cf;
+  --border: #c9d2dc;
+  --border-strong: #76838f;
+  --shadow-light: rgb(255 255 255 / 0.9);
+  --shadow-dark: rgb(120 138 158 / 0.45);
   --primary: #0b5cad;
   --primary-hover: #094a8c;
   --on-primary: #ffffff;
@@ -34,12 +39,15 @@
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
-    --bg: #0f1720;
-    --surface: #1a2531;
-    --surface-raised: #223040;
+    --bg: #1c2733;
+    --surface: #17212b;
+    --surface-raised: #1c2733;
     --text: #f1f5f9;
     --text-muted: #b6c2ce;
-    --border: #4a5968;
+    --border: #2f3d4b;
+    --border-strong: #7d8b99;
+    --shadow-light: rgb(255 255 255 / 0.06);
+    --shadow-dark: rgb(0 0 0 / 0.55);
     --primary: #7db8f5;
     --primary-hover: #a3cdf8;
     --on-primary: #0f1720;
@@ -52,12 +60,15 @@
 }
 
 :root[data-theme='dark'] {
-  --bg: #0f1720;
-  --surface: #1a2531;
-  --surface-raised: #223040;
+  --bg: #1c2733;
+  --surface: #17212b;
+  --surface-raised: #1c2733;
   --text: #f1f5f9;
   --text-muted: #b6c2ce;
-  --border: #4a5968;
+  --border: #2f3d4b;
+  --border-strong: #7d8b99;
+  --shadow-light: rgb(255 255 255 / 0.06);
+  --shadow-dark: rgb(0 0 0 / 0.55);
   --primary: #7db8f5;
   --primary-hover: #a3cdf8;
   --on-primary: #0f1720;
@@ -76,6 +87,7 @@
   --color-text: var(--text);
   --color-text-muted: var(--text-muted);
   --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
   --color-primary: var(--primary);
   --color-primary-hover: var(--primary-hover);
   --color-on-primary: var(--on-primary);
@@ -93,6 +105,14 @@
   --color-med-blue: var(--med-blue);
   --color-med-purple: var(--med-purple);
   --color-med-pink: var(--med-pink);
+}
+
+@theme inline {
+  /* Elevaciones neumórficas: raised = sale de la superficie, inset = hundido (campos, estado presionado). */
+  --shadow-*: initial;
+  --shadow-raised: 6px 6px 14px var(--shadow-dark), -6px -6px 14px var(--shadow-light);
+  --shadow-raised-sm: 3px 3px 7px var(--shadow-dark), -3px -3px 7px var(--shadow-light);
+  --shadow-inset: inset 3px 3px 7px var(--shadow-dark), inset -3px -3px 7px var(--shadow-light);
 }
 
 @theme {
@@ -125,10 +145,6 @@
   --radius-md: 0.625rem;
   --radius-lg: 1rem;
   --radius-full: 9999px;
-
-  --shadow-*: initial;
-  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.08);
-  --shadow-md: 0 4px 12px rgb(0 0 0 / 0.12);
 
   /* Breakpoints: móvil < 640, tablet 640–1024, escritorio > 1024. */
   --breakpoint-*: initial;
