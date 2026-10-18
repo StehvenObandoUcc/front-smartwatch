@@ -81,6 +81,7 @@ class MainActivity : ComponentActivity() {
         val today by viewModel.today.collectAsStateWithLifecycle()
         val planInfo by viewModel.planInfo.collectAsStateWithLifecycle()
         val exactAllowed by viewModel.exactAlarmsAllowed.collectAsStateWithLifecycle()
+        val themeMode by themePrefs.mode.collectAsStateWithLifecycle()
         var notificationsAllowed by remember { mutableStateOf(notifier.canPostNotifications()) }
         val notificationLauncher =
             rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
@@ -108,11 +109,13 @@ class MainActivity : ComponentActivity() {
                     planInfo = planInfo,
                     exactAlarmsAllowed = exactAllowed,
                     notificationsAllowed = notificationsAllowed,
+                    themeMode = themeMode,
                     onRequestExactAlarms = ::openExactAlarmSettings,
                     onRequestNotifications = { notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS) },
                     onOpenDose = ::openDose,
                     onOpenToday = { screen = Screen.TODAY },
                     onOpenChat = { screen = Screen.CHAT },
+                    onToggleTheme = themePrefs::toggle,
                 )
         }
     }

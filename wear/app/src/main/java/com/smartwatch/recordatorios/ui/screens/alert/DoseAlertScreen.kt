@@ -11,20 +11,17 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
-import androidx.wear.compose.material3.Button
-import androidx.wear.compose.material3.ButtonDefaults
-import androidx.wear.compose.material3.FilledTonalButton
-import androidx.wear.compose.material3.MaterialTheme
-import androidx.wear.compose.material3.OutlinedButton
-import androidx.wear.compose.material3.Text
 import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 import com.smartwatch.recordatorios.R
 import com.smartwatch.recordatorios.alarm.SnoozePolicy
 import com.smartwatch.recordatorios.data.local.DoseEntity
 import com.smartwatch.recordatorios.data.local.DoseStatus
+import com.smartwatch.recordatorios.ui.components.BwButton
 import com.smartwatch.recordatorios.ui.components.BwScreenScaffold
+import com.smartwatch.recordatorios.ui.components.BwText
 import com.smartwatch.recordatorios.ui.components.MedicationLabel
 import com.smartwatch.recordatorios.ui.components.doseStatusText
+import com.smartwatch.recordatorios.ui.theme.BwTheme
 import com.smartwatch.recordatorios.ui.theme.RecordatoriosTheme
 
 /** Alerta a pantalla completa: Tomada, Posponer y Omitir (con confirmación). */
@@ -42,66 +39,66 @@ fun DoseAlertScreen(
     BwScreenScaffold(scrollState = listState) { contentPadding ->
         TransformingLazyColumn(state = listState, contentPadding = contentPadding) {
             item {
-                Text(
+                BwText(
                     text = stringResource(if (pending) R.string.alert_title else R.string.alert_done),
-                    style = MaterialTheme.typography.labelMedium,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth(),
                 )
             }
             item { MedicationLabel(name = dose.medicationName, colorKey = dose.colorKey) }
-            item { Text(dose.doseLabel, style = MaterialTheme.typography.bodyLarge) }
-            item { Text(doseStatusText(dose), style = MaterialTheme.typography.bodyMedium) }
+            item { BwText(dose.doseLabel) }
+            item { BwText(doseStatusText(dose)) }
 
             when {
                 !pending -> Unit
                 confirmingSkip -> {
                     item {
-                        Text(
+                        BwText(
                             text = stringResource(R.string.skip_confirm_title),
-                            style = MaterialTheme.typography.titleMedium,
+                            style = BwTheme.type.title,
                             textAlign = TextAlign.Center,
                             modifier = Modifier.fillMaxWidth(),
                         )
                     }
                     item {
-                        Button(
+                        BwButton(
+                            label = stringResource(R.string.skip_confirm_yes),
                             onClick = onSkip,
-                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
+                            primary = true,
                             modifier = Modifier.fillMaxWidth(),
-                            label = { Text(stringResource(R.string.skip_confirm_yes)) },
                         )
                     }
                     item {
-                        FilledTonalButton(
+                        BwButton(
+                            label = stringResource(R.string.skip_confirm_no),
                             onClick = { confirmingSkip = false },
                             modifier = Modifier.fillMaxWidth(),
-                            label = { Text(stringResource(R.string.skip_confirm_no)) },
                         )
                     }
                 }
                 else -> {
                     item {
-                        Button(
+                        BwButton(
+                            label = stringResource(R.string.action_take),
                             onClick = onTake,
+                            primary = true,
                             modifier = Modifier.fillMaxWidth(),
-                            label = { Text(stringResource(R.string.action_take)) },
                         )
                     }
                     if (SnoozePolicy.canSnooze(dose.snoozeCount)) {
                         item {
-                            FilledTonalButton(
+                            BwButton(
+                                label = stringResource(R.string.action_snooze),
                                 onClick = onSnooze,
                                 modifier = Modifier.fillMaxWidth(),
-                                label = { Text(stringResource(R.string.action_snooze)) },
                             )
                         }
                     }
                     item {
-                        OutlinedButton(
+                        BwButton(
+                            label = stringResource(R.string.action_skip),
                             onClick = { confirmingSkip = true },
                             modifier = Modifier.fillMaxWidth(),
-                            label = { Text(stringResource(R.string.action_skip)) },
                         )
                     }
                 }

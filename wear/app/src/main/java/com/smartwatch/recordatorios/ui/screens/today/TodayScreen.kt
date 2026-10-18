@@ -7,13 +7,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
-import androidx.wear.compose.material3.Card
-import androidx.wear.compose.material3.ListHeader
-import androidx.wear.compose.material3.MaterialTheme
-import androidx.wear.compose.material3.Text
 import com.smartwatch.recordatorios.R
 import com.smartwatch.recordatorios.data.local.DoseEntity
+import com.smartwatch.recordatorios.ui.components.BwCard
+import com.smartwatch.recordatorios.ui.components.BwHeader
 import com.smartwatch.recordatorios.ui.components.BwScreenScaffold
+import com.smartwatch.recordatorios.ui.components.BwText
 import com.smartwatch.recordatorios.ui.components.MedicationLabel
 import com.smartwatch.recordatorios.ui.components.doseStatusText
 
@@ -26,12 +25,12 @@ fun TodayScreen(
     val listState = rememberTransformingLazyColumnState()
     BwScreenScaffold(scrollState = listState) { contentPadding ->
         TransformingLazyColumn(state = listState, contentPadding = contentPadding) {
-            item { ListHeader { Text(stringResource(R.string.today_title)) } }
+            item { BwHeader(stringResource(R.string.today_title)) }
             when {
                 doses == null -> Unit
                 doses.isEmpty() ->
                     item {
-                        Text(
+                        BwText(
                             text = stringResource(R.string.today_empty),
                             textAlign = TextAlign.Center,
                             modifier = Modifier.fillMaxWidth(),
@@ -40,10 +39,14 @@ fun TodayScreen(
                 else ->
                     doses.forEach { dose ->
                         item(key = dose.id) {
-                            Card(onClick = { onOpenDose(dose) }, modifier = Modifier.fillMaxWidth()) {
+                            BwCard(
+                                onClick = { onOpenDose(dose) },
+                                onClickLabel = stringResource(R.string.open_dose),
+                                modifier = Modifier.fillMaxWidth(),
+                            ) {
                                 MedicationLabel(name = dose.medicationName, colorKey = dose.colorKey)
-                                Text(dose.doseLabel, style = MaterialTheme.typography.bodyMedium)
-                                Text(doseStatusText(dose), style = MaterialTheme.typography.bodyMedium)
+                                BwText(dose.doseLabel)
+                                BwText(doseStatusText(dose))
                             }
                         }
                     }

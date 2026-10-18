@@ -6,6 +6,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
+import com.smartwatch.recordatorios.data.local.ThemeMode
 import com.smartwatch.recordatorios.data.remote.PlanInfo
 import com.smartwatch.recordatorios.data.remote.PlanStatus
 import com.smartwatch.recordatorios.data.repository.DemoDoses
@@ -36,11 +37,13 @@ class HomeScreenTest {
                     planInfo = PlanInfo(PlanStatus.OK, 0),
                     exactAlarmsAllowed = exact,
                     notificationsAllowed = notifications,
+                    themeMode = ThemeMode.DARK,
                     onRequestExactAlarms = { exactRequests++ },
                     onRequestNotifications = { notificationRequests++ },
                     onOpenDose = {},
                     onOpenToday = {},
                     onOpenChat = {},
+                    onToggleTheme = {},
                 )
             }
         }

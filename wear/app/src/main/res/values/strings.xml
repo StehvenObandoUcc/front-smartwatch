@@ -8,6 +8,12 @@
     <string name="home_today_button">Ver las de hoy</string>
     <string name="today_title">Hoy</string>
     <string name="today_empty">No hay dosis hoy</string>
+    <string name="open_dose">Abrir dosis</string>
+    <string name="loading">Cargando</string>
+
+    <string name="theme_icon">◐</string>
+    <string name="theme_dark">Tema: Oscuro</string>
+    <string name="theme_light">Tema: Claro</string>
 
     <string name="plan_never">Plan aún sin descargar</string>
     <string name="plan_valid_until">Plan válido hasta %1$s</string>

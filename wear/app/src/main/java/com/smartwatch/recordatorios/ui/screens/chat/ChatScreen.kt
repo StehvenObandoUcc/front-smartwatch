@@ -7,12 +7,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
-import androidx.wear.compose.material3.FilledTonalButton
-import androidx.wear.compose.material3.ListHeader
-import androidx.wear.compose.material3.MaterialTheme
-import androidx.wear.compose.material3.Text
 import com.smartwatch.recordatorios.R
+import com.smartwatch.recordatorios.ui.components.BwButton
+import com.smartwatch.recordatorios.ui.components.BwHeader
 import com.smartwatch.recordatorios.ui.components.BwScreenScaffold
+import com.smartwatch.recordatorios.ui.components.BwText
+import com.smartwatch.recordatorios.ui.theme.BwTheme
 
 /** Pregunta por voz: la respuesta se muestra corta y se lee en voz alta. */
 @Composable
@@ -23,20 +23,19 @@ fun ChatScreen(
     val listState = rememberTransformingLazyColumnState()
     BwScreenScaffold(scrollState = listState) { contentPadding ->
         TransformingLazyColumn(state = listState, contentPadding = contentPadding) {
-            item { ListHeader { Text(stringResource(R.string.chat_title)) } }
+            item { BwHeader(stringResource(R.string.chat_title)) }
             item {
-                Text(
+                BwText(
                     text = body(state),
-                    style = MaterialTheme.typography.bodyLarge,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth(),
                 )
             }
             if (state is ChatState.Reply) {
                 item {
-                    Text(
+                    BwText(
                         text = stringResource(R.string.chat_remaining, state.remaining),
-                        style = MaterialTheme.typography.bodySmall,
+                        style = BwTheme.type.support,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxWidth(),
                     )
@@ -44,16 +43,13 @@ fun ChatScreen(
             }
             if (state !is ChatState.Thinking) {
                 item {
-                    FilledTonalButton(
+                    BwButton(
+                        label =
+                            stringResource(
+                                if (state is ChatState.Idle) R.string.chat_ask else R.string.chat_again,
+                            ),
                         onClick = onAsk,
                         modifier = Modifier.fillMaxWidth(),
-                        label = {
-                            Text(
-                                stringResource(
-                                    if (state is ChatState.Idle) R.string.chat_ask else R.string.chat_again,
-                                ),
-                            )
-                        },
                     )
                 }
             }

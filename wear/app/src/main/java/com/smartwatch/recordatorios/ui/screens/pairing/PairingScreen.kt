@@ -10,12 +10,12 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
-import androidx.wear.compose.material3.FilledTonalButton
-import androidx.wear.compose.material3.ListHeader
-import androidx.wear.compose.material3.MaterialTheme
-import androidx.wear.compose.material3.Text
 import com.smartwatch.recordatorios.R
+import com.smartwatch.recordatorios.ui.components.BwButton
+import com.smartwatch.recordatorios.ui.components.BwHeader
 import com.smartwatch.recordatorios.ui.components.BwScreenScaffold
+import com.smartwatch.recordatorios.ui.components.BwText
+import com.smartwatch.recordatorios.ui.theme.BwTheme
 
 @Composable
 fun PairingRoute(viewModel: PairingViewModel = hiltViewModel()) {
@@ -32,35 +32,35 @@ fun PairingScreen(
     val listState = rememberTransformingLazyColumnState()
     BwScreenScaffold(scrollState = listState) { contentPadding ->
         TransformingLazyColumn(state = listState, contentPadding = contentPadding) {
-            item { ListHeader { Text(stringResource(R.string.pair_title)) } }
+            item { BwHeader(stringResource(R.string.pair_title)) }
             when (state) {
                 PairingState.Loading ->
-                    item { Text(stringResource(R.string.pair_loading), textAlign = TextAlign.Center) }
+                    item { BwText(stringResource(R.string.pair_loading), textAlign = TextAlign.Center) }
                 is PairingState.Code -> {
                     item {
-                        Text(
+                        BwText(
                             text = state.code,
-                            style = MaterialTheme.typography.displaySmall,
+                            style = BwTheme.type.code,
                             textAlign = TextAlign.Center,
                             modifier = Modifier.fillMaxWidth(),
                         )
                     }
                     item {
-                        Text(
+                        BwText(
                             text = stringResource(R.string.pair_instructions),
-                            style = MaterialTheme.typography.bodySmall,
+                            style = BwTheme.type.support,
                             textAlign = TextAlign.Center,
                             modifier = Modifier.fillMaxWidth(),
                         )
                     }
                 }
                 PairingState.Error -> {
-                    item { Text(stringResource(R.string.pair_error), textAlign = TextAlign.Center) }
+                    item { BwText(stringResource(R.string.pair_error), textAlign = TextAlign.Center) }
                     item {
-                        FilledTonalButton(
+                        BwButton(
+                            label = stringResource(R.string.pair_retry),
                             onClick = onRetry,
                             modifier = Modifier.fillMaxWidth(),
-                            label = { Text(stringResource(R.string.pair_retry)) },
                         )
                     }
                 }
