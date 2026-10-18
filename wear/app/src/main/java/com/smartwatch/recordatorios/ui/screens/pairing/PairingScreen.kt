@@ -13,9 +13,9 @@ import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
 import androidx.wear.compose.material3.FilledTonalButton
 import androidx.wear.compose.material3.ListHeader
 import androidx.wear.compose.material3.MaterialTheme
-import androidx.wear.compose.material3.ScreenScaffold
 import androidx.wear.compose.material3.Text
 import com.smartwatch.recordatorios.R
+import com.smartwatch.recordatorios.ui.components.BwScreenScaffold
 
 @Composable
 fun PairingRoute(viewModel: PairingViewModel = hiltViewModel()) {
@@ -30,7 +30,7 @@ fun PairingScreen(
     onRetry: () -> Unit,
 ) {
     val listState = rememberTransformingLazyColumnState()
-    ScreenScaffold(scrollState = listState) { contentPadding ->
+    BwScreenScaffold(scrollState = listState) { contentPadding ->
         TransformingLazyColumn(state = listState, contentPadding = contentPadding) {
             item { ListHeader { Text(stringResource(R.string.pair_title)) } }
             when (state) {

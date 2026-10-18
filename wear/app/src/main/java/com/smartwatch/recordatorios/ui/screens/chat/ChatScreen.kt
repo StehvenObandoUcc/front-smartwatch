@@ -10,9 +10,9 @@ import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
 import androidx.wear.compose.material3.FilledTonalButton
 import androidx.wear.compose.material3.ListHeader
 import androidx.wear.compose.material3.MaterialTheme
-import androidx.wear.compose.material3.ScreenScaffold
 import androidx.wear.compose.material3.Text
 import com.smartwatch.recordatorios.R
+import com.smartwatch.recordatorios.ui.components.BwScreenScaffold
 
 /** Pregunta por voz: la respuesta se muestra corta y se lee en voz alta. */
 @Composable
@@ -21,7 +21,7 @@ fun ChatScreen(
     onAsk: () -> Unit,
 ) {
     val listState = rememberTransformingLazyColumnState()
-    ScreenScaffold(scrollState = listState) { contentPadding ->
+    BwScreenScaffold(scrollState = listState) { contentPadding ->
         TransformingLazyColumn(state = listState, contentPadding = contentPadding) {
             item { ListHeader { Text(stringResource(R.string.chat_title)) } }
             item {
