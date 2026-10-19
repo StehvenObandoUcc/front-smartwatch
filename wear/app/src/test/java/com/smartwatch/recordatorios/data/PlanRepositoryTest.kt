@@ -170,4 +170,22 @@ class PlanRepositoryTest {
 
             assertThat(graph.planRepository.sync()).isEqualTo(SyncResult.FAILED)
         }
+
+    @Test
+    fun `sin red se avisa en Inicio y se conserva el plan`() =
+        runTest {
+            graph.planApi.next = { ok(plan(dose(scheduleA, 60))) }
+            graph.planRepository.sync()
+            val validUntil = graph.planPrefs.info.value.validUntil
+            graph.planApi.next = { throw java.io.IOException("sin red") }
+
+            assertThat(graph.planRepository.sync()).isEqualTo(SyncResult.FAILED)
+            assertThat(graph.planPrefs.info.value.status).isEqualTo(PlanStatus.OFFLINE)
+            assertThat(graph.planPrefs.info.value.validUntil).isEqualTo(validUntil)
+            assertThat(graph.repository.scheduledDoses()).hasSize(1)
+
+            graph.planApi.next = { notModified() }
+            graph.planRepository.sync()
+            assertThat(graph.planPrefs.info.value.status).isEqualTo(PlanStatus.OK)
+        }
 }
