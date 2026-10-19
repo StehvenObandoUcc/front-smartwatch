@@ -31,6 +31,9 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = true
+            isShrinkResources = true
+            // Sin keystore propia aún: firma con la de depuración para instalarlo por ADB.
+            signingConfig = signingConfigs.getByName("debug")
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
@@ -85,7 +88,7 @@ dependencies {
     implementation(libs.compose.ui.tooling.preview)
     implementation(libs.wear.compose.material3)
     implementation(libs.wear.compose.foundation)
-    implementation(libs.wear.compose.ui.tooling)
+    debugImplementation(libs.wear.compose.ui.tooling)
     debugImplementation(libs.compose.ui.tooling)
     debugImplementation(libs.compose.ui.test.manifest)
 
