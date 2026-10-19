@@ -89,6 +89,19 @@ class DoseAlertScreenTest {
         assertThat(takes).isEqualTo(1)
         compose.onNodeWithText("Losartán").assertDoesNotExist()
         compose.onNodeWithText("Tomada").assertIsDisplayed()
+        compose.onNodeWithText("Losartán · 50 mg").assertExists()
+        compose.onNodeWithText("Registrada a las", substring = true).assertExists()
+    }
+
+    @Test
+    fun `posponer muestra cuántas van y cuántas quedan`() {
+        show(dose(snoozeCount = 1))
+
+        compose.onNodeWithText("Posponer").performClick()
+
+        compose.onNodeWithText("Pospuesta 2 de ${SnoozePolicy.MAX_SNOOZES}").assertExists()
+        compose.onNodeWithText("Suena a las", substring = true).assertExists()
+        compose.onNodeWithText("Queda 1 vez").assertExists()
     }
 
     @Test
