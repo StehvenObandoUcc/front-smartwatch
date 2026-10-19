@@ -48,7 +48,7 @@ fun BwBanner(
         BwIcon(icon, contentDescription = iconDescription, color = colors.accent)
         Column(verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
             BwText(title, style = BwTheme.type.label, maxLines = 2)
-            body?.let { BwText(it, style = BwTheme.type.support, maxLines = 4) }
+            body?.let { BwText(it, style = BwTheme.type.support, color = colors.contentSoft, maxLines = 4) }
         }
     }
 }

@@ -14,6 +14,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
@@ -34,10 +36,10 @@ private const val SPIN_MILLIS = 1000
 private const val FULL_TURN = 360f
 private const val ARC_SWEEP = 270f
 
-/** Indicador de carga: arco que gira en el color de contenido. TalkBack lo anuncia como «Cargando». */
+/** Indicador de carga: arco cian que gira. TalkBack lo anuncia como «Cargando». */
 @Composable
 fun BwProgress(modifier: Modifier = Modifier) {
-    val color = BwTheme.colors.content
+    val color = BwTheme.colors.info
     val description = stringResource(R.string.loading)
     val angle by rememberInfiniteTransition(label = "progress").animateFloat(
         initialValue = 0f,
@@ -62,7 +64,7 @@ fun BwProgress(modifier: Modifier = Modifier) {
     }
 }
 
-/** Marca de éxito: círculo relleno con visto dibujado (sin depender de la fuente) y su texto. */
+/** Marca de éxito: insignia verde con brillo y visto blanco dibujado (sin depender de la fuente), y su texto. */
 @Composable
 fun BwSuccessMark(
     label: String,
@@ -75,7 +77,13 @@ fun BwSuccessMark(
         verticalArrangement = Arrangement.spacedBy(Spacing.sm),
     ) {
         Canvas(modifier = Modifier.size(Sizes.successMark).clearAndSetSemantics {}) {
-            drawCircle(colors.content)
+            drawCircle(
+                Brush.radialGradient(
+                    colors = colors.success,
+                    center = Offset(size.width * BADGE_LIGHT_X, size.height * BADGE_LIGHT_Y),
+                    radius = size.minDimension,
+                ),
+            )
             val check =
                 Path().apply {
                     moveTo(size.width * CHECK_START_X, size.height * CHECK_MID_Y)
@@ -84,14 +92,16 @@ fun BwSuccessMark(
                 }
             drawPath(
                 check,
-                colors.background,
+                colors.content,
                 style = Stroke(width = Sizes.progressStroke.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round),
             )
         }
-        BwText(label, style = BwTheme.type.data, textAlign = TextAlign.Center)
+        BwText(label, style = BwTheme.type.display, textAlign = TextAlign.Center)
     }
 }
 
+private const val BADGE_LIGHT_X = 0.35f
+private const val BADGE_LIGHT_Y = 0.28f
 private const val CHECK_START_X = 0.28f
 private const val CHECK_MID_X = 0.44f
 private const val CHECK_END_X = 0.74f

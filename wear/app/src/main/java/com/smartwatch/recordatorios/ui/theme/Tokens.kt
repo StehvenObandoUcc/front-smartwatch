@@ -6,26 +6,64 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 /**
- * Colores del tema. Sin negro ni blanco puros; [content] es a la vez texto y borde, y las capas
- * se separan con borde de 2 dp, no solo con tono. Contrastes (WCAG): texto/fondo ≥ 11:1.
+ * Colores del tema: pantalla negra con difuminado púrpura (glow*), acción principal en degradado
+ * turquesa-verde, acciones de posponer/omitir en magenta, avisos en amarillo y tiempo en cian.
+ * Contrastes (WCAG): texto/fondo ≥ 13:1; contentSoft ≥ 6,7:1; texto sobre principal ≥ 9:1;
+ * blanco sobre magenta ≥ 5,3:1. El gris de la referencia no se usa para texto (4,2:1 sobre el glow).
  */
 @Immutable
 data class BwColors(
     val background: Color,
+    val glowCenter: Color,
+    val glowMid: Color,
     val surface: Color,
+    val outline: Color,
     val content: Color,
+    val contentSoft: Color,
     val accent: Color,
+    val onAccent: Color,
+    val primaryStart: Color,
+    val primaryEnd: Color,
+    val onPrimary: Color,
+    val secondaryStart: Color,
+    val secondaryEnd: Color,
+    val info: Color,
+    val infoDeep: Color,
+    val track: Color,
+    val success: List<Color>,
 )
 
-val DarkColors =
+val AppColors =
     BwColors(
-        background = Color(0xFF2B3038),
-        surface = Color(0xFF373D47),
-        content = Color(0xFFEDEFF2),
-        accent = Color(0xFFFFC94D),
+        background = Color(0xFF08080C),
+        glowCenter = Color(0xFF3A1F5E),
+        glowMid = Color(0xFF1B1233),
+        surface = Color(0xFF1E1D2A),
+        outline = Color(0xFF3A3850),
+        content = Color(0xFFFFFFFF),
+        contentSoft = Color(0xFFB7B4CC),
+        accent = Color(0xFFF5C518),
+        onAccent = Color(0xFF1A1400),
+        primaryStart = Color(0xFF3CC4D8),
+        primaryEnd = Color(0xFF3EDB86),
+        onPrimary = Color(0xFF05140E),
+        secondaryStart = Color(0xFFB52DAB),
+        secondaryEnd = Color(0xFF8E1F86),
+        info = Color(0xFF37C6F4),
+        infoDeep = Color(0xFF0A7CFF),
+        track = Color(0xFF3A3946),
+        success = listOf(Color(0xFFCFFFEA), Color(0xFF6FE9BB), Color(0xFF23B98A), Color(0xFF128A68)),
     )
 
-/** Paleta de medicamentos (misma clave que la web), con ≥ 3:1 sobre fondo y superficie. */
+/** Centro y radio del difuminado púrpura, relativos a la pantalla. */
+object Glow {
+    const val CENTER_Y = 0.58f
+    const val RADIUS = 0.75f
+    const val MID_STOP = 0.48f
+    const val END_STOP = 0.82f
+}
+
+/** Paleta de medicamentos (misma clave que la web), con ≥ 4,3:1 sobre fondo, glow y superficie. */
 private val medicationPalette =
     mapOf(
         "red" to Color(0xFFF0625F),
@@ -62,6 +100,11 @@ object Spacing {
 
 object Sizes {
     val colorDot = 14.dp
+    val outline = 1.dp
+    val actionPill = 64.dp
+    val mic = 72.dp
+    val micRing = 12.dp
+    val codeBox = 30.dp
     val icon = 24.dp
     val border = 2.dp
     val touchMin = 48.dp
@@ -69,5 +112,5 @@ object Sizes {
     val cardRadius = 20.dp
     val progress = 32.dp
     val progressStroke = 4.dp
-    val successMark = 56.dp
+    val successMark = 64.dp
 }

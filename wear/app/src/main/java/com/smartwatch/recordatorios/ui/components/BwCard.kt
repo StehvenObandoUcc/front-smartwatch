@@ -22,8 +22,8 @@ import com.smartwatch.recordatorios.ui.theme.Sizes
 import com.smartwatch.recordatorios.ui.theme.Spacing
 
 /**
- * Tarjeta clicable: superficie con borde de 2 dp y contenido centrado (pantalla redonda).
- * Al pulsar, la superficie pasa al tono del fondo; el borde se mantiene.
+ * Tarjeta clicable: superficie con contorno fino y contenido centrado (pantalla redonda).
+ * Al pulsar, el contorno pasa al color de contenido.
  */
 @Composable
 fun BwCard(
@@ -40,8 +40,8 @@ fun BwCard(
             modifier
                 .heightIn(min = Sizes.touchMin)
                 .clip(BwTheme.shapes.card)
-                .background(if (pressed) colors.background else colors.surface)
-                .border(Sizes.border, colors.content, BwTheme.shapes.card)
+                .background(colors.surface)
+                .border(Sizes.outline, if (pressed) colors.content else colors.outline, BwTheme.shapes.card)
                 .clickable(
                     interactionSource = interaction,
                     indication = null,
