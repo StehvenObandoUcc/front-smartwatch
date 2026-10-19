@@ -9,6 +9,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
@@ -31,11 +32,13 @@ import com.smartwatch.recordatorios.ui.components.doseStatusText
 import com.smartwatch.recordatorios.ui.theme.BwTheme
 import com.smartwatch.recordatorios.ui.theme.RecordatoriosTheme
 import com.smartwatch.recordatorios.ui.theme.Spacing
+import com.smartwatch.recordatorios.ui.theme.formatTime
 
 /**
  * Alerta a pantalla completa: Tomada, Posponer y Omitir (con confirmación). Todo centrado y sin
  * título aparte: el estado ("08:00 · Pendiente") hace de título para que «Tomada» quepa sin desplazarse.
- * Tras «Tomada» se muestra la marca de éxito; quien aloja la pantalla decide cuándo cerrarla.
+ * Tras «Tomada» se muestra la marca de éxito y tras «Posponer» el resumen de pospuestas; quien aloja
+ * la pantalla decide cuándo cerrarla.
  */
 @Composable
 fun DoseAlertScreen(
@@ -45,17 +48,29 @@ fun DoseAlertScreen(
     onSkip: () -> Unit,
 ) {
     var confirmingSkip by rememberSaveable { mutableStateOf(false) }
-    var taken by rememberSaveable { mutableStateOf(false) }
+    var takenAt by rememberSaveable { mutableStateOf<Long?>(null) }
+    var snoozedAt by rememberSaveable { mutableStateOf<Long?>(null) }
     val listState = rememberTransformingLazyColumnState()
     val pending = dose.status == DoseStatus.SCHEDULED
 
     BwScreenScaffold(scrollState = listState) { contentPadding ->
         TransformingLazyColumn(state = listState, contentPadding = contentPadding) {
+            val taken = takenAt
+            val snoozed = snoozedAt
             when {
-                taken ->
+                taken != null ->
                     item {
-                        BwSuccessMark(stringResource(R.string.status_taken), modifier = Modifier.fillMaxWidth())
+                        BwSuccessMark(
+                            label = stringResource(R.string.status_taken),
+                            details =
+                                listOf(
+                                    stringResource(R.string.taken_detail, dose.medicationName, dose.doseLabel),
+                                    stringResource(R.string.taken_at, formatTime(taken)),
+                                ),
+                            modifier = Modifier.fillMaxWidth(),
+                        )
                     }
+                snoozed != null -> snoozedSummary(dose, snoozed)
                 confirmingSkip -> skipConfirmation(dose, onSkip = onSkip, onBack = { confirmingSkip = false })
                 else -> {
                     doseSummary(dose)
@@ -63,10 +78,13 @@ fun DoseAlertScreen(
                         pendingActions(
                             dose,
                             onTake = {
-                                taken = true
+                                takenAt = System.currentTimeMillis()
                                 onTake()
                             },
-                            onSnooze = onSnooze,
+                            onSnooze = {
+                                snoozedAt = System.currentTimeMillis()
+                                onSnooze()
+                            },
                             onAskSkip = { confirmingSkip = true },
                         )
                     }
@@ -128,6 +146,37 @@ private fun TransformingLazyColumnScope.pendingActions(
                 modifier = Modifier.weight(1f),
             )
         }
+    }
+}
+
+/** Tras posponer: cuántas van, cuándo vuelve a sonar y cuántas quedan. */
+private fun TransformingLazyColumnScope.snoozedSummary(
+    dose: DoseEntity,
+    snoozedAt: Long,
+) {
+    val count = dose.snoozeCount + 1
+    val left = SnoozePolicy.MAX_SNOOZES - count
+    item { MedicationLabel(name = dose.medicationName, colorKey = dose.colorKey, modifier = Modifier.fillMaxWidth()) }
+    item {
+        BwText(
+            text = stringResource(R.string.snoozed_times, count, SnoozePolicy.MAX_SNOOZES),
+            style = BwTheme.type.title,
+            color = BwTheme.colors.accent,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth(),
+        )
+    }
+    item { CenteredText(stringResource(R.string.snoozed_rings_at, formatTime(SnoozePolicy.nextAlarmAt(snoozedAt)))) }
+    item {
+        CenteredText(
+            text =
+                if (left > 0) {
+                    pluralStringResource(R.plurals.snoozes_left, left, left)
+                } else {
+                    stringResource(R.string.snooze_limit)
+                },
+            style = BwTheme.type.support,
+        )
     }
 }
 
