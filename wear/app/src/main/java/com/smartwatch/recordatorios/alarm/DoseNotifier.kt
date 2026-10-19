@@ -106,7 +106,7 @@ class DoseNotifier
             if (SnoozePolicy.canSnooze(dose.snoozeCount)) {
                 builder.addAction(
                     0,
-                    context.getString(R.string.action_snooze),
+                    context.getString(R.string.snooze_for, SnoozePolicy.DELAY.toMinutes()),
                     actionIntent(DoseIntents.ACTION_SNOOZE, dose.id),
                 )
             }

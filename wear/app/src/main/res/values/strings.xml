@@ -50,8 +50,6 @@
     <string name="snoozed_times">Pospuesta %1$d de %2$d</string>
 
     <string name="action_take">Tomada</string>
-    <!-- Solo la notificación (alarm/); la pantalla usa snooze_for con los minutos de SnoozePolicy. -->
-    <string name="action_snooze">Posponer 10 min</string>
     <string name="snooze_for">Posponer %1$d min</string>
     <string name="snooze_limit">Sin más pospuestas</string>
     <string name="action_skip">Omitir</string>
