@@ -41,9 +41,7 @@ class HomeScreenTest {
                     onRequestExactAlarms = { exactRequests++ },
                     onRequestNotifications = { notificationRequests++ },
                     onOpenDose = {},
-                    onOpenToday = {},
                     onOpenChat = {},
-                    onOpenAdherence = {},
                     onRetryPlan = { retries++ },
                 )
             }
