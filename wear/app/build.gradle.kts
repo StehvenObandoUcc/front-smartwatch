@@ -88,7 +88,7 @@ dependencies {
     implementation(libs.compose.ui.tooling.preview)
     implementation(libs.wear.compose.material3)
     implementation(libs.wear.compose.foundation)
-    debugImplementation(libs.wear.compose.ui.tooling)
+    implementation(libs.wear.compose.ui.tooling)
     debugImplementation(libs.compose.ui.tooling)
     debugImplementation(libs.compose.ui.test.manifest)
 
