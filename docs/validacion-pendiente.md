@@ -49,9 +49,8 @@ Rama: `feat/wear-tema-propio`.
   - Una ventana corta (1,5 a 2 s), registrando al final, no toca datos, pero da poco tiempo y pierde la toma si se desliza para salir.
   - Un deshacer útil (5 s o más) necesita revertir un registro ya guardado, lo que toca la capa de datos.
 - **Lotes 4 a 6 de la auditoría** (Inicio y Hoy, Vinculación, Asistente): sin empezar en lo funcional (estados de carga, avisos de plan y textos).
-- **Vistas del concepto ya en la app:** resumen tras posponer («Pospuesta 2 de 3», hora en que vuelve a sonar y cuántas quedan), marca de «Tomada» con medicamento, dosis y hora, contador «1 de 3 tomadas» en Hoy y aviso «Sin conexión» en Inicio (toca para reintentar).
+- **Vistas del concepto ya en la app:** resumen tras posponer («Pospuesta 2 de 3», hora en que vuelve a sonar y cuántas quedan), marca de «Tomada» con medicamento, dosis y hora, contador «1 de 3 tomadas» en Hoy y aviso «Sin conexión» en Inicio (toca para reintentar). Pantalla de adherencia («Ver adherencia» en Inicio): porcentaje de los últimos 14 días y una barra por día, guardada para verla sin conexión (contrato 0.8.0, `GET /devices/me/adherence`).
 - **Vistas del concepto que faltan:**
-  - Adherencia: espera `GET /devices/me/adherence` en el contrato del backend.
   - Anillo de próxima toma: será un Tile, que el plan deja para el cierre.
   - Esfera: es una watch face, fuera del plan.
 
@@ -72,3 +71,4 @@ Idealmente en un reloj redondo de 192 dp con la fuente del sistema al máximo, y
 11. La notificación de dosis.
 12. Resumen tras posponer (con 1 y con 2 pospuestas previas).
 13. Inicio sin conexión (modo avión) y su reintento.
+14. Adherencia con datos, sin dosis vencidas y antes de la primera sincronización.
