@@ -7,20 +7,19 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
-import androidx.wear.compose.material3.Button
-import androidx.wear.compose.material3.ButtonDefaults
-import androidx.wear.compose.material3.Card
-import androidx.wear.compose.material3.FilledTonalButton
-import androidx.wear.compose.material3.ListHeader
-import androidx.wear.compose.material3.MaterialTheme
-import androidx.wear.compose.material3.ScreenScaffold
-import androidx.wear.compose.material3.Text
 import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 import com.smartwatch.recordatorios.R
 import com.smartwatch.recordatorios.data.local.DoseEntity
 import com.smartwatch.recordatorios.data.remote.PlanInfo
 import com.smartwatch.recordatorios.data.remote.PlanStatus
+import com.smartwatch.recordatorios.ui.components.BwBanner
+import com.smartwatch.recordatorios.ui.components.BwButton
+import com.smartwatch.recordatorios.ui.components.BwCard
+import com.smartwatch.recordatorios.ui.components.BwHeader
+import com.smartwatch.recordatorios.ui.components.BwScreenScaffold
+import com.smartwatch.recordatorios.ui.components.BwText
 import com.smartwatch.recordatorios.ui.components.MedicationLabel
+import com.smartwatch.recordatorios.ui.theme.BwTheme
 import com.smartwatch.recordatorios.ui.theme.RecordatoriosTheme
 import com.smartwatch.recordatorios.ui.theme.formatDateTime
 import com.smartwatch.recordatorios.ui.theme.formatTime
@@ -39,7 +38,7 @@ fun HomeScreen(
     onOpenChat: () -> Unit,
 ) {
     val listState = rememberTransformingLazyColumnState()
-    ScreenScaffold(scrollState = listState) { contentPadding ->
+    BwScreenScaffold(scrollState = listState) { contentPadding ->
         TransformingLazyColumn(state = listState, contentPadding = contentPadding) {
             // Avisos arriba del todo: sin estos permisos la alarma puede no sonar.
             if (!notificationsAllowed) {
@@ -61,45 +60,49 @@ fun HomeScreen(
                 }
             }
 
-            item { ListHeader { Text(stringResource(R.string.home_title)) } }
+            item { BwHeader(stringResource(R.string.home_title)) }
 
             item {
                 if (next == null) {
-                    Text(
+                    BwText(
                         text = stringResource(R.string.home_no_next),
                         textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxWidth(),
                     )
                 } else {
-                    Card(onClick = { onOpenDose(next) }, modifier = Modifier.fillMaxWidth()) {
-                        Text(stringResource(R.string.home_next), style = MaterialTheme.typography.labelMedium)
+                    BwCard(
+                        onClick = { onOpenDose(next) },
+                        onClickLabel = stringResource(R.string.open_dose),
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        BwText(stringResource(R.string.home_next), style = BwTheme.type.support)
                         MedicationLabel(name = next.medicationName, colorKey = next.colorKey)
-                        Text(next.doseLabel, style = MaterialTheme.typography.bodyMedium)
-                        Text(formatTime(next.nextAlarmAt), style = MaterialTheme.typography.titleMedium)
+                        BwText(next.doseLabel)
+                        BwText(formatTime(next.nextAlarmAt), style = BwTheme.type.title)
                     }
                 }
             }
 
             item {
-                FilledTonalButton(
+                BwButton(
+                    label = stringResource(R.string.home_today_button),
                     onClick = onOpenToday,
                     modifier = Modifier.fillMaxWidth(),
-                    label = { Text(stringResource(R.string.home_today_button)) },
                 )
             }
 
             item {
-                FilledTonalButton(
+                BwButton(
+                    label = stringResource(R.string.chat_ask),
                     onClick = onOpenChat,
                     modifier = Modifier.fillMaxWidth(),
-                    label = { Text(stringResource(R.string.chat_ask)) },
                 )
             }
 
             item {
-                Text(
+                BwText(
                     text = planStatusText(planInfo),
-                    style = MaterialTheme.typography.bodySmall,
+                    style = BwTheme.type.support,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth(),
                 )
@@ -117,25 +120,20 @@ private fun planStatusText(info: PlanInfo): String =
         PlanStatus.FAILED -> stringResource(R.string.plan_failed)
     }
 
-/** Aviso de permiso: color de error, icono y texto (nunca solo color). */
+/** Aviso de permiso: acento, icono y texto (nunca solo color). */
 @Composable
 private fun PermissionWarning(
     title: String,
     body: String,
     onClick: () -> Unit,
 ) {
-    Button(
+    BwBanner(
+        icon = R.drawable.ic_warning,
+        iconDescription = stringResource(R.string.warning_label),
+        title = title,
+        body = body,
         onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
-        colors =
-            ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.error,
-                contentColor = MaterialTheme.colorScheme.onError,
-                secondaryContentColor = MaterialTheme.colorScheme.onError,
-            ),
-        icon = { Text(stringResource(R.string.warning_icon), style = MaterialTheme.typography.titleLarge) },
-        label = { Text(title, maxLines = 2) },
-        secondaryLabel = { Text(body, maxLines = 4) },
     )
 }
 

@@ -7,14 +7,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.lifecycleScope
-import androidx.wear.compose.material3.AppScaffold
 import com.smartwatch.recordatorios.alarm.DoseActionHandler
 import com.smartwatch.recordatorios.alarm.DoseIntents
 import com.smartwatch.recordatorios.data.local.DoseAction
 import com.smartwatch.recordatorios.data.local.DoseEntity
 import com.smartwatch.recordatorios.data.repository.DoseRepository
+import com.smartwatch.recordatorios.ui.components.BwAppScaffold
 import com.smartwatch.recordatorios.ui.theme.RecordatoriosTheme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -34,11 +35,11 @@ class DoseAlertActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             RecordatoriosTheme {
-                AppScaffold {
+                BwAppScaffold {
                     dose?.let { current ->
                         DoseAlertScreen(
                             dose = current,
-                            onTake = { act(current.id, DoseAction.TAKEN) },
+                            onTake = { act(current.id, DoseAction.TAKEN, closeAfterMillis = SUCCESS_MILLIS) },
                             onSnooze = { act(current.id, DoseAction.SNOOZED) },
                             onSkip = { act(current.id, DoseAction.SKIPPED) },
                         )
@@ -62,13 +63,20 @@ class DoseAlertActivity : ComponentActivity() {
         }
     }
 
+    /** Registra la acción al momento; tras «Tomada» deja ver la marca de éxito antes de cerrar. */
     private fun act(
         doseId: String,
         action: DoseAction,
+        closeAfterMillis: Long = 0,
     ) {
         lifecycleScope.launch {
             handler.handle(doseId, action)
+            delay(closeAfterMillis)
             finish()
         }
+    }
+
+    private companion object {
+        const val SUCCESS_MILLIS = 1_500L
     }
 }

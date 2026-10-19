@@ -21,12 +21,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.wear.compose.material3.AppScaffold
 import com.smartwatch.recordatorios.alarm.DoseIntents
 import com.smartwatch.recordatorios.alarm.DoseNotifier
 import com.smartwatch.recordatorios.data.local.DoseEntity
 import com.smartwatch.recordatorios.data.remote.TokenStore
 import com.smartwatch.recordatorios.sync.SyncScheduler
+import com.smartwatch.recordatorios.ui.components.BwAppScaffold
 import com.smartwatch.recordatorios.ui.screens.alert.DoseAlertActivity
 import com.smartwatch.recordatorios.ui.screens.chat.ChatScreen
 import com.smartwatch.recordatorios.ui.screens.chat.ChatViewModel
@@ -54,7 +54,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             RecordatoriosTheme {
-                AppScaffold {
+                BwAppScaffold {
                     val paired by tokens.paired.collectAsStateWithLifecycle()
                     if (paired) MainRoute() else PairingRoute()
                 }

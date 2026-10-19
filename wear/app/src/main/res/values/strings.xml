@@ -8,6 +8,8 @@
     <string name="home_today_button">Ver las de hoy</string>
     <string name="today_title">Hoy</string>
     <string name="today_empty">No hay dosis hoy</string>
+    <string name="open_dose">Abrir dosis</string>
+    <string name="loading">Cargando</string>
 
     <string name="plan_never">Plan aún sin descargar</string>
     <string name="plan_valid_until">Plan válido hasta %1$s</string>
@@ -32,7 +34,7 @@
     <string name="pair_error">No hay conexión con el servidor</string>
     <string name="pair_retry">Reintentar</string>
 
-    <string name="warning_icon">⚠</string>
+    <string name="warning_label">Aviso</string>
     <string name="permission_exact_title">Alarmas desactivadas</string>
     <string name="permission_exact_body">La alarma puede sonar tarde. Toca para permitir alarmas exactas</string>
     <string name="permission_notifications_title">Avisos desactivados</string>
@@ -41,17 +43,18 @@
     <string name="status_scheduled">Pendiente</string>
     <string name="status_taken">Tomada</string>
     <string name="status_skipped">Omitida</string>
-    <string name="snoozed_times">Pospuesta %1$d de 3</string>
+    <string name="snoozed_times">Pospuesta %1$d de %2$d</string>
 
     <string name="action_take">Tomada</string>
-    <string name="action_snooze">Posponer 10 min</string>
+    <string name="snooze_for">Posponer %1$d min</string>
+    <string name="snooze_short">Posponer</string>
+    <string name="snooze_minutes">%1$d min</string>
+    <string name="snooze_limit">Sin más pospuestas</string>
     <string name="action_skip">Omitir</string>
-    <string name="skip_confirm_title">¿Omitir esta dosis?</string>
-    <string name="skip_confirm_yes">Sí, omitir</string>
-    <string name="skip_confirm_no">No</string>
-
-    <string name="alert_title">Hora de tu medicamento</string>
-    <string name="alert_done">Registrado</string>
+    <string name="skip_confirm_title">¿Omitir %1$s?</string>
+    <string name="skip_confirm_body">Quedará registrada como no tomada</string>
+    <string name="skip_confirm_yes">Omitir dosis</string>
+    <string name="skip_confirm_no">Volver</string>
 
     <string name="channel_alarm_name">Alarmas de dosis</string>
     <string name="channel_alarm_description">Suena cuando toca tomar un medicamento</string>
