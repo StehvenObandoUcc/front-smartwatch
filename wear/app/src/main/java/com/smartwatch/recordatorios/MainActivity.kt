@@ -36,6 +36,7 @@ import com.smartwatch.recordatorios.ui.screens.home.HomeViewModel
 import com.smartwatch.recordatorios.ui.screens.pairing.PairingRoute
 import com.smartwatch.recordatorios.ui.screens.today.TodayScreen
 import com.smartwatch.recordatorios.ui.theme.RecordatoriosTheme
+import com.smartwatch.recordatorios.ui.theme.applyWindowBackground
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -55,6 +56,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        applyWindowBackground(themePrefs.mode.value)
         setContent {
             val themeMode by themePrefs.mode.collectAsStateWithLifecycle()
             RecordatoriosTheme(themeMode) {

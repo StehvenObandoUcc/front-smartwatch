@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+        Fondo de ventana = DarkColors.background (Tokens.kt), el modo por defecto. Lo ve la
+        pantalla de inicio del sistema; si el modo elegido es claro, cada actividad lo cambia
+        en onCreate (applyWindowBackground) antes del primer cuadro de Compose.
+    -->
+    <style name="Theme.Recordatorios" parent="@android:style/Theme.DeviceDefault">
+        <item name="android:windowBackground">#FF2B3038</item>
+    </style>
+</resources>
