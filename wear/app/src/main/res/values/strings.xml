@@ -11,7 +11,6 @@
     <string name="open_dose">Abrir dosis</string>
     <string name="loading">Cargando</string>
 
-    <string name="theme_icon">◐</string>
     <string name="theme_dark">Tema: Oscuro</string>
     <string name="theme_light">Tema: Claro</string>
 
@@ -38,7 +37,7 @@
     <string name="pair_error">No hay conexión con el servidor</string>
     <string name="pair_retry">Reintentar</string>
 
-    <string name="warning_icon">⚠</string>
+    <string name="warning_label">Aviso</string>
     <string name="permission_exact_title">Alarmas desactivadas</string>
     <string name="permission_exact_body">La alarma puede sonar tarde. Toca para permitir alarmas exactas</string>
     <string name="permission_notifications_title">Avisos desactivados</string>

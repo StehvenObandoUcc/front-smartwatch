@@ -1,5 +1,6 @@
 package com.smartwatch.recordatorios.ui.components
 
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -16,7 +17,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.style.TextAlign
 import com.smartwatch.recordatorios.ui.theme.BwTheme
 import com.smartwatch.recordatorios.ui.theme.Sizes
@@ -24,7 +24,7 @@ import com.smartwatch.recordatorios.ui.theme.Spacing
 
 /**
  * Botón píldora. Principal: relleno con el color de contenido. Secundaria: fondo del modo con borde.
- * Al pulsar se invierten relleno y texto. Alto mínimo 52 dp; el icono es decorativo (lo lee la etiqueta).
+ * Al pulsar se invierten relleno y texto. Alto mínimo 52 dp; el icono es decorativo (TalkBack lee la etiqueta).
  */
 @Composable
 fun BwButton(
@@ -32,7 +32,7 @@ fun BwButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     primary: Boolean = false,
-    icon: String? = null,
+    @DrawableRes icon: Int? = null,
 ) {
     val colors = BwTheme.colors
     val interaction = remember { MutableInteractionSource() }
@@ -52,9 +52,7 @@ fun BwButton(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(Spacing.sm, Alignment.CenterHorizontally),
     ) {
-        icon?.let {
-            BwText(it, style = BwTheme.type.title, color = content, modifier = Modifier.clearAndSetSemantics {})
-        }
+        icon?.let { BwIcon(it, contentDescription = null, color = content) }
         BwText(label, style = BwTheme.type.label, color = content, textAlign = TextAlign.Center, maxLines = 2)
     }
 }

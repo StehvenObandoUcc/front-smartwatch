@@ -90,6 +90,7 @@ object Spacing {
 
 object Sizes {
     val colorDot = 14.dp
+    val icon = 24.dp
     val border = 2.dp
     val touchMin = 48.dp
     val buttonHeight = 52.dp

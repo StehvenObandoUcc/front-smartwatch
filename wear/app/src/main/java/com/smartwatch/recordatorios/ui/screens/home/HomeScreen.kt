@@ -118,7 +118,7 @@ fun HomeScreen(
                         stringResource(
                             if (themeMode == ThemeMode.DARK) R.string.theme_dark else R.string.theme_light,
                         ),
-                    icon = stringResource(R.string.theme_icon),
+                    icon = R.drawable.ic_theme,
                     onClick = onToggleTheme,
                     modifier = Modifier.fillMaxWidth(),
                 )
@@ -144,7 +144,8 @@ private fun PermissionWarning(
     onClick: () -> Unit,
 ) {
     BwBanner(
-        icon = stringResource(R.string.warning_icon),
+        icon = R.drawable.ic_warning,
+        iconDescription = stringResource(R.string.warning_label),
         title = title,
         body = body,
         onClick = onClick,

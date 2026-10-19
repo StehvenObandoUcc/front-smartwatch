@@ -1,5 +1,6 @@
 package com.smartwatch.recordatorios.ui.components
 
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -13,18 +14,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.clearAndSetSemantics
 import com.smartwatch.recordatorios.ui.theme.BwTheme
 import com.smartwatch.recordatorios.ui.theme.Sizes
 import com.smartwatch.recordatorios.ui.theme.Spacing
 
 /**
  * Aviso que exige atención: borde e icono en el color de acento, texto en el de contenido.
- * Nunca solo color: siempre icono y título. Sin [onClick] es un aviso informativo, no clicable.
+ * Nunca solo color: siempre icono (con [iconDescription] para TalkBack) y título. Sin [onClick] es un aviso informativo, no clicable.
  */
 @Composable
 fun BwBanner(
-    icon: String,
+    @DrawableRes icon: Int,
+    iconDescription: String,
     title: String,
     modifier: Modifier = Modifier,
     body: String? = null,
@@ -43,12 +44,7 @@ fun BwBanner(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
     ) {
-        BwText(
-            icon,
-            style = BwTheme.type.data,
-            color = colors.accent,
-            modifier = Modifier.clearAndSetSemantics {},
-        )
+        BwIcon(icon, contentDescription = iconDescription, color = colors.accent)
         Column(verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
             BwText(title, style = BwTheme.type.label, maxLines = 2)
             body?.let { BwText(it, style = BwTheme.type.support, maxLines = 4) }

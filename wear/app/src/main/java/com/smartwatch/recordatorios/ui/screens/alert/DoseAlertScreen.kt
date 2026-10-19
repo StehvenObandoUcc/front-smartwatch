@@ -120,7 +120,8 @@ private fun TransformingLazyColumnScope.skipConfirmation(
 ) {
     item {
         BwBanner(
-            icon = stringResource(R.string.warning_icon),
+            icon = R.drawable.ic_warning,
+            iconDescription = stringResource(R.string.warning_label),
             title = stringResource(R.string.skip_confirm_title, dose.medicationName),
             body = stringResource(R.string.skip_confirm_body),
             modifier = Modifier.fillMaxWidth(),

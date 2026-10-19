@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
+import com.smartwatch.recordatorios.R
 import com.smartwatch.recordatorios.data.local.ThemeMode
 import com.smartwatch.recordatorios.ui.theme.BwTheme
 import com.smartwatch.recordatorios.ui.theme.RecordatoriosTheme
@@ -49,7 +50,7 @@ private fun ButtonsPreview(
 ) = PreviewFrame(mode) {
     BwHeader("Inicio")
     BwButton("Tomada", onClick = {}, primary = true, modifier = Modifier.fillMaxWidth())
-    BwButton("Tema: Oscuro", onClick = {}, icon = "◐", modifier = Modifier.fillMaxWidth())
+    BwButton("Tema: Oscuro", onClick = {}, icon = R.drawable.ic_theme, modifier = Modifier.fillMaxWidth())
 }
 
 @WearPreviewDevices
@@ -70,7 +71,8 @@ private fun BannerPreview(
     @PreviewParameter(ThemeModes::class) mode: ThemeMode,
 ) = PreviewFrame(mode) {
     BwBanner(
-        icon = "⚠",
+        icon = R.drawable.ic_warning,
+        iconDescription = "Aviso",
         title = "Alarmas desactivadas",
         body = "La alarma puede sonar tarde",
         onClick = {},
