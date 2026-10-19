@@ -20,7 +20,8 @@ import com.smartwatch.recordatorios.ui.theme.Spacing
 
 /**
  * Aviso que exige atención: borde e icono en el color de acento, texto en el de contenido.
- * Nunca solo color: siempre icono (con [iconDescription] para TalkBack) y título. Sin [onClick] es un aviso informativo, no clicable.
+ * Nunca solo color: siempre icono (con [iconDescription] para TalkBack) y título.
+ * Sin [onClick] es un aviso informativo, no clicable.
  */
 @Composable
 fun BwBanner(
