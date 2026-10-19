@@ -113,4 +113,6 @@ object Sizes {
     val progress = 32.dp
     val progressStroke = 4.dp
     val successMark = 64.dp
+    val barChart = 48.dp
+    val bar = 5.dp
 }
