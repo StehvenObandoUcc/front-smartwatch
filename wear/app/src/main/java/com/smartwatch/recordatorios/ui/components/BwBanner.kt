@@ -20,15 +20,15 @@ import com.smartwatch.recordatorios.ui.theme.Spacing
 
 /**
  * Aviso que exige atención: borde e icono en el color de acento, texto en el de contenido.
- * Nunca solo color: siempre icono y título.
+ * Nunca solo color: siempre icono y título. Sin [onClick] es un aviso informativo, no clicable.
  */
 @Composable
 fun BwBanner(
     icon: String,
     title: String,
-    onClick: () -> Unit,
     modifier: Modifier = Modifier,
     body: String? = null,
+    onClick: (() -> Unit)? = null,
 ) {
     val colors = BwTheme.colors
     Row(
@@ -38,7 +38,7 @@ fun BwBanner(
                 .clip(BwTheme.shapes.card)
                 .background(colors.surface)
                 .border(Sizes.border, colors.accent, BwTheme.shapes.card)
-                .clickable(role = Role.Button, onClick = onClick)
+                .then(if (onClick != null) Modifier.clickable(role = Role.Button, onClick = onClick) else Modifier)
                 .padding(horizontal = Spacing.lg, vertical = Spacing.md),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
