@@ -21,12 +21,14 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.wear.compose.foundation.pager.rememberPagerState
 import com.smartwatch.recordatorios.alarm.DoseIntents
 import com.smartwatch.recordatorios.alarm.DoseNotifier
 import com.smartwatch.recordatorios.data.local.DoseEntity
 import com.smartwatch.recordatorios.data.remote.TokenStore
 import com.smartwatch.recordatorios.sync.SyncScheduler
 import com.smartwatch.recordatorios.ui.components.BwAppScaffold
+import com.smartwatch.recordatorios.ui.components.BwPager
 import com.smartwatch.recordatorios.ui.screens.adherence.AdherenceScreen
 import com.smartwatch.recordatorios.ui.screens.alert.DoseAlertActivity
 import com.smartwatch.recordatorios.ui.screens.chat.ChatScreen
@@ -66,6 +68,8 @@ class MainActivity : ComponentActivity() {
     @Composable
     private fun MainRoute() {
         var screen by rememberSaveable { mutableStateOf(Screen.HOME) }
+        // Fuera del when: al volver del chat se sigue en la misma página.
+        val pagerState = rememberPagerState(pageCount = { PAGES })
         val chatState by chatViewModel.state.collectAsStateWithLifecycle()
         val speechLauncher =
             rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -97,24 +101,29 @@ class MainActivity : ComponentActivity() {
         }
 
         when (screen) {
-            Screen.TODAY -> TodayScreen(doses = today, onOpenDose = ::openDose)
-            Screen.ADHERENCE -> AdherenceScreen(summary = adherence)
             Screen.CHAT ->
                 ChatScreen(state = chatState, onAsk = { askByVoice { speechLauncher.launch(it) } })
             Screen.HOME ->
-                HomeScreen(
-                    next = next,
-                    planInfo = planInfo,
-                    exactAlarmsAllowed = exactAllowed,
-                    notificationsAllowed = notificationsAllowed,
-                    onRequestExactAlarms = ::openExactAlarmSettings,
-                    onRequestNotifications = { notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS) },
-                    onOpenDose = ::openDose,
-                    onOpenToday = { screen = Screen.TODAY },
-                    onOpenChat = { screen = Screen.CHAT },
-                    onOpenAdherence = { screen = Screen.ADHERENCE },
-                    onRetryPlan = syncScheduler::syncNow,
-                )
+                BwPager(pagerState) { page ->
+                    when (page) {
+                        0 ->
+                            HomeScreen(
+                                next = next,
+                                planInfo = planInfo,
+                                exactAlarmsAllowed = exactAllowed,
+                                notificationsAllowed = notificationsAllowed,
+                                onRequestExactAlarms = ::openExactAlarmSettings,
+                                onRequestNotifications = {
+                                    notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                                },
+                                onOpenDose = ::openDose,
+                                onOpenChat = { screen = Screen.CHAT },
+                                onRetryPlan = syncScheduler::syncNow,
+                            )
+                        1 -> TodayScreen(doses = today, onOpenDose = ::openDose)
+                        else -> AdherenceScreen(summary = adherence)
+                    }
+                }
         }
     }
 
@@ -145,4 +154,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-private enum class Screen { HOME, TODAY, CHAT, ADHERENCE }
+/** HOME son las páginas Próxima, Hoy y Adherencia. */
+private enum class Screen { HOME, CHAT }
+
+private const val PAGES = 3
