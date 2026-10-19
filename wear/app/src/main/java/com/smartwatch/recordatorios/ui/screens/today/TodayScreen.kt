@@ -1,5 +1,6 @@
 package com.smartwatch.recordatorios.ui.screens.today
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -17,6 +18,7 @@ import com.smartwatch.recordatorios.ui.components.BwText
 import com.smartwatch.recordatorios.ui.components.MedicationLabel
 import com.smartwatch.recordatorios.ui.components.doseStatusText
 import com.smartwatch.recordatorios.ui.theme.BwTheme
+import com.smartwatch.recordatorios.ui.theme.Spacing
 
 /** Las dosis de hoy con su estado y cuántas van tomadas. */
 @Composable
@@ -26,7 +28,11 @@ fun TodayScreen(
 ) {
     val listState = rememberTransformingLazyColumnState()
     BwScreenScaffold(scrollState = listState) { contentPadding ->
-        TransformingLazyColumn(state = listState, contentPadding = contentPadding) {
+        TransformingLazyColumn(
+            state = listState,
+            contentPadding = contentPadding,
+            verticalArrangement = Arrangement.spacedBy(Spacing.sm),
+        ) {
             item { BwHeader(stringResource(R.string.today_title)) }
             if (!doses.isNullOrEmpty()) {
                 item {
