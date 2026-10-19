@@ -15,6 +15,7 @@
 
 package com.smartwatch.recordatorios.api.models
 
+import com.smartwatch.recordatorios.api.models.DayAdherence
 import com.smartwatch.recordatorios.api.models.MedicationAdherence
 
 import kotlinx.serialization.Serializable
@@ -29,6 +30,7 @@ import kotlinx.serialization.Contextual
  * @param missed 
  * @param percentage 
  * @param byMedication 
+ * @param byDay Un elemento por cada día del periodo (7), en orden, aunque no haya dosis.
  */
 @Serializable
 
@@ -47,7 +49,11 @@ data class ReportSummary (
     val percentage: java.math.BigDecimal?,
 
     @SerialName(value = "byMedication")
-    val byMedication: kotlin.collections.List<MedicationAdherence>
+    val byMedication: kotlin.collections.List<MedicationAdherence>,
+
+    /* Un elemento por cada día del periodo (7), en orden, aunque no haya dosis. */
+    @SerialName(value = "byDay")
+    val byDay: kotlin.collections.List<DayAdherence>
 
 ) {
 
