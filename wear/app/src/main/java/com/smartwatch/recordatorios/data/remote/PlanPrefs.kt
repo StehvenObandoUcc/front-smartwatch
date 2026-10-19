@@ -9,7 +9,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /** Resultado de la última descarga del plan, para mostrarlo en Inicio. */
-enum class PlanStatus { NEVER, OK, CONSENT_REQUIRED, FAILED }
+enum class PlanStatus { NEVER, OK, CONSENT_REQUIRED, FAILED, OFFLINE }
 
 data class PlanInfo(
     val status: PlanStatus = PlanStatus.NEVER,
