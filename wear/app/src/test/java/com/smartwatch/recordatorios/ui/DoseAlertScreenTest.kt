@@ -1,6 +1,7 @@
 package com.smartwatch.recordatorios.ui
 
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.hasScrollAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -18,9 +19,14 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
+import org.robolectric.annotation.GraphicsMode
 
-/** Reloj redondo pequeño (192 dp) con fuente grande: el peor caso para que «Tomada» quepa. */
+/**
+ * Reloj redondo pequeño (192 dp) con fuente grande: el peor caso para que «Tomada» quepa.
+ * Gráficos nativos: en el modo por defecto Robolectric no mide el texto de verdad (todo ocupa una línea).
+ */
 @RunWith(AndroidJUnit4::class)
+@GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(qualifiers = "w192dp-h192dp-small-notlong-round-watch-xhdpi-keyshidden-nonav", fontScale = 1.3f)
 class DoseAlertScreenTest {
     @get:Rule
@@ -43,6 +49,17 @@ class DoseAlertScreenTest {
     fun `Tomada se ve sin desplazarse`() {
         show(dose())
 
+        compose.onNodeWithText("Tomada").assertIsDisplayed()
+    }
+
+    @Test
+    fun `Tomada se ve sin desplazarse con un nombre de dos líneas`() {
+        show(dose().copy(medicationName = "Hidroclorotiazida con amlodipino"))
+
+        // El nombre ocupa de verdad dos líneas: mide el doble de alto que la dosis (una línea, 16 sp vs 18 sp).
+        val name = compose.onNodeWithText("Hidroclorotiazida con amlodipino").getBoundsInRoot()
+        val doseLabel = compose.onNodeWithText("50 mg").getBoundsInRoot()
+        assertThat((name.bottom - name.top).value).isGreaterThan((doseLabel.bottom - doseLabel.top).value * 2)
         compose.onNodeWithText("Tomada").assertIsDisplayed()
     }
 
