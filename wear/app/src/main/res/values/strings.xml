@@ -47,6 +47,8 @@
 
     <string name="action_take">Tomada</string>
     <string name="snooze_for">Posponer %1$d min</string>
+    <string name="snooze_short">Posponer</string>
+    <string name="snooze_minutes">%1$d min</string>
     <string name="snooze_limit">Sin más pospuestas</string>
     <string name="action_skip">Omitir</string>
     <string name="skip_confirm_title">¿Omitir %1$s?</string>

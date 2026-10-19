@@ -33,7 +33,7 @@ class DoseAlertScreenTest {
     val compose = createComposeRule()
 
     private var takes = 0
-    private val snoozeLabel = "Posponer ${SnoozePolicy.DELAY.toMinutes()} min"
+    private val snoozeMinutes = "${SnoozePolicy.DELAY.toMinutes()} min"
 
     private fun show(dose: DoseEntity) {
         compose.setContent {
@@ -67,7 +67,8 @@ class DoseAlertScreenTest {
     fun `posponer y el contador usan los números de SnoozePolicy`() {
         show(dose(snoozeCount = 1))
 
-        compose.onNodeWithText(snoozeLabel).assertExists()
+        compose.onNodeWithText("Posponer").assertExists()
+        compose.onNodeWithText(snoozeMinutes).assertExists()
         compose.onNodeWithText("Pospuesta 1 de ${SnoozePolicy.MAX_SNOOZES}", substring = true).assertExists()
     }
 
@@ -75,7 +76,7 @@ class DoseAlertScreenTest {
     fun `en el tope de pospuestas explica por qué no hay Posponer`() {
         show(dose(snoozeCount = SnoozePolicy.MAX_SNOOZES))
 
-        compose.onNodeWithText(snoozeLabel).assertDoesNotExist()
+        compose.onNodeWithText("Posponer").assertDoesNotExist()
         compose.onNodeWithText("Sin más pospuestas").assertExists()
     }
 

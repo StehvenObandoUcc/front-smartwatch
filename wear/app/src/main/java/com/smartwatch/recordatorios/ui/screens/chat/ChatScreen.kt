@@ -8,8 +8,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
 import com.smartwatch.recordatorios.R
-import com.smartwatch.recordatorios.ui.components.BwButton
 import com.smartwatch.recordatorios.ui.components.BwHeader
+import com.smartwatch.recordatorios.ui.components.BwMicButton
 import com.smartwatch.recordatorios.ui.components.BwScreenScaffold
 import com.smartwatch.recordatorios.ui.components.BwText
 import com.smartwatch.recordatorios.ui.theme.BwTheme
@@ -43,7 +43,7 @@ fun ChatScreen(
             }
             if (state !is ChatState.Thinking) {
                 item {
-                    BwButton(
+                    BwMicButton(
                         label =
                             stringResource(
                                 if (state is ChatState.Idle) R.string.chat_ask else R.string.chat_again,

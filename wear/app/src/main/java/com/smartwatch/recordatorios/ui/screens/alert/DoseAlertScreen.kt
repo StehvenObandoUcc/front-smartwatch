@@ -1,5 +1,7 @@
 package com.smartwatch.recordatorios.ui.screens.alert
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -18,6 +20,7 @@ import com.smartwatch.recordatorios.R
 import com.smartwatch.recordatorios.alarm.SnoozePolicy
 import com.smartwatch.recordatorios.data.local.DoseEntity
 import com.smartwatch.recordatorios.data.local.DoseStatus
+import com.smartwatch.recordatorios.ui.components.BwActionPill
 import com.smartwatch.recordatorios.ui.components.BwBanner
 import com.smartwatch.recordatorios.ui.components.BwButton
 import com.smartwatch.recordatorios.ui.components.BwScreenScaffold
@@ -27,6 +30,7 @@ import com.smartwatch.recordatorios.ui.components.MedicationLabel
 import com.smartwatch.recordatorios.ui.components.doseStatusText
 import com.smartwatch.recordatorios.ui.theme.BwTheme
 import com.smartwatch.recordatorios.ui.theme.RecordatoriosTheme
+import com.smartwatch.recordatorios.ui.theme.Spacing
 
 /**
  * Alerta a pantalla completa: Tomada, Posponer y Omitir (con confirmación). Todo centrado y sin
@@ -84,31 +88,46 @@ private fun TransformingLazyColumnScope.pendingActions(
     onSnooze: () -> Unit,
     onAskSkip: () -> Unit,
 ) {
+    val canSnooze = SnoozePolicy.canSnooze(dose.snoozeCount)
     item {
         BwButton(
             label = stringResource(R.string.action_take),
             onClick = onTake,
             primary = true,
+            icon = R.drawable.ic_check,
             modifier = Modifier.fillMaxWidth(),
         )
     }
-    item {
-        if (SnoozePolicy.canSnooze(dose.snoozeCount)) {
-            BwButton(
-                label = stringResource(R.string.snooze_for, SnoozePolicy.DELAY.toMinutes()),
-                onClick = onSnooze,
+    if (!canSnooze) {
+        item {
+            BwText(
+                text = stringResource(R.string.snooze_limit),
+                style = BwTheme.type.support,
+                color = BwTheme.colors.contentSoft,
+                textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth(),
             )
-        } else {
-            CenteredText(stringResource(R.string.snooze_limit), style = BwTheme.type.support)
         }
     }
+    // Posponer y Omitir: cápsulas magenta lado a lado, por debajo de la acción principal.
     item {
-        BwButton(
-            label = stringResource(R.string.action_skip),
-            onClick = onAskSkip,
-            modifier = Modifier.fillMaxWidth(),
-        )
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Spacing.sm)) {
+            if (canSnooze) {
+                BwActionPill(
+                    label = stringResource(R.string.snooze_short),
+                    icon = R.drawable.ic_snooze,
+                    detail = stringResource(R.string.snooze_minutes, SnoozePolicy.DELAY.toMinutes()),
+                    onClick = onSnooze,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            BwActionPill(
+                label = stringResource(R.string.action_skip),
+                icon = R.drawable.ic_close,
+                onClick = onAskSkip,
+                modifier = Modifier.weight(1f),
+            )
+        }
     }
 }
 
@@ -132,12 +151,14 @@ private fun TransformingLazyColumnScope.skipConfirmation(
             label = stringResource(R.string.skip_confirm_no),
             onClick = onBack,
             primary = true,
+            icon = R.drawable.ic_back,
             modifier = Modifier.fillMaxWidth(),
         )
     }
     item {
-        BwButton(
+        BwActionPill(
             label = stringResource(R.string.skip_confirm_yes),
+            icon = R.drawable.ic_close,
             onClick = onSkip,
             modifier = Modifier.fillMaxWidth(),
         )
