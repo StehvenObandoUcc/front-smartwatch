@@ -3,6 +3,7 @@ package com.smartwatch.recordatorios
 import com.smartwatch.recordatorios.api.apis.DosesApi
 import com.smartwatch.recordatorios.api.apis.PlanApi
 import com.smartwatch.recordatorios.api.models.Adherence
+import com.smartwatch.recordatorios.api.models.DeviceAdherence
 import com.smartwatch.recordatorios.api.models.DoseEventBatch
 import com.smartwatch.recordatorios.api.models.DoseEventBatchResult
 import com.smartwatch.recordatorios.api.models.DoseEventResult
@@ -49,6 +50,16 @@ class FakeDosesApi : DosesApi {
         doseEventBatch: DoseEventBatch,
     ): Response<DoseEventBatchResult> = error("no se usa en el reloj")
 
+    var adherence: () -> Response<DeviceAdherence> = { error("sin respuesta preparada") }
+
+    override suspend fun getMyDeviceAdherence(
+        from: LocalDate?,
+        to: LocalDate?,
+    ): Response<DeviceAdherence> {
+        if (offline) throw IOException("sin red")
+        return adherence()
+    }
+
     override suspend fun getAdherence(
         patientId: UUID,
         from: LocalDate?,
@@ -76,8 +87,7 @@ fun notModified(): Response<Plan> {
     return Response.error("".toResponseBody(), raw)
 }
 
-fun problem(
+fun <T> problem(
     status: Int,
     code: String,
-): Response<Plan> =
-    Response.error(status, """{"code":"$code"}""".toResponseBody("application/problem+json".toMediaType()))
+): Response<T> = Response.error(status, """{"code":"$code"}""".toResponseBody("application/problem+json".toMediaType()))

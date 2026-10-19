@@ -27,6 +27,7 @@ import com.smartwatch.recordatorios.data.local.DoseEntity
 import com.smartwatch.recordatorios.data.remote.TokenStore
 import com.smartwatch.recordatorios.sync.SyncScheduler
 import com.smartwatch.recordatorios.ui.components.BwAppScaffold
+import com.smartwatch.recordatorios.ui.screens.adherence.AdherenceScreen
 import com.smartwatch.recordatorios.ui.screens.alert.DoseAlertActivity
 import com.smartwatch.recordatorios.ui.screens.chat.ChatScreen
 import com.smartwatch.recordatorios.ui.screens.chat.ChatViewModel
@@ -75,6 +76,7 @@ class MainActivity : ComponentActivity() {
             }
         val next by viewModel.next.collectAsStateWithLifecycle()
         val today by viewModel.today.collectAsStateWithLifecycle()
+        val adherence by viewModel.adherence.collectAsStateWithLifecycle()
         val planInfo by viewModel.planInfo.collectAsStateWithLifecycle()
         val exactAllowed by viewModel.exactAlarmsAllowed.collectAsStateWithLifecycle()
         var notificationsAllowed by remember { mutableStateOf(notifier.canPostNotifications()) }
@@ -96,6 +98,7 @@ class MainActivity : ComponentActivity() {
 
         when (screen) {
             Screen.TODAY -> TodayScreen(doses = today, onOpenDose = ::openDose)
+            Screen.ADHERENCE -> AdherenceScreen(summary = adherence)
             Screen.CHAT ->
                 ChatScreen(state = chatState, onAsk = { askByVoice { speechLauncher.launch(it) } })
             Screen.HOME ->
@@ -109,6 +112,7 @@ class MainActivity : ComponentActivity() {
                     onOpenDose = ::openDose,
                     onOpenToday = { screen = Screen.TODAY },
                     onOpenChat = { screen = Screen.CHAT },
+                    onOpenAdherence = { screen = Screen.ADHERENCE },
                     onRetryPlan = syncScheduler::syncNow,
                 )
         }
@@ -141,4 +145,4 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-private enum class Screen { HOME, TODAY, CHAT }
+private enum class Screen { HOME, TODAY, CHAT, ADHERENCE }

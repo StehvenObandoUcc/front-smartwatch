@@ -7,6 +7,7 @@ All URIs are relative to *http://localhost:8000*
 | [**createMyDoseEvents**](DosesApi.md#createMyDoseEvents) | **POST** devices/me/dose-events | Subir eventos de toma (lote, idempotente) |
 | [**createPatientDoseEvents**](DosesApi.md#createPatientDoseEvents) | **POST** patients/{patientId}/dose-events | Registrar tomas desde la web (lote, idempotente) |
 | [**getAdherence**](DosesApi.md#getAdherence) | **GET** patients/{patientId}/adherence | Porcentaje de adherencia de un paciente |
+| [**getMyDeviceAdherence**](DosesApi.md#getMyDeviceAdherence) | **GET** devices/me/adherence | Adherencia del paciente del reloj |
 | [**listDoseHistory**](DosesApi.md#listDoseHistory) | **GET** patients/{patientId}/dose-history | Historial de dosis de un paciente |
 
 
@@ -130,6 +131,50 @@ launch(Dispatchers.IO) {
 ### Return type
 
 [**Adherence**](Adherence.md)
+
+### Authorization
+
+
+Configure bearerAuth:
+    ApiClient().setBearerToken("TOKEN")
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json, application/problem+json
+
+
+Adherencia del paciente del reloj
+
+Solo con token de reloj (403 con token de usuario). El paciente es el del reloj vinculado. Mismas reglas que &#x60;GET /patients/{patientId}/adherence&#x60;: &#x60;percentage&#x60; &#x3D; taken / (taken + skipped + missed) * 100 sobre las dosis vencidas, o null si no hubo ninguna. Rango por defecto: los últimos 14 días en la zona horaria del paciente; máximo 90 días. Requiere el consentimiento &#x60;health_data&#x60; (403 &#x60;consent_required&#x60;). 
+
+### Example
+```kotlin
+// Import classes:
+//import com.smartwatch.recordatorios.api.*
+//import com.smartwatch.recordatorios.api.infrastructure.*
+//import com.smartwatch.recordatorios.api.models.*
+
+val apiClient = ApiClient()
+apiClient.setBearerToken("TOKEN")
+val webService = apiClient.createWebservice(DosesApi::class.java)
+val from : java.time.LocalDate = 2013-10-20 // java.time.LocalDate | Inicio del rango (inclusive), fecha local del paciente.
+val to : java.time.LocalDate = 2013-10-20 // java.time.LocalDate | Fin del rango (inclusive), fecha local del paciente.
+
+launch(Dispatchers.IO) {
+    val result : DeviceAdherence = webService.getMyDeviceAdherence(from, to)
+}
+```
+
+### Parameters
+| **from** | **java.time.LocalDate**| Inicio del rango (inclusive), fecha local del paciente. | [optional] |
+| Name | Type | Description  | Notes |
+| ------------- | ------------- | ------------- | ------------- |
+| **to** | **java.time.LocalDate**| Fin del rango (inclusive), fecha local del paciente. | [optional] |
+
+### Return type
+
+[**DeviceAdherence**](DeviceAdherence.md)
 
 ### Authorization
 

@@ -25,6 +25,8 @@ import kotlinx.serialization.Contextual
  *
  * @param medicationId 
  * @param medicationName 
+ * @param dosage Dosis vigente del medicamento al final del periodo (por ejemplo \"850 mg\").
+ * @param scheduled Dosis programadas del periodo (`taken + skipped + missed`).
  * @param taken 
  * @param skipped 
  * @param missed 
@@ -39,6 +41,14 @@ data class MedicationAdherence (
 
     @SerialName(value = "medicationName")
     val medicationName: kotlin.String,
+
+    /* Dosis vigente del medicamento al final del periodo (por ejemplo \"850 mg\"). */
+    @SerialName(value = "dosage")
+    val dosage: kotlin.String,
+
+    /* Dosis programadas del periodo (`taken + skipped + missed`). */
+    @SerialName(value = "scheduled")
+    val scheduled: kotlin.Int,
 
     @SerialName(value = "taken")
     val taken: kotlin.Int,

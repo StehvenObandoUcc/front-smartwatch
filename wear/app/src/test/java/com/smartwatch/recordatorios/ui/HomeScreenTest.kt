@@ -43,6 +43,7 @@ class HomeScreenTest {
                     onOpenDose = {},
                     onOpenToday = {},
                     onOpenChat = {},
+                    onOpenAdherence = {},
                     onRetryPlan = { retries++ },
                 )
             }

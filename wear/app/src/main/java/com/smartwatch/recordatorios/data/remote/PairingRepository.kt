@@ -24,6 +24,7 @@ class PairingRepository
         private val api: DevicesApi,
         private val tokens: TokenStore,
         private val plan: PlanRepository,
+        private val adherence: AdherenceRepository,
     ) {
         suspend fun requestCode(): PairingCode? =
             try {
@@ -45,6 +46,7 @@ class PairingRepository
                 when {
                     pair != null -> {
                         plan.reset()
+                        adherence.clear()
                         tokens.save(pair.accessToken, pair.refreshToken)
                         paired = true
                     }

@@ -17,7 +17,9 @@ docs/ConsentActor.md
 docs/ConsentList.md
 docs/ConsentPurpose.md
 docs/ConsentUpdate.md
+docs/DayAdherence.md
 docs/Device.md
+docs/DeviceAdherence.md
 docs/DeviceCodeGrant.md
 docs/DevicePage.md
 docs/DeviceRefreshGrant.md
@@ -132,7 +134,9 @@ src/main/kotlin/com/smartwatch/recordatorios/api/models/ConsentActor.kt
 src/main/kotlin/com/smartwatch/recordatorios/api/models/ConsentList.kt
 src/main/kotlin/com/smartwatch/recordatorios/api/models/ConsentPurpose.kt
 src/main/kotlin/com/smartwatch/recordatorios/api/models/ConsentUpdate.kt
+src/main/kotlin/com/smartwatch/recordatorios/api/models/DayAdherence.kt
 src/main/kotlin/com/smartwatch/recordatorios/api/models/Device.kt
+src/main/kotlin/com/smartwatch/recordatorios/api/models/DeviceAdherence.kt
 src/main/kotlin/com/smartwatch/recordatorios/api/models/DeviceCodeGrant.kt
 src/main/kotlin/com/smartwatch/recordatorios/api/models/DevicePage.kt
 src/main/kotlin/com/smartwatch/recordatorios/api/models/DeviceRefreshGrant.kt
@@ -193,3 +197,5 @@ src/main/kotlin/com/smartwatch/recordatorios/api/models/ValidationProblemAllOfEr
 src/main/kotlin/com/smartwatch/recordatorios/api/models/ValidationProblemAllOfLoc.kt
 src/main/kotlin/com/smartwatch/recordatorios/api/models/WatchChatReply.kt
 src/main/kotlin/com/smartwatch/recordatorios/api/models/kotlinx.serialization.json.JsonObject.kt
+src/test/kotlin/com/smartwatch/recordatorios/api/models/DayAdherenceTest.kt
+src/test/kotlin/com/smartwatch/recordatorios/api/models/DeviceAdherenceTest.kt

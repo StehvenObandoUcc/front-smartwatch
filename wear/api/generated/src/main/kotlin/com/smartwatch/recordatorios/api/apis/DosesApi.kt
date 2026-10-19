@@ -8,6 +8,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 import com.smartwatch.recordatorios.api.models.Adherence
+import com.smartwatch.recordatorios.api.models.DeviceAdherence
 import com.smartwatch.recordatorios.api.models.DoseEventBatch
 import com.smartwatch.recordatorios.api.models.DoseEventBatchResult
 import com.smartwatch.recordatorios.api.models.DoseHistoryPage
@@ -67,6 +68,23 @@ interface DosesApi {
      */
     @GET("patients/{patientId}/adherence")
     suspend fun getAdherence(@Path("patientId") patientId: java.util.UUID, @Query("from") from: java.time.LocalDate? = null, @Query("to") to: java.time.LocalDate? = null): Response<Adherence>
+
+    /**
+     * GET devices/me/adherence
+     * Adherencia del paciente del reloj
+     * Solo con token de reloj (403 con token de usuario). El paciente es el del reloj vinculado. Mismas reglas que &#x60;GET /patients/{patientId}/adherence&#x60;: &#x60;percentage&#x60; &#x3D; taken / (taken + skipped + missed) * 100 sobre las dosis vencidas, o null si no hubo ninguna. Rango por defecto: los últimos 14 días en la zona horaria del paciente; máximo 90 días. Requiere el consentimiento &#x60;health_data&#x60; (403 &#x60;consent_required&#x60;). 
+     * Responses:
+     *  - 200: Adherencia del rango, con el desglose diario.
+     *  - 401: Falta el token, es inválido o caducó (o credenciales incorrectas en login).
+     *  - 403: Autenticado pero sin permiso: rol que no permite la acción sobre un recurso accesible, o tipo de token equivocado (`wrong_token_type`). Nunca se usa para pacientes sin vínculo (eso es 404). 
+     *  - 422: La petición no cumple el esquema.
+     *
+     * @param from Inicio del rango (inclusive), fecha local del paciente. (optional)
+     * @param to Fin del rango (inclusive), fecha local del paciente. (optional)
+     * @return [DeviceAdherence]
+     */
+    @GET("devices/me/adherence")
+    suspend fun getMyDeviceAdherence(@Query("from") from: java.time.LocalDate? = null, @Query("to") to: java.time.LocalDate? = null): Response<DeviceAdherence>
 
     /**
      * GET patients/{patientId}/dose-history
