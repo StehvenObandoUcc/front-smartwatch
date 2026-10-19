@@ -64,11 +64,15 @@ fun BwProgress(modifier: Modifier = Modifier) {
     }
 }
 
-/** Marca de éxito: insignia verde con brillo y visto blanco dibujado (sin depender de la fuente), y su texto. */
+/**
+ * Marca de éxito: insignia verde con brillo y visto blanco dibujado (sin depender de la fuente), su texto
+ * y [details] debajo (p. ej. qué se registró y a qué hora).
+ */
 @Composable
 fun BwSuccessMark(
     label: String,
     modifier: Modifier = Modifier,
+    details: List<String> = emptyList(),
 ) {
     val colors = BwTheme.colors
     Column(
@@ -97,6 +101,7 @@ fun BwSuccessMark(
             )
         }
         BwText(label, style = BwTheme.type.display, textAlign = TextAlign.Center)
+        details.forEach { BwText(it, color = colors.contentSoft, textAlign = TextAlign.Center) }
     }
 }
 
