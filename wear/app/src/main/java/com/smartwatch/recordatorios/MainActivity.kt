@@ -24,7 +24,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.smartwatch.recordatorios.alarm.DoseIntents
 import com.smartwatch.recordatorios.alarm.DoseNotifier
 import com.smartwatch.recordatorios.data.local.DoseEntity
-import com.smartwatch.recordatorios.data.local.ThemePrefs
 import com.smartwatch.recordatorios.data.remote.TokenStore
 import com.smartwatch.recordatorios.sync.SyncScheduler
 import com.smartwatch.recordatorios.ui.components.BwAppScaffold
@@ -36,7 +35,6 @@ import com.smartwatch.recordatorios.ui.screens.home.HomeViewModel
 import com.smartwatch.recordatorios.ui.screens.pairing.PairingRoute
 import com.smartwatch.recordatorios.ui.screens.today.TodayScreen
 import com.smartwatch.recordatorios.ui.theme.RecordatoriosTheme
-import com.smartwatch.recordatorios.ui.theme.applyWindowBackground
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -48,18 +46,14 @@ class MainActivity : ComponentActivity() {
 
     @Inject lateinit var syncScheduler: SyncScheduler
 
-    @Inject lateinit var themePrefs: ThemePrefs
-
     private val viewModel: HomeViewModel by viewModels()
 
     private val chatViewModel: ChatViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        applyWindowBackground(themePrefs.mode.value)
         setContent {
-            val themeMode by themePrefs.mode.collectAsStateWithLifecycle()
-            RecordatoriosTheme(themeMode) {
+            RecordatoriosTheme {
                 BwAppScaffold {
                     val paired by tokens.paired.collectAsStateWithLifecycle()
                     if (paired) MainRoute() else PairingRoute()
@@ -83,7 +77,6 @@ class MainActivity : ComponentActivity() {
         val today by viewModel.today.collectAsStateWithLifecycle()
         val planInfo by viewModel.planInfo.collectAsStateWithLifecycle()
         val exactAllowed by viewModel.exactAlarmsAllowed.collectAsStateWithLifecycle()
-        val themeMode by themePrefs.mode.collectAsStateWithLifecycle()
         var notificationsAllowed by remember { mutableStateOf(notifier.canPostNotifications()) }
         val notificationLauncher =
             rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
@@ -111,13 +104,11 @@ class MainActivity : ComponentActivity() {
                     planInfo = planInfo,
                     exactAlarmsAllowed = exactAllowed,
                     notificationsAllowed = notificationsAllowed,
-                    themeMode = themeMode,
                     onRequestExactAlarms = ::openExactAlarmSettings,
                     onRequestNotifications = { notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS) },
                     onOpenDose = ::openDose,
                     onOpenToday = { screen = Screen.TODAY },
                     onOpenChat = { screen = Screen.CHAT },
-                    onToggleTheme = themePrefs::toggle,
                 )
         }
     }

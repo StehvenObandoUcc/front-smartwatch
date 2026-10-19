@@ -31,7 +31,7 @@ fun MedicationLabel(
             modifier =
                 Modifier
                     .size(Sizes.colorDot)
-                    .background(medicationColor(colorKey, dark = BwTheme.colors.isDark), CircleShape),
+                    .background(medicationColor(colorKey), CircleShape),
         )
         BwText(text = name, style = BwTheme.type.title, textAlign = TextAlign.Center, maxLines = 2)
     }

@@ -10,7 +10,6 @@ import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
 import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 import com.smartwatch.recordatorios.R
 import com.smartwatch.recordatorios.data.local.DoseEntity
-import com.smartwatch.recordatorios.data.local.ThemeMode
 import com.smartwatch.recordatorios.data.remote.PlanInfo
 import com.smartwatch.recordatorios.data.remote.PlanStatus
 import com.smartwatch.recordatorios.ui.components.BwBanner
@@ -32,13 +31,11 @@ fun HomeScreen(
     planInfo: PlanInfo,
     exactAlarmsAllowed: Boolean,
     notificationsAllowed: Boolean,
-    themeMode: ThemeMode,
     onRequestExactAlarms: () -> Unit,
     onRequestNotifications: () -> Unit,
     onOpenDose: (DoseEntity) -> Unit,
     onOpenToday: () -> Unit,
     onOpenChat: () -> Unit,
-    onToggleTheme: () -> Unit,
 ) {
     val listState = rememberTransformingLazyColumnState()
     BwScreenScaffold(scrollState = listState) { contentPadding ->
@@ -110,19 +107,6 @@ fun HomeScreen(
                     modifier = Modifier.fillMaxWidth(),
                 )
             }
-
-            // Al final: es un ajuste, no debe desplazar avisos ni la próxima dosis.
-            item {
-                BwButton(
-                    label =
-                        stringResource(
-                            if (themeMode == ThemeMode.DARK) R.string.theme_dark else R.string.theme_light,
-                        ),
-                    icon = R.drawable.ic_theme,
-                    onClick = onToggleTheme,
-                    modifier = Modifier.fillMaxWidth(),
-                )
-            }
         }
     }
 }
@@ -171,13 +155,11 @@ private fun HomeScreenPreview() {
             planInfo = PlanInfo(PlanStatus.OK, 0),
             exactAlarmsAllowed = false,
             notificationsAllowed = true,
-            themeMode = ThemeMode.DARK,
             onRequestExactAlarms = {},
             onRequestNotifications = {},
             onOpenDose = {},
             onOpenToday = {},
             onOpenChat = {},
-            onToggleTheme = {},
         )
     }
 }

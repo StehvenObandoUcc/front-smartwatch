@@ -6,8 +6,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 /**
- * Colores de un modo. Sin negro ni blanco puros; [content] es a la vez texto y borde, y las capas
- * se separan con borde de 2 dp, no solo con tono. Contrastes (WCAG): texto/fondo ≥ 11:1 en ambos modos.
+ * Colores del tema. Sin negro ni blanco puros; [content] es a la vez texto y borde, y las capas
+ * se separan con borde de 2 dp, no solo con tono. Contrastes (WCAG): texto/fondo ≥ 11:1.
  */
 @Immutable
 data class BwColors(
@@ -15,7 +15,6 @@ data class BwColors(
     val surface: Color,
     val content: Color,
     val accent: Color,
-    val isDark: Boolean,
 )
 
 val DarkColors =
@@ -24,20 +23,10 @@ val DarkColors =
         surface = Color(0xFF373D47),
         content = Color(0xFFEDEFF2),
         accent = Color(0xFFFFC94D),
-        isDark = true,
     )
 
-val LightColors =
-    BwColors(
-        background = Color(0xFFDCDFE4),
-        surface = Color(0xFFECEEF1),
-        content = Color(0xFF23272E),
-        accent = Color(0xFF7A4E00),
-        isDark = false,
-    )
-
-/** Paleta de medicamentos (misma clave que la web), una versión por modo con ≥ 3:1 sobre fondo y superficie. */
-private val medicationPaletteDark =
+/** Paleta de medicamentos (misma clave que la web), con ≥ 3:1 sobre fondo y superficie. */
+private val medicationPalette =
     mapOf(
         "red" to Color(0xFFF0625F),
         "orange" to Color(0xFFFF8A3D),
@@ -49,28 +38,11 @@ private val medicationPaletteDark =
         "pink" to Color(0xFFF277B8),
     )
 
-private val medicationPaletteLight =
-    mapOf(
-        "red" to Color(0xFFC62828),
-        "orange" to Color(0xFFA84A00),
-        "yellow" to Color(0xFF6B6B00),
-        "green" to Color(0xFF2E7D32),
-        "teal" to Color(0xFF00796B),
-        "blue" to Color(0xFF1565C0),
-        "purple" to Color(0xFF7B3FB5),
-        "pink" to Color(0xFFB0286E),
-    )
-
-/** El color siempre acompaña al nombre. Por defecto, la versión oscura (la notificación usa esa). */
-fun medicationColor(
-    colorKey: String,
-    dark: Boolean = true,
-): Color {
-    val palette = if (dark) medicationPaletteDark else medicationPaletteLight
-    return palette[colorKey]
+/** El color siempre acompaña al nombre. */
+fun medicationColor(colorKey: String): Color =
+    medicationPalette[colorKey]
         ?: runCatching { Color(android.graphics.Color.parseColor(colorKey)) }.getOrNull()
-        ?: palette.getValue("blue")
-}
+        ?: medicationPalette.getValue("blue")
 
 /** Escala tipográfica: nada por debajo de 14 sp; datos clave a 16 sp o más. */
 object TypeScale {

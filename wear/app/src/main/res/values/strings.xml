@@ -11,9 +11,6 @@
     <string name="open_dose">Abrir dosis</string>
     <string name="loading">Cargando</string>
 
-    <string name="theme_dark">Tema: Oscuro</string>
-    <string name="theme_light">Tema: Claro</string>
-
     <string name="plan_never">Plan aún sin descargar</string>
     <string name="plan_valid_until">Plan válido hasta %1$s</string>
     <string name="plan_consent">Falta aceptar el uso de datos de salud en el panel web</string>

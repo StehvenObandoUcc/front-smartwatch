@@ -6,17 +6,14 @@ import androidx.activity.compose.setContent
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.smartwatch.recordatorios.alarm.DoseActionHandler
 import com.smartwatch.recordatorios.alarm.DoseIntents
 import com.smartwatch.recordatorios.data.local.DoseAction
 import com.smartwatch.recordatorios.data.local.DoseEntity
-import com.smartwatch.recordatorios.data.local.ThemePrefs
 import com.smartwatch.recordatorios.data.repository.DoseRepository
 import com.smartwatch.recordatorios.ui.components.BwAppScaffold
 import com.smartwatch.recordatorios.ui.theme.RecordatoriosTheme
-import com.smartwatch.recordatorios.ui.theme.applyWindowBackground
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -32,17 +29,12 @@ class DoseAlertActivity : ComponentActivity() {
 
     @Inject lateinit var handler: DoseActionHandler
 
-    @Inject lateinit var themePrefs: ThemePrefs
-
     private var dose by mutableStateOf<DoseEntity?>(null)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        applyWindowBackground(themePrefs.mode.value)
         setContent {
-            // Mismo ThemePrefs (singleton) que MainActivity: la alerta respeta el modo elegido.
-            val themeMode by themePrefs.mode.collectAsStateWithLifecycle()
-            RecordatoriosTheme(themeMode) {
+            RecordatoriosTheme {
                 BwAppScaffold {
                     dose?.let { current ->
                         DoseAlertScreen(
