@@ -36,6 +36,7 @@ fun HomeScreen(
     onOpenDose: (DoseEntity) -> Unit,
     onOpenToday: () -> Unit,
     onOpenChat: () -> Unit,
+    onOpenAdherence: () -> Unit,
     onRetryPlan: () -> Unit,
 ) {
     val listState = rememberTransformingLazyColumnState()
@@ -102,6 +103,14 @@ fun HomeScreen(
                 BwButton(
                     label = stringResource(R.string.home_today_button),
                     onClick = onOpenToday,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+
+            item {
+                BwButton(
+                    label = stringResource(R.string.home_adherence_button),
+                    onClick = onOpenAdherence,
                     modifier = Modifier.fillMaxWidth(),
                 )
             }
@@ -181,6 +190,7 @@ private fun HomeScreenPreview() {
             onOpenDose = {},
             onOpenToday = {},
             onOpenChat = {},
+            onOpenAdherence = {},
             onRetryPlan = {},
         )
     }
