@@ -109,6 +109,7 @@ class MainActivity : ComponentActivity() {
                     onOpenDose = ::openDose,
                     onOpenToday = { screen = Screen.TODAY },
                     onOpenChat = { screen = Screen.CHAT },
+                    onRetryPlan = syncScheduler::syncNow,
                 )
         }
     }
