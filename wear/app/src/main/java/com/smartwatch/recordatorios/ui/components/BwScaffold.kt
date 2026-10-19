@@ -13,7 +13,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.wear.compose.foundation.CurvedTextStyle
 import androidx.wear.compose.foundation.basicCurvedText
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumnState
+import androidx.wear.compose.foundation.pager.HorizontalPager
+import androidx.wear.compose.foundation.pager.PagerState
 import androidx.wear.compose.material3.AppScaffold
+import androidx.wear.compose.material3.HorizontalPageIndicator
+import androidx.wear.compose.material3.HorizontalPagerScaffold
 import androidx.wear.compose.material3.ScreenScaffold
 import androidx.wear.compose.material3.ScrollIndicator
 import androidx.wear.compose.material3.ScrollIndicatorDefaults
@@ -53,6 +57,31 @@ fun BwAppScaffold(content: @Composable BoxScope.() -> Unit) {
                 },
             content = content,
         )
+    }
+}
+
+/**
+ * Páginas horizontales con indicador de página en los colores del tema. La corona desplaza la lista
+ * de la página visible, no cambia de página.
+ */
+@Composable
+fun BwPager(
+    pagerState: PagerState,
+    page: @Composable (Int) -> Unit,
+) {
+    val colors = BwTheme.colors
+    HorizontalPagerScaffold(
+        pagerState = pagerState,
+        pageIndicator = {
+            HorizontalPageIndicator(
+                pagerState = pagerState,
+                selectedColor = colors.content,
+                unselectedColor = colors.track,
+                backgroundColor = Color.Transparent,
+            )
+        },
+    ) {
+        HorizontalPager(state = pagerState, rotaryScrollableBehavior = null) { page(it) }
     }
 }
 
