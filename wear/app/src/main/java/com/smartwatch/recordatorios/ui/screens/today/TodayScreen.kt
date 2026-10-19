@@ -9,14 +9,16 @@ import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
 import com.smartwatch.recordatorios.R
 import com.smartwatch.recordatorios.data.local.DoseEntity
+import com.smartwatch.recordatorios.data.local.DoseStatus
 import com.smartwatch.recordatorios.ui.components.BwCard
 import com.smartwatch.recordatorios.ui.components.BwHeader
 import com.smartwatch.recordatorios.ui.components.BwScreenScaffold
 import com.smartwatch.recordatorios.ui.components.BwText
 import com.smartwatch.recordatorios.ui.components.MedicationLabel
 import com.smartwatch.recordatorios.ui.components.doseStatusText
+import com.smartwatch.recordatorios.ui.theme.BwTheme
 
-/** Las dosis de hoy con su estado. */
+/** Las dosis de hoy con su estado y cuántas van tomadas. */
 @Composable
 fun TodayScreen(
     doses: List<DoseEntity>?,
@@ -26,6 +28,22 @@ fun TodayScreen(
     BwScreenScaffold(scrollState = listState) { contentPadding ->
         TransformingLazyColumn(state = listState, contentPadding = contentPadding) {
             item { BwHeader(stringResource(R.string.today_title)) }
+            if (!doses.isNullOrEmpty()) {
+                item {
+                    BwText(
+                        text =
+                            stringResource(
+                                R.string.today_progress,
+                                doses.count { it.status == DoseStatus.TAKEN },
+                                doses.size,
+                            ),
+                        style = BwTheme.type.support,
+                        color = BwTheme.colors.contentSoft,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
+            }
             when {
                 doses == null -> Unit
                 doses.isEmpty() ->

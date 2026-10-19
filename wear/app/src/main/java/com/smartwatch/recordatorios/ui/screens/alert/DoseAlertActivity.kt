@@ -40,7 +40,7 @@ class DoseAlertActivity : ComponentActivity() {
                         DoseAlertScreen(
                             dose = current,
                             onTake = { act(current.id, DoseAction.TAKEN, closeAfterMillis = SUCCESS_MILLIS) },
-                            onSnooze = { act(current.id, DoseAction.SNOOZED) },
+                            onSnooze = { act(current.id, DoseAction.SNOOZED, closeAfterMillis = SUCCESS_MILLIS) },
                             onSkip = { act(current.id, DoseAction.SKIPPED) },
                         )
                     }
@@ -63,7 +63,7 @@ class DoseAlertActivity : ComponentActivity() {
         }
     }
 
-    /** Registra la acción al momento; tras «Tomada» deja ver la marca de éxito antes de cerrar. */
+    /** Registra la acción al momento; tras «Tomada» o «Posponer» deja ver la confirmación antes de cerrar. */
     private fun act(
         doseId: String,
         action: DoseAction,

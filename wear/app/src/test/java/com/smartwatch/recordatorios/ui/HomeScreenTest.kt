@@ -24,16 +24,18 @@ class HomeScreenTest {
 
     private var exactRequests = 0
     private var notificationRequests = 0
+    private var retries = 0
 
     private fun show(
         exact: Boolean,
         notifications: Boolean,
+        plan: PlanStatus = PlanStatus.OK,
     ) {
         compose.setContent {
             RecordatoriosTheme {
                 HomeScreen(
                     next = DemoDoses.create(0).first(),
-                    planInfo = PlanInfo(PlanStatus.OK, 0),
+                    planInfo = PlanInfo(plan, 0),
                     exactAlarmsAllowed = exact,
                     notificationsAllowed = notifications,
                     onRequestExactAlarms = { exactRequests++ },
@@ -41,6 +43,7 @@ class HomeScreenTest {
                     onOpenDose = {},
                     onOpenToday = {},
                     onOpenChat = {},
+                    onRetryPlan = { retries++ },
                 )
             }
         }
@@ -72,5 +75,15 @@ class HomeScreenTest {
         compose.onNodeWithText("Alarmas desactivadas").assertDoesNotExist()
         compose.onNodeWithText("Avisos desactivados").assertDoesNotExist()
         compose.onNodeWithText("Losartán").assertIsDisplayed()
+        compose.onNodeWithText("Sin conexión").assertDoesNotExist()
+    }
+
+    @Test
+    fun `sin red avisa que las alarmas siguen y permite reintentar`() {
+        show(exact = true, notifications = true, plan = PlanStatus.OFFLINE)
+
+        compose.onNodeWithText("Sin conexión").assertIsDisplayed().performClick()
+
+        assertThat(retries).isEqualTo(1)
     }
 }

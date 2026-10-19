@@ -36,6 +36,7 @@ fun HomeScreen(
     onOpenDose: (DoseEntity) -> Unit,
     onOpenToday: () -> Unit,
     onOpenChat: () -> Unit,
+    onRetryPlan: () -> Unit,
 ) {
     val listState = rememberTransformingLazyColumnState()
     BwScreenScaffold(scrollState = listState) { contentPadding ->
@@ -56,6 +57,20 @@ fun HomeScreen(
                         title = stringResource(R.string.permission_exact_title),
                         body = stringResource(R.string.permission_exact_body),
                         onClick = onRequestExactAlarms,
+                    )
+                }
+            }
+
+            // Sin red las alarmas siguen sonando (son locales): se dice para no alarmar y se ofrece reintentar.
+            if (planInfo.status == PlanStatus.OFFLINE) {
+                item {
+                    BwBanner(
+                        icon = R.drawable.ic_warning,
+                        iconDescription = stringResource(R.string.warning_label),
+                        title = stringResource(R.string.plan_offline_title),
+                        body = stringResource(R.string.plan_offline_body),
+                        onClick = onRetryPlan,
+                        modifier = Modifier.fillMaxWidth(),
                     )
                 }
             }
@@ -116,6 +131,12 @@ private fun planStatusText(info: PlanInfo): String =
     when (info.status) {
         PlanStatus.NEVER -> stringResource(R.string.plan_never)
         PlanStatus.OK -> stringResource(R.string.plan_valid_until, formatDateTime(info.validUntil))
+        PlanStatus.OFFLINE ->
+            if (info.validUntil > 0) {
+                stringResource(R.string.plan_valid_until, formatDateTime(info.validUntil))
+            } else {
+                stringResource(R.string.plan_never)
+            }
         PlanStatus.CONSENT_REQUIRED -> stringResource(R.string.plan_consent)
         PlanStatus.FAILED -> stringResource(R.string.plan_failed)
     }
@@ -160,6 +181,7 @@ private fun HomeScreenPreview() {
             onOpenDose = {},
             onOpenToday = {},
             onOpenChat = {},
+            onRetryPlan = {},
         )
     }
 }

@@ -8,6 +8,7 @@
     <string name="home_today_button">Ver las de hoy</string>
     <string name="today_title">Hoy</string>
     <string name="today_empty">No hay dosis hoy</string>
+    <string name="today_progress">%1$d de %2$d tomadas</string>
     <string name="open_dose">Abrir dosis</string>
     <string name="loading">Cargando</string>
 
@@ -15,6 +16,8 @@
     <string name="plan_valid_until">Plan válido hasta %1$s</string>
     <string name="plan_consent">Falta aceptar el uso de datos de salud en el panel web</string>
     <string name="plan_failed">No se pudo actualizar el plan</string>
+    <string name="plan_offline_title">Sin conexión</string>
+    <string name="plan_offline_body">Tus alarmas siguen sonando. Toca para reintentar</string>
 
     <string name="chat_title">Asistente</string>
     <string name="chat_ask">Preguntar por voz</string>
@@ -44,6 +47,13 @@
     <string name="status_taken">Tomada</string>
     <string name="status_skipped">Omitida</string>
     <string name="snoozed_times">Pospuesta %1$d de %2$d</string>
+    <string name="taken_detail">%1$s · %2$s</string>
+    <string name="taken_at">Registrada a las %1$s</string>
+    <string name="snoozed_rings_at">Suena a las %1$s</string>
+    <plurals name="snoozes_left">
+        <item quantity="one">Queda %1$d vez</item>
+        <item quantity="other">Quedan %1$d veces</item>
+    </plurals>
 
     <string name="action_take">Tomada</string>
     <string name="snooze_for">Posponer %1$d min</string>
