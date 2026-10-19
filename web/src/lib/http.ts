@@ -18,7 +18,9 @@ export class ApiError extends Error {
   }
 }
 
-const baseUrl = import.meta.env.VITE_API_URL ?? 'http://localhost:8000';
+// Backend desplegado por defecto; para el local: VITE_API_URL=http://localhost:8000 en web/.env.local.
+const baseUrl =
+  import.meta.env.VITE_API_URL ?? 'https://back-smartwatch-5d050b912b0a.herokuapp.com';
 
 // El token de acceso vive solo en memoria; el refresh token va en cookie httpOnly.
 let accessToken: string | null = null;
