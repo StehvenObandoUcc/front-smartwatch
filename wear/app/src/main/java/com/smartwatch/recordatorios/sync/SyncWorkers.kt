@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import com.smartwatch.recordatorios.data.remote.AdherenceRepository
 import com.smartwatch.recordatorios.data.remote.EventUploader
 import com.smartwatch.recordatorios.data.remote.PlanRepository
 import com.smartwatch.recordatorios.data.remote.SyncResult
@@ -11,7 +12,10 @@ import com.smartwatch.recordatorios.data.remote.TokenStore
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 
-/** Cada 30 min y al abrir la app: sube lo pendiente y descarga el plan (ETag evita descargas inútiles). */
+/**
+ * Cada 30 min y al abrir la app: sube lo pendiente, descarga el plan (ETag evita descargas inútiles)
+ * y después la adherencia, que así ya cuenta lo recién subido.
+ */
 @HiltWorker
 class PlanSyncWorker
     @AssistedInject
@@ -20,13 +24,15 @@ class PlanSyncWorker
         @Assisted params: WorkerParameters,
         private val uploader: EventUploader,
         private val plan: PlanRepository,
+        private val adherence: AdherenceRepository,
         private val tokens: TokenStore,
     ) : CoroutineWorker(context, params) {
         override suspend fun doWork(): Result {
             if (!tokens.paired.value) return Result.success()
             val uploaded = uploader.upload()
             val synced = plan.sync()
-            val retry = !uploaded || synced == SyncResult.FAILED
+            val adherenceSynced = adherence.sync()
+            val retry = !uploaded || synced == SyncResult.FAILED || !adherenceSynced
             return if (retry) Result.retry() else Result.success()
         }
     }
