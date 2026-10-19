@@ -34,10 +34,15 @@ class PlanRepository
                 try {
                     api.getMyPlan(prefs.etag)
                 } catch (_: java.io.IOException) {
+                    prefs.update(PlanStatus.OFFLINE)
                     return SyncResult.FAILED
                 }
             return when {
-                response.code() == HTTP_NOT_MODIFIED -> SyncResult.UNCHANGED
+                response.code() == HTTP_NOT_MODIFIED -> {
+                    // Quita un aviso anterior (sin red, error) sin tocar la vigencia del plan.
+                    prefs.update(PlanStatus.OK)
+                    SyncResult.UNCHANGED
+                }
                 response.isSuccessful -> applyBody(response)
                 response.code() == HTTP_UNAUTHORIZED -> SyncResult.UNAUTHORIZED
                 response.code() == HTTP_FORBIDDEN && response.problemCode() == CONSENT_REQUIRED -> {
