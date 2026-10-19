@@ -6,6 +6,8 @@ import com.smartwatch.recordatorios.alarm.AlarmRescheduler
 import com.smartwatch.recordatorios.alarm.DoseAlarmScheduler
 import com.smartwatch.recordatorios.data.local.DoseEntity
 import com.smartwatch.recordatorios.data.local.DoseStatus
+import com.smartwatch.recordatorios.data.remote.AdherenceRepository
+import com.smartwatch.recordatorios.data.remote.AdherenceSummary
 import com.smartwatch.recordatorios.data.remote.PlanInfo
 import com.smartwatch.recordatorios.data.remote.PlanPrefs
 import com.smartwatch.recordatorios.data.repository.DoseRepository
@@ -53,8 +55,11 @@ class HomeViewModel
         private val scheduler: DoseAlarmScheduler,
         private val rescheduler: AlarmRescheduler,
         planPrefs: PlanPrefs,
+        adherenceRepository: AdherenceRepository,
         private val clock: Clock,
     ) : ViewModel() {
+        val adherence: StateFlow<AdherenceSummary?> = adherenceRepository.summary
+
         val next: StateFlow<DoseEntity?> =
             repository
                 .observeDoses()
