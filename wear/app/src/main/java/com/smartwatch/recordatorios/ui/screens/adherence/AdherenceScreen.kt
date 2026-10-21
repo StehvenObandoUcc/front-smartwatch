@@ -4,6 +4,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
@@ -21,9 +22,11 @@ import com.smartwatch.recordatorios.data.remote.AdherenceSummary
 import com.smartwatch.recordatorios.ui.components.BwHeader
 import com.smartwatch.recordatorios.ui.components.BwScreenScaffold
 import com.smartwatch.recordatorios.ui.components.BwText
+import com.smartwatch.recordatorios.ui.components.edgeItem
 import com.smartwatch.recordatorios.ui.theme.BwTheme
 import com.smartwatch.recordatorios.ui.theme.RecordatoriosTheme
 import com.smartwatch.recordatorios.ui.theme.Sizes
+import com.smartwatch.recordatorios.ui.theme.Spacing
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -36,17 +39,17 @@ fun AdherenceScreen(summary: AdherenceSummary?) {
     val listState = rememberTransformingLazyColumnState()
     BwScreenScaffold(scrollState = listState) { contentPadding ->
         TransformingLazyColumn(state = listState, contentPadding = contentPadding) {
-            item { BwHeader(stringResource(R.string.adherence_title)) }
+            edgeItem { BwHeader(stringResource(R.string.adherence_title)) }
             if (summary == null) {
-                item { CenteredText(stringResource(R.string.adherence_empty)) }
+                edgeItem { CenteredText(stringResource(R.string.adherence_empty)) }
             } else {
-                item {
+                edgeItem {
                     CenteredText(
                         text = summary.percentage?.let { stringResource(R.string.adherence_value, it) } ?: "—",
                         large = true,
                     )
                 }
-                item {
+                edgeItem {
                     CenteredText(
                         stringResource(
                             if (summary.percentage == null) R.string.adherence_none else R.string.adherence_caption,
@@ -54,9 +57,9 @@ fun AdherenceScreen(summary: AdherenceSummary?) {
                         ),
                     )
                 }
-                item { DayBars(summary.days, modifier = Modifier.fillMaxWidth().height(Sizes.barChart)) }
-                item {
-                    Row(modifier = Modifier.fillMaxWidth()) {
+                edgeItem { DayBars(summary.days, modifier = ChartInset.fillMaxWidth().height(Sizes.barChart)) }
+                edgeItem {
+                    Row(modifier = ChartInset.fillMaxWidth()) {
                         BwText(
                             summary.from.format(DAY_FORMAT),
                             style = BwTheme.type.support,
@@ -110,6 +113,9 @@ private fun CenteredText(
         modifier = Modifier.fillMaxWidth(),
     )
 }
+
+/** La gráfica va en la parte baja, donde la pantalla redonda es más estrecha. */
+private val ChartInset = Modifier.padding(horizontal = Spacing.lg + Spacing.md)
 
 private val DAY_FORMAT: DateTimeFormatter = DateTimeFormatter.ofPattern("d MMM")
 
