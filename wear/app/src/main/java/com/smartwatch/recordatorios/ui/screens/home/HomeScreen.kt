@@ -1,5 +1,6 @@
 package com.smartwatch.recordatorios.ui.screens.home
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -21,10 +22,14 @@ import com.smartwatch.recordatorios.ui.components.BwText
 import com.smartwatch.recordatorios.ui.components.MedicationLabel
 import com.smartwatch.recordatorios.ui.theme.BwTheme
 import com.smartwatch.recordatorios.ui.theme.RecordatoriosTheme
+import com.smartwatch.recordatorios.ui.theme.Spacing
 import com.smartwatch.recordatorios.ui.theme.formatDateTime
 import com.smartwatch.recordatorios.ui.theme.formatTime
 
-/** Inicio: avisos de permisos, próxima dosis y estado del plan. Los datos y permisos entran por parámetros. */
+/**
+ * Primera página: avisos de permisos, próxima dosis y estado del plan. Hoy y Adherencia son las
+ * páginas siguientes (deslizar). Los datos y permisos entran por parámetros.
+ */
 @Composable
 fun HomeScreen(
     next: DoseEntity?,
@@ -34,14 +39,16 @@ fun HomeScreen(
     onRequestExactAlarms: () -> Unit,
     onRequestNotifications: () -> Unit,
     onOpenDose: (DoseEntity) -> Unit,
-    onOpenToday: () -> Unit,
     onOpenChat: () -> Unit,
-    onOpenAdherence: () -> Unit,
     onRetryPlan: () -> Unit,
 ) {
     val listState = rememberTransformingLazyColumnState()
     BwScreenScaffold(scrollState = listState) { contentPadding ->
-        TransformingLazyColumn(state = listState, contentPadding = contentPadding) {
+        TransformingLazyColumn(
+            state = listState,
+            contentPadding = contentPadding,
+            verticalArrangement = Arrangement.spacedBy(Spacing.sm),
+        ) {
             // Avisos arriba del todo: sin estos permisos la alarma puede no sonar.
             if (!notificationsAllowed) {
                 item {
@@ -97,22 +104,6 @@ fun HomeScreen(
                         BwText(formatTime(next.nextAlarmAt), style = BwTheme.type.title)
                     }
                 }
-            }
-
-            item {
-                BwButton(
-                    label = stringResource(R.string.home_today_button),
-                    onClick = onOpenToday,
-                    modifier = Modifier.fillMaxWidth(),
-                )
-            }
-
-            item {
-                BwButton(
-                    label = stringResource(R.string.home_adherence_button),
-                    onClick = onOpenAdherence,
-                    modifier = Modifier.fillMaxWidth(),
-                )
             }
 
             item {
@@ -188,9 +179,7 @@ private fun HomeScreenPreview() {
             onRequestExactAlarms = {},
             onRequestNotifications = {},
             onOpenDose = {},
-            onOpenToday = {},
             onOpenChat = {},
-            onOpenAdherence = {},
             onRetryPlan = {},
         )
     }
