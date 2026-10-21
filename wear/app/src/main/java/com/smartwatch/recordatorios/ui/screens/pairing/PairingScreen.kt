@@ -26,6 +26,7 @@ import com.smartwatch.recordatorios.ui.components.BwButton
 import com.smartwatch.recordatorios.ui.components.BwHeader
 import com.smartwatch.recordatorios.ui.components.BwScreenScaffold
 import com.smartwatch.recordatorios.ui.components.BwText
+import com.smartwatch.recordatorios.ui.components.edgeItem
 import com.smartwatch.recordatorios.ui.theme.BwTheme
 import com.smartwatch.recordatorios.ui.theme.Sizes
 import com.smartwatch.recordatorios.ui.theme.Spacing
@@ -45,13 +46,13 @@ fun PairingScreen(
     val listState = rememberTransformingLazyColumnState()
     BwScreenScaffold(scrollState = listState) { contentPadding ->
         TransformingLazyColumn(state = listState, contentPadding = contentPadding) {
-            item { BwHeader(stringResource(R.string.pair_title)) }
+            edgeItem { BwHeader(stringResource(R.string.pair_title)) }
             when (state) {
                 PairingState.Loading ->
-                    item { BwText(stringResource(R.string.pair_loading), textAlign = TextAlign.Center) }
+                    edgeItem { BwText(stringResource(R.string.pair_loading), textAlign = TextAlign.Center) }
                 is PairingState.Code -> {
-                    item { CodeBoxes(state.code) }
-                    item {
+                    edgeItem { CodeBoxes(state.code) }
+                    edgeItem {
                         BwText(
                             text = stringResource(R.string.pair_instructions),
                             style = BwTheme.type.support,
@@ -62,8 +63,8 @@ fun PairingScreen(
                     }
                 }
                 PairingState.Error -> {
-                    item { BwText(stringResource(R.string.pair_error), textAlign = TextAlign.Center) }
-                    item {
+                    edgeItem { BwText(stringResource(R.string.pair_error), textAlign = TextAlign.Center) }
+                    edgeItem {
                         BwButton(
                             label = stringResource(R.string.pair_retry),
                             onClick = onRetry,
