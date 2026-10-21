@@ -1,8 +1,11 @@
 package com.smartwatch.recordatorios.ui.screens.today
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -16,9 +19,11 @@ import com.smartwatch.recordatorios.ui.components.BwHeader
 import com.smartwatch.recordatorios.ui.components.BwScreenScaffold
 import com.smartwatch.recordatorios.ui.components.BwText
 import com.smartwatch.recordatorios.ui.components.MedicationLabel
-import com.smartwatch.recordatorios.ui.components.doseStatusText
+import com.smartwatch.recordatorios.ui.components.doseStatusLabel
+import com.smartwatch.recordatorios.ui.components.edgeItem
 import com.smartwatch.recordatorios.ui.theme.BwTheme
 import com.smartwatch.recordatorios.ui.theme.Spacing
+import com.smartwatch.recordatorios.ui.theme.formatTime
 
 /** Las dosis de hoy con su estado y cuántas van tomadas. */
 @Composable
@@ -33,9 +38,9 @@ fun TodayScreen(
             contentPadding = contentPadding,
             verticalArrangement = Arrangement.spacedBy(Spacing.sm),
         ) {
-            item { BwHeader(stringResource(R.string.today_title)) }
+            edgeItem { BwHeader(stringResource(R.string.today_title)) }
             if (!doses.isNullOrEmpty()) {
-                item {
+                edgeItem {
                     BwText(
                         text =
                             stringResource(
@@ -53,7 +58,7 @@ fun TodayScreen(
             when {
                 doses == null -> Unit
                 doses.isEmpty() ->
-                    item {
+                    edgeItem {
                         BwText(
                             text = stringResource(R.string.today_empty),
                             textAlign = TextAlign.Center,
@@ -62,18 +67,40 @@ fun TodayScreen(
                     }
                 else ->
                     doses.forEach { dose ->
-                        item(key = dose.id) {
-                            BwCard(
-                                onClick = { onOpenDose(dose) },
-                                onClickLabel = stringResource(R.string.open_dose),
-                                modifier = Modifier.fillMaxWidth(),
-                            ) {
-                                MedicationLabel(name = dose.medicationName, colorKey = dose.colorKey)
-                                BwText(dose.doseLabel)
-                                BwText(doseStatusText(dose))
-                            }
+                        edgeItem(key = dose.id) {
+                            DoseRow(dose, onClick = { onOpenDose(dose) })
                         }
                     }
+            }
+        }
+    }
+}
+
+/** Una fila por dosis: la hora a la izquierda, y el medicamento con su estado a la derecha. */
+@Composable
+private fun DoseRow(
+    dose: DoseEntity,
+    onClick: () -> Unit,
+) {
+    BwCard(
+        onClick = onClick,
+        onClickLabel = stringResource(R.string.open_dose),
+        horizontalAlignment = Alignment.Start,
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(Spacing.md),
+        ) {
+            BwText(formatTime(dose.scheduledAt), style = BwTheme.type.label.merge(fontFeatureSettings = "tnum"))
+            Column(verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
+                MedicationLabel(name = dose.medicationName, colorKey = dose.colorKey, maxLines = 1)
+                BwText(
+                    text = "${dose.doseLabel} · ${doseStatusLabel(dose)}",
+                    style = BwTheme.type.support,
+                    color = BwTheme.colors.contentSoft,
+                    maxLines = 2,
+                )
             }
         }
     }

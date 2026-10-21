@@ -3,6 +3,7 @@ package com.smartwatch.recordatorios.ui.screens.alert
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -29,6 +30,7 @@ import com.smartwatch.recordatorios.ui.components.BwSuccessMark
 import com.smartwatch.recordatorios.ui.components.BwText
 import com.smartwatch.recordatorios.ui.components.MedicationLabel
 import com.smartwatch.recordatorios.ui.components.doseStatusText
+import com.smartwatch.recordatorios.ui.components.edgeItem
 import com.smartwatch.recordatorios.ui.theme.BwTheme
 import com.smartwatch.recordatorios.ui.theme.RecordatoriosTheme
 import com.smartwatch.recordatorios.ui.theme.Spacing
@@ -59,7 +61,7 @@ fun DoseAlertScreen(
             val snoozed = snoozedAt
             when {
                 taken != null ->
-                    item {
+                    edgeItem {
                         BwSuccessMark(
                             label = stringResource(R.string.status_taken),
                             details =
@@ -95,9 +97,15 @@ fun DoseAlertScreen(
 }
 
 private fun TransformingLazyColumnScope.doseSummary(dose: DoseEntity) {
-    item { CenteredText(doseStatusText(dose)) }
-    item { MedicationLabel(name = dose.medicationName, colorKey = dose.colorKey, modifier = Modifier.fillMaxWidth()) }
-    item { CenteredText(dose.doseLabel) }
+    edgeItem { CenteredText(doseStatusText(dose), style = BwTheme.type.support) }
+    edgeItem {
+        MedicationLabel(
+            name = dose.medicationName,
+            colorKey = dose.colorKey,
+            modifier = Modifier.fillMaxWidth(),
+        )
+    }
+    edgeItem { CenteredText(dose.doseLabel) }
 }
 
 private fun TransformingLazyColumnScope.pendingActions(
@@ -107,7 +115,7 @@ private fun TransformingLazyColumnScope.pendingActions(
     onAskSkip: () -> Unit,
 ) {
     val canSnooze = SnoozePolicy.canSnooze(dose.snoozeCount)
-    item {
+    edgeItem {
         BwButton(
             label = stringResource(R.string.action_take),
             onClick = onTake,
@@ -117,7 +125,7 @@ private fun TransformingLazyColumnScope.pendingActions(
         )
     }
     if (!canSnooze) {
-        item {
+        edgeItem {
             BwText(
                 text = stringResource(R.string.snooze_limit),
                 style = BwTheme.type.support,
@@ -127,9 +135,13 @@ private fun TransformingLazyColumnScope.pendingActions(
             )
         }
     }
-    // Posponer y Omitir: cápsulas magenta lado a lado, por debajo de la acción principal.
-    item {
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Spacing.sm)) {
+    // Posponer (neutra) y Omitir (solo contorno) lado a lado, más estrechas que la acción principal:
+    // la parte baja de la pantalla redonda es más angosta.
+    edgeItem {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = Spacing.md),
+            horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
+        ) {
             if (canSnooze) {
                 BwActionPill(
                     label = stringResource(R.string.snooze_short),
@@ -143,6 +155,7 @@ private fun TransformingLazyColumnScope.pendingActions(
                 label = stringResource(R.string.action_skip),
                 icon = R.drawable.ic_close,
                 onClick = onAskSkip,
+                quiet = true,
                 modifier = Modifier.weight(1f),
             )
         }
@@ -156,18 +169,27 @@ private fun TransformingLazyColumnScope.snoozedSummary(
 ) {
     val count = dose.snoozeCount + 1
     val left = SnoozePolicy.MAX_SNOOZES - count
-    item { MedicationLabel(name = dose.medicationName, colorKey = dose.colorKey, modifier = Modifier.fillMaxWidth()) }
-    item {
+    edgeItem {
+        MedicationLabel(
+            name = dose.medicationName,
+            colorKey = dose.colorKey,
+            modifier = Modifier.fillMaxWidth(),
+        )
+    }
+    edgeItem {
         BwText(
             text = stringResource(R.string.snoozed_times, count, SnoozePolicy.MAX_SNOOZES),
             style = BwTheme.type.title,
-            color = BwTheme.colors.accent,
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth(),
         )
     }
-    item { CenteredText(stringResource(R.string.snoozed_rings_at, formatTime(SnoozePolicy.nextAlarmAt(snoozedAt)))) }
-    item {
+    edgeItem {
+        CenteredText(
+            stringResource(R.string.snoozed_rings_at, formatTime(SnoozePolicy.nextAlarmAt(snoozedAt))),
+        )
+    }
+    edgeItem {
         CenteredText(
             text =
                 if (left > 0) {
@@ -186,7 +208,7 @@ private fun TransformingLazyColumnScope.skipConfirmation(
     onSkip: () -> Unit,
     onBack: () -> Unit,
 ) {
-    item {
+    edgeItem {
         BwBanner(
             icon = R.drawable.ic_warning,
             iconDescription = stringResource(R.string.warning_label),
@@ -195,7 +217,7 @@ private fun TransformingLazyColumnScope.skipConfirmation(
             modifier = Modifier.fillMaxWidth(),
         )
     }
-    item {
+    edgeItem {
         BwButton(
             label = stringResource(R.string.skip_confirm_no),
             onClick = onBack,
@@ -204,11 +226,12 @@ private fun TransformingLazyColumnScope.skipConfirmation(
             modifier = Modifier.fillMaxWidth(),
         )
     }
-    item {
+    edgeItem {
         BwActionPill(
             label = stringResource(R.string.skip_confirm_yes),
             icon = R.drawable.ic_close,
             onClick = onSkip,
+            quiet = true,
             modifier = Modifier.fillMaxWidth(),
         )
     }

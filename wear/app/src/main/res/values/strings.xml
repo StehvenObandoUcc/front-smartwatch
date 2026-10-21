@@ -2,8 +2,16 @@
 <resources>
     <string name="app_name">Recordatorios</string>
 
-    <string name="home_title">Inicio</string>
-    <string name="home_next">Próxima dosis</string>
+    <string name="next_now">Ahora</string>
+    <string name="next_detail">%1$s · %2$s</string>
+    <plurals name="next_in_minutes">
+        <item quantity="one">En %1$d min</item>
+        <item quantity="other">En %1$d min</item>
+    </plurals>
+    <plurals name="next_in_hours">
+        <item quantity="one">En %1$d h</item>
+        <item quantity="other">En %1$d h</item>
+    </plurals>
     <string name="home_no_next">Sin dosis próximas</string>
     <string name="today_title">Hoy</string>
     <string name="today_empty">No hay dosis hoy</string>
@@ -22,7 +30,7 @@
     <string name="plan_consent">Falta aceptar el uso de datos de salud en el panel web</string>
     <string name="plan_failed">No se pudo actualizar el plan</string>
     <string name="plan_offline_title">Sin conexión</string>
-    <string name="plan_offline_body">Tus alarmas siguen sonando. Toca para reintentar</string>
+    <string name="plan_offline_body">Alarmas activas · Toca para reintentar</string>
 
     <string name="chat_title">Asistente</string>
     <string name="chat_ask">Preguntar por voz</string>
@@ -44,9 +52,9 @@
 
     <string name="warning_label">Aviso</string>
     <string name="permission_exact_title">Alarmas desactivadas</string>
-    <string name="permission_exact_body">La alarma puede sonar tarde. Toca para permitir alarmas exactas</string>
+    <string name="permission_exact_body">Pueden sonar tarde. Toca para corregir</string>
     <string name="permission_notifications_title">Avisos desactivados</string>
-    <string name="permission_notifications_body">La alarma no sonará. Toca para permitir notificaciones</string>
+    <string name="permission_notifications_body">No sonarán. Toca para activar</string>
 
     <string name="status_scheduled">Pendiente</string>
     <string name="status_taken">Tomada</string>

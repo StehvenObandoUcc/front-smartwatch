@@ -15,12 +15,11 @@ object BwTheme {
 }
 
 object BwTypography {
-    val data = TextStyle(fontSize = TypeScale.data, fontWeight = FontWeight.Bold)
     val title = TextStyle(fontSize = TypeScale.title, fontWeight = FontWeight.Bold)
     val body = TextStyle(fontSize = TypeScale.body)
     val label = TextStyle(fontSize = TypeScale.body, fontWeight = FontWeight.Bold)
     val support = TextStyle(fontSize = TypeScale.support)
-    val display = TextStyle(fontSize = TypeScale.data, fontWeight = FontWeight.Light)
+    val display = TextStyle(fontSize = TypeScale.hero, fontWeight = FontWeight.Medium, fontFeatureSettings = "tnum")
     val code = TextStyle(fontSize = TypeScale.code, fontWeight = FontWeight.Bold, fontFeatureSettings = "tnum")
 }
 

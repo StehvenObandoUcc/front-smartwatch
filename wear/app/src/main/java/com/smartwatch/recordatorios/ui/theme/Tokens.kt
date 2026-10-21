@@ -6,10 +6,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 /**
- * Colores del tema: pantalla negra con difuminado púrpura (glow*), acción principal en degradado
- * turquesa-verde, acciones de posponer/omitir en magenta, avisos en amarillo y tiempo en cian.
+ * Colores del tema: pantalla negra con difuminado púrpura (glow*). Tres papeles: la acción principal
+ * en degradado turquesa-verde (una por pantalla), los avisos en amarillo y todo lo demás neutro
+ * (superficie y contorno). El cian queda para datos (barras, progreso).
  * Contrastes (WCAG): texto/fondo ≥ 13:1; contentSoft ≥ 6,7:1; texto sobre principal ≥ 9:1;
- * blanco sobre magenta ≥ 5,3:1. El gris de la referencia no se usa para texto (4,2:1 sobre el glow).
+ * acento sobre superficie ≥ 9:1. El gris de la referencia no se usa para texto (4,2:1 sobre el glow).
  */
 @Immutable
 data class BwColors(
@@ -25,8 +26,6 @@ data class BwColors(
     val primaryStart: Color,
     val primaryEnd: Color,
     val onPrimary: Color,
-    val secondaryStart: Color,
-    val secondaryEnd: Color,
     val info: Color,
     val infoDeep: Color,
     val track: Color,
@@ -47,8 +46,6 @@ val AppColors =
         primaryStart = Color(0xFF3CC4D8),
         primaryEnd = Color(0xFF3EDB86),
         onPrimary = Color(0xFF05140E),
-        secondaryStart = Color(0xFFB52DAB),
-        secondaryEnd = Color(0xFF8E1F86),
         info = Color(0xFF37C6F4),
         infoDeep = Color(0xFF0A7CFF),
         track = Color(0xFF3A3946),
@@ -82,9 +79,9 @@ fun medicationColor(colorKey: String): Color =
         ?: runCatching { Color(android.graphics.Color.parseColor(colorKey)) }.getOrNull()
         ?: medicationPalette.getValue("blue")
 
-/** Escala tipográfica: nada por debajo de 14 sp; datos clave a 16 sp o más. */
+/** Escala tipográfica: nada por debajo de 14 sp; el dato que se mira de un vistazo a 40 sp. */
 object TypeScale {
-    val data = 26.sp
+    val hero = 40.sp
     val title = 18.sp
     val body = 16.sp
     val support = 14.sp
@@ -106,7 +103,6 @@ object Sizes {
     val micRing = 12.dp
     val codeBox = 30.dp
     val icon = 24.dp
-    val border = 2.dp
     val touchMin = 48.dp
     val buttonHeight = 52.dp
     val cardRadius = 20.dp

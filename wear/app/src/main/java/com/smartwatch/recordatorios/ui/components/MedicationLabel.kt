@@ -21,6 +21,7 @@ fun MedicationLabel(
     name: String,
     colorKey: String,
     modifier: Modifier = Modifier,
+    maxLines: Int = 2,
 ) {
     Row(
         modifier = modifier,
@@ -33,6 +34,6 @@ fun MedicationLabel(
                     .size(Sizes.colorDot)
                     .background(medicationColor(colorKey), CircleShape),
         )
-        BwText(text = name, style = BwTheme.type.title, textAlign = TextAlign.Center, maxLines = 2)
+        BwText(text = name, style = BwTheme.type.title, textAlign = TextAlign.Center, maxLines = maxLines)
     }
 }

@@ -12,6 +12,7 @@ import com.smartwatch.recordatorios.ui.components.BwHeader
 import com.smartwatch.recordatorios.ui.components.BwMicButton
 import com.smartwatch.recordatorios.ui.components.BwScreenScaffold
 import com.smartwatch.recordatorios.ui.components.BwText
+import com.smartwatch.recordatorios.ui.components.edgeItem
 import com.smartwatch.recordatorios.ui.theme.BwTheme
 
 /** Pregunta por voz: la respuesta se muestra corta y se lee en voz alta. */
@@ -23,8 +24,8 @@ fun ChatScreen(
     val listState = rememberTransformingLazyColumnState()
     BwScreenScaffold(scrollState = listState) { contentPadding ->
         TransformingLazyColumn(state = listState, contentPadding = contentPadding) {
-            item { BwHeader(stringResource(R.string.chat_title)) }
-            item {
+            edgeItem { BwHeader(stringResource(R.string.chat_title)) }
+            edgeItem {
                 BwText(
                     text = body(state),
                     textAlign = TextAlign.Center,
@@ -32,7 +33,7 @@ fun ChatScreen(
                 )
             }
             if (state is ChatState.Reply) {
-                item {
+                edgeItem {
                     BwText(
                         text = stringResource(R.string.chat_remaining, state.remaining),
                         style = BwTheme.type.support,
@@ -42,7 +43,7 @@ fun ChatScreen(
                 }
             }
             if (state !is ChatState.Thinking) {
-                item {
+                edgeItem {
                     BwMicButton(
                         label =
                             stringResource(
