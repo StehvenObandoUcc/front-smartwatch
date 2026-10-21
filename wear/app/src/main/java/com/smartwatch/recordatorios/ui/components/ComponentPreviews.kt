@@ -34,9 +34,9 @@ private fun PreviewFrame(content: @Composable ColumnScope.() -> Unit) {
 @Composable
 private fun ButtonsPreview() =
     PreviewFrame {
-        BwHeader("Inicio")
+        BwHeader("Hoy")
         BwButton("Tomada", onClick = {}, primary = true, icon = R.drawable.ic_check, modifier = Modifier.fillMaxWidth())
-        BwButton("Ver las de hoy", onClick = {}, modifier = Modifier.fillMaxWidth())
+        BwButton("Preguntar por voz", onClick = {}, icon = R.drawable.ic_mic, modifier = Modifier.fillMaxWidth())
     }
 
 @WearPreviewDevices
@@ -51,7 +51,7 @@ private fun ActionPillsPreview() =
                 detail = "10 min",
                 modifier = Modifier.weight(1f),
             )
-            BwActionPill("Omitir", R.drawable.ic_close, onClick = {}, modifier = Modifier.weight(1f))
+            BwActionPill("Omitir", R.drawable.ic_close, onClick = {}, quiet = true, modifier = Modifier.weight(1f))
         }
     }
 
@@ -64,9 +64,8 @@ private fun MicPreview() = PreviewFrame { BwMicButton("Preguntar por voz", onCli
 private fun CardPreview() =
     PreviewFrame {
         BwCard(onClick = {}, modifier = Modifier.fillMaxWidth()) {
-            BwText("Próxima dosis", style = BwTheme.type.support)
             MedicationLabel(name = "Losartán", colorKey = "blue")
-            BwText("08:00", style = BwTheme.type.title)
+            BwText("08:00 · Pendiente", style = BwTheme.type.support, color = BwTheme.colors.contentSoft)
         }
     }
 
