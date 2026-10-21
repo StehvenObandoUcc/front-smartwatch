@@ -15,6 +15,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
+import java.time.Duration
 
 @RunWith(AndroidJUnit4::class)
 @Config(qualifiers = "w227dp-h227dp-small-notlong-round-watch-xhdpi-keyshidden-nonav")
@@ -26,15 +27,19 @@ class HomeScreenTest {
     private var notificationRequests = 0
     private var retries = 0
 
+    private val next = DemoDoses.create(0).first()
+
     private fun show(
         exact: Boolean,
         notifications: Boolean,
         plan: PlanStatus = PlanStatus.OK,
+        minutesLeft: Long = 0,
     ) {
         compose.setContent {
             RecordatoriosTheme {
                 HomeScreen(
-                    next = DemoDoses.create(0).first(),
+                    next = next,
+                    now = next.nextAlarmAt - Duration.ofMinutes(minutesLeft).toMillis(),
                     planInfo = PlanInfo(plan, 0),
                     exactAlarmsAllowed = exact,
                     notificationsAllowed = notifications,
@@ -75,6 +80,24 @@ class HomeScreenTest {
         compose.onNodeWithText("Avisos desactivados").assertDoesNotExist()
         compose.onNodeWithText("Losartán").assertIsDisplayed()
         compose.onNodeWithText("Sin conexión").assertDoesNotExist()
+    }
+
+    @Test
+    fun `la próxima toma dice cuánto falta`() {
+        show(exact = true, notifications = true, minutesLeft = 21)
+        compose.onNodeWithText("En 21 min").assertIsDisplayed()
+    }
+
+    @Test
+    fun `a partir de una hora cuenta en horas`() {
+        show(exact = true, notifications = true, minutesLeft = 125)
+        compose.onNodeWithText("En 2 h").assertIsDisplayed()
+    }
+
+    @Test
+    fun `una toma vencida dice Ahora`() {
+        show(exact = true, notifications = true, minutesLeft = -5)
+        compose.onNodeWithText("Ahora").assertIsDisplayed()
     }
 
     @Test
