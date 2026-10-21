@@ -1,10 +1,19 @@
 package com.smartwatch.recordatorios.ui.screens.home
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
@@ -15,16 +24,17 @@ import com.smartwatch.recordatorios.data.remote.PlanInfo
 import com.smartwatch.recordatorios.data.remote.PlanStatus
 import com.smartwatch.recordatorios.ui.components.BwBanner
 import com.smartwatch.recordatorios.ui.components.BwButton
-import com.smartwatch.recordatorios.ui.components.BwCard
-import com.smartwatch.recordatorios.ui.components.BwHeader
 import com.smartwatch.recordatorios.ui.components.BwScreenScaffold
 import com.smartwatch.recordatorios.ui.components.BwText
 import com.smartwatch.recordatorios.ui.components.MedicationLabel
+import com.smartwatch.recordatorios.ui.components.edgeItem
 import com.smartwatch.recordatorios.ui.theme.BwTheme
 import com.smartwatch.recordatorios.ui.theme.RecordatoriosTheme
 import com.smartwatch.recordatorios.ui.theme.Spacing
 import com.smartwatch.recordatorios.ui.theme.formatDateTime
 import com.smartwatch.recordatorios.ui.theme.formatTime
+import kotlinx.coroutines.delay
+import java.time.Duration
 
 /**
  * Primera página: avisos de permisos, próxima dosis y estado del plan. Hoy y Adherencia son las
@@ -41,6 +51,7 @@ fun HomeScreen(
     onOpenDose: (DoseEntity) -> Unit,
     onOpenChat: () -> Unit,
     onRetryPlan: () -> Unit,
+    now: Long = rememberNow(),
 ) {
     val listState = rememberTransformingLazyColumnState()
     BwScreenScaffold(scrollState = listState) { contentPadding ->
@@ -51,7 +62,7 @@ fun HomeScreen(
         ) {
             // Avisos arriba del todo: sin estos permisos la alarma puede no sonar.
             if (!notificationsAllowed) {
-                item {
+                edgeItem {
                     PermissionWarning(
                         title = stringResource(R.string.permission_notifications_title),
                         body = stringResource(R.string.permission_notifications_body),
@@ -60,7 +71,7 @@ fun HomeScreen(
                 }
             }
             if (!exactAlarmsAllowed) {
-                item {
+                edgeItem {
                     PermissionWarning(
                         title = stringResource(R.string.permission_exact_title),
                         body = stringResource(R.string.permission_exact_body),
@@ -71,7 +82,7 @@ fun HomeScreen(
 
             // Sin red las alarmas siguen sonando (son locales): se dice para no alarmar y se ofrece reintentar.
             if (planInfo.status == PlanStatus.OFFLINE) {
-                item {
+                edgeItem {
                     BwBanner(
                         icon = R.drawable.ic_warning,
                         iconDescription = stringResource(R.string.warning_label),
@@ -83,9 +94,7 @@ fun HomeScreen(
                 }
             }
 
-            item { BwHeader(stringResource(R.string.home_title)) }
-
-            item {
+            edgeItem {
                 if (next == null) {
                     BwText(
                         text = stringResource(R.string.home_no_next),
@@ -93,31 +102,24 @@ fun HomeScreen(
                         modifier = Modifier.fillMaxWidth(),
                     )
                 } else {
-                    BwCard(
-                        onClick = { onOpenDose(next) },
-                        onClickLabel = stringResource(R.string.open_dose),
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        BwText(stringResource(R.string.home_next), style = BwTheme.type.support)
-                        MedicationLabel(name = next.medicationName, colorKey = next.colorKey)
-                        BwText(next.doseLabel)
-                        BwText(formatTime(next.nextAlarmAt), style = BwTheme.type.title)
-                    }
+                    NextDose(dose = next, now = now, onClick = { onOpenDose(next) })
                 }
             }
 
-            item {
+            edgeItem {
                 BwButton(
                     label = stringResource(R.string.chat_ask),
                     onClick = onOpenChat,
+                    icon = R.drawable.ic_mic,
                     modifier = Modifier.fillMaxWidth(),
                 )
             }
 
-            item {
+            edgeItem {
                 BwText(
                     text = planStatusText(planInfo),
                     style = BwTheme.type.support,
+                    color = BwTheme.colors.contentSoft,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth(),
                 )
@@ -125,6 +127,75 @@ fun HomeScreen(
         }
     }
 }
+
+/**
+ * La próxima toma sin caja, como protagonista: cuánto falta en grande (no la hora, para no competir
+ * con el reloj de arriba), el medicamento con su color y la hora y la dosis en tono suave.
+ */
+@Composable
+private fun NextDose(
+    dose: DoseEntity,
+    now: Long,
+    onClick: () -> Unit,
+) {
+    Column(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .clip(BwTheme.shapes.card)
+                .clickable(onClickLabel = stringResource(R.string.open_dose), role = Role.Button, onClick = onClick)
+                .padding(vertical = Spacing.sm),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(Spacing.xs),
+    ) {
+        BwText(
+            timeLeft(dose.nextAlarmAt, now),
+            style = BwTheme.type.display,
+            textAlign = TextAlign.Center,
+            maxLines = 1,
+        )
+        MedicationLabel(name = dose.medicationName, colorKey = dose.colorKey)
+        BwText(
+            text = stringResource(R.string.next_detail, formatTime(dose.nextAlarmAt), dose.doseLabel),
+            color = BwTheme.colors.contentSoft,
+            textAlign = TextAlign.Center,
+        )
+    }
+}
+
+@Composable
+private fun timeLeft(
+    at: Long,
+    now: Long,
+): String {
+    val left = Duration.ofMillis(at - now)
+    return when {
+        left <= Duration.ZERO -> stringResource(R.string.next_now)
+        left < Duration.ofHours(1) -> {
+            val minutes = left.toMinutes().toInt().coerceAtLeast(1)
+            pluralStringResource(R.plurals.next_in_minutes, minutes, minutes)
+        }
+        else -> {
+            val hours = left.toHours().toInt()
+            pluralStringResource(R.plurals.next_in_hours, hours, hours)
+        }
+    }
+}
+
+/** La hora actual, refrescada cada [TICK] para que «En N min» baje solo. */
+@Composable
+private fun rememberNow(): Long {
+    val now by produceState(System.currentTimeMillis()) {
+        while (true) {
+            delay(TICK.toMillis())
+            value = System.currentTimeMillis()
+        }
+    }
+    return now
+}
+
+private const val TICK_SECONDS = 30L
+private val TICK = Duration.ofSeconds(TICK_SECONDS)
 
 @Composable
 private fun planStatusText(info: PlanInfo): String =
