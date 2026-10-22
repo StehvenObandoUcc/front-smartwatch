@@ -51,6 +51,9 @@ object BwTypography {
 
     /** Para [display] con autoSize: de 40 sp hasta el tamaño de título si no cabe. */
     val displayFit = TextAutoSize.StepBased(minFontSize = TypeScale.title, maxFontSize = TypeScale.hero)
+
+    /** Para [title] con autoSize: un nombre de una sola palabra baja hasta 14 sp antes de partirse. */
+    val titleFit = TextAutoSize.StepBased(minFontSize = TypeScale.support, maxFontSize = TypeScale.title)
     val code = Base.copy(fontSize = TypeScale.code, fontWeight = FontWeight.ExtraBold, fontFeatureSettings = "tnum")
 }
 
