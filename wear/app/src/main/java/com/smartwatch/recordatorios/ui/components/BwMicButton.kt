@@ -12,7 +12,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
@@ -25,7 +24,7 @@ private const val OUTER_RING_ALPHA = 0.35f
 private const val INNER_RING_ALPHA = 0.6f
 
 /**
- * Micrófono redondo en degradado celeste-azul (el del icono) con dos aros, y su etiqueta debajo
+ * Micrófono redondo en petróleo plano con dos aros, y su etiqueta debajo
  * (lo que lee TalkBack).
  */
 @Composable
@@ -58,7 +57,7 @@ fun BwMicButton(
                     Modifier
                         .size(Sizes.mic - Sizes.micRing)
                         .clip(CircleShape)
-                        .background(Brush.linearGradient(listOf(colors.info, colors.infoDeep))),
+                        .background(colors.primary),
                 contentAlignment = Alignment.Center,
             ) {
                 BwIcon(R.drawable.ic_mic, contentDescription = null, color = colors.content)
