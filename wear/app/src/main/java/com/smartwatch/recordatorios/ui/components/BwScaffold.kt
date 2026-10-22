@@ -3,6 +3,8 @@ package com.smartwatch.recordatorios.ui.components
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
@@ -10,6 +12,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.CurvedTextStyle
 import androidx.wear.compose.foundation.basicCurvedText
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumnScope
@@ -121,13 +126,18 @@ fun TransformingLazyColumnScope.edgeItem(
     ) { content() }
 }
 
-/** ScreenScaffold de Wear (indicador de scroll, rotary) con el indicador en los colores del tema. */
+/**
+ * ScreenScaffold de Wear (indicador de scroll, rotary) con el indicador en los colores del tema. Añade
+ * a cada pantalla un margen lateral del 5,2 % del ancho (la guía de Wear OS) para que ningún texto ni
+ * botón choque con el borde redondo.
+ */
 @Composable
 fun BwScreenScaffold(
     scrollState: TransformingLazyColumnState,
     content: @Composable BoxScope.(PaddingValues) -> Unit,
 ) {
     val colors = BwTheme.colors
+    val side = (LocalConfiguration.current.screenWidthDp * EDGE_MARGIN).dp
     ScreenScaffold(
         scrollState = scrollState,
         scrollIndicator = {
@@ -136,6 +146,17 @@ fun BwScreenScaffold(
                 colors = ScrollIndicatorDefaults.colors(indicatorColor = colors.content, trackColor = colors.track),
             )
         },
-        content = content,
-    )
+    ) { padding ->
+        val direction = LocalLayoutDirection.current
+        content(
+            PaddingValues(
+                start = maxOf(padding.calculateStartPadding(direction), side),
+                top = padding.calculateTopPadding(),
+                end = maxOf(padding.calculateEndPadding(direction), side),
+                bottom = padding.calculateBottomPadding(),
+            ),
+        )
+    }
 }
+
+private const val EDGE_MARGIN = 0.052f
