@@ -53,4 +53,7 @@ interface DoseEventDao {
 
     @Query("SELECT * FROM dose_events WHERE doseId = :doseId ORDER BY occurredAt")
     suspend fun forDose(doseId: String): List<DoseEventEntity>
+
+    @Query("DELETE FROM dose_events")
+    suspend fun deleteAll()
 }

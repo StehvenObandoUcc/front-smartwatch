@@ -50,11 +50,31 @@
 
     <string name="pair_title">Vincular reloj</string>
     <string name="pair_loading">Pidiendo código…</string>
-    <string name="pair_instructions">Escribe este código en el panel web: Ajustes, Vincular reloj</string>
+    <string name="pair_step_open">Escríbelo en el móvil o el ordenador, en</string>
+    <string name="panel_url">front-smartwatch.vercel.app</string>
+    <string name="pair_step_settings">Ajustes → Vincular reloj</string>
+    <string name="pair_waiting">Esperando confirmación…</string>
     <string name="pair_error">No hay conexión con el servidor</string>
     <string name="pair_retry">Reintentar</string>
 
     <string name="warning_label">Aviso</string>
+
+    <string name="permissions_title">Para que suenen las alarmas</string>
+    <string name="permissions_notifications">Avisos</string>
+    <string name="permissions_notifications_on">Avisos activados</string>
+    <string name="permissions_exact">Alarmas a su hora</string>
+    <string name="permissions_exact_on">Alarmas a su hora activadas</string>
+    <string name="permissions_allow_named">Permitir: %1$s</string>
+    <string name="permissions_done">Listo</string>
+    <string name="permissions_later">Ahora no</string>
+    <string name="permissions_granted">Concedido</string>
+
+    <string name="watch_title">Reloj</string>
+    <string name="watch_paired">Vinculado con el panel web</string>
+    <string name="watch_unpair">Desvincular</string>
+    <string name="watch_unpair_title">¿Desvincular este reloj?</string>
+    <string name="watch_unpair_body">Sus dosis se borran y dejan de sonar. Quítalo también en el panel web</string>
+    <string name="watch_unpair_yes">Desvincular reloj</string>
     <string name="permission_exact_title">Alarmas desactivadas</string>
     <string name="permission_exact_body">Pueden sonar tarde. Toca para corregir</string>
     <string name="permission_notifications_title">Avisos desactivados</string>
