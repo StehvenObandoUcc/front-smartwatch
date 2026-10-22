@@ -1,5 +1,6 @@
 package com.smartwatch.recordatorios.ui
 
+import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasScrollAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -52,6 +53,7 @@ class AddMedicationScreenTest {
     fun `guarda el nombre, la dosis por defecto y la hora ajustada con +`() {
         show()
         compose.onNodeWithContentDescription("Nombre").performTextInput("Losartán")
+        compose.onNode(hasScrollAction()).performScrollToNode(hasContentDescription("Más tarde"))
         compose.onNodeWithContentDescription("Más tarde").performClick()
         compose.onNodeWithContentDescription("Más tarde").performClick()
 
