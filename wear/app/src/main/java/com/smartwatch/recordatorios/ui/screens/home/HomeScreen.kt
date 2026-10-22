@@ -24,6 +24,7 @@ import com.smartwatch.recordatorios.data.remote.PlanInfo
 import com.smartwatch.recordatorios.data.remote.PlanStatus
 import com.smartwatch.recordatorios.ui.components.BwBanner
 import com.smartwatch.recordatorios.ui.components.BwButton
+import com.smartwatch.recordatorios.ui.components.BwEmptyState
 import com.smartwatch.recordatorios.ui.components.BwScreenScaffold
 import com.smartwatch.recordatorios.ui.components.BwText
 import com.smartwatch.recordatorios.ui.components.MedicationLabel
@@ -31,8 +32,7 @@ import com.smartwatch.recordatorios.ui.components.edgeItem
 import com.smartwatch.recordatorios.ui.theme.BwTheme
 import com.smartwatch.recordatorios.ui.theme.RecordatoriosTheme
 import com.smartwatch.recordatorios.ui.theme.Spacing
-import com.smartwatch.recordatorios.ui.theme.formatDateTime
-import com.smartwatch.recordatorios.ui.theme.formatTime
+import com.smartwatch.recordatorios.ui.theme.timeText
 import kotlinx.coroutines.delay
 import java.time.Duration
 
@@ -54,6 +54,7 @@ fun HomeScreen(
     now: Long = rememberNow(),
 ) {
     val listState = rememberTransformingLazyColumnState()
+    val planStatus = planStatusText(planInfo, now)
     BwScreenScaffold(scrollState = listState) { contentPadding ->
         TransformingLazyColumn(
             state = listState,
@@ -62,7 +63,7 @@ fun HomeScreen(
         ) {
             // Avisos arriba del todo: sin estos permisos la alarma puede no sonar.
             if (!notificationsAllowed) {
-                edgeItem {
+                edgeItem(container = true) {
                     PermissionWarning(
                         title = stringResource(R.string.permission_notifications_title),
                         body = stringResource(R.string.permission_notifications_body),
@@ -71,7 +72,7 @@ fun HomeScreen(
                 }
             }
             if (!exactAlarmsAllowed) {
-                edgeItem {
+                edgeItem(container = true) {
                     PermissionWarning(
                         title = stringResource(R.string.permission_exact_title),
                         body = stringResource(R.string.permission_exact_body),
@@ -82,7 +83,7 @@ fun HomeScreen(
 
             // Sin red las alarmas siguen sonando (son locales): se dice para no alarmar y se ofrece reintentar.
             if (planInfo.status == PlanStatus.OFFLINE) {
-                edgeItem {
+                edgeItem(container = true) {
                     BwBanner(
                         icon = R.drawable.ic_warning,
                         iconDescription = stringResource(R.string.warning_label),
@@ -96,9 +97,10 @@ fun HomeScreen(
 
             edgeItem {
                 if (next == null) {
-                    BwText(
-                        text = stringResource(R.string.home_no_next),
-                        textAlign = TextAlign.Center,
+                    BwEmptyState(
+                        icon = R.drawable.ic_pill,
+                        title = stringResource(R.string.home_no_next),
+                        body = stringResource(R.string.home_no_next_body),
                         modifier = Modifier.fillMaxWidth(),
                     )
                 } else {
@@ -106,7 +108,7 @@ fun HomeScreen(
                 }
             }
 
-            edgeItem {
+            edgeItem(container = true) {
                 BwButton(
                     label = stringResource(R.string.chat_ask),
                     onClick = onOpenChat,
@@ -115,14 +117,16 @@ fun HomeScreen(
                 )
             }
 
-            edgeItem {
-                BwText(
-                    text = planStatusText(planInfo),
-                    style = BwTheme.type.support,
-                    color = BwTheme.colors.contentSoft,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth(),
-                )
+            planStatus?.let { status ->
+                edgeItem {
+                    BwText(
+                        text = status,
+                        style = BwTheme.type.support,
+                        color = BwTheme.colors.contentSoft,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
             }
         }
     }
@@ -153,10 +157,13 @@ private fun NextDose(
             style = BwTheme.type.display,
             textAlign = TextAlign.Center,
             maxLines = 1,
+            autoSize = BwTheme.type.displayFit,
+            // Margen: la cifra ocupa todo el ancho y en la parte alta el círculo es más estrecho.
+            modifier = Modifier.fillMaxWidth().padding(horizontal = Spacing.lg),
         )
         MedicationLabel(name = dose.medicationName, colorKey = dose.colorKey)
         BwText(
-            text = stringResource(R.string.next_detail, formatTime(dose.nextAlarmAt), dose.doseLabel),
+            text = stringResource(R.string.next_detail, timeText(dose.nextAlarmAt), dose.doseLabel),
             color = BwTheme.colors.contentSoft,
             textAlign = TextAlign.Center,
         )
@@ -197,20 +204,26 @@ private fun rememberNow(): Long {
 private const val TICK_SECONDS = 30L
 private val TICK = Duration.ofSeconds(TICK_SECONDS)
 
+/**
+ * El estado del plan solo cuando pide algo al paciente: sin plan, fallo, falta el consentimiento o
+ * caduca en menos de [EXPIRY_NOTICE]. Si todo va bien no se muestra (sería ruido técnico).
+ */
 @Composable
-private fun planStatusText(info: PlanInfo): String =
-    when (info.status) {
-        PlanStatus.NEVER -> stringResource(R.string.plan_never)
-        PlanStatus.OK -> stringResource(R.string.plan_valid_until, formatDateTime(info.validUntil))
-        PlanStatus.OFFLINE ->
-            if (info.validUntil > 0) {
-                stringResource(R.string.plan_valid_until, formatDateTime(info.validUntil))
-            } else {
-                stringResource(R.string.plan_never)
-            }
-        PlanStatus.CONSENT_REQUIRED -> stringResource(R.string.plan_consent)
-        PlanStatus.FAILED -> stringResource(R.string.plan_failed)
+private fun planStatusText(
+    info: PlanInfo,
+    now: Long,
+): String? =
+    when {
+        info.status == PlanStatus.CONSENT_REQUIRED -> stringResource(R.string.plan_consent)
+        info.status == PlanStatus.FAILED -> stringResource(R.string.plan_failed)
+        info.status == PlanStatus.NEVER || info.validUntil <= 0 -> stringResource(R.string.plan_never)
+        info.validUntil <= now -> stringResource(R.string.plan_expired)
+        info.validUntil - now < EXPIRY_NOTICE.toMillis() ->
+            stringResource(R.string.plan_expires, timeText(info.validUntil))
+        else -> null
     }
+
+private val EXPIRY_NOTICE = Duration.ofDays(1)
 
 /** Aviso de permiso: acento, icono y texto (nunca solo color). */
 @Composable

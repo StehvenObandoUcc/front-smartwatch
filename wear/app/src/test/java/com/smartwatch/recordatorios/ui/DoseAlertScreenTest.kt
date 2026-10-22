@@ -112,8 +112,10 @@ class DoseAlertScreenTest {
         compose.onNode(hasScrollAction()).performScrollToNode(hasText("Omitir"))
         compose.onNodeWithText("Omitir").performClick()
 
-        compose.onNodeWithText("¿Omitir Losartán?", substring = true).assertExists()
+        // La confirmación empieza arriba: aviso y Volver primero; Omitir dosis, desplazando.
+        compose.onNodeWithText("¿Omitir Losartán?", substring = true).assertIsDisplayed()
         compose.onNodeWithText("Volver").assertExists()
+        compose.onNode(hasScrollAction()).performScrollToNode(hasText("Omitir dosis"))
         compose.onNodeWithText("Omitir dosis").assertExists()
     }
 }

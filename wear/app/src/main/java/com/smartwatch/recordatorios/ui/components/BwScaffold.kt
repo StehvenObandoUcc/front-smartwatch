@@ -20,6 +20,8 @@ import androidx.wear.compose.foundation.lazy.TransformingLazyColumnState
 import androidx.wear.compose.foundation.pager.HorizontalPager
 import androidx.wear.compose.foundation.pager.PagerState
 import androidx.wear.compose.material3.AppScaffold
+import androidx.wear.compose.material3.CardDefaults
+import androidx.wear.compose.material3.CompactButtonDefaults
 import androidx.wear.compose.material3.HorizontalPageIndicator
 import androidx.wear.compose.material3.HorizontalPagerScaffold
 import androidx.wear.compose.material3.ScreenScaffold
@@ -94,22 +96,36 @@ fun BwPager(
 
 /**
  * Elemento de lista que se encoge y se desvanece al acercarse al borde superior o inferior, para que
- * la pantalla redonda no lo corte. Usar en lugar de `item` en toda lista del reloj.
+ * la pantalla redonda no lo corte. Usar en lugar de `item` en toda lista del reloj. Si es el primero
+ * o el último, deja el margen que pide Wear: mayor con [container] (tarjetas, avisos, botones), donde
+ * las esquinas chocarían con el círculo.
  */
 fun TransformingLazyColumnScope.edgeItem(
     key: Any? = null,
+    container: Boolean = false,
     content: @Composable () -> Unit,
 ) = item(key = key) {
     val spec = rememberTransformationSpec()
     val transformation = SurfaceTransformation(spec)
+    val edgePadding =
+        if (container) {
+            CardDefaults.minimumVerticalListContentPadding
+        } else {
+            CompactButtonDefaults.minimumVerticalListContentPadding
+        }
     Box(
         modifier =
-            Modifier.fillMaxWidth().transformedHeight(this, spec).graphicsLayer {
-                with(transformation) {
-                    applyContentTransformation()
-                    applyContainerTransformation()
-                }
-            },
+            Modifier
+                .fillMaxWidth()
+                .minimumVerticalContentPadding(
+                    edgePadding,
+                ).transformedHeight(this, spec)
+                .graphicsLayer {
+                    with(transformation) {
+                        applyContentTransformation()
+                        applyContainerTransformation()
+                    }
+                },
         contentAlignment = Alignment.Center,
     ) { content() }
 }

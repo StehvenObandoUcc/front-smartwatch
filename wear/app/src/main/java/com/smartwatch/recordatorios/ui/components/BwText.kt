@@ -1,6 +1,7 @@
 package com.smartwatch.recordatorios.ui.components
 
 import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -9,7 +10,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import com.smartwatch.recordatorios.ui.theme.BwTheme
 
-/** Texto del tema: color de contenido del modo y estilos de [BwTheme.type]. */
+/**
+ * Texto del tema: color de contenido del modo y estilos de [BwTheme.type]. Con [autoSize] el texto
+ * encoge hasta caber en vez de cortarse (cifras protagonistas con letra grande en relojes pequeños).
+ */
 @Composable
 fun BwText(
     text: String,
@@ -18,6 +22,7 @@ fun BwText(
     color: Color = BwTheme.colors.content,
     textAlign: TextAlign = TextAlign.Unspecified,
     maxLines: Int = Int.MAX_VALUE,
+    autoSize: TextAutoSize? = null,
 ) {
     BasicText(
         text = text,
@@ -25,5 +30,6 @@ fun BwText(
         style = style.merge(color = color, textAlign = textAlign),
         overflow = TextOverflow.Ellipsis,
         maxLines = maxLines,
+        autoSize = autoSize,
     )
 }

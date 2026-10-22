@@ -6,11 +6,11 @@ import com.smartwatch.recordatorios.R
 import com.smartwatch.recordatorios.alarm.SnoozePolicy
 import com.smartwatch.recordatorios.data.local.DoseEntity
 import com.smartwatch.recordatorios.data.local.DoseStatus
-import com.smartwatch.recordatorios.ui.theme.formatTime
+import com.smartwatch.recordatorios.ui.theme.timeText
 
 /** "08:00 · Pendiente", "08:00 · Pospuesta 1 de 3", "08:00 · Tomada"… */
 @Composable
-fun doseStatusText(dose: DoseEntity): String = "${formatTime(dose.scheduledAt)} · ${doseStatusLabel(dose)}"
+fun doseStatusText(dose: DoseEntity): String = "${timeText(dose.scheduledAt)} · ${doseStatusLabel(dose)}"
 
 /** Solo el estado: "Pendiente", "Pospuesta 1 de 3", "Tomada"… */
 @Composable
