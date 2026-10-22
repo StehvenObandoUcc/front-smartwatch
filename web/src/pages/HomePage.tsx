@@ -1,19 +1,15 @@
-import { useState } from 'react';
 import { Link } from 'react-router';
 
 import {
   useGetAdherence,
-  useGetPatientPlan,
   useListMyNotificationChannels,
   useListPatientDevices,
 } from '../api/generated';
 import { Badge } from '../components/atoms/Badge/Badge';
-import { ColorDot } from '../components/atoms/ColorDot/ColorDot';
-import { Spinner } from '../components/atoms/Spinner/Spinner';
+import { Skeleton } from '../components/atoms/Skeleton/Skeleton';
 import { Text } from '../components/atoms/Text/Text';
-import { InfoCard } from '../components/molecules/InfoCard';
 import { ErrorRetry } from '../components/molecules/ErrorRetry';
-import { useAuth } from '../features/auth/AuthContext';
+import { InfoCard } from '../components/molecules/InfoCard';
 import { AdherenceChart } from '../features/doses/AdherenceChart';
 import { TodayPillbox } from '../features/doses/TodayPillbox';
 import { usePatient } from '../features/patients/PatientGate';
@@ -21,38 +17,36 @@ import { percentText } from '../features/reports/ReportView';
 import { formatDay, formatTime } from '../lib/dates';
 import { errorMessage } from '../lib/errors';
 
-const links = [
-  { to: '/medicamentos', label: 'Medicamentos', help: 'Cargar y editar' },
-  { to: '/agenda', label: 'Agenda', help: 'Hoy y la semana' },
-  { to: '/adherencia', label: 'Adherencia', help: 'Historial' },
-  { to: '/reportes', label: 'Reportes', help: 'Semanales y PDF' },
-  { to: '/asistente', label: 'Asistente', help: 'Pregunta por tu plan' },
-  { to: '/ajustes', label: 'Ajustes', help: 'Reloj y cuidadores' },
-];
+const linkClass =
+  'inline-flex min-h-touch items-center font-bold text-primary underline underline-offset-4';
 
-function NextDoseCard() {
-  const { patientId } = usePatient();
-  const plan = useGetPatientPlan(patientId);
-  const [now] = useState(() => Date.now());
-  const next = plan.data?.doses.find((dose) => new Date(dose.scheduledAt).getTime() >= now);
-  const tz = plan.data?.patientTimezone ?? 'UTC';
+function WatchCard() {
+  const { patientId, timezone } = usePatient();
+  const devices = useListPatientDevices(patientId);
+  const device = devices.data?.items[0];
   return (
-    <InfoCard title="Próxima dosis">
-      {plan.isPending && <Spinner label="Cargando" />}
-      {plan.isError && (
-        <ErrorRetry message={errorMessage(plan.error)} onRetry={() => void plan.refetch()} />
+    <InfoCard title="Reloj" icon="watch">
+      {devices.isPending && <Skeleton label="Cargando" rows={1} />}
+      {devices.isError && (
+        <ErrorRetry message={errorMessage(devices.error)} onRetry={() => void devices.refetch()} />
       )}
-      {plan.data && !next && <Text tone="muted">Sin dosis en los próximos 7 días.</Text>}
-      {next && (
+      {devices.data && !device && (
         <>
-          <div className="flex items-center gap-2">
-            <ColorDot hex={next.color} />
-            <Text variant="subtitle" as="p">
-              {next.medicationName}
-            </Text>
-          </div>
-          <Text>
-            {formatDay(next.scheduledAt, tz)}, {formatTime(next.scheduledAt, tz)} · {next.dosage}
+          <Text>Aún no hay un reloj vinculado.</Text>
+          <Link to="/ajustes" className={linkClass}>
+            Vincular reloj
+          </Link>
+        </>
+      )}
+      {device && (
+        <>
+          <Text variant="subtitle" as="p">
+            {device.model}
+          </Text>
+          <Text tone="muted">
+            {device.lastSeenAt
+              ? `Conectado ${formatDay(device.lastSeenAt, timezone)}, ${formatTime(device.lastSeenAt, timezone)}`
+              : 'Aún sin conexión'}
           </Text>
         </>
       )}
@@ -64,8 +58,8 @@ function AdherenceCard() {
   const { patientId } = usePatient();
   const adherence = useGetAdherence(patientId);
   return (
-    <InfoCard title="Adherencia (7 días)">
-      {adherence.isPending && <Spinner label="Cargando" />}
+    <InfoCard title="Últimos 7 días" icon="history">
+      {adherence.isPending && <Skeleton label="Cargando" rows={1} />}
       {adherence.isError && (
         <ErrorRetry
           message={errorMessage(adherence.error)}
@@ -77,42 +71,8 @@ function AdherenceCard() {
           <Text variant="display" as="p">
             {percentText(adherence.data.percentage)}
           </Text>
-          <Text tone="muted" variant="caption">
+          <Text tone="muted">
             {adherence.data.taken} tomadas · {adherence.data.missed} no tomadas
-          </Text>
-        </>
-      )}
-    </InfoCard>
-  );
-}
-
-function WatchCard() {
-  const { patientId, timezone } = usePatient();
-  const devices = useListPatientDevices(patientId);
-  const device = devices.data?.items[0];
-  return (
-    <InfoCard title="Reloj">
-      {devices.isPending && <Spinner label="Cargando" />}
-      {devices.isError && (
-        <ErrorRetry message={errorMessage(devices.error)} onRetry={() => void devices.refetch()} />
-      )}
-      {devices.data && !device && (
-        <>
-          <Text>Aún no hay un reloj vinculado.</Text>
-          <Link to="/ajustes" className="min-h-touch underline">
-            Vincular reloj
-          </Link>
-        </>
-      )}
-      {device && (
-        <>
-          <Text variant="subtitle" as="p">
-            {device.model}
-          </Text>
-          <Text tone="muted" variant="caption">
-            {device.lastSeenAt
-              ? `Visto ${formatDay(device.lastSeenAt, timezone)}, ${formatTime(device.lastSeenAt, timezone)}`
-              : 'Aún sin conexión'}
           </Text>
         </>
       )}
@@ -126,8 +86,8 @@ function NotificationsCard() {
   const telegram = items.find((c) => c.channel === 'telegram');
   const email = items.find((c) => c.channel === 'email');
   return (
-    <InfoCard title="Avisos">
-      {channels.isPending && <Spinner label="Cargando" />}
+    <InfoCard title="Avisos" icon="notifications">
+      {channels.isPending && <Skeleton label="Cargando" rows={1} />}
       {channels.isError && (
         <ErrorRetry
           message={errorMessage(channels.error)}
@@ -137,16 +97,16 @@ function NotificationsCard() {
       {channels.data && (
         <>
           <div className="flex flex-wrap gap-2">
-            <Badge tone={telegram?.linked ? 'success' : 'neutral'}>
-              Telegram: {telegram?.linked ? 'conectado' : 'no conectado'}
+            <Badge tone={telegram?.linked ? 'success' : 'outline'} icon="telegram">
+              {telegram?.linked ? 'Telegram conectado' : 'Sin Telegram'}
             </Badge>
             {email && (
-              <Badge tone={email.verified ? 'success' : 'warning'}>
-                Correo: {email.verified ? 'verificado' : 'sin verificar'}
+              <Badge tone={email.verified ? 'success' : 'outline'} icon="email">
+                {email.verified ? 'Correo verificado' : 'Correo sin verificar'}
               </Badge>
             )}
           </div>
-          <Link to="/avisos" className="min-h-touch underline">
+          <Link to="/avisos" className={linkClass}>
             {telegram?.linked ? 'Configurar avisos' : 'Conectar Telegram'}
           </Link>
         </>
@@ -155,39 +115,19 @@ function NotificationsCard() {
   );
 }
 
+/** Hoy: el pastillero manda; debajo, el estado del reloj, la semana y los avisos. */
 export function HomePage() {
-  const { auth } = useAuth();
-  const name = auth.status === 'authed' ? auth.user.displayName : '';
   return (
-    <div className="flex flex-col gap-6">
-      <Text variant="title" as="h2">
-        Hola, {name}
-      </Text>
+    <div className="flex flex-col gap-8">
       <TodayPillbox />
-      <div className="grid gap-4 tablet:grid-cols-2 desktop:grid-cols-3">
-        <NextDoseCard />
-        <AdherenceCard />
+      <div className="grid grid-cols-1 gap-4 tablet:grid-cols-3">
         <WatchCard />
+        <AdherenceCard />
         <NotificationsCard />
-        <InfoCard title="Dosis tomadas por día (últimos 7 días)" className="tablet:col-span-2">
+        <InfoCard title="Dosis tomadas por día" icon="history" className="tablet:col-span-3">
           <AdherenceChart />
         </InfoCard>
       </div>
-      <nav aria-label="Accesos rápidos">
-        <ul className="grid gap-2 tablet:grid-cols-2 desktop:grid-cols-3">
-          {links.map((link) => (
-            <li key={link.to}>
-              <Link
-                to={link.to}
-                className="flex min-h-touch flex-col justify-center card p-3 transition-colors hover:bg-surface motion-reduce:transition-none"
-              >
-                <span className="text-body font-semibold">{link.label}</span>
-                <span className="text-caption text-text-muted">{link.help}</span>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </nav>
     </div>
   );
 }
