@@ -9,7 +9,7 @@ import {
 } from '../api/generated';
 import { Button } from '../components/atoms/Button/Button';
 import { Input } from '../components/atoms/Input/Input';
-import { Spinner } from '../components/atoms/Spinner/Spinner';
+import { Skeleton } from '../components/atoms/Skeleton/Skeleton';
 import { Text } from '../components/atoms/Text/Text';
 import { ErrorRetry } from '../components/molecules/ErrorRetry';
 import { FormField } from '../components/molecules/FormField';
@@ -87,7 +87,7 @@ export function SettingsPage() {
         <Text id="dev-title" variant="subtitle" as="h2">
           Relojes vinculados
         </Text>
-        {devices.isPending && <Spinner label="Cargando relojes" />}
+        {devices.isPending && <Skeleton label="Cargando relojes" />}
         {devices.isError && (
           <ErrorRetry
             message={errorMessage(devices.error)}
