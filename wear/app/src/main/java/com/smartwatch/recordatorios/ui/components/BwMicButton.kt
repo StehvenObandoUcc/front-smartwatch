@@ -24,7 +24,10 @@ import com.smartwatch.recordatorios.ui.theme.Spacing
 private const val OUTER_RING_ALPHA = 0.35f
 private const val INNER_RING_ALPHA = 0.6f
 
-/** Micrófono redondo en degradado cian-azul con dos aros, y su etiqueta debajo (lo que lee TalkBack). */
+/**
+ * Micrófono redondo en degradado celeste-azul (el del icono) con dos aros, y su etiqueta debajo
+ * (lo que lee TalkBack).
+ */
 @Composable
 fun BwMicButton(
     label: String,

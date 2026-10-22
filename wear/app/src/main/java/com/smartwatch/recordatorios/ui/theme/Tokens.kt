@@ -6,11 +6,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 /**
- * Colores del tema: pantalla negra con difuminado púrpura (glow*). Tres papeles: la acción principal
- * en degradado turquesa-verde (una por pantalla), los avisos en amarillo y todo lo demás neutro
- * (superficie y contorno). El cian queda para datos (barras, progreso).
- * Contrastes (WCAG): texto/fondo ≥ 13:1; contentSoft ≥ 6,7:1; texto sobre principal ≥ 9:1;
- * acento sobre superficie ≥ 9:1. El gris de la referencia no se usa para texto (4,2:1 sobre el glow).
+ * Colores del tema, sacados del icono de la app (disco #0B5CAD, cápsula celeste #7DB8F5 y blanca):
+ * noche azul con un difuminado del azul del icono (glow*). Papeles: la acción principal en degradado
+ * celeste-azul (una por pantalla), los avisos en amarillo, «Tomada» en verde (success) y todo lo
+ * demás neutro con tinte azul (superficie y contorno). El celeste del icono queda para datos.
+ * Contrastes (WCAG): blanco sobre fondo 20:1, sobre glow 14:1; contentSoft ≥ 7,7:1; texto sobre
+ * principal ≥ 5,4:1 (≥ 9,8:1 en el lado claro); acento sobre superficie 10:1; datos sobre glow 6,7:1.
  */
 @Immutable
 data class BwColors(
@@ -34,25 +35,25 @@ data class BwColors(
 
 val AppColors =
     BwColors(
-        background = Color(0xFF08080C),
-        glowCenter = Color(0xFF3A1F5E),
-        glowMid = Color(0xFF1B1233),
-        surface = Color(0xFF1E1D2A),
-        outline = Color(0xFF3A3850),
+        background = Color(0xFF05080E),
+        glowCenter = Color(0xFF0E2C52),
+        glowMid = Color(0xFF0A1730),
+        surface = Color(0xFF16202F),
+        outline = Color(0xFF3B4D6A),
         content = Color(0xFFFFFFFF),
-        contentSoft = Color(0xFFB7B4CC),
+        contentSoft = Color(0xFFB3C2D6),
         accent = Color(0xFFF5C518),
         onAccent = Color(0xFF1A1400),
-        primaryStart = Color(0xFF3CC4D8),
-        primaryEnd = Color(0xFF3EDB86),
-        onPrimary = Color(0xFF05140E),
-        info = Color(0xFF37C6F4),
-        infoDeep = Color(0xFF0A7CFF),
-        track = Color(0xFF3A3946),
+        primaryStart = Color(0xFF8EC3F7),
+        primaryEnd = Color(0xFF3D8FE8),
+        onPrimary = Color(0xFF03152B),
+        info = Color(0xFF7DB8F5),
+        infoDeep = Color(0xFF0B5CAD),
+        track = Color(0xFF2A3544),
         success = listOf(Color(0xFFCFFFEA), Color(0xFF6FE9BB), Color(0xFF23B98A), Color(0xFF128A68)),
     )
 
-/** Centro y radio del difuminado púrpura, relativos a la pantalla. */
+/** Centro y radio del difuminado azul, relativos a la pantalla. */
 object Glow {
     const val CENTER_Y = 0.58f
     const val RADIUS = 0.75f
