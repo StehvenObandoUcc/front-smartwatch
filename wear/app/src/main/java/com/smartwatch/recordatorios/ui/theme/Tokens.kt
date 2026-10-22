@@ -7,19 +7,17 @@ import androidx.compose.ui.unit.sp
 
 /**
  * Colores de Recuerda en el reloj: la misma señalética de salud que el panel web sobre un fondo
- * casi negro con tinte petróleo (pantalla OLED). Papeles: la acción principal es una placa petróleo
+ * negro plano (pantalla OLED, sin difuminados). Papeles: la acción principal es una placa petróleo
  * plana con texto blanco (una por pantalla), los avisos en el amarillo de sol, cada estado de una
  * dosis con su placa (Tomada, Pendiente, No tomada, Omitida) y las franjas del día como placas de
  * color (sol, tarde, noche). Lo demás, neutro con tinte petróleo. El celeste petróleo es para datos.
- * Contrastes (WCAG): blanco sobre fondo 19,8:1; contentSoft ≥ 9,6:1; blanco sobre principal 5,2:1 y
+ * Contrastes (WCAG): blanco sobre fondo 21:1; contentSoft ≥ 9,6:1; blanco sobre principal 5,2:1 y
  * la placa principal sobre el fondo 3,8:1; blanco sobre cada estado ≥ 5,1:1; tinta sobre sol 10:1 y
  * sobre tarde 6,8:1; aviso sobre superficie 9,7:1; datos sobre fondo 9,4:1.
  */
 @Immutable
 data class BwColors(
     val background: Color,
-    val glowCenter: Color,
-    val glowMid: Color,
     val surface: Color,
     val outline: Color,
     val content: Color,
@@ -32,7 +30,6 @@ data class BwColors(
     val info: Color,
     val infoDeep: Color,
     val track: Color,
-    val success: List<Color>,
     val stateTaken: Color,
     val stateDue: Color,
     val stateMissed: Color,
@@ -46,9 +43,7 @@ data class BwColors(
 
 val AppColors =
     BwColors(
-        background = Color(0xFF050B0A),
-        glowCenter = Color(0xFF0B2422),
-        glowMid = Color(0xFF071513),
+        background = Color(0xFF000000),
         surface = Color(0xFF142320),
         outline = Color(0xFF3A5A56),
         content = Color(0xFFFFFFFF),
@@ -62,7 +57,6 @@ val AppColors =
         info = Color(0xFF5FC2BA),
         infoDeep = Color(0xFF127A73),
         track = Color(0xFF23332F),
-        success = listOf(Color(0xFF4CAF50), Color(0xFF3E9A42), Color(0xFF2F7D32), Color(0xFF24622A)),
         stateTaken = Color(0xFF2F7D32),
         stateDue = Color(0xFF9A5B00),
         stateMissed = Color(0xFFB3261E),
@@ -73,32 +67,59 @@ val AppColors =
         ink = Color(0xFF11201F),
     )
 
-/** Centro y radio del difuminado petróleo (muy tenue), relativos a la pantalla. */
-object Glow {
-    const val CENTER_Y = 0.58f
-    const val RADIUS = 0.75f
-    const val MID_STOP = 0.48f
-    const val END_STOP = 0.82f
-}
-
-/** Paleta de medicamentos (misma clave que la web), con ≥ 4,3:1 sobre fondo, glow y superficie. */
+/**
+ * Paleta de medicamentos: las mismas claves y los mismos tonos profundos que el panel web (tokens
+ * `--med-*`), con el pictograma blanco legible encima (≥ 3:1).
+ */
 private val medicationPalette =
     mapOf(
-        "red" to Color(0xFFF0625F),
-        "orange" to Color(0xFFFF8A3D),
-        "yellow" to Color(0xFFE6E65C),
-        "green" to Color(0xFF6CC070),
-        "teal" to Color(0xFF4DC4C4),
-        "blue" to Color(0xFF6AA8F5),
-        "purple" to Color(0xFFB58CF0),
-        "pink" to Color(0xFFF277B8),
+        "red" to Color(0xFFC62828),
+        "orange" to Color(0xFFD4661A),
+        "yellow" to Color(0xFFB08900),
+        "green" to Color(0xFF2E7D32),
+        "teal" to Color(0xFF00796B),
+        "blue" to Color(0xFF1565C0),
+        "purple" to Color(0xFF6A1B9A),
+        "pink" to Color(0xFFAD1457),
     )
 
-/** El color siempre acompaña al nombre. */
-fun medicationColor(colorKey: String): Color =
-    medicationPalette[colorKey]
-        ?: runCatching { Color(android.graphics.Color.parseColor(colorKey)) }.getOrNull()
-        ?: medicationPalette.getValue("blue")
+/**
+ * El color siempre acompaña al nombre. Un hex de la API (a veces un 500 de Tailwind) se lleva al tono
+ * de la paleta más cercano, como en la web.
+ */
+fun medicationColor(colorKey: String): Color {
+    medicationPalette[colorKey]?.let { return it }
+    val hex = runCatching { Color(android.graphics.Color.parseColor(colorKey)) }.getOrNull()
+    return hex?.let(::nearestMedicationColor) ?: medicationPalette.getValue("teal")
+}
+
+/** El tono de la paleta más cercano (por matiz, no por distancia RGB: un verde vivo no es turquesa). */
+internal fun nearestMedicationColor(color: Color): Color {
+    val h = color.hue()
+    return medicationPalette.values.minBy { c ->
+        val diff = kotlin.math.abs(c.hue() - h)
+        minOf(diff, FULL_CIRCLE - diff)
+    }
+}
+
+/** Matiz en grados (0-360). */
+private fun Color.hue(): Float {
+    val max = maxOf(red, green, blue)
+    val d = max - minOf(red, green, blue)
+    if (d == 0f) return 0f
+    val sector =
+        when (max) {
+            red -> ((green - blue) / d).mod(SECTORS)
+            green -> (blue - red) / d + 2
+            else -> (red - green) / d + BLUE_SECTOR
+        }
+    return sector * DEGREES_PER_SECTOR
+}
+
+private const val SECTORS = 6f
+private const val BLUE_SECTOR = 4f
+private const val DEGREES_PER_SECTOR = 60f
+private const val FULL_CIRCLE = 360f
 
 /** Escala tipográfica: nada por debajo de 14 sp; el dato que se mira de un vistazo a 40 sp. */
 object TypeScale {
