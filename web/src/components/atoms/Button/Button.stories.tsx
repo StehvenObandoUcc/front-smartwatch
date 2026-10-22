@@ -1,7 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, fn, userEvent } from 'storybook/test';
 
-import { Icon } from '../Icon/Icon';
 import { Button } from './Button';
 
 const meta = {
@@ -28,7 +27,7 @@ export const Danger: Story = { args: { variant: 'danger', children: 'Eliminar' }
 export const Ghost: Story = { args: { variant: 'ghost', children: 'Cancelar' } };
 
 export const WithIcon: Story = {
-  args: { icon: <Icon name="pill" />, children: 'Nuevo medicamento' },
+  args: { icon: 'add', children: 'Agregar medicamento' },
 };
 
 export const Loading: Story = { args: { loading: true } };
