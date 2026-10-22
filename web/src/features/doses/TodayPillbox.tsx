@@ -9,6 +9,9 @@ import { cn } from '../../lib/cn';
 import { formatTime, localDate } from '../../lib/dates';
 import { errorMessage } from '../../lib/errors';
 import { usePatient } from '../patients/PatientGate';
+import { DoseActions } from './DoseActions';
+import { DoseStateBadge } from './DoseStateBadge';
+import { canRecord, doseState, useDoseHistory } from './doseState';
 import { FRANJAS, groupByFranja, type Franja } from './franja';
 
 // Clases completas para que Tailwind las detecte al compilar.
@@ -31,6 +34,7 @@ const icon: Record<Franja, string[]> = {
 export function TodayPillbox() {
   const { patientId, timezone } = usePatient();
   const plan = useGetPatientPlan(patientId);
+  const history = useDoseHistory(patientId);
   // Día de referencia fijo por visita: al volver a la pantalla se recalcula.
   const [now] = useState(() => new Date());
 
@@ -73,21 +77,38 @@ export function TodayPillbox() {
             </div>
             <ul className="flex flex-col gap-3 p-4">
               {groups[id].length === 0 && <li className="text-text-muted">Nada programado</li>}
-              {groups[id].map((dose) => (
-                <li
-                  key={`${dose.scheduleId}-${dose.scheduledAt}`}
-                  className="flex items-center gap-3"
-                >
-                  <ColorDot hex={dose.color} />
-                  <div className="min-w-0 flex-1">
-                    <p className="font-semibold">{dose.medicationName}</p>
-                    <p className="text-caption text-text-muted">{dose.dosage}</p>
-                  </div>
-                  <span className="font-display font-bold">
-                    {formatTime(dose.scheduledAt, timezone)}
-                  </span>
-                </li>
-              ))}
+              {groups[id].map((dose) => {
+                // El estado de cada dosis responde a la pregunta del cuidador: ¿se la tomó?
+                const state = doseState(dose, history.index, now.getTime());
+                return (
+                  <li
+                    key={`${dose.scheduleId}-${dose.scheduledAt}`}
+                    className="flex flex-col gap-2"
+                  >
+                    <div className="flex items-center gap-3">
+                      <ColorDot hex={dose.color} />
+                      <div className="min-w-0 flex-1">
+                        <p className="font-semibold">{dose.medicationName}</p>
+                        <p className="text-caption text-text-muted">{dose.dosage}</p>
+                      </div>
+                      <div className="flex flex-col items-end gap-1">
+                        <span className="font-display font-bold tabular-nums">
+                          {formatTime(dose.scheduledAt, timezone)}
+                        </span>
+                        <DoseStateBadge state={state} />
+                      </div>
+                    </div>
+                    {canRecord(state) && (
+                      <DoseActions
+                        patientId={patientId}
+                        scheduleId={dose.scheduleId}
+                        scheduledAt={dose.scheduledAt}
+                        label={dose.medicationName}
+                      />
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           </li>
         ))}

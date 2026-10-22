@@ -12,6 +12,7 @@ import {
   getListMedicationsQueryKey,
   useArchiveMedication,
   useListMedications,
+  useListSchedules,
 } from '../api/generated';
 import { Button } from '../components/atoms/Button/Button';
 import { ColorDot } from '../components/atoms/ColorDot/ColorDot';
@@ -19,6 +20,7 @@ import { Spinner } from '../components/atoms/Spinner/Spinner';
 import { Text } from '../components/atoms/Text/Text';
 import { MedicationForm } from '../features/medications/MedicationForm';
 import { toFormValues, toPayload, type MedicationFormValues } from '../features/medications/schema';
+import { scheduleText } from '../features/medications/scheduleText';
 import { usePatient } from '../features/patients/PatientGate';
 import { errorMessage } from '../lib/errors';
 
@@ -120,37 +122,91 @@ export function MedicationsPage() {
       )}
       <ul className="flex flex-col gap-2">
         {medications.data?.items.map((med) => (
-          <li key={med.id} className="card flex flex-wrap items-center justify-between gap-4 p-4">
-            <div className="flex items-center gap-3">
-              <ColorDot hex={med.color} />
-              <div>
-                <Text variant="subtitle" as="p">
-                  {med.name}
-                </Text>
-                <Text tone="muted">{med.dosage}</Text>
-              </div>
-            </div>
-            <div className="flex gap-1">
-              <Button
-                variant="ghost"
-                aria-label={`Editar ${med.name}`}
-                loading={loadingEdit === med.id}
-                onClick={() => void startEdit(med)}
-              >
-                Editar
-              </Button>
-              <Button
-                variant="ghost"
-                aria-label={`Archivar ${med.name}`}
-                loading={archive.isPending && archive.variables.medicationId === med.id}
-                onClick={() => archive.mutate({ patientId, medicationId: med.id })}
-              >
-                Archivar
-              </Button>
-            </div>
-          </li>
+          <MedicationRow
+            key={med.id}
+            patientId={patientId}
+            medication={med}
+            loadingEdit={loadingEdit === med.id}
+            archiving={archive.isPending && archive.variables.medicationId === med.id}
+            onEdit={() => void startEdit(med)}
+            onArchive={() => archive.mutate({ patientId, medicationId: med.id })}
+          />
         ))}
       </ul>
     </section>
+  );
+}
+
+type RowProps = {
+  patientId: string;
+  medication: Medication;
+  loadingEdit: boolean;
+  archiving: boolean;
+  onEdit: () => void;
+  onArchive: () => void;
+};
+
+/**
+ * Un medicamento con su horario a la vista («08:00 · 20:00 — todos los días»). Archivar pide
+ * confirmación: un toque por error en el móvil haría que deje de sonar en el reloj.
+ */
+function MedicationRow({
+  patientId,
+  medication,
+  loadingEdit,
+  archiving,
+  onEdit,
+  onArchive,
+}: RowProps) {
+  const [confirming, setConfirming] = useState(false);
+  const schedules = useListSchedules(patientId, medication.id);
+  const schedule = schedules.data?.items[0];
+  return (
+    <li className="card flex flex-wrap items-center justify-between gap-4 p-4">
+      <div className="flex min-w-0 items-center gap-3">
+        <ColorDot hex={medication.color} />
+        <div className="min-w-0">
+          <Text variant="subtitle" as="p">
+            {medication.name}
+          </Text>
+          <Text tone="muted">
+            {schedule ? `${medication.dosage} · ${scheduleText(schedule)}` : medication.dosage}
+          </Text>
+        </div>
+      </div>
+      {confirming ? (
+        <div
+          role="group"
+          aria-label={`Archivar ${medication.name}`}
+          className="flex flex-wrap items-center gap-2"
+        >
+          <Text>¿Archivar {medication.name}? Dejará de sonar en el reloj.</Text>
+          <Button variant="danger" loading={archiving} onClick={onArchive}>
+            Sí, archivar
+          </Button>
+          <Button variant="secondary" onClick={() => setConfirming(false)}>
+            No
+          </Button>
+        </div>
+      ) : (
+        <div className="flex gap-1">
+          <Button
+            variant="ghost"
+            aria-label={`Editar ${medication.name}`}
+            loading={loadingEdit}
+            onClick={onEdit}
+          >
+            Editar
+          </Button>
+          <Button
+            variant="ghost"
+            aria-label={`Archivar ${medication.name}`}
+            onClick={() => setConfirming(true)}
+          >
+            Archivar
+          </Button>
+        </div>
+      )}
+    </li>
   );
 }
