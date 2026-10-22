@@ -56,10 +56,11 @@ class DoseAlertScreenTest {
     fun `Tomada se ve sin desplazarse con un nombre de dos líneas`() {
         show(dose().copy(medicationName = "Hidroclorotiazida con amlodipino"))
 
-        // El nombre ocupa de verdad dos líneas: mide el doble de alto que la dosis (una línea, 16 sp vs 18 sp).
+        // El nombre ocupa de verdad dos líneas (puede achicarse para no partir una palabra): mide bastante
+        // más que la dosis, que va en una línea.
         val name = compose.onNodeWithText("Hidroclorotiazida con amlodipino").getBoundsInRoot()
         val doseLabel = compose.onNodeWithText("50 mg").getBoundsInRoot()
-        assertThat((name.bottom - name.top).value).isGreaterThan((doseLabel.bottom - doseLabel.top).value * 2)
+        assertThat((name.bottom - name.top).value).isGreaterThan((doseLabel.bottom - doseLabel.top).value * 1.5f)
         compose.onNodeWithText("Tomada").assertIsDisplayed()
     }
 
