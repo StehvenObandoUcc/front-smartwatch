@@ -22,8 +22,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
@@ -73,8 +71,8 @@ fun BwProgress(modifier: Modifier = Modifier) {
 }
 
 /**
- * Marca de éxito: insignia verde con brillo y visto blanco dibujado (sin depender de la fuente), su texto
- * y [details] debajo (p. ej. qué se registró y a qué hora).
+ * Marca de éxito: disco plano del verde de «Tomada» con el visto blanco dibujado (sin depender de la
+ * fuente), su texto y [details] debajo (p. ej. qué se registró y a qué hora).
  */
 @Composable
 fun BwSuccessMark(
@@ -85,13 +83,7 @@ fun BwSuccessMark(
     val colors = BwTheme.colors
     StatusMark(label, details, modifier) {
         Canvas(modifier = Modifier.size(Sizes.successMark)) {
-            drawCircle(
-                Brush.radialGradient(
-                    colors = colors.success,
-                    center = Offset(size.width * BADGE_LIGHT_X, size.height * BADGE_LIGHT_Y),
-                    radius = size.minDimension,
-                ),
-            )
+            drawCircle(colors.stateTaken)
             val check =
                 Path().apply {
                     moveTo(size.width * CHECK_START_X, size.height * CHECK_MID_Y)
@@ -187,8 +179,6 @@ fun BwEmptyState(
     }
 }
 
-private const val BADGE_LIGHT_X = 0.35f
-private const val BADGE_LIGHT_Y = 0.28f
 private const val CHECK_START_X = 0.28f
 private const val CHECK_MID_X = 0.44f
 private const val CHECK_END_X = 0.74f
