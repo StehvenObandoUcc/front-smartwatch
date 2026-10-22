@@ -5,7 +5,9 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.smartwatch.recordatorios.data.remote.AdherenceRepository
+import com.smartwatch.recordatorios.data.remote.DeviceSession
 import com.smartwatch.recordatorios.data.remote.EventUploader
+import com.smartwatch.recordatorios.data.remote.LocalMedicationUploader
 import com.smartwatch.recordatorios.data.remote.PlanRepository
 import com.smartwatch.recordatorios.data.remote.SyncResult
 import com.smartwatch.recordatorios.data.remote.TokenStore
@@ -30,14 +32,19 @@ class PlanSyncWorker
         private val adherence: AdherenceRepository,
         private val tokens: TokenStore,
         private val localPlan: LocalPlanRepository,
+        private val localUploader: LocalMedicationUploader,
+        private val device: DeviceSession,
     ) : CoroutineWorker(context, params) {
         override suspend fun doWork(): Result {
             localPlan.refill()
             if (!tokens.paired.value) return Result.success()
             val uploaded = uploader.upload()
+            // Antes del plan: así lo creado en el reloj vuelve ya en esta misma descarga.
+            val localUploaded = localUploader.upload()
             val synced = plan.sync()
             val adherenceSynced = adherence.sync()
-            val retry = !uploaded || synced == SyncResult.FAILED || !adherenceSynced
+            device.refresh()
+            val retry = !uploaded || !localUploaded || synced == SyncResult.FAILED || !adherenceSynced
             return if (retry) Result.retry() else Result.success()
         }
     }
