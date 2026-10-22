@@ -53,6 +53,7 @@
     <string name="chat_confirm_yes">Sí, agregar</string>
     <string name="chat_confirm_no">No</string>
     <string name="chat_error_no_speech">Este reloj no tiene reconocimiento de voz</string>
+    <string name="chat_error_not_heard">No te escuché. Toca para intentarlo otra vez</string>
 
     <string name="pair_title">Vincular reloj</string>
     <string name="pair_loading">Pidiendo código…</string>
