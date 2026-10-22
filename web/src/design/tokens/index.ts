@@ -43,3 +43,29 @@ export const medicationHex: Record<MedicationColor, string> = {
   purple: '#6a1b9a',
   pink: '#ad1457',
 };
+
+/** Tono (0-360) de un hex: lo que distingue un color de medicamento de otro. */
+function hue(hex: string): number {
+  const n = Number.parseInt(hex.replace('#', '').slice(0, 6), 16);
+  const r = ((n >> 16) & 255) / 255;
+  const g = ((n >> 8) & 255) / 255;
+  const b = (n & 255) / 255;
+  const max = Math.max(r, g, b);
+  const d = max - Math.min(r, g, b);
+  if (d === 0) return 0;
+  const h = max === r ? ((g - b) / d) % 6 : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
+  return (h * 60 + 360) % 360;
+}
+
+/**
+ * El color de la paleta de tono más cercano a un hex cualquiera (la API guarda el que eligió la
+ * persona, a veces un 500 de Tailwind): la placa usa siempre el tono profundo, con el blanco legible.
+ */
+export function medicationColorFor(hex: string): MedicationColor {
+  const h = hue(hex);
+  const gap = (c: MedicationColor) => {
+    const diff = Math.abs(hue(medicationHex[c]) - h);
+    return Math.min(diff, 360 - diff);
+  };
+  return medicationColors.reduce((best, c) => (gap(c) < gap(best) ? c : best));
+}
