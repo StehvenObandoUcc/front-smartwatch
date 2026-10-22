@@ -47,16 +47,22 @@ export function DoseActions({ patientId, scheduleId, scheduledAt, label }: Props
       {confirmingSkip ? (
         <>
           <Text>¿Omitir {label}?</Text>
-          <Button variant="danger" loading={record.isPending} onClick={() => send('SKIPPED')}>
-            Sí, omitir
-          </Button>
-          <Button variant="secondary" onClick={() => setConfirmingSkip(false)}>
+          <Button variant="secondary" icon="back" onClick={() => setConfirmingSkip(false)}>
             No
+          </Button>
+          <Button
+            variant="danger"
+            icon="skipped"
+            loading={record.isPending}
+            onClick={() => send('SKIPPED')}
+          >
+            Sí, omitir
           </Button>
         </>
       ) : (
         <>
           <Button
+            icon="taken"
             loading={record.isPending}
             aria-label={`Marcar ${label} como tomada`}
             onClick={() => send('TAKEN')}
@@ -65,6 +71,7 @@ export function DoseActions({ patientId, scheduleId, scheduledAt, label }: Props
           </Button>
           <Button
             variant="secondary"
+            icon="skipped"
             disabled={record.isPending}
             aria-label={`Marcar ${label} como omitida`}
             onClick={() => setConfirmingSkip(true)}

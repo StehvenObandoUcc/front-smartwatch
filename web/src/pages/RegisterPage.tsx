@@ -59,14 +59,14 @@ export function RegisterPage() {
           )}
         </FormField>
         <fieldset className="flex flex-col gap-2">
-          <legend className="text-body font-semibold">¿Cómo vas a usar la app?</legend>
+          <legend className="text-body font-bold">¿Cómo vas a usar la app?</legend>
           {roles.map((option) => (
             <label
               key={option.value}
               className="flex min-h-touch cursor-pointer flex-col rounded-md border-2 border-border-strong p-3 has-checked:border-primary has-checked:bg-surface-raised"
             >
               <input type="radio" value={option.value} className="sr-only" {...register('role')} />
-              <span className="text-body font-semibold">{option.title}</span>
+              <span className="text-body font-bold">{option.title}</span>
               <span className="text-caption text-text-muted">{option.help}</span>
             </label>
           ))}

@@ -1,6 +1,11 @@
 import type { ReportSummary } from '../../api/generated';
 import { Text } from '../../components/atoms/Text/Text';
 
+/** «1 tomada», «3 tomadas». */
+export function countText(n: number, one: string, many: string): string {
+  return `${n} ${n === 1 ? one : many}`;
+}
+
 export function percentText(value: number | null): string {
   return value === null ? 'Sin datos' : `${Math.round(value)} %`;
 }
@@ -13,7 +18,9 @@ export function ReportView({ summary }: { summary: ReportSummary }) {
           {percentText(summary.percentage)}
         </Text>
         <Text tone="muted">
-          {summary.taken} tomadas · {summary.skipped} omitidas · {summary.missed} no tomadas
+          {countText(summary.taken, 'tomada', 'tomadas')} ·{' '}
+          {countText(summary.skipped, 'omitida', 'omitidas')} ·{' '}
+          {countText(summary.missed, 'no tomada', 'no tomadas')}
         </Text>
       </div>
       {summary.byMedication.length > 0 && (

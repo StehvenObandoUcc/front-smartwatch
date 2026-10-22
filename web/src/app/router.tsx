@@ -7,6 +7,7 @@ import { ChatPage } from '../pages/ChatPage';
 import { HomePage } from '../pages/HomePage';
 import { LoginPage } from '../pages/LoginPage';
 import { MedicationsPage } from '../pages/MedicationsPage';
+import { MorePage } from '../pages/MorePage';
 import { NotificationsPage } from '../pages/NotificationsPage';
 import { RegisterPage } from '../pages/RegisterPage';
 import { ReportPage } from '../pages/ReportPage';
@@ -35,6 +36,7 @@ export const router = createBrowserRouter([
       { path: 'notificaciones', element: <Navigate to="/avisos" replace /> },
       { path: 'reportes', element: <ReportsPage /> },
       { path: 'asistente', element: <ChatPage /> },
+      { path: 'mas', element: <MorePage /> },
       { path: 'patients/:patientId/reports/:reportId', element: <ReportPage /> },
     ],
   },

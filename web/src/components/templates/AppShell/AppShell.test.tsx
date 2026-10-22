@@ -6,8 +6,8 @@ import { describe, expect, it } from 'vitest';
 import { AppShell, type NavItem } from './AppShell';
 
 const nav: NavItem[] = [
-  { to: '/', label: 'Inicio', icon: 'home' },
-  { to: '/medicamentos', label: 'Medicamentos', icon: 'pill' },
+  { to: '/', label: 'Hoy', icon: 'today' },
+  { to: '/medicamentos', label: 'Medicamentos', icon: 'medications' },
 ];
 
 function renderShell(path = '/') {
@@ -17,7 +17,7 @@ function renderShell(path = '/') {
         <Route
           path="*"
           element={
-            <AppShell appName="Recordatorios" title="Inicio" nav={nav}>
+            <AppShell appName="Recuerda" title="Hoy" icon="today" nav={nav}>
               <p>Contenido</p>
             </AppShell>
           }
@@ -30,7 +30,7 @@ function renderShell(path = '/') {
 describe('AppShell', () => {
   it('tiene cabecera, principal y dos navegaciones (lateral y móvil)', () => {
     renderShell();
-    expect(screen.getByRole('banner')).toHaveTextContent('Inicio');
+    expect(screen.getByRole('banner')).toHaveTextContent('Hoy');
     expect(screen.getByRole('main')).toHaveTextContent('Contenido');
     expect(screen.getByRole('navigation', { name: 'Principal' })).toBeInTheDocument();
     expect(screen.getByRole('navigation', { name: 'Principal móvil' })).toBeInTheDocument();
@@ -43,7 +43,7 @@ describe('AppShell', () => {
       'aria-current',
       'page',
     );
-    expect(within(side).getByRole('link', { name: 'Inicio' })).not.toHaveAttribute('aria-current');
+    expect(within(side).getByRole('link', { name: 'Hoy' })).not.toHaveAttribute('aria-current');
   });
 
   it('el primer tabulador lleva a "Saltar al contenido", que apunta al main', async () => {

@@ -130,7 +130,7 @@ function CaregiverBar({
 }) {
   return (
     <div className="mb-4 flex flex-wrap items-end gap-2 well p-3">
-      <label className="flex min-w-0 flex-1 flex-col gap-1 text-caption font-semibold">
+      <label className="flex min-w-0 flex-1 flex-col gap-1 text-caption font-bold">
         Gestionando a
         <select
           value={activeId}

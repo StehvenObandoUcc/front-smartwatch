@@ -5,7 +5,7 @@ import { Icon } from './Icon';
 
 describe('Icon', () => {
   it('es decorativo sin label', () => {
-    const { container } = render(<Icon name="pill" />);
+    const { container } = render(<Icon name="medications" />);
     expect(container.querySelector('svg')).toHaveAttribute('aria-hidden', 'true');
   });
 

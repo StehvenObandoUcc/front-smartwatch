@@ -1,5 +1,5 @@
 import { useListDoseHistory } from '../../api/generated';
-import { Spinner } from '../../components/atoms/Spinner/Spinner';
+import { Skeleton } from '../../components/atoms/Skeleton/Skeleton';
 import { Text } from '../../components/atoms/Text/Text';
 import { ErrorRetry } from '../../components/molecules/ErrorRetry';
 import { daysAgo } from '../../lib/dates';
@@ -35,7 +35,7 @@ export function AdherenceChart() {
     limit: 100,
   });
 
-  if (history.isPending) return <Spinner label="Cargando gráfico" />;
+  if (history.isPending) return <Skeleton label="Cargando gráfico" />;
   if (history.isError) {
     return (
       <ErrorRetry message={errorMessage(history.error)} onRetry={() => void history.refetch()} />
@@ -50,7 +50,8 @@ export function AdherenceChart() {
   return (
     <figure className="flex flex-col gap-3">
       <figcaption className="text-caption text-text-muted">
-        Porcentaje de dosis tomadas cada día. Pasa el cursor por una barra para ver el detalle.
+        Porcentaje de dosis tomadas cada día. Toca o pasa el cursor por una barra para ver el
+        detalle.
       </figcaption>
       {/* Las barras son solo visuales; la tabla de abajo da los mismos datos a lectores de pantalla. */}
       <div aria-hidden="true" className="flex h-40 items-end gap-2">

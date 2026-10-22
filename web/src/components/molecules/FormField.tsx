@@ -18,7 +18,7 @@ export function FormField({ label, error, hint, children }: Props) {
   const noteId = error || hint ? `${id}-note` : undefined;
   return (
     <div className="flex flex-col gap-1">
-      <label htmlFor={id} className="text-body font-semibold">
+      <label htmlFor={id} className="text-body font-bold">
         {label}
       </label>
       {children({ id, 'aria-describedby': noteId, invalid: Boolean(error) })}

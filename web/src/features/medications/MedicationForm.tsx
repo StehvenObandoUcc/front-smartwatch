@@ -71,7 +71,7 @@ export function MedicationForm({
       </FormField>
 
       <fieldset className="flex flex-col gap-2">
-        <legend className="text-body font-semibold">Color</legend>
+        <legend className="text-body font-bold">Color</legend>
         <div className="flex flex-wrap gap-2">
           {medicationColors.map((color) => (
             <label
@@ -114,7 +114,7 @@ export function MedicationForm({
       </fieldset>
 
       <fieldset className="flex flex-col gap-2">
-        <legend className="text-body font-semibold">Horas</legend>
+        <legend className="text-body font-bold">Horas</legend>
         {times.fields.map((field, index) => (
           <div key={field.id} className="flex items-center gap-2">
             <Input
@@ -147,7 +147,7 @@ export function MedicationForm({
       </fieldset>
 
       <fieldset className="flex flex-col gap-2">
-        <legend className="text-body font-semibold">Días</legend>
+        <legend className="text-body font-bold">Días</legend>
         <div className="flex flex-wrap gap-2">
           {dayLabels.map((label, index) => (
             <label

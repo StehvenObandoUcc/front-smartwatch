@@ -1,6 +1,5 @@
 import { Navigate, Outlet, useLocation } from 'react-router';
 
-import { Badge } from '../components/atoms/Badge/Badge';
 import { Button } from '../components/atoms/Button/Button';
 import { Spinner } from '../components/atoms/Spinner/Spinner';
 import { Text } from '../components/atoms/Text/Text';
@@ -8,7 +7,7 @@ import { AppShell } from '../components/templates/AppShell/AppShell';
 import { useAuth } from '../features/auth/AuthContext';
 import { PatientGate } from '../features/patients/PatientGate';
 import { VerifyEmailBanner } from '../features/auth/VerifyEmailBanner';
-import { extraTitles, navItems } from './navigation';
+import { headerFor, navItems } from './navigation';
 
 export function RootLayout() {
   const { pathname, search } = useLocation();
@@ -29,25 +28,36 @@ export function RootLayout() {
     const next = pathname === '/' ? '' : `?next=${encodeURIComponent(pathname + search)}`;
     return <Navigate to={`/login${next}`} replace />;
   }
-  const title =
-    navItems.find((item) => item.to === pathname)?.label ??
-    extraTitles[pathname] ??
-    'Recordatorios';
+  const header = headerFor(pathname);
+  const now = new Date();
+  const longDay = now.toLocaleDateString('es', { weekday: 'long', day: 'numeric', month: 'long' });
+  const shortDay = now.toLocaleDateString('es', {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+  });
   return (
     <AppShell
-      appName="Recordatorios"
-      title={title}
+      appName="Recuerda"
+      title={header.title}
+      icon={header.icon}
+      subtitle={
+        // En el móvil, quién y el día corto; desde tablet, también el papel y el día largo.
+        <>
+          <span className="hidden tablet:inline">
+            {auth.user.role === 'caregiver' ? 'Cuidador' : 'Paciente'} ·{' '}
+          </span>
+          {auth.user.displayName} ·{' '}
+          <span className="whitespace-nowrap tablet:hidden">{shortDay}</span>
+          <span className="hidden whitespace-nowrap tablet:inline">{longDay}</span>
+        </>
+      }
       nav={navItems}
       actions={
-        <div className="flex items-center gap-2">
-          {/* En móvil no cabe junto al título y al botón Salir. */}
-          <span className="hidden tablet:inline-flex">
-            <Badge>{auth.user.role === 'caregiver' ? 'Cuidador' : 'Particular'}</Badge>
-          </span>
-          <Button variant="ghost" onClick={() => void signOut()}>
-            Salir
-          </Button>
-        </div>
+        // En el móvil solo el pictograma (la palabra queda para el lector): el título no se corta.
+        <Button variant="onSign" icon="logout" className="px-3" onClick={() => void signOut()}>
+          <span className="sr-only tablet:not-sr-only">Salir</span>
+        </Button>
       }
     >
       {auth.user.emailVerified === false && <VerifyEmailBanner />}
