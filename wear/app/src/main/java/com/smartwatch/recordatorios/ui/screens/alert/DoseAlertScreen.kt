@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -26,6 +27,7 @@ import com.smartwatch.recordatorios.ui.components.BwActionPill
 import com.smartwatch.recordatorios.ui.components.BwBanner
 import com.smartwatch.recordatorios.ui.components.BwButton
 import com.smartwatch.recordatorios.ui.components.BwScreenScaffold
+import com.smartwatch.recordatorios.ui.components.BwSnoozeMark
 import com.smartwatch.recordatorios.ui.components.BwSuccessMark
 import com.smartwatch.recordatorios.ui.components.BwText
 import com.smartwatch.recordatorios.ui.components.MedicationLabel
@@ -34,7 +36,7 @@ import com.smartwatch.recordatorios.ui.components.edgeItem
 import com.smartwatch.recordatorios.ui.theme.BwTheme
 import com.smartwatch.recordatorios.ui.theme.RecordatoriosTheme
 import com.smartwatch.recordatorios.ui.theme.Spacing
-import com.smartwatch.recordatorios.ui.theme.formatTime
+import com.smartwatch.recordatorios.ui.theme.timeText
 
 /**
  * Alerta a pantalla completa: Tomada, Posponer y Omitir (con confirmación). Todo centrado y sin
@@ -53,6 +55,9 @@ fun DoseAlertScreen(
     var takenAt by rememberSaveable { mutableStateOf<Long?>(null) }
     var snoozedAt by rememberSaveable { mutableStateOf<Long?>(null) }
     val listState = rememberTransformingLazyColumnState()
+    // Cada cambio de vista (confirmar omitir, tomada, pospuesta) empieza arriba: si se había
+    // desplazado para llegar a Omitir, la confirmación quedaría bajo la hora.
+    LaunchedEffect(confirmingSkip, takenAt, snoozedAt) { listState.scrollToItem(0) }
     val pending = dose.status == DoseStatus.SCHEDULED
 
     BwScreenScaffold(scrollState = listState) { contentPadding ->
@@ -67,7 +72,7 @@ fun DoseAlertScreen(
                             details =
                                 listOf(
                                     stringResource(R.string.taken_detail, dose.medicationName, dose.doseLabel),
-                                    stringResource(R.string.taken_at, formatTime(taken)),
+                                    stringResource(R.string.taken_at, timeText(taken)),
                                 ),
                             modifier = Modifier.fillMaxWidth(),
                         )
@@ -115,7 +120,7 @@ private fun TransformingLazyColumnScope.pendingActions(
     onAskSkip: () -> Unit,
 ) {
     val canSnooze = SnoozePolicy.canSnooze(dose.snoozeCount)
-    edgeItem {
+    edgeItem(container = true) {
         BwButton(
             label = stringResource(R.string.action_take),
             onClick = onTake,
@@ -137,7 +142,7 @@ private fun TransformingLazyColumnScope.pendingActions(
     }
     // Posponer (neutra) y Omitir (solo contorno) lado a lado, más estrechas que la acción principal:
     // la parte baja de la pantalla redonda es más angosta.
-    edgeItem {
+    edgeItem(container = true) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(horizontal = Spacing.md),
             horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
@@ -169,35 +174,21 @@ private fun TransformingLazyColumnScope.snoozedSummary(
 ) {
     val count = dose.snoozeCount + 1
     val left = SnoozePolicy.MAX_SNOOZES - count
+    // Misma composición que la marca de «Tomada»: insignia, qué pasó en grande y el detalle.
     edgeItem {
-        MedicationLabel(
-            name = dose.medicationName,
-            colorKey = dose.colorKey,
+        BwSnoozeMark(
+            label = stringResource(R.string.snoozed_times, count, SnoozePolicy.MAX_SNOOZES),
+            details =
+                listOf(
+                    stringResource(R.string.taken_detail, dose.medicationName, dose.doseLabel),
+                    stringResource(R.string.snoozed_rings_at, timeText(SnoozePolicy.nextAlarmAt(snoozedAt))),
+                    if (left > 0) {
+                        pluralStringResource(R.plurals.snoozes_left, left, left)
+                    } else {
+                        stringResource(R.string.snooze_limit)
+                    },
+                ),
             modifier = Modifier.fillMaxWidth(),
-        )
-    }
-    edgeItem {
-        BwText(
-            text = stringResource(R.string.snoozed_times, count, SnoozePolicy.MAX_SNOOZES),
-            style = BwTheme.type.title,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth(),
-        )
-    }
-    edgeItem {
-        CenteredText(
-            stringResource(R.string.snoozed_rings_at, formatTime(SnoozePolicy.nextAlarmAt(snoozedAt))),
-        )
-    }
-    edgeItem {
-        CenteredText(
-            text =
-                if (left > 0) {
-                    pluralStringResource(R.plurals.snoozes_left, left, left)
-                } else {
-                    stringResource(R.string.snooze_limit)
-                },
-            style = BwTheme.type.support,
         )
     }
 }
@@ -208,7 +199,7 @@ private fun TransformingLazyColumnScope.skipConfirmation(
     onSkip: () -> Unit,
     onBack: () -> Unit,
 ) {
-    edgeItem {
+    edgeItem(container = true) {
         BwBanner(
             icon = R.drawable.ic_warning,
             iconDescription = stringResource(R.string.warning_label),
@@ -217,7 +208,7 @@ private fun TransformingLazyColumnScope.skipConfirmation(
             modifier = Modifier.fillMaxWidth(),
         )
     }
-    edgeItem {
+    edgeItem(container = true) {
         BwButton(
             label = stringResource(R.string.skip_confirm_no),
             onClick = onBack,
@@ -226,7 +217,7 @@ private fun TransformingLazyColumnScope.skipConfirmation(
             modifier = Modifier.fillMaxWidth(),
         )
     }
-    edgeItem {
+    edgeItem(container = true) {
         BwActionPill(
             label = stringResource(R.string.skip_confirm_yes),
             icon = R.drawable.ic_close,
