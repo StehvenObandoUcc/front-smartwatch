@@ -47,7 +47,7 @@ fun PairingScreen(
     val listState = rememberTransformingLazyColumnState()
     BwScreenScaffold(scrollState = listState) { contentPadding ->
         TransformingLazyColumn(state = listState, contentPadding = contentPadding) {
-            edgeItem { BwHeader(stringResource(R.string.pair_title)) }
+            edgeItem { BwHeader(stringResource(R.string.pair_title), icon = R.drawable.ic_link) }
             when (state) {
                 PairingState.Loading -> {
                     edgeItem { BwProgress() }
