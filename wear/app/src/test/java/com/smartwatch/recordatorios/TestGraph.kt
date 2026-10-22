@@ -30,7 +30,7 @@ class TestGraph(
 ) {
     val context: Application = ApplicationProvider.getApplicationContext()
 
-    private val clock =
+    val clock =
         object : Clock() {
             override fun getZone() = ZoneOffset.UTC
 
