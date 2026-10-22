@@ -123,6 +123,9 @@ object TypeScale {
     val title = 18.sp
     val body = 16.sp
     val support = 14.sp
+
+    /** Solo para la dirección del panel, que debe caber entera en una línea. */
+    val url = 12.sp
     val code = 32.sp
 }
 
@@ -154,6 +157,9 @@ object Sizes {
     val plateSmall = 22.dp
     val plateSmallIcon = 14.dp
     val plateRadius = 6.dp
+
+    /** Alto de la franja del día (señal, no botón). */
+    val signBar = 32.dp
     val progress = 32.dp
     val progressStroke = 4.dp
     val successMark = 64.dp
