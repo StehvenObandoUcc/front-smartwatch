@@ -129,7 +129,7 @@ export function MedicationsPage() {
           }
         />
       )}
-      <ul className="flex flex-col gap-3">
+      <ul className="rows">
         {medications.data?.items.map((med) => (
           <MedicationRow
             key={med.id}
@@ -171,7 +171,7 @@ function MedicationRow({
   const schedules = useListSchedules(patientId, medication.id);
   const schedule = schedules.data?.items[0];
   return (
-    <li className="card flex flex-wrap items-center justify-between gap-4 p-4">
+    <li className="flex flex-wrap items-center justify-between gap-4">
       <div className="flex min-w-0 items-center gap-3">
         <Plate icon="medications" hex={medication.color} size="lg" />
         <div className="min-w-0">
