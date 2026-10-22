@@ -4,6 +4,9 @@
 @layer base {
   html {
     @apply bg-bg font-sans text-body text-text antialiased;
+    font-variant-numeric: tabular-nums;
+    /* El foco no queda tapado por la navegación fija de abajo (WCAG 2.4.11). */
+    scroll-padding-bottom: calc(var(--spacing) * 24);
   }
 
   :focus-visible {
@@ -11,11 +14,11 @@
   }
 }
 
-/* Superficies reutilizables: tarjeta con borde inferior y zona tintada. */
+/* Superficies reutilizables: placa de señal (borde fino, esquina corta) y zona tintada. */
 @utility card {
-  @apply rounded-xl border-2 border-border bg-surface-raised shadow-ledge;
+  @apply rounded-lg border-2 border-border bg-surface-raised;
 }
 
 @utility well {
-  @apply rounded-xl bg-surface;
+  @apply rounded-lg bg-surface;
 }
