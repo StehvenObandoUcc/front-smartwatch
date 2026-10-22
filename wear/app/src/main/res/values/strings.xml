@@ -15,6 +15,13 @@
     <string name="home_no_next">Sin dosis próximas</string>
     <string name="home_no_next_body">Agrega tus medicamentos en el panel web</string>
     <string name="today_title">Hoy</string>
+    <string name="tile_label">Dosis de hoy</string>
+    <string name="tile_count">%1$d de %2$d</string>
+    <string name="tile_taken_today">tomadas hoy</string>
+    <string name="tile_none">Hoy no hay dosis</string>
+    <string name="tile_none_short">Libre</string>
+    <string name="tile_next_later">Mañana %1$s</string>
+    <string name="tile_next_said">Próxima: %1$s</string>
     <string name="part_morning">Mañana</string>
     <string name="part_afternoon">Tarde</string>
     <string name="part_night">Noche</string>
