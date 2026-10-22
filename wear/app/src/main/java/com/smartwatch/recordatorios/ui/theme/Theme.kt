@@ -54,6 +54,9 @@ object BwTypography {
 
     /** Para [title] con autoSize: un nombre de una sola palabra baja hasta 14 sp antes de partirse. */
     val titleFit = TextAutoSize.StepBased(minFontSize = TypeScale.support, maxFontSize = TypeScale.title)
+
+    /** Para una dirección web en una sola línea: de 16 sp hasta 12 sp antes de cortarse. */
+    val urlFit = TextAutoSize.StepBased(minFontSize = TypeScale.url, maxFontSize = TypeScale.body)
     val code = Base.copy(fontSize = TypeScale.code, fontWeight = FontWeight.ExtraBold, fontFeatureSettings = "tnum")
 }
 
