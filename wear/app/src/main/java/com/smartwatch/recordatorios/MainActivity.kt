@@ -28,6 +28,7 @@ import com.smartwatch.recordatorios.alarm.DoseNotifier
 import com.smartwatch.recordatorios.data.local.DoseEntity
 import com.smartwatch.recordatorios.data.remote.PairingRepository
 import com.smartwatch.recordatorios.data.remote.TokenStore
+import com.smartwatch.recordatorios.data.repository.LocalPlanRepository
 import com.smartwatch.recordatorios.sync.SyncScheduler
 import com.smartwatch.recordatorios.ui.components.BwAppScaffold
 import com.smartwatch.recordatorios.ui.components.BwPager
@@ -37,10 +38,13 @@ import com.smartwatch.recordatorios.ui.screens.chat.ChatScreen
 import com.smartwatch.recordatorios.ui.screens.chat.ChatViewModel
 import com.smartwatch.recordatorios.ui.screens.home.HomeScreen
 import com.smartwatch.recordatorios.ui.screens.home.HomeViewModel
+import com.smartwatch.recordatorios.ui.screens.medication.AddMedicationScreen
 import com.smartwatch.recordatorios.ui.screens.pairing.PairingRoute
 import com.smartwatch.recordatorios.ui.screens.permissions.PermissionsScreen
 import com.smartwatch.recordatorios.ui.screens.today.TodayScreen
+import com.smartwatch.recordatorios.ui.screens.watch.WatchActions
 import com.smartwatch.recordatorios.ui.screens.watch.WatchScreen
+import com.smartwatch.recordatorios.ui.screens.welcome.WelcomeScreen
 import com.smartwatch.recordatorios.ui.theme.RecordatoriosTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
@@ -58,6 +62,8 @@ class MainActivity : ComponentActivity() {
 
     @Inject lateinit var pairing: PairingRepository
 
+    @Inject lateinit var localPlan: LocalPlanRepository
+
     private val viewModel: HomeViewModel by viewModels()
 
     private val chatViewModel: ChatViewModel by viewModels()
@@ -67,20 +73,50 @@ class MainActivity : ComponentActivity() {
         setContent {
             RecordatoriosTheme {
                 BwAppScaffold {
-                    val paired by tokens.paired.collectAsStateWithLifecycle()
-                    if (paired) PairedRoute() else PairingRoute()
+                    StartRoute()
                 }
             }
         }
     }
 
     /**
-     * Vinculado: primero el paso guiado de permisos (una vez), luego las páginas. Mientras la app está
-     * abierta sincroniza cada [FOREGROUND_SYNC], para que un medicamento recién creado en la web llegue
-     * en un par de minutos y no al siguiente ciclo de WorkManager.
+     * Arranque: vinculado → la app; si no, lo que eligió el usuario la primera vez (usar el reloj solo
+     * o vincular). Sin elección todavía, la bienvenida con las dos opciones.
      */
     @Composable
-    private fun PairedRoute() {
+    private fun StartRoute() {
+        val paired by tokens.paired.collectAsStateWithLifecycle()
+        val localMedications by localPlan.medications.collectAsStateWithLifecycle(emptyList())
+        val onboarding = remember { getSharedPreferences(ONBOARDING, MODE_PRIVATE) }
+        var mode by rememberSaveable { mutableStateOf(onboarding.getString(KEY_MODE, null)) }
+        val choose = { next: String? ->
+            onboarding.edit().putString(KEY_MODE, next).apply()
+            mode = next
+        }
+        // Al salir de Vincular (o al desvincular) se vuelve al modo local si hay medicamentos aquí.
+        val leavePairing = { choose(if (localMedications.isEmpty()) null else MODE_LOCAL) }
+        when {
+            paired -> AppRoute(paired = true, onPair = {}, onUnpaired = leavePairing)
+            mode == MODE_PAIR -> {
+                BackHandler { leavePairing() }
+                PairingRoute()
+            }
+            mode == MODE_LOCAL -> AppRoute(paired = false, onPair = { choose(MODE_PAIR) }, onUnpaired = {})
+            else -> WelcomeScreen(onUseLocally = { choose(MODE_LOCAL) }, onPair = { choose(MODE_PAIR) })
+        }
+    }
+
+    /**
+     * La app (vinculada o solo en el reloj): primero el paso guiado de permisos (una vez), luego las
+     * páginas. Al volver a primer plano completa las dosis locales (también sin red) y, mientras está
+     * abierta, sincroniza cada [FOREGROUND_SYNC] para que lo creado en la web llegue en un par de minutos.
+     */
+    @Composable
+    private fun AppRoute(
+        paired: Boolean,
+        onPair: () -> Unit,
+        onUnpaired: () -> Unit,
+    ) {
         val exactAllowed by viewModel.exactAlarmsAllowed.collectAsStateWithLifecycle()
         var notificationsAllowed by remember { mutableStateOf(notifier.canPostNotifications()) }
         val notificationLauncher =
@@ -93,6 +129,7 @@ class MainActivity : ComponentActivity() {
         LifecycleResumeEffect(Unit) {
             viewModel.refreshPermissions()
             notificationsAllowed = notifier.canPostNotifications()
+            lifecycleScope.launch { localPlan.refill() }
             syncScheduler.syncNow()
             val polling =
                 lifecycleScope.launch {
@@ -106,7 +143,7 @@ class MainActivity : ComponentActivity() {
 
         val requestNotifications = { notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS) }
         if (permissionsSeen) {
-            MainRoute(notificationsAllowed, exactAllowed, requestNotifications)
+            MainRoute(paired, notificationsAllowed, exactAllowed, requestNotifications, onPair, onUnpaired)
         } else {
             PermissionsScreen(
                 notificationsAllowed = notificationsAllowed,
@@ -123,13 +160,22 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     private fun MainRoute(
+        paired: Boolean,
         notificationsAllowed: Boolean,
         exactAllowed: Boolean,
         requestNotifications: () -> Unit,
+        onPair: () -> Unit,
+        onUnpaired: () -> Unit,
     ) {
         var screen by rememberSaveable { mutableStateOf(Screen.HOME) }
+        var saving by remember { mutableStateOf(false) }
+        // Sin vincular no hay adherencia (la calcula el backend): esa página no aparece.
+        val pages = if (paired) PAIRED_PAGES else LOCAL_PAGES
         // Fuera del when: al volver del chat se sigue en la misma página.
-        val pagerState = rememberPagerState(pageCount = { PAGES })
+        val pagerState = rememberPagerState(pageCount = { pages.size })
+        val localMedications by localPlan.medications.collectAsStateWithLifecycle(emptyList())
+        // Crear en el reloj solo sin vincular: vinculado, los medicamentos los carga el panel web.
+        val onAdd: (() -> Unit)? = if (paired) null else ({ screen = Screen.ADD })
         val chatState by chatViewModel.state.collectAsStateWithLifecycle()
         val speechLauncher =
             rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -142,7 +188,7 @@ class MainActivity : ComponentActivity() {
         val today by viewModel.today.collectAsStateWithLifecycle()
         val adherence by viewModel.adherence.collectAsStateWithLifecycle()
         val planInfo by viewModel.planInfo.collectAsStateWithLifecycle()
-        BackHandler(enabled = screen != Screen.HOME) {
+        BackHandler(enabled = screen != Screen.HOME && !saving) {
             screen = Screen.HOME
             chatViewModel.reset()
         }
@@ -150,24 +196,51 @@ class MainActivity : ComponentActivity() {
         when (screen) {
             Screen.CHAT ->
                 ChatScreen(state = chatState, onAsk = { askByVoice { speechLauncher.launch(it) } })
+            Screen.ADD ->
+                AddMedicationScreen(saving = saving) { name, dose, times ->
+                    saving = true
+                    lifecycleScope.launch {
+                        localPlan.add(name, dose, times)
+                        saving = false
+                        screen = Screen.HOME
+                    }
+                }
             Screen.HOME ->
                 BwPager(pagerState) { page ->
-                    when (page) {
-                        0 ->
+                    when (pages[page]) {
+                        Page.NEXT ->
                             HomeScreen(
                                 next = next,
-                                planInfo = planInfo,
+                                planInfo = if (paired) planInfo else null,
                                 exactAlarmsAllowed = exactAllowed,
                                 notificationsAllowed = notificationsAllowed,
                                 onRequestExactAlarms = ::openExactAlarmSettings,
                                 onRequestNotifications = requestNotifications,
                                 onOpenDose = ::openDose,
-                                onOpenChat = { screen = Screen.CHAT },
+                                // El asistente necesita el backend: solo vinculado.
+                                onOpenChat = if (paired) ({ screen = Screen.CHAT }) else null,
                                 onRetryPlan = syncScheduler::syncNow,
+                                onAddMedication = onAdd,
                             )
-                        1 -> TodayScreen(doses = today, onOpenDose = ::openDose)
-                        2 -> AdherenceScreen(summary = adherence)
-                        else -> WatchScreen(onUnpair = { lifecycleScope.launch { pairing.unpair() } })
+                        Page.TODAY -> TodayScreen(doses = today, onOpenDose = ::openDose)
+                        Page.ADHERENCE -> AdherenceScreen(summary = adherence)
+                        Page.WATCH ->
+                            WatchScreen(
+                                paired = paired,
+                                medications = localMedications,
+                                actions =
+                                    WatchActions(
+                                        onAdd = onAdd,
+                                        onRemove = { id -> lifecycleScope.launch { localPlan.remove(id) } },
+                                        onPair = onPair,
+                                        onUnpair = {
+                                            lifecycleScope.launch {
+                                                pairing.unpair()
+                                                onUnpaired()
+                                            }
+                                        },
+                                    ),
+                            )
                     }
                 }
         }
@@ -200,10 +273,16 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-/** HOME son las páginas Próxima, Hoy, Adherencia y Reloj. */
-private enum class Screen { HOME, CHAT }
+/** HOME son las páginas ([Page]); CHAT y ADD, pantallas encima. */
+private enum class Screen { HOME, CHAT, ADD }
 
-private const val PAGES = 4
+private enum class Page { NEXT, TODAY, ADHERENCE, WATCH }
+
+private val PAIRED_PAGES = listOf(Page.NEXT, Page.TODAY, Page.ADHERENCE, Page.WATCH)
+private val LOCAL_PAGES = listOf(Page.NEXT, Page.TODAY, Page.WATCH)
+private const val KEY_MODE = "mode"
+private const val MODE_LOCAL = "local"
+private const val MODE_PAIR = "pair"
 private const val ONBOARDING = "onboarding"
 private const val KEY_PERMISSIONS_SEEN = "permissions_seen"
 private val FOREGROUND_SYNC = Duration.ofMinutes(2)

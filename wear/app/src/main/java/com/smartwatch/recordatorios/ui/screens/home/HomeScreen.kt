@@ -37,24 +37,26 @@ import kotlinx.coroutines.delay
 import java.time.Duration
 
 /**
- * Primera página: avisos de permisos, próxima dosis y estado del plan. Hoy y Adherencia son las
- * páginas siguientes (deslizar). Los datos y permisos entran por parámetros.
+ * Primera página: avisos de permisos, próxima dosis y estado del plan. Hoy y las demás son las
+ * páginas siguientes (deslizar). Los datos y permisos entran por parámetros. Sin vincular
+ * ([planInfo] null) no hay plan ni asistente, y [onAddMedication] deja crear medicamentos aquí.
  */
 @Composable
 fun HomeScreen(
     next: DoseEntity?,
-    planInfo: PlanInfo,
+    planInfo: PlanInfo?,
     exactAlarmsAllowed: Boolean,
     notificationsAllowed: Boolean,
     onRequestExactAlarms: () -> Unit,
     onRequestNotifications: () -> Unit,
     onOpenDose: (DoseEntity) -> Unit,
-    onOpenChat: () -> Unit,
+    onOpenChat: (() -> Unit)?,
     onRetryPlan: () -> Unit,
+    onAddMedication: (() -> Unit)? = null,
     now: Long = rememberNow(),
 ) {
     val listState = rememberTransformingLazyColumnState()
-    val planStatus = planStatusText(planInfo, now)
+    val planStatus = planInfo?.let { planStatusText(it, now) }
     BwScreenScaffold(scrollState = listState) { contentPadding ->
         TransformingLazyColumn(
             state = listState,
@@ -82,7 +84,7 @@ fun HomeScreen(
             }
 
             // Sin red las alarmas siguen sonando (son locales): se dice para no alarmar y se ofrece reintentar.
-            if (planInfo.status == PlanStatus.OFFLINE) {
+            if (planInfo?.status == PlanStatus.OFFLINE) {
                 edgeItem(container = true) {
                     BwBanner(
                         icon = R.drawable.ic_warning,
@@ -100,7 +102,16 @@ fun HomeScreen(
                     BwEmptyState(
                         icon = R.drawable.ic_pill,
                         title = stringResource(R.string.home_no_next),
-                        body = stringResource(R.string.home_no_next_body),
+                        body =
+                            stringResource(
+                                if (onAddMedication !=
+                                    null
+                                ) {
+                                    R.string.home_no_next_local_body
+                                } else {
+                                    R.string.home_no_next_body
+                                },
+                            ),
                         modifier = Modifier.fillMaxWidth(),
                     )
                 } else {
@@ -108,13 +119,26 @@ fun HomeScreen(
                 }
             }
 
-            edgeItem(container = true) {
-                BwButton(
-                    label = stringResource(R.string.chat_ask),
-                    onClick = onOpenChat,
-                    icon = R.drawable.ic_mic,
-                    modifier = Modifier.fillMaxWidth(),
-                )
+            onAddMedication?.let { add ->
+                edgeItem(container = true) {
+                    BwButton(
+                        label = stringResource(R.string.home_add),
+                        onClick = add,
+                        primary = next == null,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
+            }
+
+            onOpenChat?.let { chat ->
+                edgeItem(container = true) {
+                    BwButton(
+                        label = stringResource(R.string.chat_ask),
+                        onClick = chat,
+                        icon = R.drawable.ic_mic,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
             }
 
             planStatus?.let { status ->

@@ -8,6 +8,7 @@ import com.smartwatch.recordatorios.api.models.PlannedDose
 import com.smartwatch.recordatorios.data.local.AppDatabase
 import com.smartwatch.recordatorios.data.local.DoseEntity
 import com.smartwatch.recordatorios.data.local.DoseStatus
+import com.smartwatch.recordatorios.data.repository.isLocal
 import retrofit2.Response
 import java.time.Clock
 import java.time.Duration
@@ -74,7 +75,11 @@ class PlanRepository
             val (merged, removed) =
                 db.withTransaction {
                     val local = doseDao.all().associateBy { it.id }
-                    val gone = local.values.filter { it.status == DoseStatus.SCHEDULED && it.id !in incoming }
+                    // Las dosis creadas en el reloj (`local:`) no vienen en el plan: no se retiran.
+                    val gone =
+                        local.values.filter {
+                            it.status == DoseStatus.SCHEDULED && it.id !in incoming && !isLocal(it.scheduleId)
+                        }
                     doseDao.delete(gone.map { it.id })
                     val merged = incoming.values.map { fresh -> local[fresh.id]?.keepLocalState(fresh) ?: fresh }
                     doseDao.upsert(merged)
@@ -87,8 +92,10 @@ class PlanRepository
 
         /** Al vincular otro paciente: descarta el plan anterior y sus alarmas. */
         suspend fun reset() {
-            doseDao.all().forEach { scheduler.cancel(it.id) }
-            doseDao.deleteAll()
+            // Las dosis creadas en el reloj siguen sonando: no son del paciente vinculado.
+            val fromPlan = doseDao.all().filterNot { isLocal(it.scheduleId) }
+            fromPlan.forEach { scheduler.cancel(it.id) }
+            doseDao.delete(fromPlan.map { it.id })
             prefs.clear()
         }
 

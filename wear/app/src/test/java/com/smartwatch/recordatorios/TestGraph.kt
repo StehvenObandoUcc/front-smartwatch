@@ -17,6 +17,7 @@ import com.smartwatch.recordatorios.data.remote.PlanPrefs
 import com.smartwatch.recordatorios.data.remote.PlanRepository
 import com.smartwatch.recordatorios.data.repository.DemoDoses
 import com.smartwatch.recordatorios.data.repository.DoseRepository
+import com.smartwatch.recordatorios.data.repository.LocalPlanRepository
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.shadows.ShadowAlarmManager
 import java.time.Clock
@@ -60,6 +61,7 @@ class TestGraph(
     val planPrefs = PlanPrefs(context)
     val planRepository = PlanRepository(planApi, db, scheduler, planPrefs, clock)
     val uploader = EventUploader(dosesApi, db)
+    val localPlan = LocalPlanRepository(db, scheduler, clock)
 
     /** Reemplaza el plan por las dos dosis de ejemplo (en 1 y 2 minutos). */
     suspend fun seed(): List<DoseEntity> {

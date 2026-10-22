@@ -69,8 +69,36 @@
     <string name="permissions_later">Ahora no</string>
     <string name="permissions_granted">Concedido</string>
 
+    <string name="welcome_title">¿Cómo quieres usarlo?</string>
+    <string name="welcome_local">Usar en este reloj</string>
+    <string name="welcome_local_body">Agregas tus medicamentos aquí y suenan sin internet</string>
+    <string name="welcome_pair">Vincular con el panel web</string>
+    <string name="welcome_pair_body">Un cuidador los carga desde el móvil o el ordenador</string>
+
+    <string name="add_title">Nuevo medicamento</string>
+    <string name="add_name">Nombre</string>
+    <string name="add_dose">Dosis (p. ej. 1 tableta)</string>
+    <string name="add_times">Suena a las</string>
+    <string name="add_time">Otra hora</string>
+    <string name="add_daily">Todos los días</string>
+    <string name="add_save">Guardar</string>
+    <string name="add_saving">Guardando…</string>
+    <string name="add_earlier">Más temprano</string>
+    <string name="add_later">Más tarde</string>
+    <string name="add_remove_time">Quitar esta hora</string>
+
+    <string name="home_add">Agregar medicamento</string>
+    <string name="home_no_next_local_body">Agrega el primero aquí abajo</string>
+
     <string name="watch_title">Reloj</string>
     <string name="watch_paired">Vinculado con el panel web</string>
+    <string name="watch_local">Solo en este reloj</string>
+    <string name="watch_local_meds">Toca uno para quitarlo</string>
+    <string name="watch_pair">Vincular con el panel web</string>
+    <string name="watch_remove">Quitar</string>
+    <string name="watch_remove_title">¿Quitar %1$s?</string>
+    <string name="watch_remove_body">Deja de sonar en este reloj</string>
+    <string name="watch_remove_yes">Quitar medicamento</string>
     <string name="watch_unpair">Desvincular</string>
     <string name="watch_unpair_title">¿Desvincular este reloj?</string>
     <string name="watch_unpair_body">Sus dosis se borran y dejan de sonar. Quítalo también en el panel web</string>
