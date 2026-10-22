@@ -6,10 +6,10 @@ import { Text } from '../../atoms/Text/Text';
 import { AppShell, type NavItem } from './AppShell';
 
 const nav: NavItem[] = [
-  { to: '/', label: 'Inicio', icon: 'home' },
-  { to: '/medicamentos', label: 'Medicamentos', icon: 'pill' },
-  { to: '/agenda', label: 'Agenda', icon: 'calendar' },
-  { to: '/adherencia', label: 'Adherencia', icon: 'chart' },
+  { to: '/', label: 'Hoy', icon: 'today' },
+  { to: '/medicamentos', label: 'Medicamentos', icon: 'medications' },
+  { to: '/agenda', label: 'Agenda', icon: 'agenda' },
+  { to: '/adherencia', label: 'Historial', icon: 'history' },
   { to: '/ajustes', label: 'Ajustes', icon: 'settings' },
 ];
 
@@ -25,10 +25,15 @@ const meta = {
     ),
   ],
   args: {
-    appName: 'Recordatorios',
-    title: 'Inicio',
+    appName: 'Recuerda',
+    title: 'Hoy',
+    icon: 'today',
     nav,
-    actions: <Button variant="ghost">Salir</Button>,
+    actions: (
+      <Button variant="ghost" icon="logout" className="text-on-sign">
+        Salir
+      </Button>
+    ),
     children: (
       <div className="flex flex-col gap-4">
         <Text variant="subtitle" as="h2">
