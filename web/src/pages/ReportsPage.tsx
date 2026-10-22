@@ -9,7 +9,7 @@ import {
 } from '../api/generated';
 import { Badge } from '../components/atoms/Badge/Badge';
 import { Button } from '../components/atoms/Button/Button';
-import { Spinner } from '../components/atoms/Spinner/Spinner';
+import { Skeleton } from '../components/atoms/Skeleton/Skeleton';
 import { Text } from '../components/atoms/Text/Text';
 import { usePatient } from '../features/patients/PatientGate';
 import { percentText } from '../features/reports/ReportView';
@@ -47,7 +47,7 @@ export function ReportsPage() {
         </Button>
       </div>
       {create.error && <Text tone="danger">{errorMessage(create.error)}</Text>}
-      {reports.isPending && <Spinner label="Cargando reportes" />}
+      {reports.isPending && <Skeleton label="Cargando reportes" />}
       {reports.isError && (
         <div role="alert" className="flex flex-col items-start gap-2">
           <Text tone="danger">{errorMessage(reports.error)}</Text>
