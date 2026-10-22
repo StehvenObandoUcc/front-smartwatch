@@ -17,6 +17,19 @@ import javax.inject.Singleton
 
 enum class SyncResult { UPDATED, UNCHANGED, CONSENT_REQUIRED, UNAUTHORIZED, FAILED }
 
+/** Hex que envía la web (paleta de tokens) -> clave de la paleta del reloj. */
+internal val COLOR_KEYS =
+    mapOf(
+        "#c62828" to "red",
+        "#d4661a" to "orange",
+        "#b08900" to "yellow",
+        "#2e7d32" to "green",
+        "#00796b" to "teal",
+        "#1565c0" to "blue",
+        "#6a1b9a" to "purple",
+        "#ad1457" to "pink",
+    )
+
 /** Descarga el plan de 7 días (con ETag) y lo deja en Room con las alarmas reprogramadas. */
 @Singleton
 class PlanRepository
@@ -122,18 +135,5 @@ class PlanRepository
             const val HTTP_FORBIDDEN = 403
             const val CONSENT_REQUIRED = "consent_required"
             val RETENTION: Duration = Duration.ofDays(2)
-
-            // Hex que envía la web (paleta de tokens) -> clave de la paleta del reloj.
-            val COLOR_KEYS =
-                mapOf(
-                    "#c62828" to "red",
-                    "#d4661a" to "orange",
-                    "#b08900" to "yellow",
-                    "#2e7d32" to "green",
-                    "#00796b" to "teal",
-                    "#1565c0" to "blue",
-                    "#6a1b9a" to "purple",
-                    "#ad1457" to "pink",
-                )
         }
     }
