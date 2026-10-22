@@ -9,6 +9,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.media.AudioAttributes
 import android.media.RingtoneManager
+import android.text.format.DateFormat
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -83,7 +84,7 @@ class DoseNotifier
                         context.getString(
                             R.string.notification_text,
                             context.getString(colorNameRes(dose.colorKey)),
-                            formatTime(dose.scheduledAt),
+                            formatTime(dose.scheduledAt, DateFormat.is24HourFormat(context)),
                         ),
                     ).setCategory(NotificationCompat.CATEGORY_ALARM)
                     .setPriority(NotificationCompat.PRIORITY_MAX)
