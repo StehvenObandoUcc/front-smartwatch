@@ -1,18 +1,18 @@
 import { useState } from 'react';
 
 import { useGetPatientPlan } from '../api/generated';
-import { Button } from '../components/atoms/Button/Button';
-import { ColorDot } from '../components/atoms/ColorDot/ColorDot';
-import { Spinner } from '../components/atoms/Spinner/Spinner';
-import { Text } from '../components/atoms/Text/Text';
-import { DoseActions } from '../features/doses/DoseActions';
-import { DoseStateBadge } from '../features/doses/DoseStateBadge';
-import { canRecord, doseState, useDoseHistory } from '../features/doses/doseState';
+import { Skeleton } from '../components/atoms/Skeleton/Skeleton';
+import { EmptyState } from '../components/molecules/EmptyState';
+import { ErrorRetry } from '../components/molecules/ErrorRetry';
+import { SignBar } from '../components/molecules/SignBar';
+import { DoseRow } from '../features/doses/DoseRow';
+import { doseState, useDoseHistory } from '../features/doses/doseState';
 import { groupByDay } from '../features/plan/groupByDay';
 import { usePatient } from '../features/patients/PatientGate';
-import { formatDay, formatTime, localDate } from '../lib/dates';
+import { formatDay, localDate } from '../lib/dates';
 import { errorMessage } from '../lib/errors';
 
+/** Los próximos 7 días: una señal por día y sus dosis con estado; las de hoy se pueden marcar. */
 export function AgendaPage() {
   const { patientId } = usePatient();
   const plan = useGetPatientPlan(patientId);
@@ -20,64 +20,45 @@ export function AgendaPage() {
   // Hora de referencia fija por visita: al volver a la pantalla se recalcula.
   const [now] = useState(() => Date.now());
 
-  if (plan.isPending) return <Spinner label="Cargando agenda" />;
+  if (plan.isPending) return <Skeleton label="Cargando agenda" rows={5} />;
   if (plan.isError) {
-    return (
-      <div role="alert" className="flex flex-col items-start gap-2">
-        <Text tone="danger">{errorMessage(plan.error)}</Text>
-        <Button variant="secondary" onClick={() => void plan.refetch()}>
-          Reintentar
-        </Button>
-      </div>
-    );
+    return <ErrorRetry message={errorMessage(plan.error)} onRetry={() => void plan.refetch()} />;
   }
 
   const { patientTimezone: tz, doses } = plan.data;
   if (doses.length === 0) {
-    return <Text tone="muted">No hay tomas en los próximos 7 días.</Text>;
+    return (
+      <EmptyState
+        icon="agenda"
+        title="No hay tomas en los próximos 7 días"
+        body="Agrega un medicamento con su horario y la semana aparecerá aquí."
+      />
+    );
   }
   const today = localDate(new Date(now), tz);
 
   return (
     <div className="flex flex-col gap-6">
       {groupByDay(doses, tz).map(({ day, doses: dayDoses }) => (
-        <section key={day} aria-labelledby={`day-${day}`} className="flex flex-col gap-2">
-          <Text id={`day-${day}`} variant="subtitle" as="h2">
-            {day === today ? 'Hoy' : formatDay(dayDoses[0]?.scheduledAt ?? day, tz)}
-          </Text>
-          <ul className="flex flex-col gap-2">
-            {dayDoses.map((dose) => {
-              const state = doseState(dose, history.index, now);
-              return (
-                <li
-                  key={`${dose.scheduleId}-${dose.scheduledAt}`}
-                  className="flex flex-wrap items-center gap-4 card p-4"
-                >
-                  <Text variant="subtitle" as="p" className="min-w-16 tabular-nums">
-                    {formatTime(dose.scheduledAt, tz)}
-                  </Text>
-                  <ColorDot hex={dose.color} />
-                  <div className="min-w-0 flex-1">
-                    <Text as="p" className="font-semibold">
-                      {dose.medicationName}
-                    </Text>
-                    <Text tone="muted" variant="caption">
-                      {dose.dosage}
-                    </Text>
-                  </div>
-                  <DoseStateBadge state={state} />
-                  {/* Solo las de hoy sin registro (pendientes o no tomadas); las tomadas u omitidas ya lo dicen. */}
-                  {day === today && canRecord(state) && (
-                    <DoseActions
-                      patientId={patientId}
-                      scheduleId={dose.scheduleId}
-                      scheduledAt={dose.scheduledAt}
-                      label={dose.medicationName}
-                    />
-                  )}
-                </li>
-              );
-            })}
+        <section key={day} aria-labelledby={`day-${day}`} className="flex flex-col gap-3">
+          <SignBar
+            id={`day-${day}`}
+            icon={day === today ? 'today' : 'agenda'}
+            title={day === today ? 'Hoy' : formatDay(dayDoses[0]?.scheduledAt ?? day, tz)}
+            meta={dayDoses.length === 1 ? '1 dosis' : `${dayDoses.length} dosis`}
+            tone={day === today ? 'sign' : 'neutral'}
+          />
+          <ul className="grid grid-cols-1 gap-3 tablet:grid-cols-2">
+            {dayDoses.map((dose) => (
+              <DoseRow
+                key={`${dose.scheduleId}-${dose.scheduledAt}`}
+                dose={dose}
+                state={doseState(dose, history.index, now)}
+                timeZone={tz}
+                patientId={patientId}
+                recordable={day === today}
+              />
+            ))}
           </ul>
         </section>
       ))}
