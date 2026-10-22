@@ -55,6 +55,9 @@ interface DoseEventDao {
     @Query("UPDATE dose_events SET syncState = 'CONFIRMED' WHERE eventId IN (:ids)")
     suspend fun markConfirmed(ids: List<String>)
 
+    @Query("DELETE FROM dose_events WHERE eventId = :eventId")
+    suspend fun deleteEvent(eventId: String)
+
     @Query("SELECT * FROM dose_events WHERE doseId = :doseId ORDER BY occurredAt")
     suspend fun forDose(doseId: String): List<DoseEventEntity>
 
