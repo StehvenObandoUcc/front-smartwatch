@@ -15,7 +15,7 @@ import {
 } from '../api/generated';
 import { Badge } from '../components/atoms/Badge/Badge';
 import { Button } from '../components/atoms/Button/Button';
-import { Spinner } from '../components/atoms/Spinner/Spinner';
+import { Skeleton } from '../components/atoms/Skeleton/Skeleton';
 import { Text } from '../components/atoms/Text/Text';
 import { ErrorRetry } from '../components/molecules/ErrorRetry';
 import { errorMessage } from '../lib/errors';
@@ -87,7 +87,7 @@ function TelegramCard() {
       <Text id="channels-title" variant="subtitle" as="h2">
         Canales
       </Text>
-      {channels.isPending && <Spinner label="Cargando canales" />}
+      {channels.isPending && <Skeleton label="Cargando canales" />}
       {channels.isError && (
         <div role="alert" className="flex flex-col items-start gap-2">
           <Text tone="danger">{errorMessage(channels.error)}</Text>
@@ -275,7 +275,7 @@ export function NotificationsPage() {
     <div className="flex flex-col gap-6">
       <ConsentToggle />
       <TelegramCard />
-      {preferences.isPending && <Spinner label="Cargando preferencias" />}
+      {preferences.isPending && <Skeleton label="Cargando preferencias" />}
       {preferences.isError && (
         <ErrorRetry
           message={errorMessage(preferences.error)}
