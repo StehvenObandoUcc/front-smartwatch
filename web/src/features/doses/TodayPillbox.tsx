@@ -55,7 +55,7 @@ export function TodayPillbox() {
 
   return (
     <section aria-labelledby="pillbox-title" className="flex flex-col gap-4">
-      <div className="flex items-baseline justify-between gap-4">
+      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
         <Text id="pillbox-title" variant="title" as="h2">
           {taken} de {today.length} tomadas
         </Text>
@@ -70,7 +70,7 @@ export function TodayPillbox() {
                 Nada programado
               </Text>
             ) : (
-              <ul className="flex flex-col gap-3">
+              <ul className="rows">
                 {groups[id].map((dose) => (
                   <DoseRow
                     key={`${dose.scheduleId}-${dose.scheduledAt}`}
