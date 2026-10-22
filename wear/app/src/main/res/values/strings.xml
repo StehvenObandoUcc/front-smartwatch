@@ -13,20 +13,24 @@
         <item quantity="other">En %1$d h</item>
     </plurals>
     <string name="home_no_next">Sin dosis próximas</string>
+    <string name="home_no_next_body">Agrega tus medicamentos en el panel web</string>
     <string name="today_title">Hoy</string>
     <string name="today_empty">No hay dosis hoy</string>
+    <string name="today_empty_body">Las que agregues en el panel web aparecerán aquí</string>
     <string name="today_progress">%1$d de %2$d tomadas</string>
     <string name="open_dose">Abrir dosis</string>
     <string name="adherence_title">Adherencia</string>
     <string name="adherence_value">%1$d %%</string>
     <string name="adherence_caption">Dosis tomadas en los últimos %1$d días</string>
     <string name="adherence_none">Sin dosis vencidas en los últimos %1$d días</string>
-    <string name="adherence_empty">Aún sin datos. Se descargan al sincronizar con conexión</string>
+    <string name="adherence_empty">Aún sin datos</string>
+    <string name="adherence_empty_body">Se descargan al sincronizar con conexión</string>
     <string name="adherence_today">Hoy</string>
     <string name="loading">Cargando</string>
 
     <string name="plan_never">Plan aún sin descargar</string>
-    <string name="plan_valid_until">Plan válido hasta %1$s</string>
+    <string name="plan_expires">El plan caduca a las %1$s. Conéctate para actualizarlo</string>
+    <string name="plan_expired">El plan caducó. Conéctate para actualizarlo</string>
     <string name="plan_consent">Falta aceptar el uso de datos de salud en el panel web</string>
     <string name="plan_failed">No se pudo actualizar el plan</string>
     <string name="plan_offline_title">Sin conexión</string>
