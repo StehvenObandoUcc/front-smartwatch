@@ -37,6 +37,9 @@ class DoseActionHandler
             }
             return updated
         }
+
+        /** «Deshacer» tras «Tomada»: true si la dosis volvió a pendiente. */
+        suspend fun undoTaken(doseId: String): Boolean = repository.undoTaken(doseId)
     }
 
 /** Reprograma todas las dosis pendientes (arranque, actualización, permiso concedido). */
