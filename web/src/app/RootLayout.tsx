@@ -3,6 +3,7 @@ import { Navigate, Outlet, useLocation } from 'react-router';
 import { Badge } from '../components/atoms/Badge/Badge';
 import { Button } from '../components/atoms/Button/Button';
 import { Spinner } from '../components/atoms/Spinner/Spinner';
+import { Text } from '../components/atoms/Text/Text';
 import { AppShell } from '../components/templates/AppShell/AppShell';
 import { useAuth } from '../features/auth/AuthContext';
 import { PatientGate } from '../features/patients/PatientGate';
@@ -12,7 +13,18 @@ import { extraTitles, navItems } from './navigation';
 export function RootLayout() {
   const { pathname, search } = useLocation();
   const { auth, signOut } = useAuth();
-  if (auth.status === 'loading') return <Spinner label="Abriendo sesión" className="p-4" />;
+  if (auth.status === 'loading') {
+    // El backend puede tardar en despertar: se dice qué pasa, centrado, en lugar de un spinner suelto.
+    return (
+      <div className="flex min-h-dvh flex-col items-center justify-center gap-3">
+        <Spinner label="Abriendo tu sesión" />
+        {/* El lector de pantalla ya lo oye por el Spinner (role=status). */}
+        <span aria-hidden="true">
+          <Text tone="muted">Abriendo tu sesión…</Text>
+        </span>
+      </div>
+    );
+  }
   if (auth.status === 'anon') {
     const next = pathname === '/' ? '' : `?next=${encodeURIComponent(pathname + search)}`;
     return <Navigate to={`/login${next}`} replace />;

@@ -22,6 +22,15 @@ export class ApiError extends Error {
 const baseUrl =
   import.meta.env.VITE_API_URL ?? 'https://back-smartwatch-5d050b912b0a.herokuapp.com';
 
+// En producción /auth/* va al mismo sitio: Vercel lo reenvía al backend (vercel.json). Así la cookie
+// del refresh token (SameSite=strict, Path=/auth) es de primera parte y la sesión sobrevive a recargar
+// y a abrir enlaces. Desde otro sitio (vercel.app → herokuapp.com) el navegador no la enviaría nunca.
+const authBase = import.meta.env.PROD ? '' : baseUrl;
+
+function urlFor(path: string) {
+  return `${path.startsWith('/auth/') ? authBase : baseUrl}${path}`;
+}
+
 // El token de acceso vive solo en memoria; el refresh token va en cookie httpOnly.
 let accessToken: string | null = null;
 let onSessionLost: () => void = () => {};
@@ -47,7 +56,7 @@ async function send(config: RequestConfig, options?: RequestInit) {
   const headers = new Headers(config.headers);
   if (config.data !== undefined) headers.set('Content-Type', 'application/json');
   if (accessToken) headers.set('Authorization', `Bearer ${accessToken}`);
-  return fetch(`${baseUrl}${config.url}${toQuery(config.params)}`, {
+  return fetch(`${urlFor(config.url)}${toQuery(config.params)}`, {
     ...options,
     method: config.method,
     headers,
@@ -60,7 +69,7 @@ async function send(config: RequestConfig, options?: RequestInit) {
 let refreshing: Promise<boolean> | null = null;
 
 export function refreshSession(): Promise<boolean> {
-  refreshing ??= fetch(`${baseUrl}/auth/refresh`, { method: 'POST', credentials: 'include' })
+  refreshing ??= fetch(urlFor('/auth/refresh'), { method: 'POST', credentials: 'include' })
     .then(async (res) => {
       if (!res.ok) return false;
       accessToken = ((await res.json()) as { accessToken: string }).accessToken;
