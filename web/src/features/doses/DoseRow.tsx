@@ -1,6 +1,5 @@
 import type { PlannedDose } from '../../api/generated';
 import { Plate } from '../../components/atoms/Plate/Plate';
-import { cn } from '../../lib/cn';
 import { formatTime } from '../../lib/dates';
 import { DoseActions } from './DoseActions';
 import { DoseStateBadge } from './DoseStateBadge';
@@ -16,42 +15,33 @@ type Props = {
 };
 
 /**
- * Una dosis como señal: placa del medicamento en su color, nombre y dosis, y la hora grande a la
- * derecha; debajo, la placa de estado y, si falta registrarla, Tomada / Omitir. La pendiente lleva
- * borde de tinta.
+ * Una dosis como señal, en una fila de una lista `rows`: placa del medicamento en su color, nombre
+ * y dosis; a la derecha la hora grande y la placa de estado (bajan a otra línea si no caben). Si
+ * falta registrarla, debajo van Tomada / Omitir.
  */
 export function DoseRow({ dose, state, timeZone, patientId, recordable }: Props) {
-  const time = formatTime(dose.scheduledAt, timeZone);
   const actionable = recordable && canRecord(state);
   return (
-    <li
-      className={cn(
-        'flex flex-col gap-3 rounded-lg border-2 bg-surface-raised p-3',
-        actionable ? 'border-border-strong' : 'border-border',
-      )}
-    >
-      <div className="flex items-center gap-3">
+    <li className="flex flex-col gap-3">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
         <Plate icon="medications" hex={dose.color} />
-        <div className="min-w-0 flex-1">
-          <p className="text-lg leading-tight font-extrabold break-words hyphens-auto">
-            {dose.medicationName}
-          </p>
+        <div className="min-w-0 flex-1 basis-40">
+          <p className="text-lg leading-tight font-extrabold break-words">{dose.medicationName}</p>
           <p className="text-text-muted">{dose.dosage}</p>
         </div>
-        <span className="shrink-0 text-lg font-extrabold">{time}</span>
-      </div>
-      {(state !== 'upcoming' || actionable) && (
-        <div className="flex flex-wrap items-center gap-2">
-          <DoseStateBadge state={state} />
-          {actionable && (
-            <DoseActions
-              patientId={patientId}
-              scheduleId={dose.scheduleId}
-              scheduledAt={dose.scheduledAt}
-              label={dose.medicationName}
-            />
-          )}
+        <div className="ml-auto flex items-center gap-3">
+          <span className="text-lg font-extrabold">{formatTime(dose.scheduledAt, timeZone)}</span>
+          {/* «Más tarde» solo en las de hoy: en los días que vienen, todas lo son. */}
+          {(recordable || state !== 'upcoming') && <DoseStateBadge state={state} />}
         </div>
+      </div>
+      {actionable && (
+        <DoseActions
+          patientId={patientId}
+          scheduleId={dose.scheduleId}
+          scheduledAt={dose.scheduledAt}
+          label={dose.medicationName}
+        />
       )}
     </li>
   );
