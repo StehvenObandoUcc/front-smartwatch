@@ -139,7 +139,7 @@ function TelegramCard() {
                         href={link.data.url}
                         target="_blank"
                         rel="noreferrer"
-                        className="inline-flex min-h-touch items-center rounded-md bg-primary px-5 font-semibold text-on-primary"
+                        className="inline-flex min-h-touch items-center rounded-md bg-primary px-5 font-bold text-on-primary"
                       >
                         Abrir Telegram
                       </a>
