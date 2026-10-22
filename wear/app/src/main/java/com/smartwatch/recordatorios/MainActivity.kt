@@ -37,6 +37,7 @@ import com.smartwatch.recordatorios.ui.screens.adherence.AdherenceScreen
 import com.smartwatch.recordatorios.ui.screens.alert.DoseAlertActivity
 import com.smartwatch.recordatorios.ui.screens.chat.ChatScreen
 import com.smartwatch.recordatorios.ui.screens.chat.ChatViewModel
+import com.smartwatch.recordatorios.ui.screens.chat.speechLocale
 import com.smartwatch.recordatorios.ui.screens.home.HomeScreen
 import com.smartwatch.recordatorios.ui.screens.home.HomeViewModel
 import com.smartwatch.recordatorios.ui.screens.medication.AddMedicationScreen
@@ -183,10 +184,8 @@ class MainActivity : ComponentActivity() {
         val chatState by chatViewModel.state.collectAsStateWithLifecycle()
         val speechLauncher =
             rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-                result.data
-                    ?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
-                    ?.firstOrNull()
-                    ?.let(chatViewModel::ask)
+                val heard = result.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.firstOrNull()
+                chatViewModel.ask(heard.orEmpty())
             }
         val next by viewModel.next.collectAsStateWithLifecycle()
         val today by viewModel.today.collectAsStateWithLifecycle()
@@ -261,6 +260,7 @@ class MainActivity : ComponentActivity() {
             Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
                 .putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
                 .putExtra(RecognizerIntent.EXTRA_PROMPT, getString(R.string.chat_prompt))
+                .putExtra(RecognizerIntent.EXTRA_LANGUAGE, speechLocale().toLanguageTag())
         try {
             launch(intent)
         } catch (_: ActivityNotFoundException) {
