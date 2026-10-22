@@ -84,7 +84,10 @@ fun BwStatePlate(
     }
 }
 
-/** Franja del día como señal de su color: sol, tarde o noche, con su palabra. */
+/**
+ * Franja del día como señal compacta de su color: sol, tarde o noche, con su palabra. No es un botón:
+ * mide lo justo para la palabra y no ocupa la pantalla a lo ancho.
+ */
 enum class DayPart { MORNING, AFTERNOON, NIGHT }
 
 @Composable
@@ -104,9 +107,9 @@ fun BwSignBar(
     Row(
         modifier =
             modifier
-                .heightIn(min = Sizes.touchMin)
+                .heightIn(min = Sizes.signBar)
                 .background(color, BwTheme.shapes.plate)
-                .padding(horizontal = Spacing.md),
+                .padding(horizontal = Spacing.md, vertical = Spacing.xs),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(Spacing.sm, Alignment.CenterHorizontally),
     ) {
