@@ -1,25 +1,28 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
 
 import { cn } from '../../../lib/cn';
+import { Icon, type IconName } from '../Icon/Icon';
 import { Spinner } from '../Spinner/Spinner';
 
-type Variant = 'primary' | 'secondary' | 'danger' | 'ghost';
+type Variant = 'primary' | 'secondary' | 'danger' | 'ghost' | 'onSign';
 
 type Props = ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: Variant;
   loading?: boolean;
   fullWidth?: boolean;
-  icon?: ReactNode;
+  /** Pictograma del vocabulario a la izquierda de la palabra (o un nodo propio). */
+  icon?: IconName | ReactNode;
 };
 
+// Placa de señal: esquina corta, plana, sin sombra. La principal es el petróleo de la señal; la
+// secundaria, contorno de tinta; la de peligro, rojo. Al pulsar se oscurece, no se mueve.
 const variantClass: Record<Variant, string> = {
-  // Teclas con borde inferior: al pulsar bajan 3 px y el borde desaparece.
-  primary:
-    'bg-primary text-on-primary shadow-key hover:bg-primary-hover active:translate-y-0.75 active:shadow-none',
-  secondary:
-    'border-2 border-primary bg-surface-raised text-primary shadow-key-quiet hover:bg-surface active:translate-y-0.75 active:shadow-none',
-  danger: 'bg-danger text-on-danger shadow-key-danger active:translate-y-0.75 active:shadow-none',
-  ghost: 'bg-transparent text-primary hover:bg-surface',
+  primary: 'bg-primary text-on-primary hover:bg-primary-hover',
+  secondary: 'border-2 border-border-strong bg-surface-raised text-text hover:bg-surface',
+  danger: 'bg-danger text-on-danger hover:opacity-90',
+  ghost: 'bg-transparent text-primary underline-offset-4 hover:bg-surface hover:underline',
+  // Sobre el panel de señal (cabecera): texto y foco blancos.
+  onSign: 'bg-transparent text-on-sign hover:bg-primary-hover focus-visible:outline-on-sign',
 };
 
 export function Button({
@@ -34,21 +37,22 @@ export function Button({
   ...rest
 }: Props) {
   const inactive = disabled || loading;
+  const glyph = typeof icon === 'string' ? <Icon name={icon as IconName} /> : icon;
   return (
     <button
       type={type}
       disabled={inactive}
       aria-busy={loading || undefined}
       className={cn(
-        'inline-flex min-h-touch min-w-touch items-center justify-center gap-2 rounded-full px-6 text-body font-semibold transition-all duration-100 motion-reduce:transition-none',
-        'disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none',
+        'inline-flex min-h-control min-w-touch items-center justify-center gap-2 rounded-md px-5 text-body font-bold transition-colors duration-100 motion-reduce:transition-none',
+        'disabled:cursor-not-allowed disabled:border-border disabled:bg-surface disabled:text-text-muted',
         variantClass[variant],
         fullWidth && 'w-full',
         className,
       )}
       {...rest}
     >
-      {loading ? <Spinner size="sm" label="Procesando" /> : icon}
+      {loading ? <Spinner size="sm" label="Procesando" /> : glyph}
       {children}
     </button>
   );
