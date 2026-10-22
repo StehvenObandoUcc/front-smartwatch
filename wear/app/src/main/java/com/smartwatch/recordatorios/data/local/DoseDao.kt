@@ -35,6 +35,9 @@ interface DoseDao {
 
     @Query("DELETE FROM doses")
     suspend fun deleteAll()
+
+    @Query("SELECT * FROM doses WHERE scheduleId = :scheduleId")
+    suspend fun forSchedule(scheduleId: String): List<DoseEntity>
 }
 
 @Dao
@@ -43,8 +46,9 @@ interface DoseEventDao {
     suspend fun insert(event: DoseEventEntity)
 
     @Query(
+        // Las dosis locales (`local:`) no existen en el backend: sus eventos no se suben.
         "SELECT * FROM dose_events WHERE syncState = 'PENDING' AND action != 'SNOOZED' " +
-            "ORDER BY occurredAt LIMIT :limit",
+            "AND scheduleId NOT LIKE 'local:%' ORDER BY occurredAt LIMIT :limit",
     )
     suspend fun pending(limit: Int): List<DoseEventEntity>
 
