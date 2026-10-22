@@ -9,8 +9,10 @@ import { Text } from '../components/atoms/Text/Text';
 import { EmptyState } from '../components/molecules/EmptyState';
 import { ErrorRetry } from '../components/molecules/ErrorRetry';
 import { SignBar } from '../components/molecules/SignBar';
+import { AdherenceChart } from '../features/doses/AdherenceChart';
 import { DoseActions } from '../features/doses/DoseActions';
 import { usePatient } from '../features/patients/PatientGate';
+import { countText } from '../features/reports/ReportView';
 import { daysAgo, formatDay, formatTime, localDate } from '../lib/dates';
 import { errorMessage } from '../lib/errors';
 
@@ -68,17 +70,22 @@ export function AdherencePage() {
             </Text>
             <div className="flex flex-wrap gap-2">
               <Badge tone="success" icon="taken">
-                {taken} tomadas
+                {countText(taken, 'tomada', 'tomadas')}
               </Badge>
               <Badge tone="neutral" icon="skipped">
-                {skipped} omitidas
+                {countText(skipped, 'omitida', 'omitidas')}
               </Badge>
               <Badge tone="danger" icon="missed">
-                {missed} no tomadas
+                {countText(missed, 'no tomada', 'no tomadas')}
               </Badge>
             </div>
           </>
         )}
+      </section>
+
+      <section aria-labelledby="chart-title" className="flex flex-col gap-3">
+        <SignBar id="chart-title" icon="history" title="Últimos 7 días, día a día" tone="neutral" />
+        <AdherenceChart />
       </section>
 
       <section aria-labelledby="hist-title" className="flex flex-col gap-3">
@@ -92,23 +99,20 @@ export function AdherencePage() {
             body="Cada dosis aparece aquí una hora después de su horario, tomada o no."
           />
         )}
-        <ul className="flex flex-col gap-3">
+        <ul className="rows">
           {history.data.items.map((item) => (
-            <li
-              key={`${item.scheduleId}-${item.scheduledAt}`}
-              className="flex flex-col gap-3 card p-3"
-            >
-              <div className="flex items-center gap-3">
+            <li key={`${item.scheduleId}-${item.scheduledAt}`} className="flex flex-col gap-3">
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
                 <Plate icon="medications" tone="neutral" />
-                <div className="min-w-0 flex-1">
-                  <p className="text-lg leading-tight font-extrabold break-words hyphens-auto">
+                <div className="min-w-0 flex-1 basis-40">
+                  <p className="text-lg leading-tight font-extrabold break-words">
                     {item.medicationName}
                   </p>
                   <Text tone="muted">
                     {item.dosage} · {formatDay(item.scheduledAt, timezone)}
                   </Text>
                 </div>
-                <span className="text-lg font-extrabold">
+                <span className="ml-auto text-lg font-extrabold">
                   {formatTime(item.scheduledAt, timezone)}
                 </span>
               </div>
