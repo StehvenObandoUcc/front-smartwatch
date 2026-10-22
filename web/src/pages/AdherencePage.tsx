@@ -3,17 +3,25 @@ import { useState } from 'react';
 import { useGetAdherence, useListDoseHistory, type DoseStatus } from '../api/generated';
 import { Badge } from '../components/atoms/Badge/Badge';
 import { Button } from '../components/atoms/Button/Button';
-import { Spinner } from '../components/atoms/Spinner/Spinner';
+import { Skeleton } from '../components/atoms/Skeleton/Skeleton';
+import { Plate } from '../components/atoms/Plate/Plate';
 import { Text } from '../components/atoms/Text/Text';
+import { EmptyState } from '../components/molecules/EmptyState';
+import { ErrorRetry } from '../components/molecules/ErrorRetry';
+import { SignBar } from '../components/molecules/SignBar';
 import { DoseActions } from '../features/doses/DoseActions';
 import { usePatient } from '../features/patients/PatientGate';
 import { daysAgo, formatDay, formatTime, localDate } from '../lib/dates';
 import { errorMessage } from '../lib/errors';
 
-const statusView: Record<DoseStatus, { label: string; tone: 'success' | 'warning' | 'danger' }> = {
-  TAKEN: { label: 'Tomada', tone: 'success' },
-  SKIPPED: { label: 'Omitida', tone: 'warning' },
-  MISSED: { label: 'No tomada', tone: 'danger' },
+// Los mismos estados, palabras y pictogramas que en Hoy y en el reloj.
+const statusView: Record<
+  DoseStatus,
+  { label: string; tone: 'success' | 'neutral' | 'danger'; icon: 'taken' | 'skipped' | 'missed' }
+> = {
+  TAKEN: { label: 'Tomada', tone: 'success', icon: 'taken' },
+  SKIPPED: { label: 'Omitida', tone: 'neutral', icon: 'skipped' },
+  MISSED: { label: 'No tomada', tone: 'danger', icon: 'missed' },
 };
 
 export function AdherencePage() {
@@ -23,21 +31,16 @@ export function AdherencePage() {
   const adherence = useGetAdherence(patientId, range);
   const history = useListDoseHistory(patientId, { ...range, limit: 50 });
 
-  if (adherence.isPending || history.isPending) return <Spinner label="Cargando historial" />;
+  if (adherence.isPending || history.isPending) return <Skeleton label="Cargando historial" />;
   if (adherence.isError || history.isError) {
     return (
-      <div role="alert" className="flex flex-col items-start gap-2">
-        <Text tone="danger">{errorMessage(adherence.error ?? history.error)}</Text>
-        <Button
-          variant="secondary"
-          onClick={() => {
-            void adherence.refetch();
-            void history.refetch();
-          }}
-        >
-          Reintentar
-        </Button>
-      </div>
+      <ErrorRetry
+        message={errorMessage(adherence.error ?? history.error)}
+        onRetry={() => {
+          void adherence.refetch();
+          void history.refetch();
+        }}
+      />
     );
   }
 
@@ -52,41 +55,67 @@ export function AdherencePage() {
         ))}
       </div>
 
-      <section aria-labelledby="adh-title" className="flex flex-col gap-1">
-        <Text id="adh-title" variant="subtitle" as="h2">
-          Adherencia
-        </Text>
-        <Text variant="display" as="p">
-          {percentage === null ? 'Sin datos' : `${Math.round(percentage)} %`}
-        </Text>
-        <Text tone="muted">
-          {taken} tomadas · {skipped} omitidas · {missed} no tomadas
-        </Text>
+      <section aria-labelledby="adh-title" className="card flex flex-col gap-3 p-4">
+        <SignBar id="adh-title" icon="history" title="Dosis tomadas" />
+        {percentage === null ? (
+          <Text tone="muted">
+            Aún no hay dosis vencidas en este rango. El porcentaje aparece cuando pase la primera.
+          </Text>
+        ) : (
+          <>
+            <Text variant="display" as="p">
+              {Math.round(percentage)} %
+            </Text>
+            <div className="flex flex-wrap gap-2">
+              <Badge tone="success" icon="taken">
+                {taken} tomadas
+              </Badge>
+              <Badge tone="neutral" icon="skipped">
+                {skipped} omitidas
+              </Badge>
+              <Badge tone="danger" icon="missed">
+                {missed} no tomadas
+              </Badge>
+            </div>
+          </>
+        )}
       </section>
 
-      <section aria-labelledby="hist-title" className="flex flex-col gap-2">
+      <section aria-labelledby="hist-title" className="flex flex-col gap-3">
         <Text id="hist-title" variant="subtitle" as="h2">
-          Historial
+          Cada dosis
         </Text>
         {history.data.items.length === 0 && (
-          <Text tone="muted">Aún no hay tomas en este rango.</Text>
+          <EmptyState
+            icon="history"
+            title="Aún no hay dosis en este rango"
+            body="Cada dosis aparece aquí una hora después de su horario, tomada o no."
+          />
         )}
-        <ul className="flex flex-col gap-2">
+        <ul className="flex flex-col gap-3">
           {history.data.items.map((item) => (
             <li
               key={`${item.scheduleId}-${item.scheduledAt}`}
-              className="flex flex-wrap items-center justify-between gap-4 card p-4"
+              className="flex flex-col gap-3 card p-3"
             >
-              <div>
-                <Text as="p">
-                  {item.medicationName} · {item.dosage}
-                </Text>
-                <Text tone="muted" variant="caption">
-                  {formatDay(item.scheduledAt, timezone)}, {formatTime(item.scheduledAt, timezone)}
-                </Text>
+              <div className="flex items-center gap-3">
+                <Plate icon="medications" tone="neutral" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-lg leading-tight font-extrabold break-words hyphens-auto">
+                    {item.medicationName}
+                  </p>
+                  <Text tone="muted">
+                    {item.dosage} · {formatDay(item.scheduledAt, timezone)}
+                  </Text>
+                </div>
+                <span className="text-lg font-extrabold">
+                  {formatTime(item.scheduledAt, timezone)}
+                </span>
               </div>
-              <div className="flex flex-col items-end gap-2">
-                <Badge tone={statusView[item.status].tone}>{statusView[item.status].label}</Badge>
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge tone={statusView[item.status].tone} icon={statusView[item.status].icon}>
+                  {statusView[item.status].label}
+                </Badge>
                 {/* Se olvidó de marcarla en el reloj: se puede registrar desde aquí. */}
                 {item.status === 'MISSED' && (
                   <DoseActions
