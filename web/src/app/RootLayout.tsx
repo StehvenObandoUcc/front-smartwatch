@@ -47,8 +47,9 @@ export function RootLayout() {
           <span className="hidden tablet:inline">
             {auth.user.role === 'caregiver' ? 'Cuidador' : 'Paciente'} ·{' '}
           </span>
-          {auth.user.displayName} · <span className="tablet:hidden">{shortDay}</span>
-          <span className="hidden tablet:inline">{longDay}</span>
+          {auth.user.displayName} ·{' '}
+          <span className="whitespace-nowrap tablet:hidden">{shortDay}</span>
+          <span className="hidden whitespace-nowrap tablet:inline">{longDay}</span>
         </>
       }
       nav={navItems}
