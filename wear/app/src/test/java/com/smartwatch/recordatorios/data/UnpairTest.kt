@@ -2,12 +2,14 @@ package com.smartwatch.recordatorios.data
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
+import com.smartwatch.recordatorios.FakeDeviceSessionApi
 import com.smartwatch.recordatorios.TestGraph
 import com.smartwatch.recordatorios.TestGraph.Companion.MINUTE
 import com.smartwatch.recordatorios.TestGraph.Companion.T0
 import com.smartwatch.recordatorios.api.apis.DevicesApi
 import com.smartwatch.recordatorios.data.local.DoseAction
 import com.smartwatch.recordatorios.data.remote.AdherenceRepository
+import com.smartwatch.recordatorios.data.remote.DeviceSession
 import com.smartwatch.recordatorios.data.remote.PairingRepository
 import com.smartwatch.recordatorios.data.remote.TokenStore
 import kotlinx.coroutines.test.runTest
@@ -16,6 +18,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.shadows.ShadowAlarmManager
+import java.io.IOException
 import java.lang.reflect.Proxy
 
 @RunWith(AndroidJUnit4::class)
@@ -31,11 +34,12 @@ class UnpairTest {
     @After
     fun tearDown() = graph.close()
 
-    // Desvincular no llama a la API de vinculación: basta un proxy que falle si se usa.
+    // Desvincular no usa la API de vinculación; de la del reloj solo DELETE /devices/me.
     private val unusedDevicesApi =
         Proxy.newProxyInstance(DevicesApi::class.java.classLoader, arrayOf(DevicesApi::class.java)) { _, _, _ ->
             error("no se usa al desvincular")
         } as DevicesApi
+    private val sessionApi = FakeDeviceSessionApi()
 
     private fun pairing() =
         PairingRepository(
@@ -44,7 +48,7 @@ class UnpairTest {
             graph.planRepository,
             AdherenceRepository(graph.dosesApi, graph.context),
             graph.uploader,
-            graph.db,
+            DeviceSession(sessionApi, graph.context),
         )
 
     @Test
@@ -56,6 +60,7 @@ class UnpairTest {
 
             pairing().unpair()
 
+            assertThat(sessionApi.revoked).isEqualTo(1)
             assertThat(graph.dosesApi.batches.flatMap { it.events }).hasSize(1)
             assertThat(graph.db.doseDao().all()).isEmpty()
             assertThat(graph.db.doseEventDao().forDose("demo-1")).isEmpty()
@@ -67,6 +72,7 @@ class UnpairTest {
         runTest {
             graph.seed()
             graph.dosesApi.offline = true
+            sessionApi.unpair = { throw IOException("sin red") }
             graph.repository.record("demo-1", DoseAction.TAKEN)
 
             pairing().unpair()

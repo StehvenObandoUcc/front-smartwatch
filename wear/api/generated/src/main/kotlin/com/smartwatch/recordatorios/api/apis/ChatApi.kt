@@ -11,6 +11,7 @@ import com.smartwatch.recordatorios.api.models.ChatRequest
 import com.smartwatch.recordatorios.api.models.Problem
 import com.smartwatch.recordatorios.api.models.ValidationProblem
 import com.smartwatch.recordatorios.api.models.WatchChatReply
+import com.smartwatch.recordatorios.api.models.WatchChatRequest
 
 interface ChatApi {
     /**
@@ -36,19 +37,20 @@ interface ChatApi {
     /**
      * POST devices/me/chat/messages
      * Preguntar al asistente desde el reloj (respuesta corta)
-     * Solo con token de reloj (403 con token de usuario). Mismas reglas, guardarraíles y consentimientos (&#x60;health_data&#x60; y &#x60;ai_chat&#x60; del paciente) que el chat web, pero responde JSON sin streaming y con una respuesta corta (como máximo 3 frases, sin listas ni formato) para leerla en voz alta. El límite diario cuenta por reloj. 
+     * Solo con token de reloj (403 con token de usuario). Mismas reglas, guardarraíles y consentimientos (&#x60;health_data&#x60; y &#x60;ai_chat&#x60; del paciente) que el chat web, pero responde JSON sin streaming y con una respuesta corta (como máximo 3 frases, sin listas ni formato) para leerla en voz alta. El límite diario cuenta por reloj.  Agregar un medicamento por voz (fase 4), en dos pasos: 1. Si el usuario pide agregar un medicamento nuevo (\&quot;agrega Losartán 50 mg a las 8\&quot;), la    respuesta trae &#x60;pendingAction&#x60; con su resumen y no crea nada. Si falta un dato    (nombre, dosis u hora), el asistente lo pregunta y no hay &#x60;pendingAction&#x60;. 2. El reloj confirma con &#x60;{ \&quot;confirmActionId\&quot;: \&quot;&lt;pendingAction.id&gt;\&quot; }&#x60; (sin &#x60;message&#x60;).    Entonces se crea igual que en &#x60;POST /devices/me/medications&#x60; y la respuesta trae    &#x60;actions: [{ type: medication_created, medicationId, scheduleId }]&#x60; para sincronizar    el plan al momento. Confirmar no llama al modelo ni gasta el cupo diario; reintentar    la confirmación devuelve el mismo medicamento. Una propuesta caduca a los 10 minutos    o si es de otro reloj: 404 (&#x60;code: chat_action_not_found&#x60;). El asistente nunca modifica ni borra medicamentos o dosis existentes. 
      * Responses:
      *  - 200: Respuesta corta.
      *  - 401: Falta el token, es inválido o caducó (o credenciales incorrectas en login).
      *  - 403: Autenticado pero sin permiso: rol que no permite la acción sobre un recurso accesible, o tipo de token equivocado (`wrong_token_type`). Nunca se usa para pacientes sin vínculo (eso es 404). 
+     *  - 404: No existe o el usuario no tiene acceso: un cuidador que pide un paciente sin vínculo activo (o sus recursos) recibe 404, igual que si no existiera, para no revelar datos ajenos. 
      *  - 422: La petición no cumple el esquema.
      *  - 429: Límite de peticiones superado.
      *  - 503: El proveedor externo (modelo de IA) no responde (`code: chat_unavailable`). Se puede reintentar; no consume el límite diario. 
      *
-     * @param chatRequest 
+     * @param watchChatRequest 
      * @return [WatchChatReply]
      */
     @POST("devices/me/chat/messages")
-    suspend fun sendMyChatMessage(@Body chatRequest: ChatRequest): Response<WatchChatReply>
+    suspend fun sendMyChatMessage(@Body watchChatRequest: WatchChatRequest): Response<WatchChatReply>
 
 }

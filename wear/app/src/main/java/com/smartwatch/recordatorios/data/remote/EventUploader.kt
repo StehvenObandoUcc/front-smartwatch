@@ -25,6 +25,9 @@ class EventUploader
     ) {
         private val eventDao = db.doseEventDao()
 
+        /** Al desvincular: los eventos son del paciente anterior. */
+        suspend fun clearAll() = eventDao.deleteAll()
+
         /** true si no queda nada pendiente; false si hay que reintentar más tarde. */
         suspend fun upload(): Boolean {
             var batch = eventDao.pending(BATCH_SIZE)

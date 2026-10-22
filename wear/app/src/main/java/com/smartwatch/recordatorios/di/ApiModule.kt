@@ -3,8 +3,10 @@ package com.smartwatch.recordatorios.di
 import com.smartwatch.recordatorios.api.apis.ChatApi
 import com.smartwatch.recordatorios.api.apis.DevicesApi
 import com.smartwatch.recordatorios.api.apis.DosesApi
+import com.smartwatch.recordatorios.api.apis.MedicationsApi
 import com.smartwatch.recordatorios.api.apis.PlanApi
 import com.smartwatch.recordatorios.data.remote.Api
+import com.smartwatch.recordatorios.sync.PlanRefresher
 import com.smartwatch.recordatorios.sync.SyncScheduler
 import com.smartwatch.recordatorios.sync.UploadTrigger
 import com.smartwatch.recordatorios.ui.screens.chat.TextSpeaker
@@ -14,12 +16,25 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import javax.inject.Qualifier
+
+/** DevicesApi con el token del reloj (`/devices/me`); sin calificador es el anónimo, para vincular. */
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class DeviceSessionApi
 
 @Module
 @InstallIn(SingletonComponent::class)
 object ApiModule {
     @Provides
     fun devicesApi(api: Api): DevicesApi = api.pairing
+
+    @Provides
+    @DeviceSessionApi
+    fun deviceSessionApi(api: Api): DevicesApi = api.devices
+
+    @Provides
+    fun medicationsApi(api: Api): MedicationsApi = api.medications
 
     @Provides
     fun planApi(api: Api): PlanApi = api.plan
@@ -39,4 +54,7 @@ abstract class SyncBindings {
 
     @Binds
     abstract fun textSpeaker(impl: TtsSpeaker): TextSpeaker
+
+    @Binds
+    abstract fun planRefresher(impl: SyncScheduler): PlanRefresher
 }

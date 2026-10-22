@@ -6,6 +6,7 @@ All URIs are relative to *http://localhost:8000*
 | ------------- | ------------- | ------------- |
 | [**archiveMedication**](MedicationsApi.md#archiveMedication) | **DELETE** patients/{patientId}/medications/{medicationId} | Archivar un medicamento |
 | [**createMedication**](MedicationsApi.md#createMedication) | **POST** patients/{patientId}/medications | Crear un medicamento |
+| [**createMyMedication**](MedicationsApi.md#createMyMedication) | **POST** devices/me/medications | Crear un medicamento con su horario desde el reloj |
 | [**createSchedule**](MedicationsApi.md#createSchedule) | **POST** patients/{patientId}/medications/{medicationId}/schedules | Añadir un horario |
 | [**deleteSchedule**](MedicationsApi.md#deleteSchedule) | **DELETE** patients/{patientId}/medications/{medicationId}/schedules/{scheduleId} | Eliminar un horario |
 | [**getMedication**](MedicationsApi.md#getMedication) | **GET** patients/{patientId}/medications/{medicationId} | Un medicamento |
@@ -91,6 +92,48 @@ launch(Dispatchers.IO) {
 ### Return type
 
 [**Medication**](Medication.md)
+
+### Authorization
+
+
+Configure bearerAuth:
+    ApiClient().setBearerToken("TOKEN")
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json, application/problem+json
+
+
+Crear un medicamento con su horario desde el reloj
+
+Solo con token de reloj (403 con token de usuario). Crea el medicamento y su horario para el paciente vinculado, en una sola transacción, y sube la versión del plan (cambia el &#x60;ETag&#x60; de &#x60;GET /devices/me/plan&#x60;). Requiere el consentimiento &#x60;health_data&#x60; (403 &#x60;consent_required&#x60;).  Idempotente por &#x60;clientId&#x60; (lo genera el reloj): repetir la petición con el mismo &#x60;clientId&#x60; responde 200 con lo ya creado, sin crear nada nuevo ni comparar el cuerpo. 
+
+### Example
+```kotlin
+// Import classes:
+//import com.smartwatch.recordatorios.api.*
+//import com.smartwatch.recordatorios.api.infrastructure.*
+//import com.smartwatch.recordatorios.api.models.*
+
+val apiClient = ApiClient()
+apiClient.setBearerToken("TOKEN")
+val webService = apiClient.createWebservice(MedicationsApi::class.java)
+val deviceMedicationCreate : DeviceMedicationCreate =  // DeviceMedicationCreate | 
+
+launch(Dispatchers.IO) {
+    val result : MedicationWithSchedule = webService.createMyMedication(deviceMedicationCreate)
+}
+```
+
+### Parameters
+| Name | Type | Description  | Notes |
+| ------------- | ------------- | ------------- | ------------- |
+| **deviceMedicationCreate** | [**DeviceMedicationCreate**](DeviceMedicationCreate.md)|  | |
+
+### Return type
+
+[**MedicationWithSchedule**](MedicationWithSchedule.md)
 
 ### Authorization
 

@@ -9,6 +9,7 @@ import kotlinx.serialization.Serializable
 
 import com.smartwatch.recordatorios.api.models.Device
 import com.smartwatch.recordatorios.api.models.DevicePage
+import com.smartwatch.recordatorios.api.models.MyDevice
 import com.smartwatch.recordatorios.api.models.PairingCode
 import com.smartwatch.recordatorios.api.models.PairingCodeRequest
 import com.smartwatch.recordatorios.api.models.PairingConfirm
@@ -61,10 +62,10 @@ interface DevicesApi {
      *  - 401: Falta el token, es inválido o caducó (o credenciales incorrectas en login).
      *  - 403: Autenticado pero sin permiso: rol que no permite la acción sobre un recurso accesible, o tipo de token equivocado (`wrong_token_type`). Nunca se usa para pacientes sin vínculo (eso es 404). 
      *
-     * @return [Device]
+     * @return [MyDevice]
      */
     @GET("devices/me")
-    suspend fun getMyDevice(): Response<Device>
+    suspend fun getMyDevice(): Response<MyDevice>
 
     /**
      * GET patients/{patientId}/devices
@@ -131,5 +132,19 @@ interface DevicesApi {
      */
     @DELETE("devices/{deviceId}")
     suspend fun unpairDevice(@Path("deviceId") deviceId: java.util.UUID): Response<Unit>
+
+    /**
+     * DELETE devices/me
+     * El reloj se desvincula a sí mismo
+     * Solo con token de reloj; un token de usuario recibe 403. Revoca de inmediato el token de acceso y el refresh token del reloj, y el reloj deja de aparecer en &#x60;GET /patients/{patientId}/devices&#x60;. Con un token ya revocado responde 401 (&#x60;code: device_unpaired&#x60;); el reloj puede tratar 204 y 401 igual. 
+     * Responses:
+     *  - 204: Reloj desvinculado.
+     *  - 401: Falta el token, es inválido o caducó (o credenciales incorrectas en login).
+     *  - 403: Autenticado pero sin permiso: rol que no permite la acción sobre un recurso accesible, o tipo de token equivocado (`wrong_token_type`). Nunca se usa para pacientes sin vínculo (eso es 404). 
+     *
+     * @return [Unit]
+     */
+    @DELETE("devices/me")
+    suspend fun unpairMyDevice(): Response<Unit>
 
 }

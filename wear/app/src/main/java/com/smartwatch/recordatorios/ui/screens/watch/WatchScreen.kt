@@ -46,6 +46,7 @@ fun WatchScreen(
     paired: Boolean,
     medications: List<LocalMedicationEntity>,
     actions: WatchActions,
+    patientName: String? = null,
 ) {
     // Qué se está confirmando: el id de un medicamento local, UNPAIR o nada.
     var pendingId by rememberSaveable { mutableStateOf<String?>(null) }
@@ -79,7 +80,7 @@ fun WatchScreen(
                             pendingId = null
                         },
                     )
-                else -> overview(paired, medications, actions) { pendingId = it }
+                else -> overview(paired, medications, actions, patientName) { pendingId = it }
             }
         }
     }
@@ -89,10 +90,19 @@ private fun TransformingLazyColumnScope.overview(
     paired: Boolean,
     medications: List<LocalMedicationEntity>,
     actions: WatchActions,
+    patientName: String?,
     onAsk: (String) -> Unit,
 ) {
     edgeItem { BwHeader(stringResource(R.string.watch_title)) }
-    edgeItem { Soft(stringResource(if (paired) R.string.watch_paired else R.string.watch_local)) }
+    edgeItem {
+        Soft(
+            when {
+                !paired -> stringResource(R.string.watch_local)
+                patientName != null -> stringResource(R.string.watch_paired_with, patientName)
+                else -> stringResource(R.string.watch_paired)
+            },
+        )
+    }
     if (medications.isNotEmpty()) {
         edgeItem { Soft(stringResource(R.string.watch_local_meds)) }
         medications.forEach { medication ->

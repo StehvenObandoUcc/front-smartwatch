@@ -15,6 +15,8 @@
 
 package com.smartwatch.recordatorios.api.models
 
+import com.smartwatch.recordatorios.api.models.ChatAction
+import com.smartwatch.recordatorios.api.models.PendingAction
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerialName
@@ -25,6 +27,8 @@ import kotlinx.serialization.Contextual
  *
  * @param reply Texto plano de hasta 3 frases, listo para leerse en voz alta.
  * @param remainingMessages 
+ * @param pendingAction 
+ * @param actions Acciones ya ejecutadas en esta respuesta (vacío si ninguna).
  */
 @Serializable
 
@@ -35,7 +39,14 @@ data class WatchChatReply (
     val reply: kotlin.String,
 
     @SerialName(value = "remainingMessages")
-    val remainingMessages: kotlin.Int
+    val remainingMessages: kotlin.Int,
+
+    @SerialName(value = "pendingAction")
+    val pendingAction: PendingAction? = null,
+
+    /* Acciones ya ejecutadas en esta respuesta (vacío si ninguna). */
+    @SerialName(value = "actions")
+    val actions: kotlin.collections.List<ChatAction>? = null
 
 ) {
 

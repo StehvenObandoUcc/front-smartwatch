@@ -8,6 +8,7 @@ docs/CareLink.md
 docs/CareLinkPage.md
 docs/CaregiverInvitation.md
 docs/ChannelToggles.md
+docs/ChatAction.md
 docs/ChatApi.md
 docs/ChatRequest.md
 docs/ChatRole.md
@@ -21,6 +22,7 @@ docs/DayAdherence.md
 docs/Device.md
 docs/DeviceAdherence.md
 docs/DeviceCodeGrant.md
+docs/DeviceMedicationCreate.md
 docs/DevicePage.md
 docs/DeviceRefreshGrant.md
 docs/DeviceTokenRequest.md
@@ -44,7 +46,9 @@ docs/MedicationAdherence.md
 docs/MedicationCreate.md
 docs/MedicationPage.md
 docs/MedicationUpdate.md
+docs/MedicationWithSchedule.md
 docs/MedicationsApi.md
+docs/MyDevice.md
 docs/NotificationChannel.md
 docs/NotificationChannelList.md
 docs/NotificationChannelType.md
@@ -58,6 +62,7 @@ docs/PatientCreate.md
 docs/PatientPage.md
 docs/PatientUpdate.md
 docs/PatientsApi.md
+docs/PendingAction.md
 docs/Plan.md
 docs/PlanApi.md
 docs/PlannedDose.md
@@ -89,6 +94,7 @@ docs/ValidationProblem.md
 docs/ValidationProblemAllOfErrors.md
 docs/ValidationProblemAllOfLoc.md
 docs/WatchChatReply.md
+docs/WatchChatRequest.md
 proguard-rules.pro
 settings.gradle
 src/main/kotlin/com/smartwatch/recordatorios/api/apis/AuthApi.kt
@@ -126,6 +132,7 @@ src/main/kotlin/com/smartwatch/recordatorios/api/models/CareLink.kt
 src/main/kotlin/com/smartwatch/recordatorios/api/models/CareLinkPage.kt
 src/main/kotlin/com/smartwatch/recordatorios/api/models/CaregiverInvitation.kt
 src/main/kotlin/com/smartwatch/recordatorios/api/models/ChannelToggles.kt
+src/main/kotlin/com/smartwatch/recordatorios/api/models/ChatAction.kt
 src/main/kotlin/com/smartwatch/recordatorios/api/models/ChatRequest.kt
 src/main/kotlin/com/smartwatch/recordatorios/api/models/ChatRole.kt
 src/main/kotlin/com/smartwatch/recordatorios/api/models/ChatTurn.kt
@@ -138,6 +145,7 @@ src/main/kotlin/com/smartwatch/recordatorios/api/models/DayAdherence.kt
 src/main/kotlin/com/smartwatch/recordatorios/api/models/Device.kt
 src/main/kotlin/com/smartwatch/recordatorios/api/models/DeviceAdherence.kt
 src/main/kotlin/com/smartwatch/recordatorios/api/models/DeviceCodeGrant.kt
+src/main/kotlin/com/smartwatch/recordatorios/api/models/DeviceMedicationCreate.kt
 src/main/kotlin/com/smartwatch/recordatorios/api/models/DevicePage.kt
 src/main/kotlin/com/smartwatch/recordatorios/api/models/DeviceRefreshGrant.kt
 src/main/kotlin/com/smartwatch/recordatorios/api/models/DoseEventBatch.kt
@@ -157,6 +165,8 @@ src/main/kotlin/com/smartwatch/recordatorios/api/models/MedicationAdherence.kt
 src/main/kotlin/com/smartwatch/recordatorios/api/models/MedicationCreate.kt
 src/main/kotlin/com/smartwatch/recordatorios/api/models/MedicationPage.kt
 src/main/kotlin/com/smartwatch/recordatorios/api/models/MedicationUpdate.kt
+src/main/kotlin/com/smartwatch/recordatorios/api/models/MedicationWithSchedule.kt
+src/main/kotlin/com/smartwatch/recordatorios/api/models/MyDevice.kt
 src/main/kotlin/com/smartwatch/recordatorios/api/models/NotificationChannel.kt
 src/main/kotlin/com/smartwatch/recordatorios/api/models/NotificationChannelList.kt
 src/main/kotlin/com/smartwatch/recordatorios/api/models/NotificationChannelType.kt
@@ -168,6 +178,7 @@ src/main/kotlin/com/smartwatch/recordatorios/api/models/Patient.kt
 src/main/kotlin/com/smartwatch/recordatorios/api/models/PatientCreate.kt
 src/main/kotlin/com/smartwatch/recordatorios/api/models/PatientPage.kt
 src/main/kotlin/com/smartwatch/recordatorios/api/models/PatientUpdate.kt
+src/main/kotlin/com/smartwatch/recordatorios/api/models/PendingAction.kt
 src/main/kotlin/com/smartwatch/recordatorios/api/models/Plan.kt
 src/main/kotlin/com/smartwatch/recordatorios/api/models/PlannedDose.kt
 src/main/kotlin/com/smartwatch/recordatorios/api/models/Problem.kt
@@ -196,6 +207,11 @@ src/main/kotlin/com/smartwatch/recordatorios/api/models/ValidationProblem.kt
 src/main/kotlin/com/smartwatch/recordatorios/api/models/ValidationProblemAllOfErrors.kt
 src/main/kotlin/com/smartwatch/recordatorios/api/models/ValidationProblemAllOfLoc.kt
 src/main/kotlin/com/smartwatch/recordatorios/api/models/WatchChatReply.kt
+src/main/kotlin/com/smartwatch/recordatorios/api/models/WatchChatRequest.kt
 src/main/kotlin/com/smartwatch/recordatorios/api/models/kotlinx.serialization.json.JsonObject.kt
-src/test/kotlin/com/smartwatch/recordatorios/api/models/DayAdherenceTest.kt
-src/test/kotlin/com/smartwatch/recordatorios/api/models/DeviceAdherenceTest.kt
+src/test/kotlin/com/smartwatch/recordatorios/api/models/ChatActionTest.kt
+src/test/kotlin/com/smartwatch/recordatorios/api/models/DeviceMedicationCreateTest.kt
+src/test/kotlin/com/smartwatch/recordatorios/api/models/MedicationWithScheduleTest.kt
+src/test/kotlin/com/smartwatch/recordatorios/api/models/MyDeviceTest.kt
+src/test/kotlin/com/smartwatch/recordatorios/api/models/PendingActionTest.kt
+src/test/kotlin/com/smartwatch/recordatorios/api/models/WatchChatRequestTest.kt

@@ -26,6 +26,7 @@ import androidx.wear.compose.foundation.pager.rememberPagerState
 import com.smartwatch.recordatorios.alarm.DoseIntents
 import com.smartwatch.recordatorios.alarm.DoseNotifier
 import com.smartwatch.recordatorios.data.local.DoseEntity
+import com.smartwatch.recordatorios.data.remote.DeviceSession
 import com.smartwatch.recordatorios.data.remote.PairingRepository
 import com.smartwatch.recordatorios.data.remote.TokenStore
 import com.smartwatch.recordatorios.data.repository.LocalPlanRepository
@@ -63,6 +64,8 @@ class MainActivity : ComponentActivity() {
     @Inject lateinit var pairing: PairingRepository
 
     @Inject lateinit var localPlan: LocalPlanRepository
+
+    @Inject lateinit var deviceSession: DeviceSession
 
     private val viewModel: HomeViewModel by viewModels()
 
@@ -174,6 +177,7 @@ class MainActivity : ComponentActivity() {
         // Fuera del when: al volver del chat se sigue en la misma página.
         val pagerState = rememberPagerState(pageCount = { pages.size })
         val localMedications by localPlan.medications.collectAsStateWithLifecycle(emptyList())
+        val patientName by deviceSession.patientName.collectAsStateWithLifecycle()
         // Crear en el reloj solo sin vincular: vinculado, los medicamentos los carga el panel web.
         val onAdd: (() -> Unit)? = if (paired) null else ({ screen = Screen.ADD })
         val chatState by chatViewModel.state.collectAsStateWithLifecycle()
@@ -195,7 +199,12 @@ class MainActivity : ComponentActivity() {
 
         when (screen) {
             Screen.CHAT ->
-                ChatScreen(state = chatState, onAsk = { askByVoice { speechLauncher.launch(it) } })
+                ChatScreen(
+                    state = chatState,
+                    onAsk = { askByVoice { speechLauncher.launch(it) } },
+                    onConfirm = chatViewModel::confirm,
+                    onDecline = chatViewModel::reset,
+                )
             Screen.ADD ->
                 AddMedicationScreen(saving = saving) { name, dose, times ->
                     saving = true
@@ -228,6 +237,7 @@ class MainActivity : ComponentActivity() {
                             WatchScreen(
                                 paired = paired,
                                 medications = localMedications,
+                                patientName = patientName,
                                 actions =
                                     WatchActions(
                                         onAdd = onAdd,

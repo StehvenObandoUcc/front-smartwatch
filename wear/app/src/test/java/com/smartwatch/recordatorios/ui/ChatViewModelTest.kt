@@ -2,8 +2,11 @@ package com.smartwatch.recordatorios.ui
 
 import com.google.common.truth.Truth.assertThat
 import com.smartwatch.recordatorios.api.apis.ChatApi
+import com.smartwatch.recordatorios.api.models.ChatAction
 import com.smartwatch.recordatorios.api.models.ChatRequest
+import com.smartwatch.recordatorios.api.models.PendingAction
 import com.smartwatch.recordatorios.api.models.WatchChatReply
+import com.smartwatch.recordatorios.api.models.WatchChatRequest
 import com.smartwatch.recordatorios.ui.screens.chat.ChatFailure
 import com.smartwatch.recordatorios.ui.screens.chat.ChatState
 import com.smartwatch.recordatorios.ui.screens.chat.ChatViewModel
@@ -25,10 +28,10 @@ import java.util.UUID
 class ChatViewModelTest {
     private class FakeChatApi : ChatApi {
         var reply: () -> Response<WatchChatReply> = { error("sin respuesta configurada") }
-        val sent = mutableListOf<ChatRequest>()
+        val sent = mutableListOf<WatchChatRequest>()
 
-        override suspend fun sendMyChatMessage(chatRequest: ChatRequest): Response<WatchChatReply> {
-            sent += chatRequest
+        override suspend fun sendMyChatMessage(watchChatRequest: WatchChatRequest): Response<WatchChatReply> {
+            sent += watchChatRequest
             return reply()
         }
 
@@ -40,12 +43,13 @@ class ChatViewModelTest {
 
     private val api = FakeChatApi()
     private val spoken = mutableListOf<String>()
+    private var planRefreshes = 0
     private lateinit var viewModel: ChatViewModel
 
     @Before
     fun setUp() {
         Dispatchers.setMain(UnconfinedTestDispatcher())
-        viewModel = ChatViewModel(api) { spoken += it }
+        viewModel = ChatViewModel(api, { spoken += it }) { planRefreshes++ }
     }
 
     @After
@@ -96,6 +100,46 @@ class ChatViewModelTest {
         api.reply = { problem(500, "internal_error") }
         viewModel.ask("hola")
         assertThat(viewModel.state.value).isEqualTo(ChatState.Failure(ChatFailure.UNAVAILABLE))
+    }
+
+    @Test
+    fun `una propuesta se muestra y solo se crea al confirmar, y entonces se descarga el plan`() {
+        val id = UUID.randomUUID()
+        val summary = "Losartán 50 mg a las 08:00 todos los días"
+        api.reply = {
+            Response.success(
+                WatchChatReply("¿Lo agrego?", 20, PendingAction(id, PendingAction.Type.create_medication, summary)),
+            )
+        }
+        viewModel.ask("agrega losartán a las ocho")
+
+        assertThat(viewModel.state.value).isEqualTo(ChatState.Reply("¿Lo agrego?", 20, id, summary))
+        assertThat(planRefreshes).isEqualTo(0)
+
+        val created = ChatAction(ChatAction.Type.medication_created, UUID.randomUUID(), UUID.randomUUID())
+        api.reply = { Response.success(WatchChatReply("Listo, agregado.", 19, actions = listOf(created))) }
+        viewModel.confirm()
+
+        assertThat(api.sent.last()).isEqualTo(WatchChatRequest(confirmActionId = id))
+        assertThat(viewModel.state.value).isEqualTo(ChatState.Reply("Listo, agregado.", 19))
+        assertThat(planRefreshes).isEqualTo(1)
+    }
+
+    @Test
+    fun `una propuesta caducada lo dice`() {
+        val id = UUID.randomUUID()
+        api.reply =
+            {
+                Response.success(
+                    WatchChatReply("¿Lo agrego?", 20, PendingAction(id, PendingAction.Type.create_medication, "x")),
+                )
+            }
+        viewModel.ask("agrega algo")
+        api.reply = { problem(404, "chat_action_not_found") }
+
+        viewModel.confirm()
+
+        assertThat(viewModel.state.value).isEqualTo(ChatState.Failure(ChatFailure.EXPIRED))
     }
 
     @Test
