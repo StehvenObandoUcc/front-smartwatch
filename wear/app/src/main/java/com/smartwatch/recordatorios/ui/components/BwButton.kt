@@ -27,7 +27,7 @@ import com.smartwatch.recordatorios.ui.theme.Spacing
 private const val PRESSED_ALPHA = 0.8f
 
 /**
- * Botón píldora. Principal: degradado turquesa-verde con texto oscuro (una por pantalla).
+ * Botón píldora. Principal: degradado celeste-azul (el del icono) con texto oscuro (una por pantalla).
  * Secundaria: superficie con contorno fino. Alto mínimo 52 dp; el icono es decorativo.
  */
 @Composable
