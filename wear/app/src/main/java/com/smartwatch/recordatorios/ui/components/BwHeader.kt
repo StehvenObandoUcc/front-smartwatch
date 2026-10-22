@@ -30,7 +30,7 @@ fun BwHeader(
             .fillMaxWidth()
             .padding(vertical = Spacing.sm)
             .semantics(mergeDescendants = true) { heading() }
-    val plate = @Composable { icon?.let { BwPlate(it, BwTheme.colors.infoDeep) } }
+    val plate = @Composable { icon?.let { BwPlate(it, BwTheme.colors.primary) } }
     val title = @Composable {
         BwText(
             text = text,
