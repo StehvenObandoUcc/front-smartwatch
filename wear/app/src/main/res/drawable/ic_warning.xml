@@ -1,12 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Triángulo con exclamación hueca; el color lo pone el tema (tint). -->
+<!-- Lucide «triangle-alert» (ISC), el mismo pictograma que en el panel web. Se tiñe desde el código. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp"
     android:height="24dp"
     android:viewportWidth="24"
     android:viewportHeight="24">
     <path
-        android:fillColor="#FFFFFFFF"
-        android:fillType="evenOdd"
-        android:pathData="M12,2L1,21H23Z M11,9H13V15H11Z M11,17H13V19H11Z" />
+        android:pathData="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"
+        android:strokeWidth="2.25"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+    <path
+        android:pathData="M12 9v4"
+        android:strokeWidth="2.25"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+    <path
+        android:pathData="M12 17h.01"
+        android:strokeWidth="2.25"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
 </vector>
