@@ -109,6 +109,7 @@ private fun body(state: ChatState): String =
                     ChatFailure.OFFLINE -> R.string.chat_error_offline
                     ChatFailure.UNAVAILABLE -> R.string.chat_error_unavailable
                     ChatFailure.NO_SPEECH -> R.string.chat_error_no_speech
+                    ChatFailure.NOT_HEARD -> R.string.chat_error_not_heard
                     ChatFailure.EXPIRED -> R.string.chat_error_expired
                 },
             )
