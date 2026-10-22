@@ -19,6 +19,7 @@ import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 import com.smartwatch.recordatorios.R
 import com.smartwatch.recordatorios.data.remote.AdherenceDay
 import com.smartwatch.recordatorios.data.remote.AdherenceSummary
+import com.smartwatch.recordatorios.ui.components.BwEmptyState
 import com.smartwatch.recordatorios.ui.components.BwHeader
 import com.smartwatch.recordatorios.ui.components.BwScreenScaffold
 import com.smartwatch.recordatorios.ui.components.BwText
@@ -41,20 +42,19 @@ fun AdherenceScreen(summary: AdherenceSummary?) {
         TransformingLazyColumn(state = listState, contentPadding = contentPadding) {
             edgeItem { BwHeader(stringResource(R.string.adherence_title)) }
             if (summary == null) {
-                edgeItem { CenteredText(stringResource(R.string.adherence_empty)) }
+                edgeItem {
+                    BwEmptyState(
+                        icon = R.drawable.ic_chart,
+                        title = stringResource(R.string.adherence_empty),
+                        body = stringResource(R.string.adherence_empty_body),
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
             } else {
                 edgeItem {
                     CenteredText(
                         text = summary.percentage?.let { stringResource(R.string.adherence_value, it) } ?: "—",
                         large = true,
-                    )
-                }
-                edgeItem {
-                    CenteredText(
-                        stringResource(
-                            if (summary.percentage == null) R.string.adherence_none else R.string.adherence_caption,
-                            summary.days.size,
-                        ),
                     )
                 }
                 edgeItem { DayBars(summary.days, modifier = ChartInset.fillMaxWidth().height(Sizes.barChart)) }
@@ -67,6 +67,14 @@ fun AdherenceScreen(summary: AdherenceSummary?) {
                         )
                         BwText(stringResource(R.string.adherence_today), style = BwTheme.type.support)
                     }
+                }
+                edgeItem {
+                    CenteredText(
+                        stringResource(
+                            if (summary.percentage == null) R.string.adherence_none else R.string.adherence_caption,
+                            summary.days.size,
+                        ),
+                    )
                 }
             }
         }
@@ -107,6 +115,8 @@ private fun CenteredText(
 ) {
     BwText(
         text = text,
+        autoSize = if (large) BwTheme.type.displayFit else null,
+        maxLines = if (large) 1 else Int.MAX_VALUE,
         style = if (large) BwTheme.type.display else BwTheme.type.body,
         color = if (large) BwTheme.colors.content else BwTheme.colors.contentSoft,
         textAlign = TextAlign.Center,
