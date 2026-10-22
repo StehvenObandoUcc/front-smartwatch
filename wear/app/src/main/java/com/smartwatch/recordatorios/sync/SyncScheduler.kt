@@ -28,7 +28,7 @@ class SyncScheduler
         private val workManager get() = WorkManager.getInstance(context)
         private val needsNetwork = Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
 
-        /** Respaldo periódico del plan. 30 min: sin FCM, es el único aviso de plan nuevo. */
+        /** Respaldo periódico del plan. 15 min (el mínimo de WorkManager): sin FCM, es el único aviso de plan nuevo. */
         fun schedulePeriodic() {
             val request =
                 PeriodicWorkRequestBuilder<PlanSyncWorker>(PERIOD)
@@ -38,14 +38,17 @@ class SyncScheduler
             workManager.enqueueUniquePeriodicWork(PERIODIC, ExistingPeriodicWorkPolicy.KEEP, request)
         }
 
-        /** Al abrir la app: sincroniza ahora (si ya hay una en cola, no duplica). */
+        /**
+         * Al abrir la app y cada pocos minutos mientras está abierta: sincroniza ahora. REPLACE y no KEEP:
+         * una sincronización fallida espera su backoff en cola y KEEP la dejaría ahí, retrasando el plan.
+         */
         fun syncNow() {
             val request =
                 OneTimeWorkRequestBuilder<PlanSyncWorker>()
                     .setConstraints(needsNetwork)
                     .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, BACKOFF)
                     .build()
-            workManager.enqueueUniqueWork(NOW, ExistingWorkPolicy.KEEP, request)
+            workManager.enqueueUniqueWork(NOW, ExistingWorkPolicy.REPLACE, request)
         }
 
         override fun request() {
@@ -61,7 +64,7 @@ class SyncScheduler
             const val PERIODIC = "plan-sync-periodic"
             const val NOW = "plan-sync-now"
             const val UPLOAD = "event-upload"
-            val PERIOD: Duration = Duration.ofMinutes(30)
+            val PERIOD: Duration = Duration.ofMinutes(15)
             val BACKOFF: Duration = Duration.ofSeconds(30)
         }
     }
