@@ -9,13 +9,16 @@ import com.smartwatch.recordatorios.data.remote.EventUploader
 import com.smartwatch.recordatorios.data.remote.PlanRepository
 import com.smartwatch.recordatorios.data.remote.SyncResult
 import com.smartwatch.recordatorios.data.remote.TokenStore
+import com.smartwatch.recordatorios.data.repository.LocalPlanRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 
 /**
- * Cada 30 min y al abrir la app: sube lo pendiente, descarga el plan (ETag evita descargas inútiles)
- * y después la adherencia, que así ya cuenta lo recién subido.
+ * Cada 15 min y al abrir la app: completa las dosis de los medicamentos creados en el reloj (también
+ * sin vincular), sube lo pendiente, descarga el plan (ETag evita descargas inútiles) y después la
+ * adherencia, que así ya cuenta lo recién subido.
  */
+@Suppress("LongParameterList") // context y params los exige WorkManager
 @HiltWorker
 class PlanSyncWorker
     @AssistedInject
@@ -26,8 +29,10 @@ class PlanSyncWorker
         private val plan: PlanRepository,
         private val adherence: AdherenceRepository,
         private val tokens: TokenStore,
+        private val localPlan: LocalPlanRepository,
     ) : CoroutineWorker(context, params) {
         override suspend fun doWork(): Result {
+            localPlan.refill()
             if (!tokens.paired.value) return Result.success()
             val uploaded = uploader.upload()
             val synced = plan.sync()
