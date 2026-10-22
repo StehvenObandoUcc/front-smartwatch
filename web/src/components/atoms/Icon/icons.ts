@@ -9,6 +9,7 @@ import {
   Clock,
   Download,
   FileText,
+  Hourglass,
   LayoutGrid,
   Link,
   LogOut,
@@ -62,6 +63,7 @@ export const icons = {
   due: Clock,
   missed: X,
   skipped: CircleMinus,
+  upcoming: Hourglass,
   // Acciones
   add: Plus,
   edit: Pencil,
