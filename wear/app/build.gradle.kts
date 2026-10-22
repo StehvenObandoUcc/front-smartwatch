@@ -105,6 +105,9 @@ dependencies {
     implementation(project(":api"))
     implementation(libs.work.runtime)
     implementation(libs.hilt.work)
+    implementation(libs.wear.tiles)
+    implementation(libs.wear.protolayout)
+    implementation(libs.kotlinx.coroutines.guava)
     ksp(libs.hilt.androidx.compiler)
 
     testImplementation(libs.junit)
