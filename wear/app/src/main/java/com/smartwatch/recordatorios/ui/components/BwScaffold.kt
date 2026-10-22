@@ -8,9 +8,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.wear.compose.foundation.CurvedTextStyle
@@ -33,12 +30,10 @@ import androidx.wear.compose.material3.lazy.rememberTransformationSpec
 import androidx.wear.compose.material3.lazy.transformedHeight
 import com.smartwatch.recordatorios.ui.theme.AtkinsonNext
 import com.smartwatch.recordatorios.ui.theme.BwTheme
-import com.smartwatch.recordatorios.ui.theme.Glow
 import com.smartwatch.recordatorios.ui.theme.TypeScale
 
 /**
- * AppScaffold de Wear (hora, transiciones) con los colores del tema propio y un difuminado petróleo
- * muy tenue de fondo en todas las pantallas.
+ * AppScaffold de Wear (hora, transiciones) con los colores del tema propio, sobre fondo plano.
  */
 @Composable
 fun BwAppScaffold(content: @Composable BoxScope.() -> Unit) {
@@ -61,21 +56,7 @@ fun BwAppScaffold(content: @Composable BoxScope.() -> Unit) {
         containerColor = colors.background,
         contentColor = colors.content,
     ) {
-        Box(
-            modifier =
-                Modifier.fillMaxSize().drawBehind {
-                    drawRect(
-                        Brush.radialGradient(
-                            0f to colors.glowCenter,
-                            Glow.MID_STOP to colors.glowMid,
-                            Glow.END_STOP to colors.background,
-                            center = Offset(size.width / 2, size.height * Glow.CENTER_Y),
-                            radius = size.minDimension * Glow.RADIUS,
-                        ),
-                    )
-                },
-            content = content,
-        )
+        Box(modifier = Modifier.fillMaxSize(), content = content)
     }
 }
 
