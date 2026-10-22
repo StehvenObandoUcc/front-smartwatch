@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.annotation.CallSuper
 import com.smartwatch.recordatorios.data.local.DoseAction
+import com.smartwatch.recordatorios.data.repository.LocalPlanRepository
 import com.smartwatch.recordatorios.di.ApplicationScope
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -35,10 +36,15 @@ private fun BroadcastReceiver.runAsync(
     }
 }
 
-/** Suena la alarma: muestra la alerta de la dosis si sigue pendiente. */
+/**
+ * Suena la alarma: muestra la alerta de la dosis si sigue pendiente. Después completa las dosis
+ * locales: así un reloj sin vincular ni internet sigue teniendo plan aunque nunca se abra la app.
+ */
 @AndroidEntryPoint
 class DoseAlarmReceiver : HiltBroadcastReceiver() {
     @Inject lateinit var firing: DoseAlarmFiring
+
+    @Inject lateinit var localPlan: LocalPlanRepository
 
     @Inject @ApplicationScope
     lateinit var scope: CoroutineScope
@@ -50,7 +56,10 @@ class DoseAlarmReceiver : HiltBroadcastReceiver() {
         super.onReceive(context, intent)
         val doseId = DoseIntents.doseId(intent) ?: return
         if (intent.action != DoseIntents.ACTION_ALARM) return
-        runAsync(scope) { firing.fire(doseId) }
+        runAsync(scope) {
+            firing.fire(doseId)
+            localPlan.refill()
+        }
     }
 }
 
@@ -83,6 +92,8 @@ class DoseActionReceiver : HiltBroadcastReceiver() {
 class BootReceiver : HiltBroadcastReceiver() {
     @Inject lateinit var rescheduler: AlarmRescheduler
 
+    @Inject lateinit var localPlan: LocalPlanRepository
+
     @Inject @ApplicationScope
     lateinit var scope: CoroutineScope
 
@@ -92,7 +103,10 @@ class BootReceiver : HiltBroadcastReceiver() {
     ) {
         super.onReceive(context, intent)
         if (intent.action !in HANDLED_ACTIONS) return
-        runAsync(scope) { rescheduler.rescheduleAll() }
+        runAsync(scope) {
+            localPlan.refill()
+            rescheduler.rescheduleAll()
+        }
     }
 
     companion object {
