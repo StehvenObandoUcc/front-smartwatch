@@ -44,7 +44,7 @@ private const val SPIN_MILLIS = 1000
 private const val FULL_TURN = 360f
 private const val ARC_SWEEP = 270f
 
-/** Indicador de carga: arco cian que gira. TalkBack lo anuncia como «Cargando». */
+/** Indicador de carga: arco celeste que gira. TalkBack lo anuncia como «Cargando». */
 @Composable
 fun BwProgress(modifier: Modifier = Modifier) {
     val color = BwTheme.colors.info
