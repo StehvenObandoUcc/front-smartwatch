@@ -14,10 +14,11 @@ type Props = {
   children: ReactNode;
 };
 
+// Una sola letra en tres pesos: el peso y el tamaño separan los niveles, no otra familia.
 const variantClass: Record<Variant, string> = {
-  display: 'font-display text-2xl font-bold',
-  title: 'font-display text-xl font-bold',
-  subtitle: 'font-display text-lg font-semibold',
+  display: 'text-2xl font-extrabold tracking-tight text-balance',
+  title: 'text-xl font-extrabold tracking-tight text-balance',
+  subtitle: 'text-lg font-bold text-balance',
   body: 'text-body',
   caption: 'text-caption',
 };
