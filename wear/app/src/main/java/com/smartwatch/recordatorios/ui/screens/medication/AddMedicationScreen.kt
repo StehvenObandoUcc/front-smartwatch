@@ -71,7 +71,7 @@ fun AddMedicationScreen(
             contentPadding = contentPadding,
             verticalArrangement = Arrangement.spacedBy(Spacing.sm),
         ) {
-            edgeItem { BwHeader(stringResource(R.string.add_title)) }
+            edgeItem { BwHeader(stringResource(R.string.add_title), icon = R.drawable.ic_plus) }
             edgeItem(container = true) {
                 Field(
                     value = name,

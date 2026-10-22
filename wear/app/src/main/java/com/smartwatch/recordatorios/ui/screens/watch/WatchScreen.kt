@@ -93,7 +93,7 @@ private fun TransformingLazyColumnScope.overview(
     patientName: String?,
     onAsk: (String) -> Unit,
 ) {
-    edgeItem { BwHeader(stringResource(R.string.watch_title)) }
+    edgeItem { BwHeader(stringResource(R.string.watch_title), icon = R.drawable.ic_watch) }
     edgeItem {
         Soft(
             when {

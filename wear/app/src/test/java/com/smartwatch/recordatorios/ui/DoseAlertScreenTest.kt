@@ -56,10 +56,11 @@ class DoseAlertScreenTest {
     fun `Tomada se ve sin desplazarse con un nombre de dos líneas`() {
         show(dose().copy(medicationName = "Hidroclorotiazida con amlodipino"))
 
-        // El nombre ocupa de verdad dos líneas: mide el doble de alto que la dosis (una línea, 16 sp vs 18 sp).
+        // El nombre ocupa de verdad dos líneas (puede achicarse para no partir una palabra): mide bastante
+        // más que la dosis, que va en una línea.
         val name = compose.onNodeWithText("Hidroclorotiazida con amlodipino").getBoundsInRoot()
         val doseLabel = compose.onNodeWithText("50 mg").getBoundsInRoot()
-        assertThat((name.bottom - name.top).value).isGreaterThan((doseLabel.bottom - doseLabel.top).value * 2)
+        assertThat((name.bottom - name.top).value).isGreaterThan((doseLabel.bottom - doseLabel.top).value * 1.5f)
         compose.onNodeWithText("Tomada").assertIsDisplayed()
     }
 
@@ -67,15 +68,18 @@ class DoseAlertScreenTest {
     fun `posponer y el contador usan los números de SnoozePolicy`() {
         show(dose(snoozeCount = 1))
 
+        // El estado va arriba; Posponer, al desplazar (a 192 dp con letra grande queda bajo el pliegue).
+        compose.onNodeWithText("Pospuesta 1 de ${SnoozePolicy.MAX_SNOOZES}", substring = true).assertExists()
+        compose.onNode(hasScrollAction()).performScrollToNode(hasText("Posponer"))
         compose.onNodeWithText("Posponer").assertExists()
         compose.onNodeWithText(snoozeMinutes).assertExists()
-        compose.onNodeWithText("Pospuesta 1 de ${SnoozePolicy.MAX_SNOOZES}", substring = true).assertExists()
     }
 
     @Test
     fun `en el tope de pospuestas explica por qué no hay Posponer`() {
         show(dose(snoozeCount = SnoozePolicy.MAX_SNOOZES))
 
+        compose.onNode(hasScrollAction()).performScrollToNode(hasText("Sin más pospuestas"))
         compose.onNodeWithText("Posponer").assertDoesNotExist()
         compose.onNodeWithText("Sin más pospuestas").assertExists()
     }
@@ -97,6 +101,7 @@ class DoseAlertScreenTest {
     fun `posponer muestra cuántas van y cuántas quedan`() {
         show(dose(snoozeCount = 1))
 
+        compose.onNode(hasScrollAction()).performScrollToNode(hasText("Posponer"))
         compose.onNodeWithText("Posponer").performClick()
 
         compose.onNodeWithText("Pospuesta 2 de ${SnoozePolicy.MAX_SNOOZES}").assertExists()

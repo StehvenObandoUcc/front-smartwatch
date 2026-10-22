@@ -40,7 +40,7 @@ fun AdherenceScreen(summary: AdherenceSummary?) {
     val listState = rememberTransformingLazyColumnState()
     BwScreenScaffold(scrollState = listState) { contentPadding ->
         TransformingLazyColumn(state = listState, contentPadding = contentPadding) {
-            edgeItem { BwHeader(stringResource(R.string.adherence_title)) }
+            edgeItem { BwHeader(stringResource(R.string.adherence_title), icon = R.drawable.ic_chart) }
             if (summary == null) {
                 edgeItem {
                     BwEmptyState(

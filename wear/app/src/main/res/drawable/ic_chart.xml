@@ -1,13 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Barras: adherencia. Mismo trazo que el resto de iconos. -->
+<!-- Lucide «chart-column» (ISC), el mismo pictograma que en el panel web. Se tiñe desde el código. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp"
     android:height="24dp"
     android:viewportWidth="24"
     android:viewportHeight="24">
     <path
-        android:pathData="M6,19V13M12,19V6M18,19V10"
-        android:strokeWidth="2"
+        android:pathData="M3 3v16a2 2 0 0 0 2 2h16"
+        android:strokeWidth="2.25"
         android:strokeColor="#FFFFFFFF"
-        android:strokeLineCap="round" />
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+    <path
+        android:pathData="M18 17V9"
+        android:strokeWidth="2.25"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+    <path
+        android:pathData="M13 17V5"
+        android:strokeWidth="2.25"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+    <path
+        android:pathData="M8 17v-3"
+        android:strokeWidth="2.25"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
 </vector>

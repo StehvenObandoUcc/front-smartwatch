@@ -3,6 +3,7 @@ package com.smartwatch.recordatorios.ui.screens.pairing
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -47,7 +48,7 @@ fun PairingScreen(
     val listState = rememberTransformingLazyColumnState()
     BwScreenScaffold(scrollState = listState) { contentPadding ->
         TransformingLazyColumn(state = listState, contentPadding = contentPadding) {
-            edgeItem { BwHeader(stringResource(R.string.pair_title)) }
+            edgeItem { BwHeader(stringResource(R.string.pair_title), icon = R.drawable.ic_link) }
             when (state) {
                 PairingState.Loading -> {
                     edgeItem { BwProgress() }
@@ -97,20 +98,30 @@ private fun Step(text: String) {
 }
 
 /**
- * El código letra a letra, cada una en su casilla, para copiarlo sin errores. TalkBack lo lee
- * carácter a carácter. Los separadores del código (guion o espacio) quedan como hueco.
+ * El código letra a letra, cada una en su casilla, para copiarlo sin errores: cada grupo del código
+ * (XXXX-XXXX) en su fila, para que quepa en la pantalla redonda. TalkBack lo lee carácter a carácter.
  */
 @Composable
 private fun CodeBoxes(code: String) {
-    val colors = BwTheme.colors
-    Row(
+    Column(
         modifier =
             Modifier
                 .fillMaxWidth()
                 .semantics { contentDescription = code.filter(Char::isLetterOrDigit).toList().joinToString(" ") },
+        verticalArrangement = Arrangement.spacedBy(Spacing.xs),
+    ) {
+        code.split('-', ' ').filter(String::isNotEmpty).forEach { group -> CodeRow(group) }
+    }
+}
+
+@Composable
+private fun CodeRow(group: String) {
+    val colors = BwTheme.colors
+    Row(
+        modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(Spacing.xs, Alignment.CenterHorizontally),
     ) {
-        code.forEach { char ->
+        group.forEach { char ->
             if (char.isLetterOrDigit()) {
                 Box(
                     modifier =

@@ -37,7 +37,7 @@ fun PermissionsScreen(
     val allGranted = notificationsAllowed && exactAlarmsAllowed
     BwScreenScaffold(scrollState = listState) { contentPadding ->
         TransformingLazyColumn(state = listState, contentPadding = contentPadding) {
-            edgeItem { BwHeader(stringResource(R.string.permissions_title)) }
+            edgeItem { BwHeader(stringResource(R.string.permissions_title), icon = R.drawable.ic_snooze) }
             edgeItem(container = true) {
                 Permission(
                     label = stringResource(R.string.permissions_notifications),
@@ -85,7 +85,7 @@ private fun Permission(
             BwIcon(
                 R.drawable.ic_check,
                 contentDescription = stringResource(R.string.permissions_granted),
-                color = BwTheme.colors.success[2],
+                color = BwTheme.colors.stateTaken,
             )
             BwText(grantedLabel)
         }

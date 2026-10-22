@@ -34,7 +34,7 @@ fun ChatScreen(
     val listState = rememberTransformingLazyColumnState()
     BwScreenScaffold(scrollState = listState) { contentPadding ->
         TransformingLazyColumn(state = listState, contentPadding = contentPadding) {
-            edgeItem { BwHeader(stringResource(R.string.chat_title)) }
+            edgeItem { BwHeader(stringResource(R.string.chat_title), icon = R.drawable.ic_mic) }
             edgeItem {
                 BwText(
                     text = body(state),

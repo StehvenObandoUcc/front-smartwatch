@@ -1,18 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Cápsula: medicamentos. Mismo trazo que el resto de iconos. -->
+<!-- Lucide «pill» (ISC), el mismo pictograma que en el panel web. Se tiñe desde el código. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp"
     android:height="24dp"
     android:viewportWidth="24"
     android:viewportHeight="24">
     <path
-        android:pathData="M10.5,4.5A4.95,4.95 0,0 1,17.5 11.5L11.5,17.5A4.95,4.95 0,0 1,4.5 10.5Z"
-        android:strokeWidth="2"
+        android:pathData="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"
+        android:strokeWidth="2.25"
         android:strokeColor="#FFFFFFFF"
+        android:strokeLineCap="round"
         android:strokeLineJoin="round" />
     <path
-        android:pathData="M7.5,7.5L14.5,14.5"
-        android:strokeWidth="2"
+        android:pathData="m8.5 8.5 7 7"
+        android:strokeWidth="2.25"
         android:strokeColor="#FFFFFFFF"
-        android:strokeLineCap="round" />
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
 </vector>
