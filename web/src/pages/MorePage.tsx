@@ -4,6 +4,7 @@ import { Icon, type IconName } from '../components/atoms/Icon/Icon';
 import { Plate } from '../components/atoms/Plate/Plate';
 
 const entries: { to: string; label: string; help: string; icon: IconName }[] = [
+  { to: '/agenda', label: 'Agenda', help: 'Las dosis de los próximos días', icon: 'agenda' },
   { to: '/reportes', label: 'Reportes', help: 'Resumen de cada semana, en PDF', icon: 'reports' },
   { to: '/asistente', label: 'Asistente', help: 'Pregunta por el tratamiento', icon: 'assistant' },
   { to: '/avisos', label: 'Avisos', help: 'Telegram y correo', icon: 'notifications' },
