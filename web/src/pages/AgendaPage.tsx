@@ -48,7 +48,7 @@ export function AgendaPage() {
             meta={dayDoses.length === 1 ? '1 dosis' : `${dayDoses.length} dosis`}
             tone={day === today ? 'sign' : 'neutral'}
           />
-          <ul className="grid grid-cols-1 gap-3 tablet:grid-cols-2">
+          <ul className="rows">
             {dayDoses.map((dose) => (
               <DoseRow
                 key={`${dose.scheduleId}-${dose.scheduledAt}`}
