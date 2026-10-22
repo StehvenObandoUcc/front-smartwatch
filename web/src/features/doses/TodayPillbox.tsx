@@ -1,36 +1,32 @@
 import { useState } from 'react';
 
 import { useGetPatientPlan } from '../../api/generated';
-import { ColorDot } from '../../components/atoms/ColorDot/ColorDot';
-import { Spinner } from '../../components/atoms/Spinner/Spinner';
+import { Skeleton } from '../../components/atoms/Skeleton/Skeleton';
 import { Text } from '../../components/atoms/Text/Text';
+import { EmptyState } from '../../components/molecules/EmptyState';
 import { ErrorRetry } from '../../components/molecules/ErrorRetry';
-import { cn } from '../../lib/cn';
-import { formatTime, localDate } from '../../lib/dates';
+import { SignBar } from '../../components/molecules/SignBar';
+import { localDate } from '../../lib/dates';
 import { errorMessage } from '../../lib/errors';
 import { usePatient } from '../patients/PatientGate';
-import { DoseActions } from './DoseActions';
-import { DoseStateBadge } from './DoseStateBadge';
-import { canRecord, doseState, useDoseHistory } from './doseState';
+import { DoseRow } from './DoseRow';
+import { doseState, useDoseHistory } from './doseState';
 import { FRANJAS, groupByFranja, type Franja } from './franja';
 
-// Clases completas para que Tailwind las detecte al compilar.
-const headerClass: Record<Franja, string> = {
-  morning: 'bg-morning text-on-morning',
-  afternoon: 'bg-afternoon text-on-afternoon',
-  night: 'bg-night text-on-night',
+// Cada franja es una señal de su color, con su pictograma: sol, tarde y noche.
+const franjaSign: Record<
+  Franja,
+  { tone: 'sun' | 'dusk' | 'night'; icon: 'morning' | 'afternoon' | 'night' }
+> = {
+  morning: { tone: 'sun', icon: 'morning' },
+  afternoon: { tone: 'dusk', icon: 'afternoon' },
+  night: { tone: 'night', icon: 'night' },
 };
 
-const icon: Record<Franja, string[]> = {
-  morning: [
-    'M12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z',
-    'M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5 19 19M5 19l1.5-1.5M17.5 6.5 19 5',
-  ],
-  afternoon: ['M4 18h16', 'M7 18a5 5 0 0 1 10 0', 'M12 7v3M5 11l2 2M19 11l-2 2'],
-  night: ['M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5Z'],
-};
-
-/** "Hoy" como un pastillero: un compartimento por franja del día con sus dosis. */
+/**
+ * «Hoy» como un pastillero: primero cuántas van tomadas y, por franja, cada dosis con su estado.
+ * Las pendientes llevan Tomada / Omitir para marcarlas desde la web.
+ */
 export function TodayPillbox() {
   const { patientId, timezone } = usePatient();
   const plan = useGetPatientPlan(patientId);
@@ -38,81 +34,58 @@ export function TodayPillbox() {
   // Día de referencia fijo por visita: al volver a la pantalla se recalcula.
   const [now] = useState(() => new Date());
 
-  if (plan.isPending) return <Spinner label="Cargando tu día" />;
+  if (plan.isPending) return <Skeleton label="Cargando tu día" rows={3} />;
   if (plan.isError) {
     return <ErrorRetry message={errorMessage(plan.error)} onRetry={() => void plan.refetch()} />;
   }
 
   const groups = groupByFranja(plan.data.doses, localDate(now, timezone), timezone);
-  const total = FRANJAS.reduce((sum, f) => sum + groups[f.id].length, 0);
+  const today = FRANJAS.flatMap((f) => groups[f.id]);
+  if (today.length === 0) {
+    return (
+      <EmptyState
+        icon="medications"
+        title="Hoy no hay dosis"
+        body="Las dosis aparecen aquí cuando agregas un medicamento con su horario."
+      />
+    );
+  }
+  const states = today.map((dose) => doseState(dose, history.index, now.getTime()));
+  const taken = states.filter((s) => s === 'taken').length;
 
   return (
-    <section aria-labelledby="pillbox-title" className="flex flex-col gap-3">
-      <Text id="pillbox-title" variant="title" as="h2">
-        {total === 0 ? 'Hoy no tienes dosis' : `Hoy: ${total} dosis`}
-      </Text>
-      <ul className="grid gap-4 tablet:grid-cols-3">
+    <section aria-labelledby="pillbox-title" className="flex flex-col gap-4">
+      <div className="flex items-baseline justify-between gap-4">
+        <Text id="pillbox-title" variant="title" as="h2">
+          {taken} de {today.length} tomadas
+        </Text>
+        <Text tone="muted">{today.length === 1 ? '1 dosis hoy' : `${today.length} dosis hoy`}</Text>
+      </div>
+      <div className="grid grid-cols-1 gap-5 desktop:grid-cols-3">
         {FRANJAS.map(({ id, label, range }) => (
-          <li key={id} className="card overflow-hidden">
-            <div className={cn('flex items-center gap-3 px-4 py-3', headerClass[id])}>
-              <svg
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-              >
-                {icon[id].map((d) => (
-                  <path key={d} d={d} />
-                ))}
-              </svg>
-              <div>
-                <h3 className="font-display text-lg leading-tight font-semibold">{label}</h3>
-                <p className="text-caption leading-tight">{range}</p>
-              </div>
-            </div>
-            <ul className="flex flex-col gap-3 p-4">
-              {groups[id].length === 0 && <li className="text-text-muted">Nada programado</li>}
-              {groups[id].map((dose) => {
-                // El estado de cada dosis responde a la pregunta del cuidador: ¿se la tomó?
-                const state = doseState(dose, history.index, now.getTime());
-                return (
-                  <li
+          <section key={id} aria-labelledby={`franja-${id}`} className="flex flex-col gap-3">
+            <SignBar id={`franja-${id}`} as="h3" title={label} meta={range} {...franjaSign[id]} />
+            {groups[id].length === 0 ? (
+              <Text tone="muted" className="px-1">
+                Nada programado
+              </Text>
+            ) : (
+              <ul className="flex flex-col gap-3">
+                {groups[id].map((dose) => (
+                  <DoseRow
                     key={`${dose.scheduleId}-${dose.scheduledAt}`}
-                    className="flex flex-col gap-2"
-                  >
-                    <div className="flex items-center gap-3">
-                      <ColorDot hex={dose.color} />
-                      <div className="min-w-0 flex-1">
-                        <p className="font-semibold">{dose.medicationName}</p>
-                        <p className="text-caption text-text-muted">{dose.dosage}</p>
-                      </div>
-                      <div className="flex flex-col items-end gap-1">
-                        <span className="font-display font-bold tabular-nums">
-                          {formatTime(dose.scheduledAt, timezone)}
-                        </span>
-                        <DoseStateBadge state={state} />
-                      </div>
-                    </div>
-                    {canRecord(state) && (
-                      <DoseActions
-                        patientId={patientId}
-                        scheduleId={dose.scheduleId}
-                        scheduledAt={dose.scheduledAt}
-                        label={dose.medicationName}
-                      />
-                    )}
-                  </li>
-                );
-              })}
-            </ul>
-          </li>
+                    dose={dose}
+                    state={doseState(dose, history.index, now.getTime())}
+                    timeZone={timezone}
+                    patientId={patientId}
+                    recordable
+                  />
+                ))}
+              </ul>
+            )}
+          </section>
         ))}
-      </ul>
+      </div>
     </section>
   );
 }
