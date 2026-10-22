@@ -6,12 +6,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 /**
- * Colores del tema, sacados del icono de la app (disco #0B5CAD, cápsula celeste #7DB8F5 y blanca):
- * noche azul con un difuminado del azul del icono (glow*). Papeles: la acción principal en degradado
- * celeste-azul (una por pantalla), los avisos en amarillo, «Tomada» en verde (success) y todo lo
- * demás neutro con tinte azul (superficie y contorno). El celeste del icono queda para datos.
- * Contrastes (WCAG): blanco sobre fondo 20:1, sobre glow 14:1; contentSoft ≥ 7,7:1; texto sobre
- * principal ≥ 5,4:1 (≥ 9,8:1 en el lado claro); acento sobre superficie 10:1; datos sobre glow 6,7:1.
+ * Colores de Recuerda en el reloj: la misma señalética de salud que el panel web sobre un fondo
+ * casi negro con tinte petróleo (pantalla OLED). Papeles: la acción principal es una placa petróleo
+ * plana con texto blanco (una por pantalla), los avisos en el amarillo de sol, cada estado de una
+ * dosis con su placa (Tomada, Pendiente, No tomada, Omitida) y las franjas del día como placas de
+ * color (sol, tarde, noche). Lo demás, neutro con tinte petróleo. El celeste petróleo es para datos.
+ * Contrastes (WCAG): blanco sobre fondo 19,8:1; contentSoft ≥ 9,6:1; blanco sobre principal 5,2:1 y
+ * la placa principal sobre el fondo 3,8:1; blanco sobre cada estado ≥ 5,1:1; tinta sobre sol 10:1 y
+ * sobre tarde 6,8:1; aviso sobre superficie 9,7:1; datos sobre fondo 9,4:1.
  */
 @Immutable
 data class BwColors(
@@ -31,29 +33,47 @@ data class BwColors(
     val infoDeep: Color,
     val track: Color,
     val success: List<Color>,
+    val stateTaken: Color,
+    val stateDue: Color,
+    val stateMissed: Color,
+    val stateSkipped: Color,
+    val sun: Color,
+    val dusk: Color,
+    val night: Color,
+    /** Tinta para texto e iconos sobre las placas claras (sol, tarde). */
+    val ink: Color,
 )
 
 val AppColors =
     BwColors(
-        background = Color(0xFF05080E),
-        glowCenter = Color(0xFF0E2C52),
-        glowMid = Color(0xFF0A1730),
-        surface = Color(0xFF16202F),
-        outline = Color(0xFF3B4D6A),
+        background = Color(0xFF050B0A),
+        glowCenter = Color(0xFF0B2422),
+        glowMid = Color(0xFF071513),
+        surface = Color(0xFF142320),
+        outline = Color(0xFF3A5A56),
         content = Color(0xFFFFFFFF),
-        contentSoft = Color(0xFFB3C2D6),
-        accent = Color(0xFFF5C518),
-        onAccent = Color(0xFF1A1400),
-        primaryStart = Color(0xFF8EC3F7),
-        primaryEnd = Color(0xFF3D8FE8),
-        onPrimary = Color(0xFF03152B),
-        info = Color(0xFF7DB8F5),
-        infoDeep = Color(0xFF0B5CAD),
-        track = Color(0xFF2A3544),
-        success = listOf(Color(0xFFCFFFEA), Color(0xFF6FE9BB), Color(0xFF23B98A), Color(0xFF128A68)),
+        contentSoft = Color(0xFFB5CCC9),
+        accent = Color(0xFFF2C14E),
+        onAccent = Color(0xFF11201F),
+        // Placa plana, como una señal: el inicio y el final del degradado son el mismo petróleo.
+        primaryStart = Color(0xFF127A73),
+        primaryEnd = Color(0xFF127A73),
+        onPrimary = Color(0xFFFFFFFF),
+        info = Color(0xFF5FC2BA),
+        infoDeep = Color(0xFF127A73),
+        track = Color(0xFF23332F),
+        success = listOf(Color(0xFF4CAF50), Color(0xFF3E9A42), Color(0xFF2F7D32), Color(0xFF24622A)),
+        stateTaken = Color(0xFF2F7D32),
+        stateDue = Color(0xFF9A5B00),
+        stateMissed = Color(0xFFB3261E),
+        stateSkipped = Color(0xFF5B6B69),
+        sun = Color(0xFFF2C14E),
+        dusk = Color(0xFFF08A4B),
+        night = Color(0xFF2B3A67),
+        ink = Color(0xFF11201F),
     )
 
-/** Centro y radio del difuminado azul, relativos a la pantalla. */
+/** Centro y radio del difuminado petróleo (muy tenue), relativos a la pantalla. */
 object Glow {
     const val CENTER_Y = 0.58f
     const val RADIUS = 0.75f
@@ -109,7 +129,14 @@ object Sizes {
     val icon = 24.dp
     val touchMin = 48.dp
     val buttonHeight = 52.dp
-    val cardRadius = 20.dp
+    val cardRadius = 12.dp
+
+    /** Placa de pictograma: la del encabezado y la del medicamento. */
+    val plate = 28.dp
+    val plateIcon = 18.dp
+    val plateSmall = 22.dp
+    val plateSmallIcon = 14.dp
+    val plateRadius = 6.dp
     val progress = 32.dp
     val progressStroke = 4.dp
     val successMark = 64.dp
