@@ -4,6 +4,7 @@ import com.smartwatch.recordatorios.BuildConfig
 import com.smartwatch.recordatorios.api.apis.ChatApi
 import com.smartwatch.recordatorios.api.apis.DevicesApi
 import com.smartwatch.recordatorios.api.apis.DosesApi
+import com.smartwatch.recordatorios.api.apis.MedicationsApi
 import com.smartwatch.recordatorios.api.apis.PlanApi
 import com.smartwatch.recordatorios.api.infrastructure.ApiClient
 import com.smartwatch.recordatorios.api.models.TokenPair
@@ -56,6 +57,8 @@ class Api
         val plan: PlanApi = authenticated.createService(PlanApi::class.java)
         val doses: DosesApi = authenticated.createService(DosesApi::class.java)
         val chat: ChatApi = authenticated.createService(ChatApi::class.java)
+        val devices: DevicesApi = authenticated.createService(DevicesApi::class.java)
+        val medications: MedicationsApi = authenticated.createService(MedicationsApi::class.java)
 
         private fun bearer() =
             Interceptor { chain ->
