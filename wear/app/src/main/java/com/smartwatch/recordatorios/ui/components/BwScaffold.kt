@@ -31,13 +31,14 @@ import androidx.wear.compose.material3.SurfaceTransformation
 import androidx.wear.compose.material3.TimeText
 import androidx.wear.compose.material3.lazy.rememberTransformationSpec
 import androidx.wear.compose.material3.lazy.transformedHeight
+import com.smartwatch.recordatorios.ui.theme.AtkinsonNext
 import com.smartwatch.recordatorios.ui.theme.BwTheme
 import com.smartwatch.recordatorios.ui.theme.Glow
 import com.smartwatch.recordatorios.ui.theme.TypeScale
 
 /**
- * AppScaffold de Wear (hora, transiciones) con los colores del tema propio y el difuminado azul
- * de fondo en todas las pantallas.
+ * AppScaffold de Wear (hora, transiciones) con los colores del tema propio y un difuminado petróleo
+ * muy tenue de fondo en todas las pantallas.
  */
 @Composable
 fun BwAppScaffold(content: @Composable BoxScope.() -> Unit) {
@@ -45,7 +46,16 @@ fun BwAppScaffold(content: @Composable BoxScope.() -> Unit) {
     AppScaffold(
         timeText = {
             TimeText(backgroundColor = Color.Transparent) { time ->
-                basicCurvedText(time, style = { CurvedTextStyle(color = colors.content, fontSize = TypeScale.support) })
+                basicCurvedText(
+                    time,
+                    style = {
+                        CurvedTextStyle(
+                            color = colors.content,
+                            fontSize = TypeScale.support,
+                            fontFamily = AtkinsonNext,
+                        )
+                    },
+                )
             }
         },
         containerColor = colors.background,
