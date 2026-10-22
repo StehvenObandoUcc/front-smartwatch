@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.Hyphens
 import com.smartwatch.recordatorios.ui.theme.BwTheme
 import com.smartwatch.recordatorios.ui.theme.LARGE_FONT_SCALE
 import com.smartwatch.recordatorios.ui.theme.Sizes
@@ -37,7 +38,8 @@ fun BwBanner(
     val colors = BwTheme.colors
     val text = @Composable {
         Column(verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
-            BwText(title, style = BwTheme.type.label, color = colors.accent)
+            // Títulos cortos: sin guiones (con letra grande el icono se apila y la palabra cabe).
+            BwText(title, style = BwTheme.type.label.copy(hyphens = Hyphens.None), color = colors.accent)
             body?.let { BwText(it, style = BwTheme.type.support, color = colors.contentSoft) }
         }
     }
