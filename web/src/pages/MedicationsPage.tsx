@@ -15,8 +15,10 @@ import {
   useListSchedules,
 } from '../api/generated';
 import { Button } from '../components/atoms/Button/Button';
-import { ColorDot } from '../components/atoms/ColorDot/ColorDot';
-import { Spinner } from '../components/atoms/Spinner/Spinner';
+import { Plate } from '../components/atoms/Plate/Plate';
+import { EmptyState } from '../components/molecules/EmptyState';
+import { ErrorRetry } from '../components/molecules/ErrorRetry';
+import { Skeleton } from '../components/atoms/Skeleton/Skeleton';
 import { Text } from '../components/atoms/Text/Text';
 import { MedicationForm } from '../features/medications/MedicationForm';
 import { toFormValues, toPayload, type MedicationFormValues } from '../features/medications/schema';
@@ -99,28 +101,35 @@ export function MedicationsPage() {
 
   return (
     <section className="flex flex-col gap-4" aria-labelledby="meds-title">
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <Text id="meds-title" variant="subtitle" as="h2">
           Medicamentos activos
         </Text>
-        <Button onClick={() => setAdding(true)}>Añadir medicamento</Button>
+        <Button icon="add" onClick={() => setAdding(true)}>
+          Agregar medicamento
+        </Button>
       </div>
 
-      {medications.isPending && <Spinner label="Cargando medicamentos" />}
+      {medications.isPending && <Skeleton label="Cargando medicamentos" />}
       {medications.isError && (
-        <div role="alert" className="flex flex-col items-start gap-2">
-          <Text tone="danger">{errorMessage(medications.error)}</Text>
-          <Button variant="secondary" onClick={() => void medications.refetch()}>
-            Reintentar
-          </Button>
-        </div>
+        <ErrorRetry
+          message={errorMessage(medications.error)}
+          onRetry={() => void medications.refetch()}
+        />
       )}
       {medications.data?.items.length === 0 && (
-        <Text tone="muted">
-          Aún no hay medicamentos. Añade el primero para que suene en el reloj.
-        </Text>
+        <EmptyState
+          icon="medications"
+          title="Aún no hay medicamentos"
+          body="Agrega el primero con su horario y sonará en el reloj."
+          action={
+            <Button icon="add" onClick={() => setAdding(true)}>
+              Agregar medicamento
+            </Button>
+          }
+        />
       )}
-      <ul className="flex flex-col gap-2">
+      <ul className="flex flex-col gap-3">
         {medications.data?.items.map((med) => (
           <MedicationRow
             key={med.id}
@@ -147,7 +156,7 @@ type RowProps = {
 };
 
 /**
- * Un medicamento con su horario a la vista («08:00 · 20:00 — todos los días»). Archivar pide
+ * Un medicamento con su horario a la vista («08:00 · 20:00 — todos los días»). Quitar (archivar) pide
  * confirmación: un toque por error en el móvil haría que deje de sonar en el reloj.
  */
 function MedicationRow({
@@ -164,7 +173,7 @@ function MedicationRow({
   return (
     <li className="card flex flex-wrap items-center justify-between gap-4 p-4">
       <div className="flex min-w-0 items-center gap-3">
-        <ColorDot hex={medication.color} />
+        <Plate icon="medications" hex={medication.color} size="lg" />
         <div className="min-w-0">
           <Text variant="subtitle" as="p">
             {medication.name}
@@ -177,21 +186,24 @@ function MedicationRow({
       {confirming ? (
         <div
           role="group"
-          aria-label={`Archivar ${medication.name}`}
-          className="flex flex-wrap items-center gap-2"
+          aria-label={`Quitar ${medication.name}`}
+          className="flex w-full flex-wrap items-center gap-2"
         >
-          <Text>¿Archivar {medication.name}? Dejará de sonar en el reloj.</Text>
-          <Button variant="danger" loading={archiving} onClick={onArchive}>
-            Sí, archivar
-          </Button>
-          <Button variant="secondary" onClick={() => setConfirming(false)}>
+          <Text className="w-full font-bold">
+            ¿Quitar {medication.name}? Dejará de sonar en el reloj.
+          </Text>
+          <Button variant="secondary" icon="back" onClick={() => setConfirming(false)}>
             No
+          </Button>
+          <Button variant="danger" icon="remove" loading={archiving} onClick={onArchive}>
+            Sí, quitar
           </Button>
         </div>
       ) : (
-        <div className="flex gap-1">
+        <div className="flex gap-2">
           <Button
-            variant="ghost"
+            variant="secondary"
+            icon="edit"
             aria-label={`Editar ${medication.name}`}
             loading={loadingEdit}
             onClick={onEdit}
@@ -200,10 +212,11 @@ function MedicationRow({
           </Button>
           <Button
             variant="ghost"
-            aria-label={`Archivar ${medication.name}`}
+            icon="remove"
+            aria-label={`Quitar ${medication.name}`}
             onClick={() => setConfirming(true)}
           >
-            Archivar
+            Quitar
           </Button>
         </div>
       )}
