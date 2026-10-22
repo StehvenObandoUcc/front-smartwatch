@@ -72,3 +72,7 @@ Idealmente en un reloj redondo de 192 dp con la fuente del sistema al máximo, y
 12. Resumen tras posponer (con 1 y con 2 pospuestas previas).
 13. Inicio sin conexión (modo avión) y su reintento.
 14. Adherencia con datos, sin dosis vencidas y antes de la primera sincronización.
+15. Bienvenida: «Usar en este reloj» y «Vincular con el panel web».
+16. Nuevo medicamento en el reloj (teclado, −/+ de la hora, Otra hora) y su alarma sin vincular ni internet.
+17. Página Reloj: sin vincular (lista local, Vincular) y vinculado (Desvincular con confirmación).
+18. Vincular por pasos (código arriba y dirección del panel) y el paso guiado de permisos.
