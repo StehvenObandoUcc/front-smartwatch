@@ -24,6 +24,7 @@ import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
 import com.smartwatch.recordatorios.R
 import com.smartwatch.recordatorios.ui.components.BwButton
 import com.smartwatch.recordatorios.ui.components.BwHeader
+import com.smartwatch.recordatorios.ui.components.BwProgress
 import com.smartwatch.recordatorios.ui.components.BwScreenScaffold
 import com.smartwatch.recordatorios.ui.components.BwText
 import com.smartwatch.recordatorios.ui.components.edgeItem
@@ -48,19 +49,26 @@ fun PairingScreen(
         TransformingLazyColumn(state = listState, contentPadding = contentPadding) {
             edgeItem { BwHeader(stringResource(R.string.pair_title)) }
             when (state) {
-                PairingState.Loading ->
-                    edgeItem { BwText(stringResource(R.string.pair_loading), textAlign = TextAlign.Center) }
+                PairingState.Loading -> {
+                    edgeItem { BwProgress() }
+                    edgeItem { Step(stringResource(R.string.pair_loading)) }
+                }
+                // El código primero (es lo que hay que copiar); debajo, dónde escribirlo, con la
+                // dirección del panel escrita: antes solo decía «el panel web».
                 is PairingState.Code -> {
                     edgeItem { CodeBoxes(state.code) }
+                    edgeItem { Step(stringResource(R.string.pair_step_open)) }
                     edgeItem {
                         BwText(
-                            text = stringResource(R.string.pair_instructions),
-                            style = BwTheme.type.support,
-                            color = BwTheme.colors.contentSoft,
+                            text = stringResource(R.string.panel_url),
+                            style = BwTheme.type.label,
+                            color = BwTheme.colors.info,
                             textAlign = TextAlign.Center,
                             modifier = Modifier.fillMaxWidth(),
                         )
                     }
+                    edgeItem { Step(stringResource(R.string.pair_step_settings)) }
+                    edgeItem { Step(stringResource(R.string.pair_waiting)) }
                 }
                 PairingState.Error -> {
                     edgeItem { BwText(stringResource(R.string.pair_error), textAlign = TextAlign.Center) }
@@ -75,6 +83,17 @@ fun PairingScreen(
             }
         }
     }
+}
+
+@Composable
+private fun Step(text: String) {
+    BwText(
+        text = text,
+        style = BwTheme.type.support,
+        color = BwTheme.colors.contentSoft,
+        textAlign = TextAlign.Center,
+        modifier = Modifier.fillMaxWidth(),
+    )
 }
 
 /**
