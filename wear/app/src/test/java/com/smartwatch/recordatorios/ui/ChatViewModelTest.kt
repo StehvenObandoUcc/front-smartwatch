@@ -143,10 +143,10 @@ class ChatViewModelTest {
     }
 
     @Test
-    fun `un texto vacio no llama al backend`() {
+    fun `si el micrófono no oyó nada se avisa y no se llama al backend`() {
         viewModel.ask("   ")
 
         assertThat(api.sent).isEmpty()
-        assertThat(viewModel.state.value).isEqualTo(ChatState.Idle)
+        assertThat(viewModel.state.value).isEqualTo(ChatState.Failure(ChatFailure.NOT_HEARD))
     }
 }
