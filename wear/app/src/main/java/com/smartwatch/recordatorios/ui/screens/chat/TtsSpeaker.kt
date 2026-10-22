@@ -31,7 +31,8 @@ class TtsSpeaker
         private fun onInit(status: Int) {
             ready = status == TextToSpeech.SUCCESS
             if (!ready) return
-            engine?.language = Locale.getDefault()
+            // Sin datos de voz para la variante del país, al menos español genérico.
+            engine?.let { if (it.setLanguage(speechLocale()) < TextToSpeech.LANG_AVAILABLE) it.language = SPANISH }
             pending?.let { speak(it) }
             pending = null
         }
@@ -40,3 +41,12 @@ class TtsSpeaker
             const val UTTERANCE_ID = "reply"
         }
     }
+
+private val SPANISH: Locale = Locale.forLanguageTag("es")
+
+/**
+ * La app está solo en español: se escucha y se lee en español aunque el reloj esté en otro idioma
+ * (si no, el reconocedor espera inglés y la voz lee el español con acento inglés).
+ */
+fun speechLocale(): Locale =
+    Locale.getDefault().takeIf { it.language == SPANISH.language } ?: Locale.forLanguageTag("es-CO")
