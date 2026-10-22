@@ -15,8 +15,11 @@ import com.smartwatch.recordatorios.data.repository.DoseRepository
 import com.smartwatch.recordatorios.ui.components.BwAppScaffold
 import com.smartwatch.recordatorios.ui.theme.RecordatoriosTheme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 /**
@@ -39,9 +42,10 @@ class DoseAlertActivity : ComponentActivity() {
                     dose?.let { current ->
                         DoseAlertScreen(
                             dose = current,
-                            onTake = { act(current.id, DoseAction.TAKEN, closeAfterMillis = SUCCESS_MILLIS) },
+                            onTake = { act(current.id, DoseAction.TAKEN, closeAfterMillis = UNDO_MILLIS) },
                             onSnooze = { act(current.id, DoseAction.SNOOZED, closeAfterMillis = SUCCESS_MILLIS) },
                             onSkip = { act(current.id, DoseAction.SKIPPED) },
+                            onUndo = { undo(current.id) },
                         )
                     }
                 }
@@ -63,20 +67,41 @@ class DoseAlertActivity : ComponentActivity() {
         }
     }
 
-    /** Registra la acción al momento; tras «Tomada» o «Posponer» deja ver la confirmación antes de cerrar. */
+    private var closing: Job? = null
+
+    /**
+     * Registra la acción al momento; tras «Tomada» o «Posponer» deja ver la confirmación antes de
+     * cerrar (tras «Tomada», el tiempo de «Deshacer»).
+     */
     private fun act(
         doseId: String,
         action: DoseAction,
         closeAfterMillis: Long = 0,
     ) {
+        closing =
+            lifecycleScope.launch {
+                // El registro no se corta aunque «Deshacer» cancele la espera para cerrar.
+                withContext(NonCancellable) { handler.handle(doseId, action) }
+                delay(closeAfterMillis)
+                finish()
+            }
+    }
+
+    /** «Deshacer»: no se cierra; la dosis vuelve a pendiente y la alerta muestra otra vez sus acciones. */
+    private fun undo(doseId: String) {
+        closing?.cancel()
         lifecycleScope.launch {
-            handler.handle(doseId, action)
-            delay(closeAfterMillis)
-            finish()
+            closing?.join()
+            if (handler.undoTaken(doseId)) {
+                dose = repository.get(doseId)
+            } else {
+                finish()
+            }
         }
     }
 
     private companion object {
         const val SUCCESS_MILLIS = 1_500L
+        const val UNDO_MILLIS = 5_000L
     }
 }
