@@ -8,6 +8,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
 import com.smartwatch.recordatorios.R
+import com.smartwatch.recordatorios.ui.components.BwActionPill
+import com.smartwatch.recordatorios.ui.components.BwButton
+import com.smartwatch.recordatorios.ui.components.BwCard
 import com.smartwatch.recordatorios.ui.components.BwHeader
 import com.smartwatch.recordatorios.ui.components.BwMicButton
 import com.smartwatch.recordatorios.ui.components.BwScreenScaffold
@@ -15,12 +18,19 @@ import com.smartwatch.recordatorios.ui.components.BwText
 import com.smartwatch.recordatorios.ui.components.edgeItem
 import com.smartwatch.recordatorios.ui.theme.BwTheme
 
-/** Pregunta por voz: la respuesta se muestra corta y se lee en voz alta. */
+/**
+ * Pregunta por voz: la respuesta se muestra corta y se lee en voz alta. Si el asistente propone crear
+ * un medicamento, se ve qué va a crear y solo se hace con «Sí, agregar» (la opción principal); «No»
+ * la descarta.
+ */
 @Composable
 fun ChatScreen(
     state: ChatState,
     onAsk: () -> Unit,
+    onConfirm: () -> Unit = {},
+    onDecline: () -> Unit = {},
 ) {
+    val proposal = (state as? ChatState.Reply)?.takeIf { it.pending != null }
     val listState = rememberTransformingLazyColumnState()
     BwScreenScaffold(scrollState = listState) { contentPadding ->
         TransformingLazyColumn(state = listState, contentPadding = contentPadding) {
@@ -32,6 +42,33 @@ fun ChatScreen(
                     modifier = Modifier.fillMaxWidth(),
                 )
             }
+            proposal?.summary?.let { summary ->
+                edgeItem(container = true) {
+                    BwCard(onClick = onConfirm, modifier = Modifier.fillMaxWidth()) {
+                        BwText(summary, style = BwTheme.type.label, textAlign = TextAlign.Center)
+                    }
+                }
+            }
+            if (proposal != null) {
+                edgeItem {
+                    BwButton(
+                        label = stringResource(R.string.chat_confirm_yes),
+                        onClick = onConfirm,
+                        primary = true,
+                        icon = R.drawable.ic_check,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
+                edgeItem(container = true) {
+                    BwActionPill(
+                        label = stringResource(R.string.chat_confirm_no),
+                        icon = R.drawable.ic_close,
+                        onClick = onDecline,
+                        quiet = true,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
+            }
             if (state is ChatState.Reply) {
                 edgeItem {
                     BwText(
@@ -42,7 +79,7 @@ fun ChatScreen(
                     )
                 }
             }
-            if (state !is ChatState.Thinking) {
+            if (state !is ChatState.Thinking && proposal == null) {
                 edgeItem(container = true) {
                     BwMicButton(
                         label =
@@ -72,6 +109,7 @@ private fun body(state: ChatState): String =
                     ChatFailure.OFFLINE -> R.string.chat_error_offline
                     ChatFailure.UNAVAILABLE -> R.string.chat_error_unavailable
                     ChatFailure.NO_SPEECH -> R.string.chat_error_no_speech
+                    ChatFailure.EXPIRED -> R.string.chat_error_expired
                 },
             )
     }
