@@ -21,7 +21,7 @@ fun interface TextSpeaker {
     fun speak(text: String)
 }
 
-enum class ChatFailure { LIMIT, CONSENT, OFFLINE, UNAVAILABLE, NO_SPEECH, EXPIRED }
+enum class ChatFailure { LIMIT, CONSENT, OFFLINE, UNAVAILABLE, NO_SPEECH, NOT_HEARD, EXPIRED }
 
 sealed interface ChatState {
     data object Idle : ChatState
@@ -55,9 +55,16 @@ class ChatViewModel
         private val _state = MutableStateFlow<ChatState>(ChatState.Idle)
         val state: StateFlow<ChatState> = _state.asStateFlow()
 
-        /** El reloj no guarda la conversación: cada pregunta va sola y la respuesta es corta. */
+        /**
+         * El reloj no guarda la conversación: cada pregunta va sola y la respuesta es corta. Sin texto
+         * (el micrófono no oyó nada o se canceló) se avisa en lugar de quedarse callado.
+         */
         fun ask(message: String) {
-            if (message.isBlank() || _state.value == ChatState.Thinking) return
+            if (_state.value == ChatState.Thinking) return
+            if (message.isBlank()) {
+                _state.value = ChatState.Failure(ChatFailure.NOT_HEARD)
+                return
+            }
             _state.value = ChatState.Thinking
             viewModelScope.launch {
                 _state.value = send(WatchChatRequest(message = message.trim().take(MAX_CHARS)))
