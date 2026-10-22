@@ -19,6 +19,15 @@
   @apply rounded-lg border-2 border-border bg-surface-raised;
 }
 
+/* Lista de filas planas sobre el fondo, separadas por una regla (dosis, medicamentos, resumen). */
+@utility rows {
+  @apply flex flex-col divide-y-2 divide-border;
+
+  & > * {
+    @apply py-3;
+  }
+}
+
 @utility well {
   @apply rounded-lg bg-surface;
 }
