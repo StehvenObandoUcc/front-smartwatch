@@ -1,41 +1,58 @@
 /*
- * Tokens de diseño. Único lugar con valores visuales literales.
+ * Tokens de diseño de Recuerda. Único lugar con valores visuales literales.
  * Se reinician las escalas por defecto de Tailwind para que solo existan estas.
  *
- * Dirección: un pastillero. Tres franjas del día (mañana, tarde, noche) con color propio,
- * botones en forma de cápsula con un borde inferior que se hunde al pulsar y tarjetas con borde.
+ * Mundo: señalética de salud. Cada opción es una señal: una placa con un pictograma grande y una
+ * sola palabra. Paneles de señal en verde petróleo, placas de color para las franjas del día y para
+ * cada estado (siempre con su palabra), una sola letra humanista y esquinas cortas, sin sombras.
+ *
+ * Contrastes (WCAG 2.2 AA): texto sobre fondo ≥ 13:1, texto suave ≥ 7:1, blanco sobre panel de señal
+ * 7,6:1, blanco sobre cada placa de estado ≥ 5:1, tinta sobre placas de franja clara ≥ 7:1.
  */
 
 :root {
   color-scheme: light dark;
 
-  --bg: #f4f1fb;
-  --surface: #e9e4f7;
+  /* Fondo y tinta: neutros con tinte petróleo. */
+  --bg: #f4f7f6;
+  --surface: #e6eeed;
   --surface-raised: #ffffff;
-  --text: #1e1b3a;
-  --text-muted: #55537a;
-  --border: #d9d3ee;
-  --border-strong: #7c79a6;
-  --primary: #4338ca;
-  --primary-hover: #372fb0;
+  --text: #11201f;
+  --text-muted: #3e5250;
+  --border: #c9d6d4;
+  --border-strong: #11201f;
+
+  /* Panel de señal: la cabecera, el riel de navegación y los encabezados de sección. */
+  --sign: #0e5a57;
+  --on-sign: #ffffff;
+  --sign-muted: #c4e3e0;
+
+  /* Acción principal: el mismo petróleo de la señal. */
+  --primary: #0e5a57;
+  --primary-hover: #0b4744;
   --on-primary: #ffffff;
-  --primary-ledge: #2a2390;
   --danger: #b3261e;
   --on-danger: #ffffff;
-  --danger-ledge: #7f1b15;
-  --success: #16794a;
-  --warning: #8a5300;
-  --focus: #4338ca;
+  --success: #2f7d32;
+  --warning: #9a5b00;
+  --focus: #0e5a57;
 
-  /* Franjas del día: cada una se muestra siempre con su nombre. */
-  --morning: #ffd66b;
-  --on-morning: #3b2a00;
-  --afternoon: #ffb59c;
-  --on-afternoon: #4a1b0c;
-  --night: #2d2a6e;
+  /* Placas de estado de una dosis: siempre con su palabra. */
+  --state-taken: #2f7d32;
+  --state-due: #9a5b00;
+  --state-missed: #b3261e;
+  --state-skipped: #5b6b69;
+  --on-state: #ffffff;
+
+  /* Franjas del día como placas: sol, tarde y noche. */
+  --morning: #f2c14e;
+  --on-morning: #11201f;
+  --afternoon: #f08a4b;
+  --on-afternoon: #11201f;
+  --night: #2b3a67;
   --on-night: #ffffff;
 
-  /* Paleta de medicamentos: siempre se muestra junto al nombre. */
+  /* Paleta de medicamentos: la misma clave que el reloj; siempre junto al nombre. */
   --med-red: #c62828;
   --med-orange: #d4661a;
   --med-yellow: #b08900;
@@ -48,46 +65,46 @@
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
-    --bg: #14122b;
-    --surface: #1e1b3f;
-    --surface-raised: #221f47;
-    --text: #f3f1ff;
-    --text-muted: #bdbbe0;
-    --border: #3a3669;
-    --border-strong: #8d8ac0;
-    --primary: #a5a0ff;
-    --primary-hover: #bdb9ff;
-    --on-primary: #14122b;
-    --primary-ledge: #5a53c9;
+    --bg: #0d1716;
+    --surface: #15211f;
+    --surface-raised: #1a2826;
+    --text: #eef5f4;
+    --text-muted: #a9bdba;
+    --border: #2c3d3b;
+    --border-strong: #a9bdba;
+    --sign: #0b3f3d;
+    --sign-muted: #a9d3cf;
+    --primary: #5fc2ba;
+    --primary-hover: #7fd3cc;
+    --on-primary: #062321;
     --danger: #ffb4ab;
     --on-danger: #4a0b06;
-    --danger-ledge: #c0554b;
     --success: #7fdca8;
     --warning: #f0c070;
-    --focus: #a5a0ff;
-    --night: #3b3880;
+    --focus: #8fe0d8;
+    --night: #3b4c82;
   }
 }
 
 :root[data-theme='dark'] {
-  --bg: #14122b;
-  --surface: #1e1b3f;
-  --surface-raised: #221f47;
-  --text: #f3f1ff;
-  --text-muted: #bdbbe0;
-  --border: #3a3669;
-  --border-strong: #8d8ac0;
-  --primary: #a5a0ff;
-  --primary-hover: #bdb9ff;
-  --on-primary: #14122b;
-  --primary-ledge: #5a53c9;
+  --bg: #0d1716;
+  --surface: #15211f;
+  --surface-raised: #1a2826;
+  --text: #eef5f4;
+  --text-muted: #a9bdba;
+  --border: #2c3d3b;
+  --border-strong: #a9bdba;
+  --sign: #0b3f3d;
+  --sign-muted: #a9d3cf;
+  --primary: #5fc2ba;
+  --primary-hover: #7fd3cc;
+  --on-primary: #062321;
   --danger: #ffb4ab;
   --on-danger: #4a0b06;
-  --danger-ledge: #c0554b;
   --success: #7fdca8;
   --warning: #f0c070;
-  --focus: #a5a0ff;
-  --night: #3b3880;
+  --focus: #8fe0d8;
+  --night: #3b4c82;
 }
 
 @theme inline {
@@ -99,6 +116,9 @@
   --color-text-muted: var(--text-muted);
   --color-border: var(--border);
   --color-border-strong: var(--border-strong);
+  --color-sign: var(--sign);
+  --color-on-sign: var(--on-sign);
+  --color-sign-muted: var(--sign-muted);
   --color-primary: var(--primary);
   --color-primary-hover: var(--primary-hover);
   --color-on-primary: var(--on-primary);
@@ -107,6 +127,11 @@
   --color-success: var(--success);
   --color-warning: var(--warning);
   --color-focus: var(--focus);
+  --color-state-taken: var(--state-taken);
+  --color-state-due: var(--state-due);
+  --color-state-missed: var(--state-missed);
+  --color-state-skipped: var(--state-skipped);
+  --color-on-state: var(--on-state);
   --color-transparent: transparent;
   --color-morning: var(--morning);
   --color-on-morning: var(--on-morning);
@@ -123,45 +148,49 @@
   --color-med-purple: var(--med-purple);
   --color-med-pink: var(--med-pink);
 
-  /* Bordes inferiores que dan volumen sin sombras difusas: "key" = tecla de color, "ledge" = tarjeta. */
+  /* Las señales son planas: sin sombras. */
   --shadow-*: initial;
-  --shadow-ledge: 0 3px 0 var(--border);
-  --shadow-key: 0 4px 0 var(--primary-ledge);
-  --shadow-key-danger: 0 4px 0 var(--danger-ledge);
-  --shadow-key-quiet: 0 3px 0 var(--border-strong);
 }
 
 @theme {
-  /* Tipografía: texto base 17 px. Títulos con Bricolage Grotesque, texto con Atkinson Hyperlegible. */
+  /* Una sola letra, diseñada para baja visión (distingue 0/O, 1/l/I), en tres pesos. */
   --font-*: initial;
-  --font-sans: 'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  --font-display: 'Bricolage Grotesque', 'Atkinson Hyperlegible', system-ui, sans-serif;
+  --font-sans:
+    'Atkinson Hyperlegible Next', 'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI',
+    Roboto, sans-serif;
+  --font-display: var(--font-sans);
 
+  /* Escala: nada por debajo de 17 px; los datos que se miran de un vistazo a 40 px. */
   --text-*: initial;
-  --text-caption: 0.9375rem;
+  --text-caption: 1.0625rem;
   --text-caption--line-height: 1.4;
-  --text-body: 1.0625rem;
-  --text-body--line-height: 1.6;
-  --text-lg: 1.25rem;
-  --text-lg--line-height: 1.5;
-  --text-xl: 1.5rem;
-  --text-xl--line-height: 1.35;
-  --text-2xl: 1.875rem;
-  --text-2xl--line-height: 1.25;
+  --text-body: 1.125rem;
+  --text-body--line-height: 1.55;
+  --text-lg: 1.375rem;
+  --text-lg--line-height: 1.35;
+  --text-xl: 1.75rem;
+  --text-xl--line-height: 1.25;
+  --text-2xl: 2.5rem;
+  --text-2xl--line-height: 1.1;
 
   /* Espaciado: escala de 4 px (p-1 = 4 px, p-4 = 16 px…). */
   --spacing: 0.25rem;
-  /* Área táctil mínima 44 px. */
+  /* Área táctil mínima 44 px; las placas de pictograma. */
   --spacing-touch: 2.75rem;
+  /* Botones y campos: 48 px, más que el mínimo, para dedos y vista cansada. */
+  --spacing-control: 3rem;
+  --spacing-plate-sm: 2.25rem;
+  --spacing-plate-md: 2.75rem;
+  --spacing-plate-lg: 3.5rem;
   --spacing-sidebar: 16rem;
   --spacing-content: 72rem;
   --spacing-safe-bottom: env(safe-area-inset-bottom);
 
+  /* Esquinas cortas, como una placa de señal. */
   --radius-*: initial;
-  --radius-sm: 0.375rem;
-  --radius-md: 0.75rem;
-  --radius-lg: 1rem;
-  --radius-xl: 1.5rem;
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
   --radius-full: 9999px;
 
   /* Breakpoints: móvil < 640, tablet 640–1024, escritorio > 1024. */
