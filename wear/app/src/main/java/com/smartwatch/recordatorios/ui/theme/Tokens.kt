@@ -88,6 +88,9 @@ object TypeScale {
     val code = 32.sp
 }
 
+/** A partir de esta escala de fuente del sistema, las filas pasan a apilarse (icono u hora encima). */
+const val LARGE_FONT_SCALE = 1.15f
+
 object Spacing {
     val xs = 4.dp
     val sm = 8.dp
@@ -109,6 +112,7 @@ object Sizes {
     val progress = 32.dp
     val progressStroke = 4.dp
     val successMark = 64.dp
+    val badgeIcon = 32.dp
     val barChart = 48.dp
     val bar = 5.dp
 }
