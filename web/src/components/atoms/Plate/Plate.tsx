@@ -1,3 +1,4 @@
+import { medicationColorClass, medicationColorFor } from '../../../design/tokens';
 import { cn } from '../../../lib/cn';
 import { Icon, type IconName } from '../Icon/Icon';
 
@@ -29,9 +30,9 @@ type Props = {
 } & ({ tone?: Tone; hex?: never } | { hex: string; tone?: never });
 
 /**
- * Placa cuadrada de esquina corta con un pictograma. `hex` pinta la placa con el color que eligió
- * la persona para un medicamento (dato, no diseño: único caso con estilo en línea), con el
- * pictograma en blanco; quien la usa muestra siempre el nombre al lado.
+ * Placa cuadrada de esquina corta con un pictograma. `hex` es el color que eligió la persona para un
+ * medicamento: se pinta con el tono de la paleta más cercano y el pictograma en blanco; quien la usa
+ * muestra siempre el nombre al lado.
  */
 export function Plate({ icon, size = 'md', tone = 'sign', hex, label, className }: Props) {
   const { box, glyph } = sizeClass[size];
@@ -41,12 +42,10 @@ export function Plate({ icon, size = 'md', tone = 'sign', hex, label, className 
       aria-label={label}
       aria-hidden={label ? undefined : true}
       data-color={hex}
-      // eslint-disable-next-line no-restricted-syntax
-      style={hex ? { backgroundColor: hex } : undefined}
       className={cn(
         'inline-grid shrink-0 place-items-center rounded-md',
         box,
-        hex ? 'text-on-state' : toneClass[tone],
+        hex ? `${medicationColorClass[medicationColorFor(hex)]} text-on-state` : toneClass[tone],
         className,
       )}
     >
