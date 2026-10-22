@@ -67,15 +67,18 @@ class DoseAlertScreenTest {
     fun `posponer y el contador usan los números de SnoozePolicy`() {
         show(dose(snoozeCount = 1))
 
+        // El estado va arriba; Posponer, al desplazar (a 192 dp con letra grande queda bajo el pliegue).
+        compose.onNodeWithText("Pospuesta 1 de ${SnoozePolicy.MAX_SNOOZES}", substring = true).assertExists()
+        compose.onNode(hasScrollAction()).performScrollToNode(hasText("Posponer"))
         compose.onNodeWithText("Posponer").assertExists()
         compose.onNodeWithText(snoozeMinutes).assertExists()
-        compose.onNodeWithText("Pospuesta 1 de ${SnoozePolicy.MAX_SNOOZES}", substring = true).assertExists()
     }
 
     @Test
     fun `en el tope de pospuestas explica por qué no hay Posponer`() {
         show(dose(snoozeCount = SnoozePolicy.MAX_SNOOZES))
 
+        compose.onNode(hasScrollAction()).performScrollToNode(hasText("Sin más pospuestas"))
         compose.onNodeWithText("Posponer").assertDoesNotExist()
         compose.onNodeWithText("Sin más pospuestas").assertExists()
     }
@@ -97,6 +100,7 @@ class DoseAlertScreenTest {
     fun `posponer muestra cuántas van y cuántas quedan`() {
         show(dose(snoozeCount = 1))
 
+        compose.onNode(hasScrollAction()).performScrollToNode(hasText("Posponer"))
         compose.onNodeWithText("Posponer").performClick()
 
         compose.onNodeWithText("Pospuesta 2 de ${SnoozePolicy.MAX_SNOOZES}").assertExists()
