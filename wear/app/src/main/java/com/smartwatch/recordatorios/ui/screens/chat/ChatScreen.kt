@@ -43,7 +43,7 @@ fun ChatScreen(
                 }
             }
             if (state !is ChatState.Thinking) {
-                edgeItem {
+                edgeItem(container = true) {
                     BwMicButton(
                         label =
                             stringResource(
