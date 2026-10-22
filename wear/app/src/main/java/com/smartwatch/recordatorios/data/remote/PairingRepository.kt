@@ -6,6 +6,7 @@ import com.smartwatch.recordatorios.api.apis.DevicesApi
 import com.smartwatch.recordatorios.api.models.PairingCode
 import com.smartwatch.recordatorios.api.models.PairingCodeRequest
 import com.smartwatch.recordatorios.api.models.TokenPair
+import com.smartwatch.recordatorios.data.local.AppDatabase
 import kotlinx.coroutines.delay
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.contentOrNull
@@ -25,7 +26,24 @@ class PairingRepository
         private val tokens: TokenStore,
         private val plan: PlanRepository,
         private val adherence: AdherenceRepository,
+        private val events: EventUploader,
+        db: AppDatabase,
     ) {
+        private val eventDao = db.doseEventDao()
+
+        /**
+         * Desvincula desde el reloj: intenta subir lo pendiente y borra plan, alarmas, adherencia,
+         * eventos y tokens. ponytail: el backend solo revoca desde la web (`DELETE /devices/{id}` con
+         * sesión de usuario); el reloj sigue listado allí hasta que exista `DELETE /devices/me`.
+         */
+        suspend fun unpair() {
+            events.upload()
+            plan.reset()
+            adherence.clear()
+            eventDao.deleteAll()
+            tokens.clear()
+        }
+
         suspend fun requestCode(): PairingCode? =
             try {
                 api.createPairingCode(PairingCodeRequest(Build.MODEL, BuildConfig.VERSION_NAME)).body()
