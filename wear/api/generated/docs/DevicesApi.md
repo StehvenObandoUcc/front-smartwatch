@@ -11,6 +11,7 @@ All URIs are relative to *http://localhost:8000*
 | [**requestDeviceToken**](DevicesApi.md#requestDeviceToken) | **POST** devices/token | El reloj obtiene o renueva sus tokens |
 | [**setMyPushToken**](DevicesApi.md#setMyPushToken) | **PUT** devices/me/push-token | Registrar el token FCM del reloj |
 | [**unpairDevice**](DevicesApi.md#unpairDevice) | **DELETE** devices/{deviceId} | Desvincular un reloj |
+| [**unpairMyDevice**](DevicesApi.md#unpairMyDevice) | **DELETE** devices/me | El reloj se desvincula a sí mismo |
 
 
 
@@ -113,7 +114,7 @@ apiClient.setBearerToken("TOKEN")
 val webService = apiClient.createWebservice(DevicesApi::class.java)
 
 launch(Dispatchers.IO) {
-    val result : Device = webService.getMyDevice()
+    val result : MyDevice = webService.getMyDevice()
 }
 ```
 
@@ -122,7 +123,7 @@ This endpoint does not need any parameter.
 
 ### Return type
 
-[**Device**](Device.md)
+[**MyDevice**](MyDevice.md)
 
 ### Authorization
 
@@ -286,6 +287,45 @@ launch(Dispatchers.IO) {
 | Name | Type | Description  | Notes |
 | ------------- | ------------- | ------------- | ------------- |
 | **deviceId** | **java.util.UUID**|  | |
+
+### Return type
+
+null (empty response body)
+
+### Authorization
+
+
+Configure bearerAuth:
+    ApiClient().setBearerToken("TOKEN")
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/problem+json
+
+
+El reloj se desvincula a sí mismo
+
+Solo con token de reloj; un token de usuario recibe 403. Revoca de inmediato el token de acceso y el refresh token del reloj, y el reloj deja de aparecer en &#x60;GET /patients/{patientId}/devices&#x60;. Con un token ya revocado responde 401 (&#x60;code: device_unpaired&#x60;); el reloj puede tratar 204 y 401 igual. 
+
+### Example
+```kotlin
+// Import classes:
+//import com.smartwatch.recordatorios.api.*
+//import com.smartwatch.recordatorios.api.infrastructure.*
+//import com.smartwatch.recordatorios.api.models.*
+
+val apiClient = ApiClient()
+apiClient.setBearerToken("TOKEN")
+val webService = apiClient.createWebservice(DevicesApi::class.java)
+
+launch(Dispatchers.IO) {
+    webService.unpairMyDevice()
+}
+```
+
+### Parameters
+This endpoint does not need any parameter.
 
 ### Return type
 
