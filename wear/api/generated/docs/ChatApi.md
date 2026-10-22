@@ -55,7 +55,7 @@ Configure bearerAuth:
 
 Preguntar al asistente desde el reloj (respuesta corta)
 
-Solo con token de reloj (403 con token de usuario). Mismas reglas, guardarraíles y consentimientos (&#x60;health_data&#x60; y &#x60;ai_chat&#x60; del paciente) que el chat web, pero responde JSON sin streaming y con una respuesta corta (como máximo 3 frases, sin listas ni formato) para leerla en voz alta. El límite diario cuenta por reloj. 
+Solo con token de reloj (403 con token de usuario). Mismas reglas, guardarraíles y consentimientos (&#x60;health_data&#x60; y &#x60;ai_chat&#x60; del paciente) que el chat web, pero responde JSON sin streaming y con una respuesta corta (como máximo 3 frases, sin listas ni formato) para leerla en voz alta. El límite diario cuenta por reloj.  Agregar un medicamento por voz (fase 4), en dos pasos: 1. Si el usuario pide agregar un medicamento nuevo (\&quot;agrega Losartán 50 mg a las 8\&quot;), la    respuesta trae &#x60;pendingAction&#x60; con su resumen y no crea nada. Si falta un dato    (nombre, dosis u hora), el asistente lo pregunta y no hay &#x60;pendingAction&#x60;. 2. El reloj confirma con &#x60;{ \&quot;confirmActionId\&quot;: \&quot;&lt;pendingAction.id&gt;\&quot; }&#x60; (sin &#x60;message&#x60;).    Entonces se crea igual que en &#x60;POST /devices/me/medications&#x60; y la respuesta trae    &#x60;actions: [{ type: medication_created, medicationId, scheduleId }]&#x60; para sincronizar    el plan al momento. Confirmar no llama al modelo ni gasta el cupo diario; reintentar    la confirmación devuelve el mismo medicamento. Una propuesta caduca a los 10 minutos    o si es de otro reloj: 404 (&#x60;code: chat_action_not_found&#x60;). El asistente nunca modifica ni borra medicamentos o dosis existentes. 
 
 ### Example
 ```kotlin
@@ -67,17 +67,17 @@ Solo con token de reloj (403 con token de usuario). Mismas reglas, guardarraíle
 val apiClient = ApiClient()
 apiClient.setBearerToken("TOKEN")
 val webService = apiClient.createWebservice(ChatApi::class.java)
-val chatRequest : ChatRequest =  // ChatRequest | 
+val watchChatRequest : WatchChatRequest =  // WatchChatRequest | 
 
 launch(Dispatchers.IO) {
-    val result : WatchChatReply = webService.sendMyChatMessage(chatRequest)
+    val result : WatchChatReply = webService.sendMyChatMessage(watchChatRequest)
 }
 ```
 
 ### Parameters
 | Name | Type | Description  | Notes |
 | ------------- | ------------- | ------------- | ------------- |
-| **chatRequest** | [**ChatRequest**](ChatRequest.md)|  | |
+| **watchChatRequest** | [**WatchChatRequest**](WatchChatRequest.md)|  | |
 
 ### Return type
 
