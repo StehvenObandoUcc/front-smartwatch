@@ -8,7 +8,7 @@ import {
 } from '../../api/generated';
 import { Badge } from '../../components/atoms/Badge/Badge';
 import { Button } from '../../components/atoms/Button/Button';
-import { Spinner } from '../../components/atoms/Spinner/Spinner';
+import { Skeleton } from '../../components/atoms/Skeleton/Skeleton';
 import { Text } from '../../components/atoms/Text/Text';
 import { ErrorRetry } from '../../components/molecules/ErrorRetry';
 import { formatDay, formatTime } from '../../lib/dates';
@@ -34,7 +34,7 @@ export function CaregiversSection() {
         Un cuidador puede ver tus medicamentos, agenda y reportes. Invítalo con un código; él lo
         escribe al entrar como cuidador.
       </Text>
-      {caregivers.isPending && <Spinner label="Cargando cuidadores" />}
+      {caregivers.isPending && <Skeleton label="Cargando cuidadores" />}
       {caregivers.isError && (
         <ErrorRetry
           message={errorMessage(caregivers.error)}
