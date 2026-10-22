@@ -85,7 +85,7 @@ private fun Permission(
             BwIcon(
                 R.drawable.ic_check,
                 contentDescription = stringResource(R.string.permissions_granted),
-                color = BwTheme.colors.success[2],
+                color = BwTheme.colors.stateTaken,
             )
             BwText(grantedLabel)
         }
