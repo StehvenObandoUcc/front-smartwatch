@@ -23,6 +23,8 @@ type Props = {
   title: string;
   /** Pictograma de la sección actual, en la placa de la cabecera. */
   icon: IconName;
+  /** Segunda línea de la cabecera: quién y qué día. */
+  subtitle?: ReactNode;
   nav: NavItem[];
   /** Acciones de la cabecera (cerrar sesión…), sobre el panel de señal. */
   actions?: ReactNode;
@@ -36,7 +38,7 @@ const MAIN_ID = 'contenido';
  * una fila de señales (placa y palabra; la activa, encendida).
  * Móvil (< 640): cabecera + menú inferior. Tablet y escritorio: riel lateral de señal.
  */
-export function AppShell({ appName, title, icon, nav, actions, children }: Props) {
+export function AppShell({ appName, title, icon, subtitle, nav, actions, children }: Props) {
   return (
     <div className="min-h-dvh bg-bg text-text tablet:flex">
       <a
@@ -77,7 +79,12 @@ export function AppShell({ appName, title, icon, nav, actions, children }: Props
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-10 flex min-h-16 items-center gap-3 bg-sign px-4 text-on-sign tablet:px-6">
           <Plate icon={icon} tone="onSign" size="sm" />
-          <h1 className="min-w-0 flex-1 truncate text-xl font-extrabold tracking-tight">{title}</h1>
+          <div className="min-w-0 flex-1 py-2">
+            <h1 className="truncate text-xl leading-tight font-extrabold tracking-tight">
+              {title}
+            </h1>
+            {subtitle && <p className="text-caption leading-snug text-sign-muted">{subtitle}</p>}
+          </div>
           {actions}
         </header>
 
