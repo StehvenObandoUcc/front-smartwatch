@@ -46,6 +46,9 @@
     <string name="chat_error_consent">Acepta el uso del asistente en el panel web</string>
     <string name="chat_error_offline">Sin conexión. Inténtalo de nuevo</string>
     <string name="chat_error_unavailable">El asistente no está disponible ahora</string>
+    <string name="chat_error_expired">La propuesta caducó. Pídela otra vez</string>
+    <string name="chat_confirm_yes">Sí, agregar</string>
+    <string name="chat_confirm_no">No</string>
     <string name="chat_error_no_speech">Este reloj no tiene reconocimiento de voz</string>
 
     <string name="pair_title">Vincular reloj</string>
@@ -92,6 +95,7 @@
 
     <string name="watch_title">Reloj</string>
     <string name="watch_paired">Vinculado con el panel web</string>
+    <string name="watch_paired_with">Vinculado con %1$s</string>
     <string name="watch_local">Solo en este reloj</string>
     <string name="watch_local_meds">Toca uno para quitarlo</string>
     <string name="watch_pair">Vincular con el panel web</string>
