@@ -36,7 +36,7 @@ import com.smartwatch.recordatorios.ui.theme.Glow
 import com.smartwatch.recordatorios.ui.theme.TypeScale
 
 /**
- * AppScaffold de Wear (hora, transiciones) con los colores del tema propio y el difuminado púrpura
+ * AppScaffold de Wear (hora, transiciones) con los colores del tema propio y el difuminado azul
  * de fondo en todas las pantallas.
  */
 @Composable
