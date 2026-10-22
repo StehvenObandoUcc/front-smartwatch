@@ -7,10 +7,12 @@ import okhttp3.RequestBody
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+import com.smartwatch.recordatorios.api.models.DeviceMedicationCreate
 import com.smartwatch.recordatorios.api.models.Medication
 import com.smartwatch.recordatorios.api.models.MedicationCreate
 import com.smartwatch.recordatorios.api.models.MedicationPage
 import com.smartwatch.recordatorios.api.models.MedicationUpdate
+import com.smartwatch.recordatorios.api.models.MedicationWithSchedule
 import com.smartwatch.recordatorios.api.models.Problem
 import com.smartwatch.recordatorios.api.models.Schedule
 import com.smartwatch.recordatorios.api.models.ScheduleCreate
@@ -53,6 +55,23 @@ interface MedicationsApi {
      */
     @POST("patients/{patientId}/medications")
     suspend fun createMedication(@Path("patientId") patientId: java.util.UUID, @Body medicationCreate: MedicationCreate): Response<Medication>
+
+    /**
+     * POST devices/me/medications
+     * Crear un medicamento con su horario desde el reloj
+     * Solo con token de reloj (403 con token de usuario). Crea el medicamento y su horario para el paciente vinculado, en una sola transacción, y sube la versión del plan (cambia el &#x60;ETag&#x60; de &#x60;GET /devices/me/plan&#x60;). Requiere el consentimiento &#x60;health_data&#x60; (403 &#x60;consent_required&#x60;).  Idempotente por &#x60;clientId&#x60; (lo genera el reloj): repetir la petición con el mismo &#x60;clientId&#x60; responde 200 con lo ya creado, sin crear nada nuevo ni comparar el cuerpo. 
+     * Responses:
+     *  - 200: Ya existía un medicamento con ese `clientId`.
+     *  - 201: Medicamento y horario creados.
+     *  - 401: Falta el token, es inválido o caducó (o credenciales incorrectas en login).
+     *  - 403: Autenticado pero sin permiso: rol que no permite la acción sobre un recurso accesible, o tipo de token equivocado (`wrong_token_type`). Nunca se usa para pacientes sin vínculo (eso es 404). 
+     *  - 422: La petición no cumple el esquema.
+     *
+     * @param deviceMedicationCreate 
+     * @return [MedicationWithSchedule]
+     */
+    @POST("devices/me/medications")
+    suspend fun createMyMedication(@Body deviceMedicationCreate: DeviceMedicationCreate): Response<MedicationWithSchedule>
 
     /**
      * POST patients/{patientId}/medications/{medicationId}/schedules
