@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.Hyphens
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.smartwatch.recordatorios.R
@@ -41,9 +42,12 @@ fun MedicationLabel(
         )
         BwText(
             text = name,
-            style = BwTheme.type.title,
+            // Un nombre no se parte nunca a mitad de palabra («Hidroclorotiazid-a»): solo entre
+            // palabras. Si es una sola palabra, va en una línea y se achica hasta caber.
+            style = BwTheme.type.title.copy(hyphens = Hyphens.None),
             textAlign = if (centered) TextAlign.Center else TextAlign.Start,
-            maxLines = maxLines,
+            maxLines = if (name.trim().contains(' ')) maxLines else 1,
+            autoSize = BwTheme.type.titleFit,
         )
     }
 }
