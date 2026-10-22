@@ -33,7 +33,7 @@ fun WelcomeScreen(
             contentPadding = contentPadding,
             verticalArrangement = Arrangement.spacedBy(Spacing.sm),
         ) {
-            edgeItem { BwHeader(stringResource(R.string.welcome_title)) }
+            edgeItem { BwHeader(stringResource(R.string.welcome_title), icon = R.drawable.ic_pill) }
             edgeItem(container = true) {
                 BwButton(
                     label = stringResource(R.string.welcome_local),
