@@ -12,15 +12,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
 import com.smartwatch.recordatorios.ui.theme.BwTheme
+import com.smartwatch.recordatorios.ui.theme.LARGE_FONT_SCALE
 import com.smartwatch.recordatorios.ui.theme.Sizes
 import com.smartwatch.recordatorios.ui.theme.Spacing
 
 /**
- * Aviso compacto: icono y título en el color de acento sobre superficie, y como mucho dos líneas de
- * explicación; el detalle está en lo que abre al tocar. Nunca solo color: siempre icono (con
- * [iconDescription] para TalkBack) y título.
+ * Aviso compacto: icono y título en el color de acento sobre superficie y una explicación
+ * corta (escrita para caber en dos líneas; con letra grande ocupa las que necesite).
+ * Nunca solo color: siempre icono (con [iconDescription] para TalkBack) y título.
  * Sin [onClick] es un aviso informativo, no clicable.
  */
 @Composable
@@ -33,6 +35,15 @@ fun BwBanner(
     onClick: (() -> Unit)? = null,
 ) {
     val colors = BwTheme.colors
+    val text = @Composable {
+        Column(verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
+            BwText(title, style = BwTheme.type.label, color = colors.accent)
+            body?.let { BwText(it, style = BwTheme.type.support, color = colors.contentSoft) }
+        }
+    }
+    val iconView = @Composable { BwIcon(icon, contentDescription = iconDescription, color = colors.accent) }
+    // Con letra grande el icono va encima: a su lado el título no cabe y partiría las palabras.
+    val stacked = LocalDensity.current.fontScale >= LARGE_FONT_SCALE
     Row(
         modifier =
             modifier
@@ -44,10 +55,14 @@ fun BwBanner(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
     ) {
-        BwIcon(icon, contentDescription = iconDescription, color = colors.accent)
-        Column(verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
-            BwText(title, style = BwTheme.type.label, color = colors.accent, maxLines = 2)
-            body?.let { BwText(it, style = BwTheme.type.support, color = colors.contentSoft, maxLines = 2) }
+        if (stacked) {
+            Column(verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
+                iconView()
+                text()
+            }
+        } else {
+            iconView()
+            text()
         }
     }
 }
