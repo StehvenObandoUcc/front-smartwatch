@@ -1,12 +1,12 @@
 import type { IconName } from '../components/atoms/Icon/Icon';
 import type { NavItem } from '../components/templates/AppShell/AppShell';
 
-// Móvil: cinco señales (Hoy, Medicinas, Agenda, Historial y Más); lo demás se encuentra en «Más».
+// Móvil: cuatro señales (Hoy, Medicinas, Historial y Más); lo demás se encuentra en «Más».
 // Tablet y escritorio: todas las secciones en el riel; «Más» no hace falta.
 export const navItems: NavItem[] = [
   { to: '/', label: 'Hoy', icon: 'today' },
   { to: '/medicamentos', label: 'Medicamentos', short: 'Medicinas', icon: 'medications' },
-  { to: '/agenda', label: 'Agenda', icon: 'agenda' },
+  { to: '/agenda', label: 'Agenda', icon: 'agenda', mobile: false },
   { to: '/adherencia', label: 'Historial', icon: 'history' },
   { to: '/reportes', label: 'Reportes', icon: 'reports', mobile: false },
   { to: '/asistente', label: 'Asistente', icon: 'assistant', mobile: false },
