@@ -19,12 +19,18 @@ fun interface UploadTrigger {
     fun request()
 }
 
+/** Pide descargar el plan ya (p. ej. tras crear un medicamento por el asistente). */
+fun interface PlanRefresher {
+    fun refresh()
+}
+
 @Singleton
 class SyncScheduler
     @Inject
     constructor(
         @param:ApplicationContext private val context: Context,
-    ) : UploadTrigger {
+    ) : UploadTrigger,
+        PlanRefresher {
         private val workManager get() = WorkManager.getInstance(context)
         private val needsNetwork = Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
 
@@ -50,6 +56,8 @@ class SyncScheduler
                     .build()
             workManager.enqueueUniqueWork(NOW, ExistingWorkPolicy.REPLACE, request)
         }
+
+        override fun refresh() = syncNow()
 
         override fun request() {
             val request =
