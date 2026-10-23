@@ -97,9 +97,11 @@ function TelegramCard() {
         </div>
       )}
       {email && (
-        <div className="flex items-center justify-between gap-2 card p-4">
+        <div className="flex items-center justify-between gap-2 border-t-2 border-border py-3">
           <div>
-            <Text as="p">Correo</Text>
+            <Text as="p" className="font-bold">
+              Correo
+            </Text>
             <Text tone="muted" variant="caption">
               {email.label}
             </Text>
@@ -110,9 +112,11 @@ function TelegramCard() {
         </div>
       )}
       {telegram && (
-        <div className="flex flex-col gap-3 card p-4">
+        <div className="flex flex-col gap-3 border-y-2 border-border py-3">
           <div className="flex items-center justify-between gap-2">
-            <Text as="p">Telegram</Text>
+            <Text as="p" className="font-bold">
+              Telegram
+            </Text>
             <Badge tone={linked ? 'success' : 'neutral'}>
               {linked ? 'Conectado' : 'No conectado'}
             </Badge>
@@ -180,7 +184,7 @@ function TelegramCard() {
 }
 
 const rows = [
-  { key: 'missedDose', label: 'Dosis omitida' },
+  { key: 'missedDose', label: 'Dosis no tomada' },
   { key: 'weeklyReport', label: 'Reporte semanal' },
 ] as const;
 
@@ -217,13 +221,16 @@ function PreferencesForm({ initial }: { initial: NotificationPreferences }) {
                 {row.label}
               </th>
               {(['email', 'telegram'] as const).map((channel) => (
-                <td key={channel} className="py-3">
-                  <input
-                    type="checkbox"
-                    className="size-6"
-                    aria-label={`${row.label} por ${channel === 'email' ? 'correo' : 'Telegram'}`}
-                    {...register(`${row.key}.${channel}`)}
-                  />
+                <td key={channel} className="py-1">
+                  {/* La casilla en petróleo y con un área de toque de 44 px. */}
+                  <label className="inline-flex min-h-touch min-w-touch cursor-pointer items-center justify-center">
+                    <input
+                      type="checkbox"
+                      className="size-6 cursor-pointer accent-primary"
+                      aria-label={`${row.label} por ${channel === 'email' ? 'correo' : 'Telegram'}`}
+                      {...register(`${row.key}.${channel}`)}
+                    />
+                  </label>
                 </td>
               ))}
             </tr>
