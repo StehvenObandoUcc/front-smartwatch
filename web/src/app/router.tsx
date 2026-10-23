@@ -16,6 +16,7 @@ import { ResetPasswordPage } from '../pages/ResetPasswordPage';
 import { SettingsPage } from '../pages/SettingsPage';
 import { VerifyEmailPage } from '../pages/VerifyEmailPage';
 import { RootLayout } from './RootLayout';
+import { RouteError } from './RouteError';
 
 export const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
@@ -25,6 +26,7 @@ export const router = createBrowserRouter([
   { path: '/verify-email', element: <VerifyEmailPage /> },
   {
     element: <RootLayout />,
+    errorElement: <RouteError />,
     children: [
       { index: true, element: <HomePage /> },
       { path: 'medicamentos', element: <MedicationsPage /> },
