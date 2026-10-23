@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { Link, Navigate } from 'react-router';
 
 import { useRegister } from '../api/generated';
+import { Icon } from '../components/atoms/Icon/Icon';
 import { Button } from '../components/atoms/Button/Button';
 import { Input } from '../components/atoms/Input/Input';
 import { Text } from '../components/atoms/Text/Text';
@@ -61,13 +62,15 @@ export function RegisterPage() {
         <fieldset className="flex flex-col gap-2">
           <legend className="text-body font-bold">¿Cómo vas a usar la app?</legend>
           {roles.map((option) => (
-            <label
-              key={option.value}
-              className="flex min-h-touch cursor-pointer flex-col rounded-md border-2 border-border-strong p-3 has-checked:border-primary has-checked:bg-surface-raised"
-            >
+            <label key={option.value} className="group choice flex-col items-start py-3">
               <input type="radio" value={option.value} className="sr-only" {...register('role')} />
-              <span className="text-body font-bold">{option.title}</span>
-              <span className="text-caption text-text-muted">{option.help}</span>
+              <span className="flex items-center gap-2 text-body font-bold">
+                <Icon name="taken" className="hidden size-5 group-has-checked:block" />
+                {option.title}
+              </span>
+              <span className="text-caption text-text-muted group-has-checked:text-on-primary">
+                {option.help}
+              </span>
             </label>
           ))}
         </fieldset>
