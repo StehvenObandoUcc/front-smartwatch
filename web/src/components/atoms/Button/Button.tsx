@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes, ReactNode } from 'react';
+import type { ComponentProps, ReactNode } from 'react';
 
 import { cn } from '../../../lib/cn';
 import { Icon, type IconName } from '../Icon/Icon';
@@ -6,7 +6,8 @@ import { Spinner } from '../Spinner/Spinner';
 
 type Variant = 'primary' | 'secondary' | 'danger' | 'ghost' | 'onSign';
 
-type Props = ButtonHTMLAttributes<HTMLButtonElement> & {
+// ComponentProps incluye `ref` (React 19): quien lo necesite puede mover el foco al botón.
+type Props = ComponentProps<'button'> & {
   variant?: Variant;
   loading?: boolean;
   fullWidth?: boolean;
@@ -44,7 +45,7 @@ export function Button({
       disabled={inactive}
       aria-busy={loading || undefined}
       className={cn(
-        'inline-flex min-h-control min-w-touch items-center justify-center gap-2 rounded-md px-5 text-body font-bold transition-colors duration-100 motion-reduce:transition-none',
+        'inline-flex min-h-control min-w-touch items-center justify-center gap-2 rounded-md px-5 py-2 text-center text-body font-bold transition-colors duration-100 motion-reduce:transition-none',
         'disabled:cursor-not-allowed disabled:border-border disabled:bg-surface disabled:text-text-muted',
         variantClass[variant],
         fullWidth && 'w-full',

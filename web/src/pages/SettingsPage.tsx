@@ -10,6 +10,7 @@ import {
 import { Button } from '../components/atoms/Button/Button';
 import { Input } from '../components/atoms/Input/Input';
 import { Skeleton } from '../components/atoms/Skeleton/Skeleton';
+import { Plate } from '../components/atoms/Plate/Plate';
 import { Text } from '../components/atoms/Text/Text';
 import { ErrorRetry } from '../components/molecules/ErrorRetry';
 import { FormField } from '../components/molecules/FormField';
@@ -96,21 +97,71 @@ export function SettingsPage() {
         )}
         {unpair.error && <Text tone="danger">{errorMessage(unpair.error)}</Text>}
         {devices.data?.items.length === 0 && <Text tone="muted">Ningún reloj vinculado.</Text>}
-        <ul className="flex flex-col gap-2">
+        <ul className="rows border-y-2 border-border">
           {devices.data?.items.map((device) => (
-            <li key={device.id} className="flex items-center justify-between gap-4 card p-4">
-              <Text as="p">{device.model}</Text>
-              <Button
-                variant="danger"
-                aria-label={`Desvincular ${device.model}`}
-                onClick={() => unpair.mutate({ deviceId: device.id })}
-              >
-                Desvincular
-              </Button>
-            </li>
+            <DeviceRow
+              key={device.id}
+              model={device.model}
+              unpairing={unpair.isPending && unpair.variables.deviceId === device.id}
+              onUnpair={() => unpair.mutate({ deviceId: device.id })}
+            />
           ))}
         </ul>
       </section>
     </div>
+  );
+}
+
+/**
+ * Un reloj vinculado. Desvincular pide confirmación, con «No» primero: sin vínculo el reloj deja de
+ * recibir cambios del plan y no sube las tomas.
+ */
+function DeviceRow({
+  model,
+  unpairing,
+  onUnpair,
+}: {
+  model: string;
+  unpairing: boolean;
+  onUnpair: () => void;
+}) {
+  const [confirming, setConfirming] = useState(false);
+  return (
+    <li className="flex flex-wrap items-center justify-between gap-3">
+      <span className="flex items-center gap-3">
+        <Plate icon="watch" size="sm" />
+        <Text as="p" className="font-bold">
+          {model}
+        </Text>
+      </span>
+      {confirming ? (
+        <div
+          role="group"
+          aria-label={`Desvincular ${model}`}
+          className="flex w-full flex-col gap-2"
+        >
+          <Text className="font-bold">
+            ¿Desvincular {model}? Dejará de recibir cambios y no subirá las tomas.
+          </Text>
+          <div className="flex flex-wrap gap-2">
+            <Button variant="secondary" icon="back" onClick={() => setConfirming(false)}>
+              No
+            </Button>
+            <Button variant="danger" icon="link" loading={unpairing} onClick={onUnpair}>
+              Sí, desvincular
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <Button
+          variant="secondary"
+          icon="link"
+          aria-label={`Desvincular ${model}`}
+          onClick={() => setConfirming(true)}
+        >
+          Desvincular
+        </Button>
+      )}
+    </li>
   );
 }

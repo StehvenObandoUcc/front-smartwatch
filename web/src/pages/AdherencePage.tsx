@@ -1,6 +1,11 @@
 import { useState } from 'react';
 
-import { useGetAdherence, useListDoseHistory, type DoseStatus } from '../api/generated';
+import {
+  useGetAdherence,
+  useListDoseHistory,
+  useListMedications,
+  type DoseStatus,
+} from '../api/generated';
 import { Badge } from '../components/atoms/Badge/Badge';
 import { Button } from '../components/atoms/Button/Button';
 import { Skeleton } from '../components/atoms/Skeleton/Skeleton';
@@ -32,6 +37,9 @@ export function AdherencePage() {
   const range = { from: daysAgo(days - 1, timezone), to: localDate(new Date(), timezone) };
   const adherence = useGetAdherence(patientId, range);
   const history = useListDoseHistory(patientId, { ...range, limit: 50 });
+  // El historial no trae el color: se toma de la lista de medicamentos (ya en caché).
+  const medications = useListMedications(patientId);
+  const colorOf = new Map(medications.data?.items.map((m) => [m.id, m.color]));
 
   if (adherence.isPending || history.isPending) return <Skeleton label="Cargando historial" />;
   if (adherence.isError || history.isError) {
@@ -103,7 +111,11 @@ export function AdherencePage() {
           {history.data.items.map((item) => (
             <li key={`${item.scheduleId}-${item.scheduledAt}`} className="flex flex-col gap-3">
               <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-                <Plate icon="medications" tone="neutral" />
+                {colorOf.get(item.medicationId) ? (
+                  <Plate icon="medications" hex={colorOf.get(item.medicationId) ?? ''} />
+                ) : (
+                  <Plate icon="medications" tone="neutral" />
+                )}
                 <div className="min-w-0 flex-1 basis-40">
                   <p className="text-lg leading-tight font-extrabold break-words">
                     {item.medicationName}

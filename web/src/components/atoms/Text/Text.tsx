@@ -19,8 +19,8 @@ const variantClass: Record<Variant, string> = {
   display: 'text-2xl font-extrabold tracking-tight text-balance',
   title: 'text-xl font-extrabold tracking-tight text-balance',
   subtitle: 'text-lg font-bold text-balance',
-  body: 'text-body',
-  caption: 'text-caption',
+  body: 'text-body text-pretty',
+  caption: 'text-caption text-pretty',
 };
 
 const toneClass: Record<Tone, string> = {

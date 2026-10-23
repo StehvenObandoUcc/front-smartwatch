@@ -15,12 +15,12 @@ const entries: { to: string; label: string; help: string; icon: IconName }[] = [
 export function MorePage() {
   return (
     <nav aria-label="Más secciones">
-      <ul className="flex flex-col gap-3">
+      <ul className="rows border-y-2 border-border">
         {entries.map((entry) => (
           <li key={entry.to}>
             <Link
               to={entry.to}
-              className="flex min-h-touch items-center gap-4 card p-4 transition-colors hover:bg-surface motion-reduce:transition-none"
+              className="flex min-h-touch items-center gap-4 rounded-md py-1 transition-colors hover:bg-surface motion-reduce:transition-none"
             >
               <Plate icon={entry.icon} size="lg" />
               <span className="flex min-w-0 flex-1 flex-col">

@@ -5,7 +5,7 @@ import type { NavItem } from '../components/templates/AppShell/AppShell';
 // Tablet y escritorio: todas las secciones en el riel; «Más» no hace falta.
 export const navItems: NavItem[] = [
   { to: '/', label: 'Hoy', icon: 'today' },
-  { to: '/medicamentos', label: 'Medicamentos', short: 'Medicinas', icon: 'medications' },
+  { to: '/medicamentos', label: 'Medicinas', icon: 'medications' },
   { to: '/agenda', label: 'Agenda', icon: 'agenda', mobile: false },
   { to: '/adherencia', label: 'Historial', icon: 'history' },
   { to: '/reportes', label: 'Reportes', icon: 'reports', mobile: false },

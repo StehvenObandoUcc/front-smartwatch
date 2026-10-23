@@ -5,14 +5,14 @@ import { Icon, type IconName } from '../Icon/Icon';
 
 type Tone = 'neutral' | 'success' | 'warning' | 'danger' | 'outline';
 
-// Placa de estado: color plano con texto blanco (≥ 5:1 en ambos temas), o solo contorno para lo que
-// aún no tiene estado. El tono siempre acompaña una palabra y, si se pasa, un pictograma.
+// Placa de estado: color plano con texto blanco (≥ 5:1 en ambos temas), o un tinte neutro para lo que
+// aún no tiene estado (sin borde, para que no se confunda con un botón secundario). El tono siempre acompaña una palabra y, si se pasa, un pictograma.
 const toneClass: Record<Tone, string> = {
   neutral: 'bg-state-skipped text-on-state',
   success: 'bg-state-taken text-on-state',
   warning: 'bg-state-due text-on-state',
   danger: 'bg-state-missed text-on-state',
-  outline: 'border-2 border-border-strong text-text',
+  outline: 'bg-surface text-text',
 };
 
 export function Badge({
