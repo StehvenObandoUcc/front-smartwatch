@@ -44,7 +44,7 @@ export function SignBar({
       )}
     >
       <Icon name={icon} className="size-7" />
-      <Heading id={id} className="min-w-0 flex-1 text-lg leading-tight font-extrabold">
+      <Heading id={id} className="min-w-0 flex-1 text-lg leading-tight font-extrabold text-balance">
         {title}
       </Heading>
       {meta && <span className="text-caption font-bold">{meta}</span>}
