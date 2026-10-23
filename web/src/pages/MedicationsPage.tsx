@@ -85,17 +85,22 @@ export function MedicationsPage() {
 
   if (adding || editing) {
     return (
-      <MedicationForm
-        timezone={timezone}
-        initial={editing ? toFormValues(editing.medication, editing.schedule) : undefined}
-        submitting={saving}
-        error={saveError}
-        onSubmit={(values) => void save(values)}
-        onCancel={() => {
-          setAdding(false);
-          setEditing(null);
-        }}
-      />
+      <section className="flex flex-col gap-4" aria-labelledby="form-title">
+        <Text id="form-title" variant="subtitle" as="h2">
+          {editing ? `Editar ${editing.medication.name}` : 'Agregar medicamento'}
+        </Text>
+        <MedicationForm
+          timezone={timezone}
+          initial={editing ? toFormValues(editing.medication, editing.schedule) : undefined}
+          submitting={saving}
+          error={saveError}
+          onSubmit={(values) => void save(values)}
+          onCancel={() => {
+            setAdding(false);
+            setEditing(null);
+          }}
+        />
+      </section>
     );
   }
 
