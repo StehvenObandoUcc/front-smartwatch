@@ -2,12 +2,10 @@ package com.smartwatch.recordatorios.ui.screens.today
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
@@ -28,7 +26,6 @@ import com.smartwatch.recordatorios.ui.components.MedicationLabel
 import com.smartwatch.recordatorios.ui.components.doseStatusLabel
 import com.smartwatch.recordatorios.ui.components.edgeItem
 import com.smartwatch.recordatorios.ui.theme.BwTheme
-import com.smartwatch.recordatorios.ui.theme.LARGE_FONT_SCALE
 import com.smartwatch.recordatorios.ui.theme.Spacing
 import com.smartwatch.recordatorios.ui.theme.timeText
 import java.time.Instant
@@ -82,7 +79,7 @@ fun TodayScreen(
                 else ->
                     doses.groupBy { dayPartOf(it.scheduledAt) }.toSortedMap().forEach { (part, partDoses) ->
                         edgeItem(key = part.name) {
-                            BwSignBar(part, stringResource(part.label()), modifier = Modifier.fillMaxWidth())
+                            BwSignBar(part, stringResource(part.label()))
                         }
                         partDoses.forEach { dose ->
                             edgeItem(key = dose.id, container = true) {
@@ -95,7 +92,10 @@ fun TodayScreen(
     }
 }
 
-/** Una fila por dosis: la hora a la izquierda, y el medicamento con su estado a la derecha. */
+/**
+ * Una fila por dosis, en una sola columna: el medicamento con su placa, «19:01 · 50 mg» y la placa
+ * de estado. Nada va pegado al borde izquierdo, que en la pantalla redonda corta el bisel.
+ */
 @Composable
 private fun DoseRow(
     dose: DoseEntity,
@@ -108,28 +108,14 @@ private fun DoseRow(
         horizontalAlignment = Alignment.Start,
         modifier = Modifier.fillMaxWidth(),
     ) {
-        val time = @Composable {
-            BwText(timeText(dose.scheduledAt), style = BwTheme.type.label.merge(fontFeatureSettings = "tnum"))
-        }
-        val details = @Composable {
-            Column(verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
-                MedicationLabel(name = dose.medicationName, colorKey = dose.colorKey, centered = false)
-                BwText(text = dose.doseLabel, style = BwTheme.type.support, color = BwTheme.colors.contentSoft)
-                stateTone(dose, now)?.let { BwStatePlate(it, doseStatusLabel(dose)) }
-            }
-        }
-        // Con letra grande la hora va encima: a su lado el nombre no cabe y se cortaría.
-        if (LocalDensity.current.fontScale >= LARGE_FONT_SCALE) {
-            time()
-            details()
-        } else {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(Spacing.md),
-            ) {
-                time()
-                details()
-            }
+        Column(verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
+            MedicationLabel(name = dose.medicationName, colorKey = dose.colorKey, centered = false)
+            BwText(
+                text = "${timeText(dose.scheduledAt)} · ${dose.doseLabel}",
+                style = BwTheme.type.support.merge(fontFeatureSettings = "tnum"),
+                color = BwTheme.colors.contentSoft,
+            )
+            stateTone(dose, now)?.let { BwStatePlate(it, doseStatusLabel(dose)) }
         }
     }
 }

@@ -53,6 +53,19 @@ class DoseRepositoryTest {
         }
 
     @Test
+    fun `deshacer tomada vuelve a pendiente y borra el evento que aun no se subio`() =
+        runTest {
+            graph.seed()
+            graph.repository.record("demo-1", DoseAction.TAKEN)
+
+            assertThat(graph.repository.undoTaken("demo-1")).isTrue()
+
+            assertThat(graph.repository.get("demo-1")?.status).isEqualTo(DoseStatus.SCHEDULED)
+            assertThat(graph.repository.eventsFor("demo-1")).isEmpty()
+            assertThat(graph.repository.undoTaken("demo-1")).isFalse()
+        }
+
+    @Test
     fun `una segunda accion sobre una dosis resuelta se ignora`() =
         runTest {
             graph.seed()

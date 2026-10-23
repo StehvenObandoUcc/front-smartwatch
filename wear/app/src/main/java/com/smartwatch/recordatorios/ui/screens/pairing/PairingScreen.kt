@@ -17,6 +17,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.Hyphens
 import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -60,11 +61,14 @@ fun PairingScreen(
                     edgeItem { CodeBoxes(state.code) }
                     edgeItem { Step(stringResource(R.string.pair_step_open)) }
                     edgeItem {
+                        // Se copia letra a letra: nunca partida («front- / smartwatch…»), en una línea.
                         BwText(
                             text = stringResource(R.string.panel_url),
-                            style = BwTheme.type.label,
+                            style = BwTheme.type.label.copy(hyphens = Hyphens.None),
                             color = BwTheme.colors.info,
                             textAlign = TextAlign.Center,
+                            maxLines = 1,
+                            autoSize = BwTheme.type.urlFit,
                             modifier = Modifier.fillMaxWidth(),
                         )
                     }

@@ -72,4 +72,21 @@ class DoseRepository
                 }
                 updated
             }
+
+        /**
+         * Deshace un «Tomada» recién registrado: la dosis vuelve a pendiente y su evento se borra, solo
+         * si aún no se subió (sigue PENDING). Devuelve false si ya no se puede (ya subido o no tomada).
+         */
+        suspend fun undoTaken(doseId: String): Boolean =
+            db.withTransaction {
+                val dose = doseDao.get(doseId)
+                val event =
+                    eventDao.forDose(doseId).lastOrNull {
+                        it.action == DoseAction.TAKEN && it.syncState == SyncState.PENDING
+                    }
+                if (dose?.status != DoseStatus.TAKEN || event == null) return@withTransaction false
+                eventDao.deleteEvent(event.eventId)
+                doseDao.update(dose.copy(status = DoseStatus.SCHEDULED))
+                true
+            }
     }

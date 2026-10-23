@@ -50,6 +50,7 @@ fun DoseAlertScreen(
     onTake: () -> Unit,
     onSnooze: () -> Unit,
     onSkip: () -> Unit,
+    onUndo: (() -> Unit)? = null,
 ) {
     var confirmingSkip by rememberSaveable { mutableStateOf(false) }
     var takenAt by rememberSaveable { mutableStateOf<Long?>(null) }
@@ -65,7 +66,7 @@ fun DoseAlertScreen(
             val taken = takenAt
             val snoozed = snoozedAt
             when {
-                taken != null ->
+                taken != null -> {
                     edgeItem {
                         BwSuccessMark(
                             label = stringResource(R.string.status_taken),
@@ -77,6 +78,21 @@ fun DoseAlertScreen(
                             modifier = Modifier.fillMaxWidth(),
                         )
                     }
+                    // Un toque equivocado en la muñeca se corrige aquí, unos segundos.
+                    onUndo?.let { undo ->
+                        edgeItem(container = true) {
+                            BwButton(
+                                label = stringResource(R.string.action_undo),
+                                onClick = {
+                                    takenAt = null
+                                    undo()
+                                },
+                                icon = R.drawable.ic_undo,
+                                modifier = Modifier.fillMaxWidth(),
+                            )
+                        }
+                    }
+                }
                 snoozed != null -> snoozedSummary(dose, snoozed)
                 confirmingSkip -> skipConfirmation(dose, onSkip = onSkip, onBack = { confirmingSkip = false })
                 else -> {
