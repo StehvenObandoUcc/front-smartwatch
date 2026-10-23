@@ -2,6 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useFieldArray, useForm, useWatch } from 'react-hook-form';
 
 import { Button } from '../../components/atoms/Button/Button';
+import { Icon } from '../../components/atoms/Icon/Icon';
 import { ColorDot } from '../../components/atoms/ColorDot/ColorDot';
 import { Input } from '../../components/atoms/Input/Input';
 import { Text } from '../../components/atoms/Text/Text';
@@ -63,8 +64,12 @@ export function MedicationForm({
       <FormField label="Medicamento" error={errors.name?.message}>
         {(p) => <Input {...p} {...register('name')} />}
       </FormField>
-      <FormField label="Dosis por toma" error={errors.dosage?.message}>
-        {(p) => <Input placeholder="1 tableta" {...p} {...register('dosage')} />}
+      <FormField
+        label="Dosis por toma"
+        hint="Por ejemplo: 1 tableta o 850 mg"
+        error={errors.dosage?.message}
+      >
+        {(p) => <Input {...p} {...register('dosage')} />}
       </FormField>
       <FormField label="Indicaciones (opcional)" error={errors.instructions?.message}>
         {(p) => <Input {...p} {...register('instructions')} />}
@@ -74,10 +79,7 @@ export function MedicationForm({
         <legend className="text-body font-bold">Color</legend>
         <div className="flex flex-wrap gap-2">
           {medicationColors.map((color) => (
-            <label
-              key={color}
-              className="flex min-h-touch items-center gap-2 rounded-md border-2 border-border-strong px-3 has-checked:border-primary has-checked:bg-surface-raised"
-            >
+            <label key={color} className="group choice">
               <input
                 type="radio"
                 value={medicationHex[color]}
@@ -86,12 +88,13 @@ export function MedicationForm({
               />
               <ColorDot color={color} />
               {colorNames[color]}
+              <Icon name="taken" className="hidden size-5 group-has-checked:block" />
             </label>
           ))}
           <label
             className={cn(
-              'flex min-h-touch items-center gap-2 rounded-md border-2 px-3',
-              isCustomColor ? 'border-primary bg-surface-raised' : 'border-border-strong',
+              'flex min-h-touch items-center gap-2 rounded-md border-2 px-3 has-focus-visible:outline-3 has-focus-visible:outline-offset-2 has-focus-visible:outline-focus',
+              isCustomColor ? 'border-primary bg-primary text-on-primary' : 'border-border-strong',
             )}
           >
             <input
@@ -150,10 +153,7 @@ export function MedicationForm({
         <legend className="text-body font-bold">Días</legend>
         <div className="flex flex-wrap gap-2">
           {dayLabels.map((label, index) => (
-            <label
-              key={label}
-              className="flex min-h-touch min-w-touch items-center justify-center rounded-md border-2 border-border-strong px-3 has-checked:border-primary has-checked:bg-primary has-checked:text-on-primary"
-            >
+            <label key={label} className="choice min-w-touch justify-center">
               <input
                 type="checkbox"
                 value={index + 1}
