@@ -6,12 +6,12 @@
     android:viewportWidth="192"
     android:viewportHeight="192">
     <path
-        android:fillColor="#0C1615"
+        android:fillColor="#0F2B29"
         android:pathData="M96,0a96,96 0,1 1,0 192a96,96 0,1 1,0 -192z" />
     <path
         android:pathData="M96,8a88,88 0,1 1,0 176a88,88 0,1 1,0 -176z"
         android:strokeWidth="8"
-        android:strokeColor="#23332F" />
+        android:strokeColor="#24504B" />
     <path
         android:pathData="M96,8A88,88 0,0 1,172.2 140A88,88 0,0 1,19.8 140"
         android:strokeWidth="8"
