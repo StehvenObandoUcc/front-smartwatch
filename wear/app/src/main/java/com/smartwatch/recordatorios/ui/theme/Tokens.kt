@@ -6,15 +6,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 /**
- * Colores de Recuerda en el reloj: la misma señalética de salud que el panel web sobre un casi
- * negro con tinte petróleo, plano (sin degradados). Ni negro ni blanco puros: el fondo es #0C1615 y
- * el claro de texto e iconos #EEF5F4. Papeles: la acción principal es una placa petróleo plana (una
- * por pantalla), los avisos en el amarillo de sol, cada estado de una dosis con su placa (Tomada,
- * Pendiente, No tomada, Omitida) y las franjas del día como placas de color (sol, tarde, noche). Lo
- * demás, neutro con tinte petróleo. El celeste petróleo es para datos y anillos.
- * Contrastes (WCAG): claro sobre fondo 16,7:1; contentSoft ≥ 9,6:1; claro sobre principal 4,7:1 y
- * la placa principal sobre el fondo 3,6:1; claro sobre cada estado ≥ 4,6:1; tinta sobre sol 10:1 y
- * sobre tarde 6,8:1; aviso sobre fondo 11:1; datos sobre fondo 8,7:1.
+ * Colores de Recuerda en el reloj: la misma señalética de salud que el panel web sobre un petróleo
+ * profundo, plano (sin degradados), que se lee como color y no como negro: fondo #0F2B29, claro de
+ * texto e iconos #EEF5F4; ni negro ni blanco puros. Papeles: la acción principal es una placa
+ * petróleo plana (una por pantalla), los avisos en el amarillo de sol, cada estado de una dosis con
+ * su placa (Tomada, Pendiente, No tomada, Omitida) y las franjas del día como placas de color (sol,
+ * tarde, noche). El celeste petróleo es para datos y anillos.
+ * Contrastes (WCAG): claro sobre fondo 13,6:1; contentSoft 8,9:1 (7,1:1 sobre superficie); claro sobre
+ * principal 4,7:1; claro sobre cada estado ≥ 4,6:1; tinta sobre sol 10:1 y sobre tarde 6,8:1; aviso
+ * sobre fondo 9:1; datos sobre fondo 7,1:1.
  */
 @Immutable
 data class BwColors(
@@ -42,9 +42,9 @@ data class BwColors(
 
 val AppColors =
     BwColors(
-        background = Color(0xFF0C1615),
-        surface = Color(0xFF142320),
-        outline = Color(0xFF3A5A56),
+        background = Color(0xFF0F2B29),
+        surface = Color(0xFF1A3C39),
+        outline = Color(0xFF4A6E69),
         content = Color(0xFFEEF5F4),
         contentSoft = Color(0xFFB5CCC9),
         accent = Color(0xFFF2C14E),
@@ -53,7 +53,7 @@ val AppColors =
         primary = Color(0xFF127A73),
         onPrimary = Color(0xFFEEF5F4),
         info = Color(0xFF5FC2BA),
-        track = Color(0xFF23332F),
+        track = Color(0xFF24504B),
         stateTaken = Color(0xFF2F7D32),
         stateDue = Color(0xFF9A5B00),
         stateMissed = Color(0xFFB3261E),
