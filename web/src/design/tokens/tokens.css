@@ -2,21 +2,29 @@
  * Tokens de diseño de Recuerda. Único lugar con valores visuales literales.
  * Se reinician las escalas por defecto de Tailwind para que solo existan estas.
  *
- * Mundo: señalética de salud. Cada opción es una señal: una placa con un pictograma grande y una
- * sola palabra. Paneles de señal en verde petróleo, placas de color para las franjas del día y para
- * cada estado (siempre con su palabra), una sola letra humanista y esquinas cortas, sin sombras.
+ * Mundo: señalética de salud, amena. Cada opción es una señal (una placa con un pictograma grande y
+ * una sola palabra) sobre un blanco roto con tinte petróleo. Paneles de señal en verde petróleo,
+ * placas de color para las franjas del día y para cada estado (siempre con su palabra), una sola
+ * letra humanista, esquinas suaves y un único nivel de elevación tintado de petróleo.
  *
- * Contrastes (WCAG 2.2 AA): texto sobre fondo ≥ 13:1, texto suave ≥ 7:1, blanco sobre panel de señal
- * 7,6:1, blanco sobre cada placa de estado ≥ 5:1, tinta sobre placas de franja clara ≥ 7:1.
+ * Regla global: ningún blanco puro (#fff) ni negro puro (#000); el claro de texto sobre color es
+ * --on-light (#f4faf9).
+ *
+ * Contrastes (WCAG 2.2 AA): texto sobre fondo 15,7:1, texto suave ≥ 7:1, claro sobre panel de señal
+ * 7,6:1 (4,9:1 sobre el extremo claro del degradado: ahí solo texto ≥ 18 px), claro sobre cada placa
+ * de estado ≥ 4,8:1, tinta sobre placas de franja clara ≥ 7:1.
  */
 
 :root {
   color-scheme: light dark;
 
-  /* Fondo y tinta: neutros con tinte petróleo. */
-  --bg: #ffffff;
+  /* Claro de texto e iconos sobre color (señal, estados, noche): nunca blanco puro. */
+  --on-light: #f4faf9;
+
+  /* Fondo y tinta: blanco roto y neutros con tinte petróleo. */
+  --bg: #f5f8f7;
   --surface: #e6eeed;
-  --surface-raised: #ffffff;
+  --surface-raised: #fcfdfd;
   --text: #11201f;
   --text-muted: #3e5250;
   --border: #c9d6d4;
@@ -24,15 +32,15 @@
 
   /* Panel de señal: la cabecera, el riel de navegación y los encabezados de sección. */
   --sign: #0e5a57;
-  --on-sign: #ffffff;
+  --on-sign: var(--on-light);
   --sign-muted: #c4e3e0;
 
   /* Acción principal: el mismo petróleo de la señal. */
   --primary: #0e5a57;
   --primary-hover: #0b4744;
-  --on-primary: #ffffff;
+  --on-primary: var(--on-light);
   --danger: #b3261e;
-  --on-danger: #ffffff;
+  --on-danger: var(--on-light);
   --success: #2f7d32;
   --warning: #9a5b00;
   --focus: #0e5a57;
@@ -42,7 +50,7 @@
   --state-due: #9a5b00;
   --state-missed: #b3261e;
   --state-skipped: #5b6b69;
-  --on-state: #ffffff;
+  --on-state: var(--on-light);
 
   /* Franjas del día como placas: sol, tarde y noche. */
   --morning: #f2c14e;
@@ -50,7 +58,7 @@
   --afternoon: #f08a4b;
   --on-afternoon: #11201f;
   --night: #2b3a67;
-  --on-night: #ffffff;
+  --on-night: var(--on-light);
 
   /* Paleta de medicamentos: la misma clave que el reloj; siempre junto al nombre. */
   --med-red: #c62828;
@@ -61,6 +69,24 @@
   --med-blue: #1565c0;
   --med-purple: #6a1b9a;
   --med-pink: #ad1457;
+
+  /*
+   * Un solo nivel de elevación: sombra suave, difusa y tintada de petróleo, solo en las tarjetas
+   * elevadas del panel y de la landing.
+   */
+  --elevation: 0 1px 2px rgb(14 90 87 / 0.06), 0 12px 32px -12px rgb(14 90 87 / 0.22);
+
+  /*
+   * Degradado tonal de petróleo (mismo matiz). Solo en tres sitios: la banda del hero, la banda de
+   * CTA y el panel del login. Nunca en el panel de datos ni detrás de texto pequeño.
+   */
+  --sign-gradient: linear-gradient(135deg, #0b4744 0%, #127a73 100%);
+  /* Franjas verticales sutiles sobre el degradado del hero. */
+  --sign-stripes: repeating-linear-gradient(
+    90deg,
+    rgb(244 250 249 / 0.07) 0 2px,
+    transparent 2px 56px
+  );
 }
 
 @media (prefers-color-scheme: dark) {
@@ -83,6 +109,7 @@
     --warning: #f0c070;
     --focus: #8fe0d8;
     --night: #3b4c82;
+    --elevation: 0 1px 2px rgb(4 16 15 / 0.5), 0 12px 32px -12px rgb(4 16 15 / 0.7);
   }
 }
 
@@ -105,6 +132,7 @@
   --warning: #f0c070;
   --focus: #8fe0d8;
   --night: #3b4c82;
+  --elevation: 0 1px 2px rgb(4 16 15 / 0.5), 0 12px 32px -12px rgb(4 16 15 / 0.7);
 }
 
 @theme inline {
@@ -148,8 +176,9 @@
   --color-med-purple: var(--med-purple);
   --color-med-pink: var(--med-pink);
 
-  /* Las señales son planas: sin sombras. */
+  /* Una sola sombra: la elevación tintada de las tarjetas elevadas (shadow-raised). */
   --shadow-*: initial;
+  --shadow-raised: var(--elevation);
 }
 
 @theme {
@@ -172,6 +201,16 @@
   --text-xl--line-height: 1.25;
   --text-2xl: 2.5rem;
   --text-2xl--line-height: 1.1;
+  /* Titulares de la landing: grandes, en 800 y apretados (tracking-display). */
+  --text-3xl: 3.25rem;
+  --text-3xl--line-height: 1.05;
+  --text-4xl: 4.25rem;
+  --text-4xl--line-height: 1.02;
+
+  --tracking-*: initial;
+  --tracking-tight: -0.01em;
+  --tracking-display: -0.02em;
+  --tracking-wide: 0.02em;
 
   /* Espaciado: escala de 4 px (p-1 = 4 px, p-4 = 16 px…). */
   --spacing: 0.25rem;
@@ -184,14 +223,23 @@
   --spacing-plate-lg: 3.5rem;
   --spacing-sidebar: 16rem;
   --spacing-content: 72rem;
+  /* Texto de apoyo: como máximo unos 60 caracteres por línea. */
+  --spacing-measure: 60ch;
   --spacing-safe-bottom: env(safe-area-inset-bottom);
 
-  /* Esquinas cortas, como una placa de señal. */
+  /*
+   * Esquinas suaves: placas de estado 8 px (sm), botones, campos y placas de pictograma 12 px (md),
+   * tarjetas 16 px (lg). El círculo completo, solo para el punto de color y el anillo.
+   */
   --radius-*: initial;
-  --radius-sm: 0.25rem;
-  --radius-md: 0.5rem;
-  --radius-lg: 0.75rem;
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
   --radius-full: 9999px;
+
+  /* Movimiento con propósito: salida exponencial; se anula con prefers-reduced-motion. */
+  --ease-*: initial;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 
   /* Breakpoints: móvil < 640, tablet 640–1024, escritorio > 1024. */
   --breakpoint-*: initial;
