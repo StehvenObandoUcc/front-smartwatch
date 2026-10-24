@@ -228,7 +228,7 @@ components:
 
 **Creative North Star: "Señalética amable"**
 
-Recuerda se lee como un lugar de cuidado bien señalizado, sereno y cercano: cada opción, cada sección y cada estado es una señal. Una señal es una placa de esquina suave con un pictograma grande de trazo grueso y, al lado, una sola palabra. El panel web pone esas señales sobre un blanco roto con tinte petróleo, con la cabecera y el riel de navegación como paneles de señal en verde petróleo profundo y los bloques del panel como tarjetas apenas elevadas; el reloj pone las mismas placas sobre un casi negro con tinte petróleo, plano. No hay blanco ni negro puros en ningún sitio. La lectura es por bandas: el día se divide en franjas de color (sol, tarde, noche) y cada dosis termina en una placa de estado con su palabra.
+Recuerda se lee como un lugar de cuidado bien señalizado, sereno y cercano: cada opción, cada sección y cada estado es una señal. Una señal es una placa de esquina suave con un pictograma grande de trazo grueso y, al lado, una sola palabra. El panel web pone esas señales sobre un blanco roto con tinte petróleo, con la cabecera y el riel de navegación como paneles de señal en verde petróleo profundo y los bloques del panel como tarjetas apenas elevadas; el reloj pone las mismas placas sobre un petróleo profundo y plano, que se lee como color y no como negro. No hay blanco ni negro puros en ningún sitio. La lectura es por bandas: el día se divide en franjas de color (sol, tarde, noche) y cada dosis termina en una placa de estado con su palabra.
 
 La densidad es de servicio de salud, no de dashboard: texto grande (nada por debajo de 17 px en la web, 14 sp en el reloj), controles de 48 px, mucho aire entre secciones y listas planas separadas por reglas dentro de cada bloque. Cada bloque del panel dice qué pregunta responde. Una sola familia tipográfica humanista, Atkinson Hyperlegible Next, hace todo el trabajo; el peso, el tamaño y un interletrado apretado en los titulares separan los niveles. La profundidad es mínima y amable: un único nivel de sombra suave tintada de petróleo en las tarjetas elevadas, y un degradado tonal de petróleo reservado a tres zonas de marca (banda del hero, banda de CTA y panel del login). Lo demás es color plano, zona tintada y la regla de dos píxeles.
 
@@ -282,13 +282,13 @@ Ocho tonos profundos (`med-red`, `med-orange`, `med-yellow`, `med-green`, `med-t
 Por `prefers-color-scheme: dark` o `data-theme='dark'`. Fondo `#0d1716`, superficies `#15211f` / `#1a2826`, texto `#eef5f4` / `#a9bdba`, regla `#2c3d3b`. El panel de señal baja a `#0b3f3d`, y la acción principal sube a celeste petróleo `#5fc2ba` con texto `#062321`; la noche sube a `#3b4c82`. Estados, franjas claras y paleta de medicamentos no cambian.
 
 ### Reloj
-Un único modo oscuro sobre un casi negro con tinte petróleo, plano: `#0c1615`. Superficie `#142320`, contorno `#3a5a56`, texto claro `#eef5f4` y suave `#b5ccc9`. La acción principal y la placa de encabezado son un petróleo más claro (`#127a73`) para leerse sobre OLED; los datos (gráfica de adherencia, carga) van en celeste petróleo `#5fc2ba`, el mismo valor que la acción principal del tema oscuro web. Estados, franjas, tinta `#11201f` y paleta de medicamentos son los mismos hex que la web.
+Un único modo oscuro sobre un petróleo profundo, plano, que se lee como color y no como negro: `#0f2b29`. Superficie `#1a3c39`, contorno `#4a6e69`, pista de los anillos `#24504b`, texto claro `#eef5f4` y suave `#b5ccc9`. La acción principal y la placa de encabezado son un petróleo más claro (`#127a73`) para leerse sobre OLED; los datos (gráfica de adherencia, carga) van en celeste petróleo `#5fc2ba`, el mismo valor que la acción principal del tema oscuro web. Estados, franjas, tinta `#11201f` y paleta de medicamentos son los mismos hex que la web.
 
 | Papel | Web claro | Web oscuro | Reloj |
 | --- | --- | --- | --- |
-| Fondo | `#f5f8f7` | `#0d1716` | `#0c1615` |
+| Fondo | `#f5f8f7` | `#0d1716` | `#0f2b29` |
 | Texto | `#11201f` | `#eef5f4` | `#eef5f4` |
-| Superficie | `#e6eeed` | `#15211f` | `#142320` |
+| Superficie | `#e6eeed` | `#15211f` | `#1a3c39` |
 | Señal / placa de sección | `#0e5a57` | `#0b3f3d` | `#127a73` |
 | Acción principal | `#0e5a57` | `#5fc2ba` | `#127a73` |
 | Dato / celeste | — | `#5fc2ba` | `#5fc2ba` |
