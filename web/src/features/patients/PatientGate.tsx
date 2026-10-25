@@ -102,7 +102,7 @@ function NewPersonForm({
         {(p) => <Input value={name} onChange={(e) => setName(e.target.value)} {...p} />}
       </FormField>
       {create.error && <Text tone="danger">{errorMessage(create.error)}</Text>}
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         <Button type="submit" loading={create.isPending}>
           Crear y vincular su reloj
         </Button>
