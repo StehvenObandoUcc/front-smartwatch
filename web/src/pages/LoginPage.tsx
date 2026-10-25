@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, Navigate, useSearchParams } from 'react-router';
 
@@ -17,11 +18,13 @@ export function LoginPage() {
   const requested = useSearchParams()[0].get('next');
   // Solo rutas internas: evita redirigir a otro sitio.
   const next = requested?.startsWith('/') && !requested.startsWith('//') ? requested : '/';
+  // «Vincular un reloj» entra igual y luego lleva a Ajustes, donde se escribe el código del reloj.
+  const [target, setTarget] = useState(next);
   const login = useLogin();
   const { register, handleSubmit, formState } = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
   });
-  if (auth.status === 'authed') return <Navigate to={next} replace />;
+  if (auth.status === 'authed') return <Navigate to={target} replace />;
   const { errors } = formState;
   return (
     <AuthLayout title="Iniciar sesión">
@@ -50,8 +53,23 @@ export function LoginPage() {
             </Text>
           </div>
         )}
-        <Button type="submit" loading={login.isPending} fullWidth>
+        <Button
+          type="submit"
+          loading={login.isPending && target === next}
+          fullWidth
+          onClick={() => setTarget(next)}
+        >
           Entrar
+        </Button>
+        <Button
+          type="submit"
+          variant="secondary"
+          icon="watch"
+          loading={login.isPending && target !== next}
+          fullWidth
+          onClick={() => setTarget('/ajustes')}
+        >
+          Vincular un reloj
         </Button>
       </form>
       <Text tone="muted">
