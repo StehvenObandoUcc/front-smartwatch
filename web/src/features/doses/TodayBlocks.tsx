@@ -16,7 +16,7 @@ import { usePatient } from '../patients/PatientGate';
 import { DoseActions } from './DoseActions';
 import { DoseRow } from './DoseRow';
 import { DoseStateBadge } from './DoseStateBadge';
-import { canRecord, doseState, nextDose, useDoseHistory } from './doseState';
+import { canRecord, doseState, eventOf, nextDose, useDoseHistory } from './doseState';
 import { FRANJAS, groupByFranja, type Franja } from './franja';
 
 // Cada franja es una señal de su color, con su pictograma: sol, tarde y noche.
@@ -39,7 +39,8 @@ function useToday() {
   const groups = plan.data && groupByFranja(plan.data.doses, localDate(now, timezone), timezone);
   const doses = groups ? FRANJAS.flatMap((f) => groups[f.id]) : [];
   const state = (dose: (typeof doses)[number]) => doseState(dose, history.index, now.getTime());
-  return { plan, groups, doses, state, patientId, timezone };
+  const event = (dose: (typeof doses)[number]) => eventOf(dose, history.index);
+  return { plan, groups, doses, state, event, patientId, timezone };
 }
 
 /** Hoy: el anillo con cuántas van tomadas, la dosis que toca y su Tomada. */
@@ -112,7 +113,7 @@ export function TodayBlock({ className }: { className?: string }) {
 
 /** Franjas: Mañana, Tarde y Noche con cada dosis y su estado; las pendientes se marcan con «Marcar». */
 export function FranjasBlock({ className }: { className?: string }) {
-  const { plan, groups, doses, state, patientId, timezone } = useToday();
+  const { plan, groups, doses, state, event, patientId, timezone } = useToday();
   return (
     <Block
       icon="agenda"
@@ -145,6 +146,7 @@ export function FranjasBlock({ className }: { className?: string }) {
                       patientId={patientId}
                       recordable
                       disclose
+                      eventId={event(dose)}
                     />
                   ))}
                 </ul>
