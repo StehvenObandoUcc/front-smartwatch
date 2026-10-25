@@ -26,8 +26,8 @@ data class AdherenceSummary(
 )
 
 /**
- * Descarga `GET /devices/me/adherence` (14 días por defecto) y guarda el último resultado para
- * mostrarlo sin conexión. No es un secreto: va en preferencias normales.
+ * Descarga `GET /devices/me/adherence` del mes en curso (del día 1 a hoy, para el calendario) y
+ * guarda el último resultado para mostrarlo sin conexión. No es un secreto: va en preferencias normales.
  */
 @Singleton
 class AdherenceRepository
@@ -44,7 +44,8 @@ class AdherenceRepository
         suspend fun sync(): Boolean {
             val body =
                 try {
-                    api.getMyDeviceAdherence().body()
+                    val today = LocalDate.now()
+                    api.getMyDeviceAdherence(from = today.withDayOfMonth(1), to = today).body()
                 } catch (_: IOException) {
                     return false
                 }
