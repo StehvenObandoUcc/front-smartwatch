@@ -1,4 +1,5 @@
 import { useListDoseHistory } from '../../api/generated';
+import { Icon } from '../../components/atoms/Icon/Icon';
 import { Skeleton } from '../../components/atoms/Skeleton/Skeleton';
 import { Text } from '../../components/atoms/Text/Text';
 import { ErrorRetry } from '../../components/molecules/ErrorRetry';
@@ -22,6 +23,13 @@ function valueText(d: DayAdherence) {
   return d.percentage === null
     ? 'Sin dosis'
     : `${Math.round(d.percentage)} % (${d.taken} de ${d.total})`;
+}
+
+// Cómo terminó cada día, con su icono además del color: todas tomadas, alguna sin tomar o sin dosis.
+function dayMark(d: DayAdherence) {
+  if (d.total === 0) return { name: 'skipped', className: 'text-text-muted' } as const;
+  if (d.taken === d.total) return { name: 'taken', className: 'text-state-taken' } as const;
+  return { name: 'missed', className: 'text-state-missed' } as const;
 }
 
 /** Porcentaje de dosis tomadas por día en los últimos 7 días, a partir de GET …/dose-history. */
@@ -54,7 +62,7 @@ export function AdherenceChart() {
         detalle.
       </figcaption>
       {/* Las barras son solo visuales; la tabla de abajo da los mismos datos a lectores de pantalla. */}
-      <div aria-hidden="true" className="flex h-40 items-end gap-2">
+      <div aria-hidden="true" className="flex h-48 items-end gap-2">
         {data.map((d) => (
           <div
             key={d.day}
@@ -79,6 +87,7 @@ export function AdherenceChart() {
                 />
               )}
             </svg>
+            <Icon {...dayMark(d)} />
             <span className="text-caption text-text-muted">{weekday(d.day, 'short')}</span>
           </div>
         ))}
