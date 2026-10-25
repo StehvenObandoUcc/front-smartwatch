@@ -20,6 +20,7 @@ import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
 import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 import com.smartwatch.recordatorios.R
 import com.smartwatch.recordatorios.data.local.DoseEntity
+import com.smartwatch.recordatorios.data.local.DoseStatus
 import com.smartwatch.recordatorios.data.remote.PlanInfo
 import com.smartwatch.recordatorios.data.remote.PlanStatus
 import com.smartwatch.recordatorios.ui.components.BwBanner
@@ -29,7 +30,9 @@ import com.smartwatch.recordatorios.ui.components.BwCorners
 import com.smartwatch.recordatorios.ui.components.BwDial
 import com.smartwatch.recordatorios.ui.components.BwEmptyState
 import com.smartwatch.recordatorios.ui.components.BwScreenScaffold
+import com.smartwatch.recordatorios.ui.components.BwSuccessMark
 import com.smartwatch.recordatorios.ui.components.BwText
+import com.smartwatch.recordatorios.ui.components.BwTone
 import com.smartwatch.recordatorios.ui.components.MedicationLabel
 import com.smartwatch.recordatorios.ui.components.dialMarks
 import com.smartwatch.recordatorios.ui.components.edgeItem
@@ -68,9 +71,13 @@ fun HomeScreen(
     // El arco va de ahora a la próxima toma, si es dentro de las próximas 24 h.
     val arc = next?.takeIf { it.nextAlarmAt - now in 0..DAY_MILLIS }?.let { hourOfDay(now)..hourOfDay(it.nextAlarmAt) }
     val ask = stringResource(R.string.chat_ask)
+    // Ya no queda nada por tomar hoy: la página descansa en verde hasta mañana.
+    val allDone = today.isNotEmpty() && today.none { it.status == DoseStatus.SCHEDULED }
     BwScreenScaffold(
         scrollState = listState,
-        backdrop = { BwDial(marks = marks, arc = arc, now = hourOfDay(now)) },
+        tone = if (allDone) BwTone.DONE else BwTone.PETROL,
+        // Con el día cerrado, sin números: el mensaje ocupa el centro.
+        backdrop = { BwDial(marks = marks, arc = arc, now = hourOfDay(now), numbers = !allDone) },
         corners = onOpenChat?.let { chat -> BwCorners(start = { BwCornerButton(R.drawable.ic_mic, ask, chat) }) },
     ) { contentPadding ->
         TransformingLazyColumn(
@@ -112,27 +119,7 @@ fun HomeScreen(
                 }
             }
 
-            edgeItem {
-                if (next == null) {
-                    BwEmptyState(
-                        icon = R.drawable.ic_pill,
-                        title = stringResource(R.string.home_no_next),
-                        body =
-                            stringResource(
-                                if (onAddMedication !=
-                                    null
-                                ) {
-                                    R.string.home_no_next_local_body
-                                } else {
-                                    R.string.home_no_next_body
-                                },
-                            ),
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                } else {
-                    NextDose(dose = next, now = now, onClick = { onOpenDose(next) })
-                }
-            }
+            edgeItem { HomeHero(allDone, next, now, localMode = onAddMedication != null, onOpenDose = onOpenDose) }
 
             onAddMedication?.let { add ->
                 edgeItem(container = true) {
@@ -157,6 +144,49 @@ fun HomeScreen(
                 }
             }
         }
+    }
+}
+
+/** El dato central de la página: todas tomadas, sin dosis próximas o cuánto falta para la próxima. */
+@Composable
+private fun HomeHero(
+    allDone: Boolean,
+    next: DoseEntity?,
+    now: Long,
+    localMode: Boolean,
+    onOpenDose: (DoseEntity) -> Unit,
+) {
+    if (allDone) {
+        BwSuccessMark(
+            label = stringResource(R.string.all_done_today),
+            details =
+                listOfNotNull(
+                    next?.let {
+                        stringResource(
+                            R.string.all_done_next,
+                            timeText(it.nextAlarmAt),
+                            it.medicationName,
+                        )
+                    },
+                ),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = Sizes.dialClearance),
+        )
+    } else if (next == null) {
+        BwEmptyState(
+            icon = R.drawable.ic_pill,
+            title = stringResource(R.string.home_no_next),
+            body =
+                stringResource(
+                    if (localMode) {
+                        R.string.home_no_next_local_body
+                    } else {
+                        R.string.home_no_next_body
+                    },
+                ),
+            modifier = Modifier.fillMaxWidth(),
+        )
+    } else {
+        NextDose(dose = next, now = now, onClick = { onOpenDose(next) })
     }
 }
 
