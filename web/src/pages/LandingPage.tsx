@@ -50,7 +50,7 @@ function SampleDose({
     <li className="flex flex-wrap items-center gap-x-3 gap-y-2">
       <span
         className={cn(
-          'inline-grid size-plate-md shrink-0 place-items-center rounded-md text-on-state',
+          'inline-grid size-plate-md shrink-0 place-items-center rounded-md text-on-light',
           medicationColorClass[color],
         )}
       >
