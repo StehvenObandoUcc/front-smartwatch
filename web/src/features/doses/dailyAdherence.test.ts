@@ -12,6 +12,7 @@ function item(scheduledAt: string, status: DoseHistoryItem['status']): DoseHisto
     scheduledAt,
     status,
     actedAt: null,
+    eventId: null,
   };
 }
 
