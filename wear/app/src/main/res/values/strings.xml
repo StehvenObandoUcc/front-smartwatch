@@ -125,6 +125,17 @@
     <string name="permission_notifications_body">No sonarán. Toca para activar</string>
 
     <string name="status_scheduled">Pendiente</string>
+    <string name="status_missed">No tomada</string>
+    <string name="all_done_today">Todas tomadas hoy</string>
+    <string name="all_done_next">Mañana %1$s · %2$s</string>
+    <string name="adherence_month">%1$s · %2$s</string>
+    <string name="adherence_none_month">Aún sin dosis vencidas este mes</string>
+    <string name="adherence_month_summary">%1$d días con todas tomadas, %2$d con alguna no tomada, %3$d sin dosis</string>
+    <string name="history_title">Historial</string>
+    <string name="history_empty">Aún no hay tomas</string>
+    <string name="history_empty_body">Aquí verás las de los últimos 7 días</string>
+    <string name="history_today">Hoy</string>
+    <string name="history_yesterday">Ayer</string>
     <string name="status_taken">Tomada</string>
     <string name="action_undo">Deshacer</string>
     <string name="status_skipped">Omitida</string>

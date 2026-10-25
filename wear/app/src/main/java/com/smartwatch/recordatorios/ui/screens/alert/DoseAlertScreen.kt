@@ -65,6 +65,7 @@ fun DoseAlertScreen(
     onSnooze: () -> Unit,
     onSkip: () -> Unit,
     onUndo: (() -> Unit)? = null,
+    lastOfDay: Boolean = false,
 ) {
     var confirmingSkip by rememberSaveable { mutableStateOf(false) }
     var takenAt by rememberSaveable { mutableStateOf<Long?>(null) }
@@ -85,7 +86,8 @@ fun DoseAlertScreen(
                 taken != null -> {
                     edgeItem {
                         BwSuccessMark(
-                            label = stringResource(R.string.status_taken),
+                            // La última dosis del día cierra el día: lo dice, sin exclamaciones.
+                            label = stringResource(if (lastOfDay) R.string.all_done_today else R.string.status_taken),
                             details =
                                 listOf(
                                     stringResource(R.string.taken_detail, dose.medicationName, dose.doseLabel),

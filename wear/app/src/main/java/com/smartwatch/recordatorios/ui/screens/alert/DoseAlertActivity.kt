@@ -11,15 +11,20 @@ import com.smartwatch.recordatorios.alarm.DoseActionHandler
 import com.smartwatch.recordatorios.alarm.DoseIntents
 import com.smartwatch.recordatorios.data.local.DoseAction
 import com.smartwatch.recordatorios.data.local.DoseEntity
+import com.smartwatch.recordatorios.data.local.DoseStatus
 import com.smartwatch.recordatorios.data.repository.DoseRepository
 import com.smartwatch.recordatorios.ui.components.BwAppScaffold
+import com.smartwatch.recordatorios.ui.screens.home.todayDoses
 import com.smartwatch.recordatorios.ui.theme.RecordatoriosTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.time.LocalDate
+import java.time.ZoneId
 import javax.inject.Inject
 
 /**
@@ -34,6 +39,9 @@ class DoseAlertActivity : ComponentActivity() {
 
     private var dose by mutableStateOf<DoseEntity?>(null)
 
+    /** Las demás dosis de hoy ya están registradas: tomar esta cierra el día. */
+    private var lastOfDay by mutableStateOf(false)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -46,6 +54,7 @@ class DoseAlertActivity : ComponentActivity() {
                             onSnooze = { act(current.id, DoseAction.SNOOZED, closeAfterMillis = SUCCESS_MILLIS) },
                             onSkip = { act(current.id, DoseAction.SKIPPED) },
                             onUndo = { undo(current.id) },
+                            lastOfDay = lastOfDay,
                         )
                     }
                 }
@@ -64,6 +73,11 @@ class DoseAlertActivity : ComponentActivity() {
         val doseId = DoseIntents.doseId(intent) ?: return finish()
         lifecycleScope.launch {
             dose = repository.get(doseId) ?: return@launch finish()
+            val zone = ZoneId.systemDefault()
+            lastOfDay =
+                todayDoses(repository.observeDoses().first(), LocalDate.now(zone), zone)
+                    .filter { it.id != doseId }
+                    .none { it.status == DoseStatus.SCHEDULED }
         }
     }
 

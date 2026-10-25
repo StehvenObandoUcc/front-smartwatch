@@ -184,6 +184,14 @@ object Sizes {
 
     /** Margen lateral del dato central para no pisar los números de la esfera. */
     val dialClearance = 30.dp
+
+    /** Calendario del mes: casilla de cada día, su icono y el aro de hoy. */
+    val calendarCell = 24.dp
+    val calendarIcon = 14.dp
+    val todayRing = 2.dp
+
+    /** Icono de estado en una fila del historial. */
+    val historyIcon = 24.dp
     val badgeIcon = 32.dp
     val barChart = 48.dp
     val bar = 5.dp

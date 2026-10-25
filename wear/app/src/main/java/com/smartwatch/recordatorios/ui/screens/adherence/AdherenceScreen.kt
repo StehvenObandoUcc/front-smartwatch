@@ -1,17 +1,23 @@
 package com.smartwatch.recordatorios.ui.screens.adherence
 
-import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
@@ -20,7 +26,7 @@ import com.smartwatch.recordatorios.R
 import com.smartwatch.recordatorios.data.remote.AdherenceDay
 import com.smartwatch.recordatorios.data.remote.AdherenceSummary
 import com.smartwatch.recordatorios.ui.components.BwEmptyState
-import com.smartwatch.recordatorios.ui.components.BwHeader
+import com.smartwatch.recordatorios.ui.components.BwIcon
 import com.smartwatch.recordatorios.ui.components.BwScreenScaffold
 import com.smartwatch.recordatorios.ui.components.BwText
 import com.smartwatch.recordatorios.ui.components.edgeItem
@@ -29,18 +35,22 @@ import com.smartwatch.recordatorios.ui.theme.RecordatoriosTheme
 import com.smartwatch.recordatorios.ui.theme.Sizes
 import com.smartwatch.recordatorios.ui.theme.Spacing
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
+import java.time.format.TextStyle
+import java.util.Locale
 
 /**
- * Adherencia de los últimos días: porcentaje grande y una barra por día (alto = tomadas / vencidas).
- * Las barras son decorativas para TalkBack; el texto ya dice el porcentaje y el periodo.
+ * Adherencia del mes como calendario: el mes y el porcentaje arriba y una casilla por día con el
+ * icono de su resultado (visto, aspa o raya), nunca solo color. Sin números de día: a 14 sp no caben
+ * siete por fila. TalkBack lee un resumen en palabras en lugar de cada casilla.
  */
 @Composable
-fun AdherenceScreen(summary: AdherenceSummary?) {
+fun AdherenceScreen(
+    summary: AdherenceSummary?,
+    today: LocalDate = LocalDate.now(),
+) {
     val listState = rememberTransformingLazyColumnState()
     BwScreenScaffold(scrollState = listState) { contentPadding ->
         TransformingLazyColumn(state = listState, contentPadding = contentPadding) {
-            edgeItem { BwHeader(stringResource(R.string.adherence_title), icon = R.drawable.ic_chart) }
             if (summary == null) {
                 edgeItem {
                     BwEmptyState(
@@ -51,30 +61,32 @@ fun AdherenceScreen(summary: AdherenceSummary?) {
                     )
                 }
             } else {
+                val month =
+                    summary.from.month
+                        .getDisplayName(
+                            TextStyle.FULL,
+                            SPANISH,
+                        ).replaceFirstChar { it.uppercase() }
                 edgeItem {
-                    CenteredText(
-                        text = summary.percentage?.let { stringResource(R.string.adherence_value, it) } ?: "—",
-                        large = true,
+                    val percent = summary.percentage?.let { stringResource(R.string.adherence_value, it) } ?: "—"
+                    BwText(
+                        stringResource(R.string.adherence_month, month, percent),
+                        style = BwTheme.type.title,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth(),
                     )
                 }
-                edgeItem { DayBars(summary.days, modifier = ChartInset.fillMaxWidth().height(Sizes.barChart)) }
-                edgeItem {
-                    Row(modifier = ChartInset.fillMaxWidth()) {
+                edgeItem { MonthGrid(summary, today) }
+                if (summary.percentage == null) {
+                    edgeItem {
                         BwText(
-                            summary.from.format(DAY_FORMAT),
+                            stringResource(R.string.adherence_none_month),
                             style = BwTheme.type.support,
-                            modifier = Modifier.weight(1f),
+                            color = BwTheme.colors.contentSoft,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth(),
                         )
-                        BwText(stringResource(R.string.adherence_today), style = BwTheme.type.support)
                     }
-                }
-                edgeItem {
-                    CenteredText(
-                        stringResource(
-                            if (summary.percentage == null) R.string.adherence_none else R.string.adherence_caption,
-                            summary.days.size,
-                        ),
-                    )
                 }
             }
         }
@@ -82,52 +94,79 @@ fun AdherenceScreen(summary: AdherenceSummary?) {
 }
 
 @Composable
-private fun DayBars(
-    days: List<AdherenceDay>,
-    modifier: Modifier = Modifier,
+private fun MonthGrid(
+    summary: AdherenceSummary,
+    today: LocalDate,
 ) {
-    val filled = BwTheme.colors.info
-    val empty = BwTheme.colors.track
-    Canvas(modifier = modifier.clearAndSetSemantics {}) {
-        if (days.isEmpty()) return@Canvas
-        val barWidth = Sizes.bar.toPx()
-        val step = (size.width - barWidth) / (days.size - 1).coerceAtLeast(1)
-        val radius = CornerRadius(barWidth / 2)
-        days.forEachIndexed { index, day ->
-            val x = index * step
-            // Un día sin dosis vencidas lleva solo una marca baja, para que no parezca un 0 %.
-            val ratio = if (day.total == 0) 0f else day.taken.toFloat() / day.total
-            val height = (size.height * ratio).coerceAtLeast(barWidth)
-            drawRoundRect(
-                color = if (day.total == 0) empty else filled,
-                topLeft = Offset(x, size.height - height),
-                size = Size(barWidth, height),
-                cornerRadius = radius,
-            )
+    val results = summary.days.map(::dayResult)
+    val description =
+        stringResource(
+            R.string.adherence_month_summary,
+            results.count { it == DayResult.ALL_TAKEN },
+            results.count { it == DayResult.SOME_MISSED },
+            results.count { it == DayResult.NO_DOSES },
+        )
+    // Lunes primero: las casillas vacías antes del día 1 lo alinean con su columna.
+    val lead = summary.from.dayOfWeek.value - 1
+    val cells: List<Int?> = List(lead) { null } + summary.days.indices.toList()
+    Column(
+        modifier = Modifier.semantics(mergeDescendants = true) { contentDescription = description },
+        verticalArrangement = Arrangement.spacedBy(Spacing.xs),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Row(horizontalArrangement = Arrangement.spacedBy(Spacing.xs), modifier = Modifier.clearAndSetSemantics {}) {
+            WEEKDAYS.forEach {
+                BwText(
+                    it,
+                    style = BwTheme.type.support,
+                    color = BwTheme.colors.contentSoft,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.size(Sizes.calendarCell),
+                )
+            }
+        }
+        cells.chunked(DAYS_PER_WEEK).forEach { week ->
+            Row(horizontalArrangement = Arrangement.spacedBy(Spacing.xs), modifier = Modifier.clearAndSetSemantics {}) {
+                week.forEach { index ->
+                    if (index == null) {
+                        Spacer(Modifier.size(Sizes.calendarCell))
+                    } else {
+                        DayCell(results[index], isToday = summary.from.plusDays(index.toLong()) == today)
+                    }
+                }
+            }
         }
     }
 }
 
 @Composable
-private fun CenteredText(
-    text: String,
-    large: Boolean = false,
+private fun DayCell(
+    result: DayResult,
+    isToday: Boolean,
 ) {
-    BwText(
-        text = text,
-        autoSize = if (large) BwTheme.type.displayFit else null,
-        maxLines = if (large) 1 else Int.MAX_VALUE,
-        style = if (large) BwTheme.type.display else BwTheme.type.body,
-        color = if (large) BwTheme.colors.content else BwTheme.colors.contentSoft,
-        textAlign = TextAlign.Center,
-        modifier = Modifier.fillMaxWidth(),
-    )
+    val colors = BwTheme.colors
+    val (fill, icon, tint) =
+        when (result) {
+            DayResult.ALL_TAKEN -> Triple(colors.stateTaken, R.drawable.ic_check, colors.ink)
+            DayResult.SOME_MISSED -> Triple(colors.stateMissed, R.drawable.ic_close, colors.ink)
+            DayResult.NO_DOSES -> Triple(colors.surface, R.drawable.ic_skipped, colors.content)
+        }
+    Box(
+        modifier =
+            Modifier
+                .size(Sizes.calendarCell)
+                .clip(CircleShape)
+                .background(fill)
+                .then(if (isToday) Modifier.border(Sizes.todayRing, colors.content, CircleShape) else Modifier),
+        contentAlignment = Alignment.Center,
+    ) {
+        BwIcon(icon, contentDescription = null, color = tint, modifier = Modifier.size(Sizes.calendarIcon))
+    }
 }
 
-/** La gráfica va en la parte baja, donde la pantalla redonda es más estrecha. */
-private val ChartInset = Modifier.padding(horizontal = Spacing.lg + Spacing.md)
-
-private val DAY_FORMAT: DateTimeFormatter = DateTimeFormatter.ofPattern("d MMM")
+private val SPANISH = Locale.forLanguageTag("es")
+private val WEEKDAYS = listOf("L", "M", "X", "J", "V", "S", "D")
+private const val DAYS_PER_WEEK = 7
 
 @Suppress("MagicNumber")
 @WearPreviewDevices
@@ -136,10 +175,11 @@ private fun AdherenceScreenPreview() {
     RecordatoriosTheme {
         AdherenceScreen(
             AdherenceSummary(
-                percentage = 86,
-                from = LocalDate.of(2026, 10, 6),
-                days = List(14) { AdherenceDay(taken = it % 3, total = 2) },
+                percentage = 92,
+                from = LocalDate.of(2026, 10, 1),
+                days = List(24) { AdherenceDay(taken = if (it == 5) 1 else 2, total = if (it == 10) 0 else 2) },
             ),
+            today = LocalDate.of(2026, 10, 24),
         )
     }
 }

@@ -38,6 +38,7 @@ import com.smartwatch.recordatorios.ui.screens.alert.DoseAlertActivity
 import com.smartwatch.recordatorios.ui.screens.chat.ChatScreen
 import com.smartwatch.recordatorios.ui.screens.chat.ChatViewModel
 import com.smartwatch.recordatorios.ui.screens.chat.speechLocale
+import com.smartwatch.recordatorios.ui.screens.history.HistoryScreen
 import com.smartwatch.recordatorios.ui.screens.home.HomeScreen
 import com.smartwatch.recordatorios.ui.screens.home.HomeViewModel
 import com.smartwatch.recordatorios.ui.screens.medication.AddMedicationScreen
@@ -189,6 +190,7 @@ class MainActivity : ComponentActivity() {
             }
         val next by viewModel.next.collectAsStateWithLifecycle()
         val today by viewModel.today.collectAsStateWithLifecycle()
+        val history by viewModel.history.collectAsStateWithLifecycle()
         val adherence by viewModel.adherence.collectAsStateWithLifecycle()
         val planInfo by viewModel.planInfo.collectAsStateWithLifecycle()
         BackHandler(enabled = screen != Screen.HOME && !saving) {
@@ -233,6 +235,7 @@ class MainActivity : ComponentActivity() {
                             )
                         Page.TODAY -> TodayScreen(doses = today, onOpenDose = ::openDose)
                         Page.ADHERENCE -> AdherenceScreen(summary = adherence)
+                        Page.HISTORY -> HistoryScreen(entries = history)
                         Page.WATCH ->
                             WatchScreen(
                                 paired = paired,
@@ -287,10 +290,10 @@ class MainActivity : ComponentActivity() {
 /** HOME son las páginas ([Page]); CHAT y ADD, pantallas encima. */
 private enum class Screen { HOME, CHAT, ADD }
 
-private enum class Page { NEXT, TODAY, ADHERENCE, WATCH }
+private enum class Page { NEXT, TODAY, ADHERENCE, HISTORY, WATCH }
 
-private val PAIRED_PAGES = listOf(Page.NEXT, Page.TODAY, Page.ADHERENCE, Page.WATCH)
-private val LOCAL_PAGES = listOf(Page.NEXT, Page.TODAY, Page.WATCH)
+private val PAIRED_PAGES = listOf(Page.NEXT, Page.TODAY, Page.ADHERENCE, Page.HISTORY, Page.WATCH)
+private val LOCAL_PAGES = listOf(Page.NEXT, Page.TODAY, Page.HISTORY, Page.WATCH)
 private const val KEY_MODE = "mode"
 private const val MODE_LOCAL = "local"
 private const val MODE_PAIR = "pair"
