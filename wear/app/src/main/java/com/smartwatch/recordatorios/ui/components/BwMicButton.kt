@@ -60,7 +60,7 @@ fun BwMicButton(
                         .background(colors.primary),
                 contentAlignment = Alignment.Center,
             ) {
-                BwIcon(R.drawable.ic_mic, contentDescription = null, color = colors.content)
+                BwIcon(R.drawable.ic_mic, contentDescription = null, color = colors.onPrimary)
             }
         }
         BwText(label, style = BwTheme.type.label, textAlign = TextAlign.Center, maxLines = 2)
