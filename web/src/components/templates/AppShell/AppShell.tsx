@@ -35,7 +35,8 @@ const MAIN_ID = 'contenido';
 
 /**
  * Señalética: la cabecera es un panel de señal (placa de la sección y su palabra) y la navegación,
- * una fila de señales (placa y palabra; la activa, encendida).
+ * una fila de señales (placa y palabra; la activa, encendida). Cabecera y menú inferior son vidrio
+ * translúcido: el contenido pasa por debajo y no se pierde el lugar.
  * Móvil (< 640): cabecera + menú inferior. Tablet y escritorio: riel lateral de señal.
  */
 export function AppShell({ appName, title, icon, subtitle, nav, actions, children }: Props) {
@@ -66,7 +67,7 @@ export function AppShell({ appName, title, icon, subtitle, nav, actions, childre
               className={({ isActive }) =>
                 cn(
                   'flex min-h-touch flex-col items-center justify-center gap-1 rounded-md px-2 py-2 text-caption font-bold focus-visible:outline-on-sign desktop:flex-row desktop:justify-start desktop:gap-3 desktop:text-body',
-                  isActive ? 'bg-on-sign text-sign' : 'text-on-sign hover:bg-primary-hover',
+                  isActive ? 'bg-on-sign text-sign' : 'text-on-sign hover:bg-on-sign/10',
                 )
               }
             >
@@ -77,7 +78,7 @@ export function AppShell({ appName, title, icon, subtitle, nav, actions, childre
       </nav>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-10 flex min-h-16 items-center gap-3 bg-sign px-4 text-on-sign tablet:px-6">
+        <header className="glass sticky top-0 z-10 flex min-h-16 items-center gap-3 px-4 text-on-sign tablet:px-6">
           <Plate icon={icon} tone="onSign" size="sm" />
           <div className="min-w-0 flex-1 py-2">
             <h1 className="truncate text-xl leading-tight font-extrabold tracking-tight">
@@ -99,7 +100,7 @@ export function AppShell({ appName, title, icon, subtitle, nav, actions, childre
 
       <nav
         aria-label="Principal móvil"
-        className="fixed inset-x-0 bottom-0 z-10 flex border-t-2 border-border bg-surface-raised pb-safe-bottom tablet:hidden"
+        className="glass fixed inset-x-0 bottom-0 z-10 flex border-t border-on-sign/10 pb-safe-bottom tablet:hidden"
       >
         {nav
           .filter((item) => item.mobile !== false)
