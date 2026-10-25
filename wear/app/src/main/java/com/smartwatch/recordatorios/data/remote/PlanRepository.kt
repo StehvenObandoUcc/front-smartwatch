@@ -134,6 +134,6 @@ class PlanRepository
             const val HTTP_UNAUTHORIZED = 401
             const val HTTP_FORBIDDEN = 403
             const val CONSENT_REQUIRED = "consent_required"
-            val RETENTION: Duration = Duration.ofDays(2)
+            val RETENTION: Duration = Duration.ofDays(7)
         }
     }
