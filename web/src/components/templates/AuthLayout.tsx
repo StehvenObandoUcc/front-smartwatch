@@ -1,28 +1,8 @@
 import type { ReactNode } from 'react';
 
-import { Icon } from '../atoms/Icon/Icon';
 import { Plate } from '../atoms/Plate/Plate';
-import { Ring } from '../atoms/Ring/Ring';
 import { Text } from '../atoms/Text/Text';
-
-/** El reloj de muestra: el anillo del día como se ve en la muñeca. Ilustración, no datos. */
-function WatchMock() {
-  return (
-    <div
-      aria-hidden="true"
-      className="flex size-72 flex-col items-center justify-center gap-2 rounded-full border-8 border-on-sign/20 bg-sign"
-    >
-      <Ring value={2} total={3} tone="onSign">
-        <span className="text-2xl font-extrabold">2</span>
-        <span className="text-caption">de 3 tomadas</span>
-      </Ring>
-      <span className="inline-flex items-center gap-1 font-bold">
-        <Icon name="due" className="size-5" />
-        Próxima 13:00
-      </span>
-    </div>
-  );
-}
+import { WatchMock } from '../molecules/WatchMock';
 
 /**
  * Entrada, registro y recuperación en pantalla dividida: a la izquierda el formulario; a la derecha
