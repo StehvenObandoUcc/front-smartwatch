@@ -77,8 +77,13 @@
   --med-purple: #6a1b9a;
   --med-pink: #ad1457;
 
-  /* Un solo nivel de elevación: sombra profunda de petróleo bajo las tarjetas. */
-  --elevation: 0 1px 2px rgb(3 24 22 / 0.5), 0 16px 40px -16px rgb(3 24 22 / 0.8);
+  /*
+   * Un solo nivel de elevación: sombra profunda de petróleo bajo las tarjetas y un filo claro arriba
+   * (la luz que toca el vidrio).
+   */
+  --elevation:
+    inset 0 1px 0 rgb(247 242 236 / 0.08), 0 1px 2px rgb(3 24 22 / 0.5),
+    0 16px 40px -16px rgb(3 24 22 / 0.8);
 
   /* El degradado tonal de la esfera (mismo matiz, de oscuro a claro). */
   --sign-gradient: linear-gradient(160deg, #083b38 0%, #0e766e 100%);

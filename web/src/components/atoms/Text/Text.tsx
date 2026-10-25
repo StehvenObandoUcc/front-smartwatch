@@ -16,7 +16,7 @@ type Props = {
 
 // Una sola letra en tres pesos: el peso y el tamaño separan los niveles, no otra familia.
 const variantClass: Record<Variant, string> = {
-  display: 'text-2xl font-extrabold tracking-tight text-balance',
+  display: 'text-2xl font-extrabold tracking-display text-balance',
   title: 'text-xl font-extrabold tracking-tight text-balance',
   subtitle: 'text-lg font-bold text-balance',
   body: 'text-body text-pretty',

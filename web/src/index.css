@@ -39,12 +39,12 @@
 
 /* Superficies reutilizables: placa de señal (borde fino, esquina corta) y zona tintada. */
 @utility card {
-  @apply rounded-lg border-2 border-border bg-surface-raised;
+  @apply rounded-lg border border-border bg-surface-raised;
 }
 
 /* Lista de filas planas sobre el fondo, separadas por una regla (dosis, medicamentos, resumen). */
 @utility rows {
-  @apply flex flex-col divide-y-2 divide-border;
+  @apply flex flex-col divide-y divide-border;
 
   & > * {
     @apply py-3;
@@ -72,6 +72,18 @@
 /* El mismo degradado con las franjas verticales sutiles (banda del hero). */
 @utility bg-sign-stripes {
   background-image: var(--sign-stripes), var(--sign-gradient);
+}
+
+/*
+ * Vidrio de la cabecera y el menú inferior: petróleo translúcido con desenfoque, el contenido pasa
+ * por debajo. Con «reducir transparencia», sólido.
+ */
+@utility glass {
+  @apply bg-sign/85 backdrop-blur-xl backdrop-saturate-150;
+
+  @media (prefers-reduced-transparency: reduce) {
+    @apply bg-sign backdrop-blur-none backdrop-saturate-100;
+  }
 }
 
 @utility well {
