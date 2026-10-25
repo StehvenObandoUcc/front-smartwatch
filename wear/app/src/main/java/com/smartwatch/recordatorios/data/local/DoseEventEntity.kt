@@ -6,11 +6,13 @@ import androidx.room.PrimaryKey
 
 enum class DoseAction { TAKEN, SNOOZED, SKIPPED }
 
-enum class SyncState { PENDING, CONFIRMED }
+/** UNDONE: «Deshacer» de una toma que hay que borrar en el backend (si llegó a subirse). */
+enum class SyncState { PENDING, CONFIRMED, UNDONE }
 
 /**
  * Acción del usuario sobre una dosis. `eventId` (UUID generado en el reloj) permite al backend
  * descartar duplicados; se sube en lote y pasa a CONFIRMED. Posponer es local: nace CONFIRMED.
+ * Al deshacerla pasa a UNDONE hasta que el backend confirma el borrado.
  */
 @Entity(
     tableName = "dose_events",
