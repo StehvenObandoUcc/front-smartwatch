@@ -30,7 +30,7 @@ export function Block({ icon, title, question, action, children, className }: Pr
       <header className="flex flex-wrap items-start gap-x-3 gap-y-2">
         <Plate icon={icon} size="sm" />
         <div className="min-w-0 flex-1 basis-40">
-          <h2 id={id} className="text-lg leading-tight font-extrabold">
+          <h2 id={id} className="text-lg leading-tight font-extrabold tracking-tight">
             {title}
           </h2>
           <p className="text-text-muted">{question}</p>
