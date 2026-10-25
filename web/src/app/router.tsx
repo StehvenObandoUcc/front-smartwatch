@@ -1,22 +1,19 @@
+import type { ComponentType } from 'react';
 import { createBrowserRouter, Navigate } from 'react-router';
 
-import { AdherencePage } from '../pages/AdherencePage';
-import { AgendaPage } from '../pages/AgendaPage';
 import { ForgotPasswordPage } from '../pages/ForgotPasswordPage';
-import { ChatPage } from '../pages/ChatPage';
 import { HomePage } from '../pages/HomePage';
 import { LoginPage } from '../pages/LoginPage';
-import { MedicationsPage } from '../pages/MedicationsPage';
-import { MorePage } from '../pages/MorePage';
-import { NotificationsPage } from '../pages/NotificationsPage';
 import { RegisterPage } from '../pages/RegisterPage';
-import { ReportPage } from '../pages/ReportPage';
-import { ReportsPage } from '../pages/ReportsPage';
 import { ResetPasswordPage } from '../pages/ResetPasswordPage';
-import { SettingsPage } from '../pages/SettingsPage';
 import { VerifyEmailPage } from '../pages/VerifyEmailPage';
 import { RootLayout } from './RootLayout';
 import { RouteError } from './RouteError';
+
+// Las pantallas internas se cargan al visitarlas: la landing y Hoy no esperan por las demás.
+function page<K extends string>(load: () => Promise<Record<K, ComponentType>>, name: K) {
+  return async () => ({ Component: (await load())[name] });
+}
 
 export const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
@@ -29,17 +26,26 @@ export const router = createBrowserRouter([
     errorElement: <RouteError />,
     children: [
       { index: true, element: <HomePage /> },
-      { path: 'medicamentos', element: <MedicationsPage /> },
-      { path: 'agenda', element: <AgendaPage /> },
-      { path: 'adherencia', element: <AdherencePage /> },
-      { path: 'ajustes', element: <SettingsPage /> },
-      { path: 'avisos', element: <NotificationsPage /> },
+      {
+        path: 'medicamentos',
+        lazy: page(() => import('../pages/MedicationsPage'), 'MedicationsPage'),
+      },
+      { path: 'agenda', lazy: page(() => import('../pages/AgendaPage'), 'AgendaPage') },
+      { path: 'adherencia', lazy: page(() => import('../pages/AdherencePage'), 'AdherencePage') },
+      { path: 'ajustes', lazy: page(() => import('../pages/SettingsPage'), 'SettingsPage') },
+      {
+        path: 'avisos',
+        lazy: page(() => import('../pages/NotificationsPage'), 'NotificationsPage'),
+      },
       // Ruta antigua: enlaces guardados.
       { path: 'notificaciones', element: <Navigate to="/avisos" replace /> },
-      { path: 'reportes', element: <ReportsPage /> },
-      { path: 'asistente', element: <ChatPage /> },
-      { path: 'mas', element: <MorePage /> },
-      { path: 'patients/:patientId/reports/:reportId', element: <ReportPage /> },
+      { path: 'reportes', lazy: page(() => import('../pages/ReportsPage'), 'ReportsPage') },
+      { path: 'asistente', lazy: page(() => import('../pages/ChatPage'), 'ChatPage') },
+      { path: 'mas', lazy: page(() => import('../pages/MorePage'), 'MorePage') },
+      {
+        path: 'patients/:patientId/reports/:reportId',
+        lazy: page(() => import('../pages/ReportPage'), 'ReportPage'),
+      },
     ],
   },
 ]);
