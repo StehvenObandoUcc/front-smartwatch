@@ -61,8 +61,11 @@ function WatchBlock({ className }: { className: string }) {
           </div>
           <div className="flex flex-wrap justify-between gap-x-4">
             <dt className="text-text-muted">Batería</dt>
-            {/* El contrato aún no informa la batería del reloj. */}
-            <dd className="font-bold">[DATO REAL PENDIENTE]</dd>
+            <dd className="font-bold">
+              {device.batteryLevel === null || !device.batteryReportedAt
+                ? 'Aún sin dato'
+                : `${device.batteryLevel} % · ${formatTime(device.batteryReportedAt, timezone)}`}
+            </dd>
           </div>
         </dl>
       )}
