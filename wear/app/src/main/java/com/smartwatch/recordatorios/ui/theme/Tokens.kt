@@ -6,63 +6,69 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 /**
- * Colores de Recuerda en el reloj: la misma señalética de salud que el panel web sobre un petróleo
- * profundo, plano (sin degradados), que se lee como color y no como negro: fondo #0F2B29, claro de
- * texto e iconos #EEF5F4; ni negro ni blanco puros. Papeles: la acción principal es una placa
- * petróleo plana (una por pantalla), los avisos en el amarillo de sol, cada estado de una dosis con
- * su placa (Tomada, Pendiente, No tomada, Omitida) y las franjas del día como placas de color (sol,
- * tarde, noche). El celeste petróleo es para datos y anillos.
- * Contrastes (WCAG): claro sobre fondo 13,6:1; contentSoft 8,9:1 (7,1:1 sobre superficie); claro sobre
- * principal 4,7:1; claro sobre cada estado ≥ 4,6:1; tinta sobre sol 10:1 y sobre tarde 6,8:1; aviso
- * sobre fondo 9:1; datos sobre fondo 7,1:1.
+ * Colores de Recuerda en el reloj: esferas a sangre con cuatro colores como máximo.
+ * - Petróleo (principal): el fondo de casi todas las pantallas, en degradado tonal [BwTones].
+ * - Aguamarina (su complemento claro): arcos, «ahora» y lo pendiente ([info]).
+ * - Naranja rojizo: la alarma ([BwTones.alert]) y lo que pide atención ([stateDue], [stateMissed]).
+ * - Verde: Tomada ([BwTones.done], [stateTaken]).
+ * Lo demás es neutro: el claro cálido de texto, la tinta para lo que va sobre rellenos claros y el
+ * vidrio (claro translúcido) de superficies y botones secundarios. Ni negro ni blanco puros.
+ * La acción principal es un relleno claro con tinta encima: contrasta sobre cualquier fondo.
+ * Contrastes (WCAG): claro sobre el extremo claro de cada degradado ≥ 4,8:1; tinta sobre la acción
+ * principal 16:1, sobre aguamarina 11,5:1, sobre verde claro 11,8:1, sobre naranja claro 10,1:1 y
+ * sobre rojo claro 7,8:1.
  */
 @Immutable
 data class BwColors(
     val background: Color,
+    /** Vidrio: superficies, tarjetas y botones secundarios sobre la esfera. */
     val surface: Color,
     val outline: Color,
     val content: Color,
     val contentSoft: Color,
+    /** Aviso que pide atención (permisos, sin conexión): naranja claro con tinta. */
     val accent: Color,
     val onAccent: Color,
+    /** Acción principal: relleno claro con tinta encima. */
     val primary: Color,
     val onPrimary: Color,
+    /** Aguamarina: arcos, «ahora», datos y lo pendiente. */
     val info: Color,
     val track: Color,
     val stateTaken: Color,
     val stateDue: Color,
     val stateMissed: Color,
     val stateSkipped: Color,
-    val sun: Color,
-    val dusk: Color,
-    val night: Color,
-    /** Tinta para texto e iconos sobre las placas claras (sol, tarde). */
+    /** Tinta para texto e iconos sobre los rellenos claros. */
     val ink: Color,
 )
 
 val AppColors =
     BwColors(
-        background = Color(0xFF0F2B29),
-        surface = Color(0xFF1A3C39),
-        outline = Color(0xFF4A6E69),
-        content = Color(0xFFEEF5F4),
-        contentSoft = Color(0xFFB5CCC9),
-        accent = Color(0xFFF2C14E),
-        onAccent = Color(0xFF11201F),
-        // Placa plana, como una señal.
-        primary = Color(0xFF127A73),
-        onPrimary = Color(0xFFEEF5F4),
-        info = Color(0xFF5FC2BA),
-        track = Color(0xFF24504B),
-        stateTaken = Color(0xFF2F7D32),
-        stateDue = Color(0xFF9A5B00),
-        stateMissed = Color(0xFFB3261E),
-        stateSkipped = Color(0xFF5B6B69),
-        sun = Color(0xFFF2C14E),
-        dusk = Color(0xFFF08A4B),
-        night = Color(0xFF2B3A67),
-        ink = Color(0xFF11201F),
+        background = Color(0xFF083B38),
+        surface = Color(0x29F7F2EC),
+        outline = Color(0x57F7F2EC),
+        content = Color(0xFFF7F2EC),
+        contentSoft = Color(0xFFE2D7CC),
+        accent = Color(0xFFFFB08A),
+        onAccent = Color(0xFF1B1613),
+        primary = Color(0xFFF7F2EC),
+        onPrimary = Color(0xFF1B1613),
+        info = Color(0xFF7FE0D4),
+        track = Color(0x47F7F2EC),
+        stateTaken = Color(0xFF8FE3B0),
+        stateDue = Color(0xFFFFB08A),
+        stateMissed = Color(0xFFFF8A70),
+        stateSkipped = Color(0xFFC9CFCD),
+        ink = Color(0xFF1B1613),
     )
+
+/** Degradados tonales de fondo (mismo matiz, de arriba a abajo): uno por papel de la pantalla. */
+object BwTones {
+    val petrol = listOf(Color(0xFF083B38), Color(0xFF0E766E))
+    val alert = listOf(Color(0xFF3F1408), Color(0xFFB8401C))
+    val done = listOf(Color(0xFF0D3A1F), Color(0xFF2A7A35))
+}
 
 /**
  * Paleta de medicamentos: las mismas claves y los mismos tonos profundos que el panel web (tokens
@@ -164,6 +170,20 @@ object Sizes {
     val progress = 32.dp
     val progressStroke = 4.dp
     val successMark = 64.dp
+
+    /** Discos de acción: el principal (Tomada) y los secundarios (Omitir, Posponer). */
+    val discMain = 60.dp
+    val discSecondary = 48.dp
+    val discIcon = 26.dp
+
+    /** Botón redondo de esquina: visual de 36 dp dentro de un área táctil de 48 dp. */
+    val corner = 36.dp
+
+    /** Espacio extra arriba cuando la pantalla lleva botones de esquina. */
+    val cornerClearance = 20.dp
+
+    /** Margen lateral del dato central para no pisar los números de la esfera. */
+    val dialClearance = 30.dp
     val badgeIcon = 32.dp
     val barChart = 48.dp
     val bar = 5.dp
