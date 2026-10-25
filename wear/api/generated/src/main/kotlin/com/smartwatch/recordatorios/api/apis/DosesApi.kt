@@ -51,6 +51,38 @@ interface DosesApi {
     suspend fun createPatientDoseEvents(@Path("patientId") patientId: java.util.UUID, @Body doseEventBatch: DoseEventBatch): Response<DoseEventBatchResult>
 
     /**
+     * DELETE devices/me/dose-events/{eventId}
+     * Deshacer una toma desde el reloj
+     * Solo con token de reloj (403 con token de usuario) y solo eventos del paciente del reloj, los haya registrado el reloj o la web. Borra el evento de una dosis: la dosis vuelve a estar pendiente (o &#x60;MISSED&#x60; si ya pasó su hora), sale del historial y de la adherencia, y la dosis admite un evento nuevo. Para corregir (por ejemplo, de &#x60;TAKEN&#x60; a &#x60;SKIPPED&#x60;) se deshace y se registra otro con un &#x60;eventId&#x60; nuevo. Idempotente: un &#x60;eventId&#x60; que no existe o ya se deshizo responde 204. Un &#x60;eventId&#x60; deshecho puede volver a enviarse en un lote. Requiere el consentimiento &#x60;health_data&#x60; (403 &#x60;consent_required&#x60;). 
+     * Responses:
+     *  - 204: Evento borrado (o no existía).
+     *  - 401: Falta el token, es inválido o caducó (o credenciales incorrectas en login).
+     *  - 403: Autenticado pero sin permiso: rol que no permite la acción sobre un recurso accesible, o tipo de token equivocado (`wrong_token_type`). Nunca se usa para pacientes sin vínculo (eso es 404). 
+     *
+     * @param eventId &#x60;eventId&#x60; del evento de toma (lo generó el cliente al registrarlo).
+     * @return [Unit]
+     */
+    @DELETE("devices/me/dose-events/{eventId}")
+    suspend fun deleteMyDoseEvent(@Path("eventId") eventId: java.util.UUID): Response<Unit>
+
+    /**
+     * DELETE patients/{patientId}/dose-events/{eventId}
+     * Deshacer una toma desde la web
+     * Para el paciente con cuenta o un cuidador con vínculo activo; un paciente sin vínculo es 404. Sirve para eventos del reloj o de la web (el &#x60;eventId&#x60; está en el historial). Borra el evento de una dosis: la dosis vuelve a estar pendiente (o &#x60;MISSED&#x60; si ya pasó su hora), sale del historial y de la adherencia, y la dosis admite un evento nuevo. Para corregir (por ejemplo, de &#x60;TAKEN&#x60; a &#x60;SKIPPED&#x60;) se deshace y se registra otro con un &#x60;eventId&#x60; nuevo. Idempotente: un &#x60;eventId&#x60; que no existe o ya se deshizo responde 204. Un &#x60;eventId&#x60; deshecho puede volver a enviarse en un lote. Requiere el consentimiento &#x60;health_data&#x60; (403 &#x60;consent_required&#x60;). 
+     * Responses:
+     *  - 204: Evento borrado (o no existía).
+     *  - 401: Falta el token, es inválido o caducó (o credenciales incorrectas en login).
+     *  - 403: Autenticado pero sin permiso: rol que no permite la acción sobre un recurso accesible, o tipo de token equivocado (`wrong_token_type`). Nunca se usa para pacientes sin vínculo (eso es 404). 
+     *  - 404: No existe o el usuario no tiene acceso: un cuidador que pide un paciente sin vínculo activo (o sus recursos) recibe 404, igual que si no existiera, para no revelar datos ajenos. 
+     *
+     * @param patientId 
+     * @param eventId &#x60;eventId&#x60; del evento de toma (lo generó el cliente al registrarlo).
+     * @return [Unit]
+     */
+    @DELETE("patients/{patientId}/dose-events/{eventId}")
+    suspend fun deletePatientDoseEvent(@Path("patientId") patientId: java.util.UUID, @Path("eventId") eventId: java.util.UUID): Response<Unit>
+
+    /**
      * GET patients/{patientId}/adherence
      * Porcentaje de adherencia de un paciente
      * &#x60;percentage &#x3D; taken / (taken + skipped + missed) * 100&#x60; sobre las dosis vencidas del rango (mismas reglas y rango por defecto que el historial). &#x60;null&#x60; si no hubo dosis vencidas. 
