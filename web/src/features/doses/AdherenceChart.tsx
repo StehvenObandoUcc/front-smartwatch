@@ -58,8 +58,7 @@ export function AdherenceChart() {
   return (
     <figure className="flex flex-col gap-3">
       <figcaption className="text-caption text-text-muted">
-        Porcentaje de dosis tomadas cada día. Toca o pasa el cursor por una barra para ver el
-        detalle.
+        Porcentaje de dosis tomadas cada día; el detalle de cada uno, en «Ver como tabla».
       </figcaption>
       {/* Las barras son solo visuales; la tabla de abajo da los mismos datos a lectores de pantalla. */}
       <div aria-hidden="true" className="flex h-48 items-end gap-2">
