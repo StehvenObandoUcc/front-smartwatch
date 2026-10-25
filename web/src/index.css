@@ -9,6 +9,29 @@
     scroll-padding-bottom: calc(var(--spacing) * 24);
   }
 
+  /* Sin una palabra sola en la última línea de un párrafo. */
+  p {
+    text-wrap: pretty;
+  }
+
+  /* Con el texto agrandado, una palabra larga se parte con guion antes que salirse de la pantalla. */
+  h1,
+  h2,
+  h3 {
+    overflow-wrap: break-word;
+    hyphens: auto;
+  }
+
+  /* La selección y el cursor de texto también son del sistema, no del navegador. */
+  ::selection {
+    @apply bg-sign-muted text-text;
+  }
+
+  input,
+  textarea {
+    caret-color: var(--primary);
+  }
+
   :focus-visible {
     @apply outline-3 outline-offset-2 outline-focus;
   }
