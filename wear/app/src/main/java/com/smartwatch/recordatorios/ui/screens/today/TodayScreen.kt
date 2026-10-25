@@ -14,6 +14,7 @@ import com.smartwatch.recordatorios.R
 import com.smartwatch.recordatorios.data.local.DoseEntity
 import com.smartwatch.recordatorios.data.local.DoseStatus
 import com.smartwatch.recordatorios.ui.components.BwCard
+import com.smartwatch.recordatorios.ui.components.BwDial
 import com.smartwatch.recordatorios.ui.components.BwEmptyState
 import com.smartwatch.recordatorios.ui.components.BwHeader
 import com.smartwatch.recordatorios.ui.components.BwScreenScaffold
@@ -23,8 +24,10 @@ import com.smartwatch.recordatorios.ui.components.BwText
 import com.smartwatch.recordatorios.ui.components.DayPart
 import com.smartwatch.recordatorios.ui.components.DoseStateTone
 import com.smartwatch.recordatorios.ui.components.MedicationLabel
+import com.smartwatch.recordatorios.ui.components.dialMarks
 import com.smartwatch.recordatorios.ui.components.doseStatusLabel
 import com.smartwatch.recordatorios.ui.components.edgeItem
+import com.smartwatch.recordatorios.ui.components.hourOfDay
 import com.smartwatch.recordatorios.ui.theme.BwTheme
 import com.smartwatch.recordatorios.ui.theme.Spacing
 import com.smartwatch.recordatorios.ui.theme.timeText
@@ -42,7 +45,10 @@ fun TodayScreen(
     now: Long = System.currentTimeMillis(),
 ) {
     val listState = rememberTransformingLazyColumnState()
-    BwScreenScaffold(scrollState = listState) { contentPadding ->
+    val marks = dialMarks(doses.orEmpty(), now)
+    BwScreenScaffold(scrollState = listState, backdrop = {
+        BwDial(marks = marks, now = hourOfDay(now), numbers = false)
+    }) { contentPadding ->
         TransformingLazyColumn(
             state = listState,
             contentPadding = contentPadding,
@@ -58,8 +64,7 @@ fun TodayScreen(
                                 doses.count { it.status == DoseStatus.TAKEN },
                                 doses.size,
                             ),
-                        style = BwTheme.type.support,
-                        color = BwTheme.colors.contentSoft,
+                        style = BwTheme.type.title,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxWidth(),
                     )
