@@ -6,6 +6,8 @@ All URIs are relative to *http://localhost:8000*
 | ------------- | ------------- | ------------- |
 | [**createMyDoseEvents**](DosesApi.md#createMyDoseEvents) | **POST** devices/me/dose-events | Subir eventos de toma (lote, idempotente) |
 | [**createPatientDoseEvents**](DosesApi.md#createPatientDoseEvents) | **POST** patients/{patientId}/dose-events | Registrar tomas desde la web (lote, idempotente) |
+| [**deleteMyDoseEvent**](DosesApi.md#deleteMyDoseEvent) | **DELETE** devices/me/dose-events/{eventId} | Deshacer una toma desde el reloj |
+| [**deletePatientDoseEvent**](DosesApi.md#deletePatientDoseEvent) | **DELETE** patients/{patientId}/dose-events/{eventId} | Deshacer una toma desde la web |
 | [**getAdherence**](DosesApi.md#getAdherence) | **GET** patients/{patientId}/adherence | Porcentaje de adherencia de un paciente |
 | [**getMyDeviceAdherence**](DosesApi.md#getMyDeviceAdherence) | **GET** devices/me/adherence | Adherencia del paciente del reloj |
 | [**listDoseHistory**](DosesApi.md#listDoseHistory) | **GET** patients/{patientId}/dose-history | Historial de dosis de un paciente |
@@ -96,6 +98,92 @@ Configure bearerAuth:
 
  - **Content-Type**: application/json
  - **Accept**: application/json, application/problem+json
+
+
+Deshacer una toma desde el reloj
+
+Solo con token de reloj (403 con token de usuario) y solo eventos del paciente del reloj, los haya registrado el reloj o la web. Borra el evento de una dosis: la dosis vuelve a estar pendiente (o &#x60;MISSED&#x60; si ya pasó su hora), sale del historial y de la adherencia, y la dosis admite un evento nuevo. Para corregir (por ejemplo, de &#x60;TAKEN&#x60; a &#x60;SKIPPED&#x60;) se deshace y se registra otro con un &#x60;eventId&#x60; nuevo. Idempotente: un &#x60;eventId&#x60; que no existe o ya se deshizo responde 204. Un &#x60;eventId&#x60; deshecho puede volver a enviarse en un lote. Requiere el consentimiento &#x60;health_data&#x60; (403 &#x60;consent_required&#x60;). 
+
+### Example
+```kotlin
+// Import classes:
+//import com.smartwatch.recordatorios.api.*
+//import com.smartwatch.recordatorios.api.infrastructure.*
+//import com.smartwatch.recordatorios.api.models.*
+
+val apiClient = ApiClient()
+apiClient.setBearerToken("TOKEN")
+val webService = apiClient.createWebservice(DosesApi::class.java)
+val eventId : java.util.UUID = 38400000-8cf0-11bd-b23e-10b96e4ef00d // java.util.UUID | `eventId` del evento de toma (lo generó el cliente al registrarlo).
+
+launch(Dispatchers.IO) {
+    webService.deleteMyDoseEvent(eventId)
+}
+```
+
+### Parameters
+| Name | Type | Description  | Notes |
+| ------------- | ------------- | ------------- | ------------- |
+| **eventId** | **java.util.UUID**| &#x60;eventId&#x60; del evento de toma (lo generó el cliente al registrarlo). | |
+
+### Return type
+
+null (empty response body)
+
+### Authorization
+
+
+Configure bearerAuth:
+    ApiClient().setBearerToken("TOKEN")
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/problem+json
+
+
+Deshacer una toma desde la web
+
+Para el paciente con cuenta o un cuidador con vínculo activo; un paciente sin vínculo es 404. Sirve para eventos del reloj o de la web (el &#x60;eventId&#x60; está en el historial). Borra el evento de una dosis: la dosis vuelve a estar pendiente (o &#x60;MISSED&#x60; si ya pasó su hora), sale del historial y de la adherencia, y la dosis admite un evento nuevo. Para corregir (por ejemplo, de &#x60;TAKEN&#x60; a &#x60;SKIPPED&#x60;) se deshace y se registra otro con un &#x60;eventId&#x60; nuevo. Idempotente: un &#x60;eventId&#x60; que no existe o ya se deshizo responde 204. Un &#x60;eventId&#x60; deshecho puede volver a enviarse en un lote. Requiere el consentimiento &#x60;health_data&#x60; (403 &#x60;consent_required&#x60;). 
+
+### Example
+```kotlin
+// Import classes:
+//import com.smartwatch.recordatorios.api.*
+//import com.smartwatch.recordatorios.api.infrastructure.*
+//import com.smartwatch.recordatorios.api.models.*
+
+val apiClient = ApiClient()
+apiClient.setBearerToken("TOKEN")
+val webService = apiClient.createWebservice(DosesApi::class.java)
+val patientId : java.util.UUID = 38400000-8cf0-11bd-b23e-10b96e4ef00d // java.util.UUID | 
+val eventId : java.util.UUID = 38400000-8cf0-11bd-b23e-10b96e4ef00d // java.util.UUID | `eventId` del evento de toma (lo generó el cliente al registrarlo).
+
+launch(Dispatchers.IO) {
+    webService.deletePatientDoseEvent(patientId, eventId)
+}
+```
+
+### Parameters
+| **patientId** | **java.util.UUID**|  | |
+| Name | Type | Description  | Notes |
+| ------------- | ------------- | ------------- | ------------- |
+| **eventId** | **java.util.UUID**| &#x60;eventId&#x60; del evento de toma (lo generó el cliente al registrarlo). | |
+
+### Return type
+
+null (empty response body)
+
+### Authorization
+
+
+Configure bearerAuth:
+    ApiClient().setBearerToken("TOKEN")
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/problem+json
 
 
 Porcentaje de adherencia de un paciente
