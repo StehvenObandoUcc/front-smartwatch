@@ -11,6 +11,8 @@ import com.smartwatch.recordatorios.data.remote.AdherenceSummary
 import com.smartwatch.recordatorios.data.remote.PlanInfo
 import com.smartwatch.recordatorios.data.remote.PlanPrefs
 import com.smartwatch.recordatorios.data.repository.DoseRepository
+import com.smartwatch.recordatorios.ui.screens.history.HistoryEntry
+import com.smartwatch.recordatorios.ui.screens.history.historyEntries
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -70,6 +72,13 @@ class HomeViewModel
             repository
                 .observeDoses()
                 .map { todayDoses(it, LocalDate.now(clock.withZone(ZoneId.systemDefault())), ZoneId.systemDefault()) }
+                .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), null)
+
+        /** Las tomas de los últimos 7 días que ya llegaron a su hora, para el Historial. */
+        val history: StateFlow<List<HistoryEntry>?> =
+            repository
+                .observeDoses()
+                .map { historyEntries(it, clock.millis()) }
                 .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), null)
 
         val planInfo: StateFlow<PlanInfo> = planPrefs.info
