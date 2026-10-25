@@ -33,6 +33,7 @@ class FakePlanApi : PlanApi {
 
 class FakeDosesApi : DosesApi {
     val batches = mutableListOf<DoseEventBatch>()
+    val deleted = mutableListOf<UUID>()
     var offline = false
 
     /** Resultado por evento; por omisión todos `created`. */
@@ -44,6 +45,17 @@ class FakeDosesApi : DosesApi {
         val results = doseEventBatch.events.map { DoseEventResult(it.eventId, outcome(it.eventId)) }
         return Response.success(DoseEventBatchResult(results))
     }
+
+    override suspend fun deleteMyDoseEvent(eventId: UUID): Response<Unit> {
+        if (offline) throw IOException("sin red")
+        deleted += eventId
+        return Response.success(Unit)
+    }
+
+    override suspend fun deletePatientDoseEvent(
+        patientId: UUID,
+        eventId: UUID,
+    ): Response<Unit> = error("no se usa en el reloj")
 
     override suspend fun createPatientDoseEvents(
         patientId: UUID,
