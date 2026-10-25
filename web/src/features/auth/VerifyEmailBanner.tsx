@@ -12,7 +12,7 @@ export function VerifyEmailBanner() {
       className="mb-5 flex flex-wrap items-center gap-x-3 gap-y-2 rounded-md bg-surface px-3 py-2"
     >
       <Icon name="email" className="text-text-muted" />
-      <Text as="p" className="min-w-48 flex-1 font-bold">
+      <Text as="p" className="min-w-0 flex-1 basis-48 font-bold">
         {resend.isSuccess
           ? 'Te enviamos un correo nuevo. Revisa tu bandeja.'
           : 'Falta verificar tu correo'}

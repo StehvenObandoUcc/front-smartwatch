@@ -11,10 +11,10 @@ import { WatchMock } from '../molecules/WatchMock';
 export function AuthLayout({ title, children }: { title: string; children: ReactNode }) {
   return (
     <div className="grid min-h-dvh bg-bg desktop:grid-cols-2">
-      <aside className="order-first flex h-40 flex-col justify-center gap-2 bg-sign-gradient px-6 text-on-sign desktop:order-last desktop:h-auto desktop:items-center desktop:gap-10 desktop:p-12">
-        <div className="flex items-center gap-3">
+      <aside className="order-first flex min-h-40 flex-col justify-center gap-2 bg-sign-gradient px-6 py-4 text-on-sign desktop:order-last desktop:items-center desktop:gap-10 desktop:p-12">
+        <div className="flex flex-wrap items-center gap-3">
           <Plate icon="medications" tone="onSign" size="lg" />
-          <div>
+          <div className="min-w-0">
             <p className="text-xl leading-tight font-extrabold tracking-tight">Recuerda</p>
             <p>Tus medicamentos, a su hora</p>
           </div>

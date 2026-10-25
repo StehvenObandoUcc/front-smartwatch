@@ -8,7 +8,7 @@ export function WatchMock({ className }: { className?: string }) {
     <div
       aria-hidden="true"
       className={cn(
-        'flex size-72 shrink-0 flex-col items-center justify-center gap-2 rounded-full border-8 border-on-sign/20 bg-sign text-on-sign',
+        'flex aspect-square w-72 max-w-full shrink-0 flex-col items-center justify-center gap-2 rounded-full border-8 border-on-sign/20 bg-sign text-on-sign',
         className,
       )}
     >

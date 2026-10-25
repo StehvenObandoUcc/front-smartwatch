@@ -129,12 +129,12 @@ export function LandingPage() {
       <a href="#contenido" className="sr-only focus:not-sr-only focus:absolute focus:p-3">
         Saltar al contenido
       </a>
-      <header className={cn(wrap, 'flex min-h-20 items-center gap-6 py-3')}>
+      <header className={cn(wrap, 'flex min-h-20 flex-wrap items-center gap-x-6 gap-y-2 py-3')}>
         <Link to="/" className="flex items-center gap-2 text-xl font-extrabold tracking-tight">
           <Plate icon="medications" size="sm" />
           Recuerda
         </Link>
-        <nav aria-label="Secciones" className="hidden gap-6 font-bold desktop:flex">
+        <nav aria-label="Secciones" className="hidden gap-6 font-bold tablet:flex">
           <a href="#como-funciona" className="hover:underline">
             Cómo funciona
           </a>
@@ -224,7 +224,7 @@ export function LandingPage() {
                   </ul>
                 </div>
               </div>
-              <WatchMock className="size-60 desktop:size-72" />
+              <WatchMock className="w-60 desktop:w-72" />
             </div>
           </div>
         </section>
@@ -282,7 +282,7 @@ export function LandingPage() {
               body="Suena y vibra a la hora; se responde con un toque."
               className="desktop:col-span-5"
             >
-              <div className="mx-auto flex size-56 flex-col items-center justify-center gap-2 rounded-full bg-danger text-on-danger">
+              <div className="mx-auto flex aspect-square w-56 max-w-full flex-col items-center justify-center gap-2 rounded-full bg-danger text-on-danger">
                 <Icon name="medications" className="size-8" />
                 <p className="text-xl font-extrabold">Metformina</p>
                 <p>850 mg · 13:00</p>
@@ -387,7 +387,7 @@ export function LandingPage() {
             'flex scroll-mt-4 flex-col items-center gap-10 py-16 desktop:flex-row desktop:justify-between',
           )}
         >
-          <div className="flex max-w-xl flex-col items-start gap-4">
+          <div className="flex w-full max-w-xl flex-col items-start gap-4">
             <Insignia icon="patient">Para el paciente</Insignia>
             <h2
               id="paciente-title"

@@ -97,7 +97,7 @@ function TelegramCard() {
         </div>
       )}
       {email && (
-        <div className="flex items-center justify-between gap-2 border-t-2 border-border py-3">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-t-2 border-border py-3">
           <div>
             <Text as="p" className="font-bold">
               Correo
@@ -113,7 +113,7 @@ function TelegramCard() {
       )}
       {telegram && (
         <div className="flex flex-col gap-3 border-y-2 border-border py-3">
-          <div className="flex items-center justify-between gap-2">
+          <div className="flex flex-wrap items-center justify-between gap-2">
             <Text as="p" className="font-bold">
               Telegram
             </Text>
