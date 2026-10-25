@@ -1,18 +1,29 @@
 package com.smartwatch.recordatorios.ui.screens.alert
 
+import androidx.annotation.DrawableRes
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
@@ -26,15 +37,18 @@ import com.smartwatch.recordatorios.data.local.DoseStatus
 import com.smartwatch.recordatorios.ui.components.BwActionPill
 import com.smartwatch.recordatorios.ui.components.BwBanner
 import com.smartwatch.recordatorios.ui.components.BwButton
+import com.smartwatch.recordatorios.ui.components.BwIcon
 import com.smartwatch.recordatorios.ui.components.BwScreenScaffold
 import com.smartwatch.recordatorios.ui.components.BwSnoozeMark
 import com.smartwatch.recordatorios.ui.components.BwSuccessMark
 import com.smartwatch.recordatorios.ui.components.BwText
+import com.smartwatch.recordatorios.ui.components.BwTone
 import com.smartwatch.recordatorios.ui.components.MedicationLabel
 import com.smartwatch.recordatorios.ui.components.doseStatusText
 import com.smartwatch.recordatorios.ui.components.edgeItem
 import com.smartwatch.recordatorios.ui.theme.BwTheme
 import com.smartwatch.recordatorios.ui.theme.RecordatoriosTheme
+import com.smartwatch.recordatorios.ui.theme.Sizes
 import com.smartwatch.recordatorios.ui.theme.Spacing
 import com.smartwatch.recordatorios.ui.theme.timeText
 
@@ -61,7 +75,9 @@ fun DoseAlertScreen(
     LaunchedEffect(confirmingSkip, takenAt, snoozedAt) { listState.scrollToItem(0) }
     val pending = dose.status == DoseStatus.SCHEDULED
 
-    BwScreenScaffold(scrollState = listState) { contentPadding ->
+    // Naranja rojizo mientras pide algo; verde cuando ya se tomó.
+    val tone = if (takenAt != null) BwTone.DONE else BwTone.ALERT
+    BwScreenScaffold(scrollState = listState, tone = tone) { contentPadding ->
         TransformingLazyColumn(state = listState, contentPadding = contentPadding) {
             val taken = takenAt
             val snoozed = snoozedAt
@@ -136,15 +152,6 @@ private fun TransformingLazyColumnScope.pendingActions(
     onAskSkip: () -> Unit,
 ) {
     val canSnooze = SnoozePolicy.canSnooze(dose.snoozeCount)
-    edgeItem(container = true) {
-        BwButton(
-            label = stringResource(R.string.action_take),
-            onClick = onTake,
-            primary = true,
-            icon = R.drawable.ic_check,
-            modifier = Modifier.fillMaxWidth(),
-        )
-    }
     if (!canSnooze) {
         edgeItem {
             BwText(
@@ -156,30 +163,65 @@ private fun TransformingLazyColumnScope.pendingActions(
             )
         }
     }
-    // Posponer (neutra) y Omitir (solo contorno) lado a lado, más estrechas que la acción principal:
-    // la parte baja de la pantalla redonda es más angosta.
+    // Tres discos en una fila: Tomada, el grande y claro, en el centro; Omitir y Posponer, de vidrio,
+    // a los lados (Omitir pide confirmación). Sin más pospuestas, Posponer no aparece.
     edgeItem(container = true) {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = Spacing.md),
-            horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(Spacing.xs, Alignment.CenterHorizontally),
+            verticalAlignment = Alignment.Top,
         ) {
+            ActionDisc(stringResource(R.string.action_skip), R.drawable.ic_close, onClick = onAskSkip)
+            ActionDisc(stringResource(R.string.action_take), R.drawable.ic_check, onClick = onTake, main = true)
             if (canSnooze) {
-                BwActionPill(
-                    label = stringResource(R.string.snooze_short),
-                    icon = R.drawable.ic_snooze,
-                    detail = stringResource(R.string.snooze_minutes, SnoozePolicy.DELAY.toMinutes()),
+                ActionDisc(
+                    stringResource(R.string.snooze_short),
+                    R.drawable.ic_snooze,
                     onClick = onSnooze,
-                    modifier = Modifier.weight(1f),
+                    detail = stringResource(R.string.snooze_minutes, SnoozePolicy.DELAY.toMinutes()),
                 )
             }
-            BwActionPill(
-                label = stringResource(R.string.action_skip),
-                icon = R.drawable.ic_close,
-                onClick = onAskSkip,
-                quiet = true,
-                modifier = Modifier.weight(1f),
+        }
+    }
+}
+
+/** Una acción como disco con su palabra debajo; disco y palabra son un solo botón para TalkBack. */
+@Composable
+private fun ActionDisc(
+    label: String,
+    @DrawableRes icon: Int,
+    onClick: () -> Unit,
+    main: Boolean = false,
+    detail: String? = null,
+) {
+    val colors = BwTheme.colors
+    Column(
+        modifier =
+            Modifier
+                .clip(BwTheme.shapes.card)
+                .clickable(role = Role.Button, onClick = onClick)
+                .semantics(mergeDescendants = true) {}
+                .padding(vertical = Spacing.xs),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(Spacing.xs),
+    ) {
+        Box(
+            modifier =
+                Modifier
+                    .size(if (main) Sizes.discMain else Sizes.discSecondary)
+                    .clip(CircleShape)
+                    .background(if (main) colors.primary else colors.surface),
+            contentAlignment = Alignment.Center,
+        ) {
+            BwIcon(
+                icon,
+                contentDescription = null,
+                color = if (main) colors.onPrimary else colors.content,
+                modifier = Modifier.size(Sizes.discIcon),
             )
         }
+        BwText(label, style = BwTheme.type.support, textAlign = TextAlign.Center, maxLines = 1)
+        detail?.let { BwText(it, style = BwTheme.type.support, color = colors.contentSoft, maxLines = 1) }
     }
 }
 
