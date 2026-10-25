@@ -38,16 +38,16 @@ export function SignBar({
   return (
     <div
       className={cn(
-        'flex min-h-touch items-center gap-3 rounded-md px-4 py-2.5',
+        'flex min-h-touch flex-wrap items-center gap-x-3 gap-y-1 rounded-md px-4 py-2.5',
         toneClass[tone],
         className,
       )}
     >
       <Icon name={icon} className="size-7" />
-      <Heading id={id} className="min-w-0 flex-1 text-lg leading-tight font-extrabold text-balance">
+      <Heading id={id} className="flex-1 text-lg leading-tight font-extrabold text-balance">
         {title}
       </Heading>
-      {meta && <span className="text-caption font-bold">{meta}</span>}
+      {meta && <span className="text-caption font-bold whitespace-nowrap">{meta}</span>}
     </div>
   );
 }

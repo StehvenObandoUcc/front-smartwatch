@@ -50,3 +50,13 @@ export function useDoseHistory(patientId: string) {
   const history = useListDoseHistory(patientId, { limit: 100 });
   return { ...history, index: historyIndex(history.data?.items ?? []) };
 }
+
+/**
+ * La dosis que toca mirar ahora: la primera aún por marcar (pendiente o no tomada) y, si no hay,
+ * la próxima que viene. `null` si ya no queda ninguna. Las dosis van en orden de hora.
+ */
+export function nextDose<T>(doses: T[], states: DoseState[]): { dose: T; state: DoseState } | null {
+  const i = states.findIndex(canRecord);
+  const j = i >= 0 ? i : states.indexOf('upcoming');
+  return j >= 0 ? { dose: doses[j] as T, state: states[j] as DoseState } : null;
+}

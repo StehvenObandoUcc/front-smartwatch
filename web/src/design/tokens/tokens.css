@@ -240,6 +240,25 @@
   /* Movimiento con propósito: salida exponencial; se anula con prefers-reduced-motion. */
   --ease-*: initial;
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  /* El anillo del día se dibuja y los bloques del panel entran suaves (solo con motion-safe). */
+  --animate-ring: ring-draw 900ms var(--ease-out) both;
+  --animate-rise: rise 400ms var(--ease-out) both;
+
+  @keyframes ring-draw {
+    from {
+      stroke-dashoffset: 100;
+    }
+  }
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      translate: 0 0.5rem;
+    }
+  }
+
+  /* Anillo del día en el bloque Hoy. */
+  --spacing-ring: 9rem;
 
   /* Breakpoints: móvil < 640, tablet 640–1024, escritorio > 1024. */
   --breakpoint-*: initial;
