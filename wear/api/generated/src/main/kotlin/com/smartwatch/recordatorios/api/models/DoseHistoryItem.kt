@@ -31,6 +31,7 @@ import kotlinx.serialization.Contextual
  * @param scheduledAt 
  * @param status 
  * @param actedAt 
+ * @param eventId 
  */
 @Serializable
 
@@ -55,7 +56,10 @@ data class DoseHistoryItem (
     val status: DoseStatus,
 
     @Contextual @SerialName(value = "actedAt")
-    val actedAt: java.time.OffsetDateTime?
+    val actedAt: java.time.OffsetDateTime?,
+
+    @Contextual @SerialName(value = "eventId")
+    val eventId: java.util.UUID?
 
 ) {
 
