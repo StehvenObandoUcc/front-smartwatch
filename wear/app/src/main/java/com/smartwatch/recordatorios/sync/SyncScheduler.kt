@@ -63,10 +63,6 @@ class SyncScheduler
             val request =
                 OneTimeWorkRequestBuilder<EventUploadWorker>()
                     .setConstraints(needsNetwork)
-                    // Deja pasar la ventana de «Deshacer» antes de subir lo recién registrado.
-                    // ponytail: si un envío ya estaba en marcha puede llevarse el evento antes; deshacer
-                    // devuelve false y la toma queda registrada (se corrige desde el panel).
-                    .setInitialDelay(UNDO_GRACE)
                     .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, BACKOFF)
                     .build()
             workManager.enqueueUniqueWork(UPLOAD, ExistingWorkPolicy.APPEND_OR_REPLACE, request)
@@ -78,6 +74,5 @@ class SyncScheduler
             const val UPLOAD = "event-upload"
             val PERIOD: Duration = Duration.ofMinutes(15)
             val BACKOFF: Duration = Duration.ofSeconds(30)
-            val UNDO_GRACE: Duration = Duration.ofSeconds(10)
         }
     }
