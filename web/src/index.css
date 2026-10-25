@@ -14,17 +14,17 @@
     text-wrap: pretty;
   }
 
-  /* Con el texto agrandado, una palabra larga se parte con guion antes que salirse de la pantalla. */
+  /* Con el texto agrandado, una palabra larga se parte antes que salirse de la pantalla. */
   h1,
   h2,
   h3 {
     overflow-wrap: break-word;
-    hyphens: auto;
+    hyphens: manual;
   }
 
   /* La selección y el cursor de texto también son del sistema, no del navegador. */
   ::selection {
-    @apply bg-sign-muted text-text;
+    @apply bg-sign-muted text-ink;
   }
 
   input,
