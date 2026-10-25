@@ -4,6 +4,7 @@ docs/AccessToken.md
 docs/Adherence.md
 docs/AuthApi.md
 docs/AuthSession.md
+docs/BatteryUpdate.md
 docs/CareLink.md
 docs/CareLinkPage.md
 docs/CaregiverInvitation.md
@@ -128,6 +129,7 @@ src/main/kotlin/com/smartwatch/recordatorios/api/infrastructure/UUIDAdapter.kt
 src/main/kotlin/com/smartwatch/recordatorios/api/models/AccessToken.kt
 src/main/kotlin/com/smartwatch/recordatorios/api/models/Adherence.kt
 src/main/kotlin/com/smartwatch/recordatorios/api/models/AuthSession.kt
+src/main/kotlin/com/smartwatch/recordatorios/api/models/BatteryUpdate.kt
 src/main/kotlin/com/smartwatch/recordatorios/api/models/CareLink.kt
 src/main/kotlin/com/smartwatch/recordatorios/api/models/CareLinkPage.kt
 src/main/kotlin/com/smartwatch/recordatorios/api/models/CaregiverInvitation.kt
@@ -209,9 +211,4 @@ src/main/kotlin/com/smartwatch/recordatorios/api/models/ValidationProblemAllOfLo
 src/main/kotlin/com/smartwatch/recordatorios/api/models/WatchChatReply.kt
 src/main/kotlin/com/smartwatch/recordatorios/api/models/WatchChatRequest.kt
 src/main/kotlin/com/smartwatch/recordatorios/api/models/kotlinx.serialization.json.JsonObject.kt
-src/test/kotlin/com/smartwatch/recordatorios/api/models/ChatActionTest.kt
-src/test/kotlin/com/smartwatch/recordatorios/api/models/DeviceMedicationCreateTest.kt
-src/test/kotlin/com/smartwatch/recordatorios/api/models/MedicationWithScheduleTest.kt
-src/test/kotlin/com/smartwatch/recordatorios/api/models/MyDeviceTest.kt
-src/test/kotlin/com/smartwatch/recordatorios/api/models/PendingActionTest.kt
-src/test/kotlin/com/smartwatch/recordatorios/api/models/WatchChatRequestTest.kt
+src/test/kotlin/com/smartwatch/recordatorios/api/models/BatteryUpdateTest.kt
