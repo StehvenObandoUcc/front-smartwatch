@@ -10,6 +10,8 @@
 | **pairedAt** | [**java.time.OffsetDateTime**](java.time.OffsetDateTime.md) |  |  |
 | **lastSeenAt** | [**java.time.OffsetDateTime**](java.time.OffsetDateTime.md) |  |  |
 | **hasPushToken** | **kotlin.Boolean** |  |  |
+| **batteryLevel** | **kotlin.Int** |  |  |
+| **batteryReportedAt** | [**java.time.OffsetDateTime**](java.time.OffsetDateTime.md) |  |  |
 
 
 
