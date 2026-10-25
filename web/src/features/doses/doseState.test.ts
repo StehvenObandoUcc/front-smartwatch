@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import type { DoseHistoryItem, PlannedDose } from '../../api/generated';
-import { canRecord, doseState, historyIndex } from './doseState';
+import { canRecord, doseState, historyIndex, nextDose } from './doseState';
 
 const dose: PlannedDose = {
   scheduleId: 's1',
@@ -47,5 +47,16 @@ describe('doseState', () => {
     expect(
       ['taken', 'skipped', 'missed', 'due', 'upcoming'].filter((s) => canRecord(s as never)),
     ).toEqual(['missed', 'due']);
+  });
+});
+
+describe('nextDose', () => {
+  it('prefiere la primera por marcar y si no, la próxima', () => {
+    expect(nextDose(['a', 'b', 'c'], ['taken', 'missed', 'upcoming'])).toEqual({
+      dose: 'b',
+      state: 'missed',
+    });
+    expect(nextDose(['a', 'b'], ['taken', 'upcoming'])).toEqual({ dose: 'b', state: 'upcoming' });
+    expect(nextDose(['a'], ['skipped'])).toBeNull();
   });
 });
