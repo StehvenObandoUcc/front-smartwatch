@@ -282,17 +282,18 @@ Ocho tonos profundos (`med-red`, `med-orange`, `med-yellow`, `med-green`, `med-t
 Por `prefers-color-scheme: dark` o `data-theme='dark'`. Fondo `#0d1716`, superficies `#15211f` / `#1a2826`, texto `#eef5f4` / `#a9bdba`, regla `#2c3d3b`. El panel de señal baja a `#0b3f3d`, y la acción principal sube a celeste petróleo `#5fc2ba` con texto `#062321`; la noche sube a `#3b4c82`. Estados, franjas claras y paleta de medicamentos no cambian.
 
 ### Reloj
-Un único modo oscuro sobre un petróleo profundo, plano, que se lee como color y no como negro: `#0f2b29`. Superficie `#1a3c39`, contorno `#4a6e69`, pista de los anillos `#24504b`, texto claro `#eef5f4` y suave `#b5ccc9`. La acción principal y la placa de encabezado son un petróleo más claro (`#127a73`) para leerse sobre OLED; los datos (gráfica de adherencia, carga) van en celeste petróleo `#5fc2ba`, el mismo valor que la acción principal del tema oscuro web. Estados, franjas, tinta `#11201f` y paleta de medicamentos son los mismos hex que la web.
+El reloj es un mundo propio de **esferas a sangre** con cuatro colores como máximo. Cada pantalla se pinta entera con el degradado tonal de su papel (mismo matiz, de arriba a abajo): **petróleo** para casi todo (`#083b38` → `#0e766e`), **naranja rojizo** para la alarma (`#3f1408` → `#b8401c`) y **verde** para Tomada y el día completo (`#0d3a1f` → `#2a7a35`). El complemento del petróleo es la **aguamarina** `#7fe0d4`: arcos, la marca de ahora y lo pendiente. Lo demás es neutro: el claro cálido de texto `#f7f2ec`, el suave `#e2d7cc`, la tinta `#1b1613` para lo que va sobre rellenos claros y el vidrio (claro al 16 %) de superficies y botones secundarios.
+
+Los estados usan tonos claros con tinta encima: Tomada `#8fe3b0`, Pendiente y avisos `#ffb08a`, No tomada `#ff8a70`, Omitida `#c9cfcd`. Las franjas no tienen color propio en el reloj: las distinguen su pictograma (sol, atardecer, luna) y su palabra, sobre vidrio. La paleta de medicamentos es la misma que la web, solo en su placa.
 
 | Papel | Web claro | Web oscuro | Reloj |
 | --- | --- | --- | --- |
-| Fondo | `#f5f8f7` | `#0d1716` | `#0f2b29` |
-| Texto | `#11201f` | `#eef5f4` | `#eef5f4` |
-| Superficie | `#e6eeed` | `#15211f` | `#1a3c39` |
-| Señal / placa de sección | `#0e5a57` | `#0b3f3d` | `#127a73` |
-| Acción principal | `#0e5a57` | `#5fc2ba` | `#127a73` |
-| Dato / celeste | — | `#5fc2ba` | `#5fc2ba` |
-| Estados, franjas, `med-*` | iguales | iguales | iguales |
+| Fondo | `#f5f8f7` | `#0d1716` | degradado del papel (petróleo, naranja rojizo, verde) |
+| Texto | `#11201f` | `#eef5f4` | `#f7f2ec` |
+| Superficie | `#e6eeed` | `#15211f` | vidrio (claro al 16 %) |
+| Acción principal | `#0e5a57` | `#5fc2ba` | relleno claro `#f7f2ec` con tinta |
+| Dato, arcos y pendiente | — | `#5fc2ba` | aguamarina `#7fe0d4` |
+| Estados | colores plenos | iguales | tonos claros con tinta |
 
 ### Named Rules
 **The Color Never Alone Rule.** Ningún color lleva información solo: la placa del medicamento va con su nombre, la placa de estado con su palabra y la franja con su nombre y su horario. Si quitas el color, la pantalla se sigue entendiendo.
@@ -355,13 +356,15 @@ El degradado tonal de petróleo (`--sign-gradient`, de `#0b4744` a `#127a73`, mi
 ### Named Rules
 **The One Lift Rule.** Un solo nivel de elevación, siempre tintado de petróleo y difuso; nunca una sombra dura, de color o con desplazamiento grande, y nunca dos niveles apilados.
 
-**The Three Gradients Rule.** El degradado tonal de petróleo solo vive en la banda del hero, la banda de CTA y el panel del login. Nunca en el panel de datos, en botones ni detrás de texto pequeño.
+**The Three Gradients Rule.** En la web, el degradado tonal de petróleo solo vive en la banda del hero, la banda de CTA y el panel del login; nunca en el panel de datos, en botones ni detrás de texto pequeño.
+
+**The Full-Bleed Dial Rule.** En el reloj, cada pantalla es una esfera a sangre con el degradado tonal de su papel (petróleo, alarma o tomada) y, donde hay tiempo que leer, la esfera de 24 horas en el borde: la escala, el arco de ahora a la próxima toma y cada dosis como un punto a su hora. Cuatro colores como máximo; nada de sombras.
 
 ## Shapes
 
 Esquinas suaves y regulares: 8 px (`sm`) en las placas de estado y las barras del esqueleto, 12 px (`md`) en placas de pictograma, botones, campos, franjas y opciones de navegación, 16 px (`lg`) en tarjetas, bloques del panel y zonas tintadas. El círculo completo (`full`) queda para el punto de color de medicamento y los anillos. Los bordes son de 2 px: sólidos en campos y botón secundario, discontinuos en el estado vacío. Los pictogramas son Lucide con trazo de 2,25.
 
-En el reloj las placas usan 6 dp y las tarjetas 12 dp; los botones son píldoras (convención de Wear OS para pantallas redondas), la marca de éxito es un disco verde y los anillos son círculos completos.
+En el reloj las placas usan 6 dp y las tarjetas 12 dp; los botones son píldoras (convención de Wear OS para pantallas redondas), las acciones de la alerta son discos (Tomada de 60 dp, Omitir y Posponer de 48 dp), los botones de esquina son discos de vidrio de 36 dp en un área de 48 dp, y la marca de éxito es un disco claro con el visto en tinta.
 
 ## Components
 
@@ -379,7 +382,10 @@ Placa de 32 px mínimo de alto, esquina 8 px, palabra en Label con pictograma de
 - **Ghost:** texto petróleo sin fondo, subrayado al pasar; para enlaces de acción («Ver historial»).
 - **onSign:** transparente sobre la cabecera, texto y foco claros.
 - **Disabled:** zona tintada, tinta suave, cursor bloqueado. **Loading:** spinner en lugar del pictograma y `aria-busy`.
-- **Reloj:** `BwButton` es una píldora de 52 dp, principal en petróleo `#127a73` plano con texto claro, secundaria en superficie con contorno de 1 dp; al pulsar baja al 80 % de opacidad.
+- **Reloj:** `BwButton` es una píldora de 52 dp, principal en relleno claro con tinta, secundaria de vidrio con contorno de 1 dp; al pulsar baja al 80 % de opacidad. En la alerta, las acciones son discos con su palabra debajo (Omitir, Tomada, Posponer).
+
+### BwDial (reloj, firma)
+La esfera de 24 horas detrás del contenido: cuartos de hora y horas en el borde, números pares de 14 sp (sin 04 ni 20, que quedan bajo los botones de esquina), el arco aguamarina de ahora a la próxima toma, la marca de ahora y cada dosis como punto a su hora (verde lleno tomada, gris lleno omitida, naranja lleno en su hora, aguamarina hueco pendiente). Es decorativa para TalkBack: la pantalla dice lo mismo en palabras. Hoy la usa sin números.
 
 ### Cards / Containers
 - **Card:** tarjeta casi blanca (`surface-raised`), borde de regla de 2 px, esquina 16 px, sin sombra; contiene formularios (24 px de relleno en entrada).
