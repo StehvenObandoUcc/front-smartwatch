@@ -5,6 +5,7 @@ import { Spinner } from '../components/atoms/Spinner/Spinner';
 import { Text } from '../components/atoms/Text/Text';
 import { AppShell } from '../components/templates/AppShell/AppShell';
 import { useAuth } from '../features/auth/AuthContext';
+import { LandingPage } from '../pages/LandingPage';
 import { PatientGate } from '../features/patients/PatientGate';
 import { VerifyEmailBanner } from '../features/auth/VerifyEmailBanner';
 import { headerFor, navItems } from './navigation';
@@ -25,6 +26,8 @@ export function RootLayout() {
     );
   }
   if (auth.status === 'anon') {
+    // En la raíz, quien no ha entrado ve la landing; en cualquier otra ruta, la entrada.
+    if (pathname === '/') return <LandingPage />;
     const next = pathname === '/' ? '' : `?next=${encodeURIComponent(pathname + search)}`;
     return <Navigate to={`/login${next}`} replace />;
   }

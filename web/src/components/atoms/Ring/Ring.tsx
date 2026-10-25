@@ -49,7 +49,9 @@ export function Ring({ value, total, children, tone = 'default', className }: Pr
           />
         )}
       </svg>
-      <div className="relative flex flex-col items-center text-center">{children}</div>
+      <div className="relative flex flex-col items-center px-6 text-center text-balance">
+        {children}
+      </div>
     </div>
   );
 }
