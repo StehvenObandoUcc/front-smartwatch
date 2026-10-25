@@ -17,8 +17,9 @@ import dagger.assisted.AssistedInject
 
 /**
  * Cada 15 min y al abrir la app: completa las dosis de los medicamentos creados en el reloj (también
- * sin vincular), sube lo pendiente, descarga el plan (ETag evita descargas inútiles) y después la
- * adherencia, que así ya cuenta lo recién subido.
+ * sin vincular), sube lo pendiente (y borra las tomas deshechas), descarga el plan (ETag evita
+ * descargas inútiles) y después la adherencia, que así ya cuenta lo recién subido. Al final informa
+ * la batería.
  */
 @Suppress("LongParameterList") // context y params los exige WorkManager
 @HiltWorker
@@ -44,6 +45,7 @@ class PlanSyncWorker
             val synced = plan.sync()
             val adherenceSynced = adherence.sync()
             device.refresh()
+            device.reportBattery()
             val retry = !uploaded || !localUploaded || synced == SyncResult.FAILED || !adherenceSynced
             return if (retry) Result.retry() else Result.success()
         }
