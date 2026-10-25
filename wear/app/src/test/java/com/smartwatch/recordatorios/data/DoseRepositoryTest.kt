@@ -53,7 +53,7 @@ class DoseRepositoryTest {
         }
 
     @Test
-    fun `deshacer tomada vuelve a pendiente y borra el evento que aun no se subio`() =
+    fun `deshacer tomada vuelve a pendiente y deja el evento para borrarlo en el backend`() =
         runTest {
             graph.seed()
             graph.repository.record("demo-1", DoseAction.TAKEN)
@@ -61,7 +61,12 @@ class DoseRepositoryTest {
             assertThat(graph.repository.undoTaken("demo-1")).isTrue()
 
             assertThat(graph.repository.get("demo-1")?.status).isEqualTo(DoseStatus.SCHEDULED)
-            assertThat(graph.repository.eventsFor("demo-1")).isEmpty()
+            assertThat(
+                graph.repository
+                    .eventsFor("demo-1")
+                    .single()
+                    .syncState,
+            ).isEqualTo(SyncState.UNDONE)
             assertThat(graph.repository.undoTaken("demo-1")).isFalse()
         }
 
