@@ -45,7 +45,7 @@ export function Plate({ icon, size = 'md', tone = 'sign', hex, label, className 
       className={cn(
         'inline-grid shrink-0 place-items-center rounded-md',
         box,
-        hex ? `${medicationColorClass[medicationColorFor(hex)]} text-on-state` : toneClass[tone],
+        hex ? `${medicationColorClass[medicationColorFor(hex)]} text-on-light` : toneClass[tone],
         className,
       )}
     >
