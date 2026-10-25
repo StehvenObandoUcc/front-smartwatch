@@ -83,7 +83,7 @@ fun BwSuccessMark(
     val colors = BwTheme.colors
     StatusMark(label, details, modifier) {
         Canvas(modifier = Modifier.size(Sizes.successMark)) {
-            drawCircle(colors.stateTaken)
+            drawCircle(colors.primary)
             val check =
                 Path().apply {
                     moveTo(size.width * CHECK_START_X, size.height * CHECK_MID_Y)
@@ -92,7 +92,7 @@ fun BwSuccessMark(
                 }
             drawPath(
                 check,
-                colors.content,
+                colors.onPrimary,
                 style = Stroke(width = Sizes.progressStroke.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round),
             )
         }

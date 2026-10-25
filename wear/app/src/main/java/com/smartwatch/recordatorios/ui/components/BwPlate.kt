@@ -82,10 +82,10 @@ fun BwStatePlate(
         BwIcon(
             icon,
             contentDescription = null,
-            color = BwTheme.colors.content,
+            color = onPlate(color),
             modifier = Modifier.size(Sizes.plateSmallIcon),
         )
-        BwText(label, style = BwTheme.type.support, color = BwTheme.colors.content, maxLines = 1)
+        BwText(label, style = BwTheme.type.support, color = onPlate(color), maxLines = 1)
     }
 }
 
@@ -102,18 +102,20 @@ fun BwSignBar(
     modifier: Modifier = Modifier,
 ) {
     val colors = BwTheme.colors
-    val (color, icon) =
+    // Las franjas no tienen color propio: las distinguen el pictograma y la palabra, sobre vidrio.
+    val icon =
         when (part) {
-            DayPart.MORNING -> colors.sun to R.drawable.ic_sun
-            DayPart.AFTERNOON -> colors.dusk to R.drawable.ic_sunset
-            DayPart.NIGHT -> colors.night to R.drawable.ic_moon
+            DayPart.MORNING -> R.drawable.ic_sun
+            DayPart.AFTERNOON -> R.drawable.ic_sunset
+            DayPart.NIGHT -> R.drawable.ic_moon
         }
-    val tint = onPlate(color)
+    val color = colors.surface
+    val tint = colors.content
     Row(
         modifier =
             modifier
                 .heightIn(min = Sizes.signBar)
-                .background(color, BwTheme.shapes.plate)
+                .background(color, BwTheme.shapes.pill)
                 .padding(horizontal = Spacing.md, vertical = Spacing.xs),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(Spacing.sm, Alignment.CenterHorizontally),

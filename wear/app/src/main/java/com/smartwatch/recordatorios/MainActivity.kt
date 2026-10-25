@@ -229,6 +229,7 @@ class MainActivity : ComponentActivity() {
                                 onOpenChat = if (paired) ({ screen = Screen.CHAT }) else null,
                                 onRetryPlan = syncScheduler::syncNow,
                                 onAddMedication = onAdd,
+                                today = today.orEmpty(),
                             )
                         Page.TODAY -> TodayScreen(doses = today, onOpenDose = ::openDose)
                         Page.ADHERENCE -> AdherenceScreen(summary = adherence)

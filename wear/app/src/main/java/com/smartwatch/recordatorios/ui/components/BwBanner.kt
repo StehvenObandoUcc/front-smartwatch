@@ -21,7 +21,7 @@ import com.smartwatch.recordatorios.ui.theme.Sizes
 import com.smartwatch.recordatorios.ui.theme.Spacing
 
 /**
- * Aviso compacto: icono y título en el color de acento sobre superficie y una explicación
+ * Aviso compacto en el naranja claro de atención, con tinta: icono, título y una explicación
  * corta (escrita para caber en dos líneas; con letra grande ocupa las que necesite).
  * Nunca solo color: siempre icono (con [iconDescription] para TalkBack) y título.
  * Sin [onClick] es un aviso informativo, no clicable.
@@ -39,11 +39,11 @@ fun BwBanner(
     val text = @Composable {
         Column(verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
             // Títulos cortos: sin guiones (con letra grande el icono se apila y la palabra cabe).
-            BwText(title, style = BwTheme.type.label.copy(hyphens = Hyphens.None), color = colors.accent)
-            body?.let { BwText(it, style = BwTheme.type.support, color = colors.contentSoft) }
+            BwText(title, style = BwTheme.type.label.copy(hyphens = Hyphens.None), color = colors.onAccent)
+            body?.let { BwText(it, style = BwTheme.type.support, color = colors.onAccent) }
         }
     }
-    val iconView = @Composable { BwIcon(icon, contentDescription = iconDescription, color = colors.accent) }
+    val iconView = @Composable { BwIcon(icon, contentDescription = iconDescription, color = colors.onAccent) }
     // Con letra grande el icono va encima: a su lado el título no cabe y partiría las palabras.
     val stacked = LocalDensity.current.fontScale >= LARGE_FONT_SCALE
     Row(
@@ -51,7 +51,7 @@ fun BwBanner(
             modifier
                 .heightIn(min = Sizes.touchMin)
                 .clip(BwTheme.shapes.card)
-                .background(colors.surface)
+                .background(colors.accent)
                 .then(if (onClick != null) Modifier.clickable(role = Role.Button, onClick = onClick) else Modifier)
                 .padding(horizontal = Spacing.md, vertical = Spacing.sm),
         verticalAlignment = Alignment.CenterVertically,

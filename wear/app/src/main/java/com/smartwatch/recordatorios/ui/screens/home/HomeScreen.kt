@@ -24,13 +24,19 @@ import com.smartwatch.recordatorios.data.remote.PlanInfo
 import com.smartwatch.recordatorios.data.remote.PlanStatus
 import com.smartwatch.recordatorios.ui.components.BwBanner
 import com.smartwatch.recordatorios.ui.components.BwButton
+import com.smartwatch.recordatorios.ui.components.BwCornerButton
+import com.smartwatch.recordatorios.ui.components.BwCorners
+import com.smartwatch.recordatorios.ui.components.BwDial
 import com.smartwatch.recordatorios.ui.components.BwEmptyState
 import com.smartwatch.recordatorios.ui.components.BwScreenScaffold
 import com.smartwatch.recordatorios.ui.components.BwText
 import com.smartwatch.recordatorios.ui.components.MedicationLabel
+import com.smartwatch.recordatorios.ui.components.dialMarks
 import com.smartwatch.recordatorios.ui.components.edgeItem
+import com.smartwatch.recordatorios.ui.components.hourOfDay
 import com.smartwatch.recordatorios.ui.theme.BwTheme
 import com.smartwatch.recordatorios.ui.theme.RecordatoriosTheme
+import com.smartwatch.recordatorios.ui.theme.Sizes
 import com.smartwatch.recordatorios.ui.theme.Spacing
 import com.smartwatch.recordatorios.ui.theme.timeText
 import kotlinx.coroutines.delay
@@ -54,10 +60,19 @@ fun HomeScreen(
     onRetryPlan: () -> Unit,
     onAddMedication: (() -> Unit)? = null,
     now: Long = rememberNow(),
+    today: List<DoseEntity> = emptyList(),
 ) {
     val listState = rememberTransformingLazyColumnState()
     val planStatus = planInfo?.let { planStatusText(it, now) }
-    BwScreenScaffold(scrollState = listState) { contentPadding ->
+    val marks = dialMarks(today, now)
+    // El arco va de ahora a la próxima toma, si es dentro de las próximas 24 h.
+    val arc = next?.takeIf { it.nextAlarmAt - now in 0..DAY_MILLIS }?.let { hourOfDay(now)..hourOfDay(it.nextAlarmAt) }
+    val ask = stringResource(R.string.chat_ask)
+    BwScreenScaffold(
+        scrollState = listState,
+        backdrop = { BwDial(marks = marks, arc = arc, now = hourOfDay(now)) },
+        corners = onOpenChat?.let { chat -> BwCorners(start = { BwCornerButton(R.drawable.ic_mic, ask, chat) }) },
+    ) { contentPadding ->
         TransformingLazyColumn(
             state = listState,
             contentPadding = contentPadding,
@@ -130,17 +145,6 @@ fun HomeScreen(
                 }
             }
 
-            onOpenChat?.let { chat ->
-                edgeItem(container = true) {
-                    BwButton(
-                        label = stringResource(R.string.chat_ask),
-                        onClick = chat,
-                        icon = R.drawable.ic_mic,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                }
-            }
-
             planStatus?.let { status ->
                 edgeItem {
                     BwText(
@@ -177,13 +181,20 @@ private fun NextDose(
         verticalArrangement = Arrangement.spacedBy(Spacing.xs),
     ) {
         BwText(
+            stringResource(R.string.next_label),
+            style = BwTheme.type.support,
+            color = BwTheme.colors.contentSoft,
+            textAlign = TextAlign.Center,
+        )
+        BwText(
             timeLeft(dose.nextAlarmAt, now),
             style = BwTheme.type.display,
             textAlign = TextAlign.Center,
             maxLines = 1,
             autoSize = BwTheme.type.displayFit,
             // Margen: la cifra ocupa todo el ancho y en la parte alta el círculo es más estrecho.
-            modifier = Modifier.fillMaxWidth().padding(horizontal = Spacing.lg),
+            // y la escala de la esfera ocupa los lados: la cifra se achica antes que pisarla.
+            modifier = Modifier.fillMaxWidth().padding(horizontal = Sizes.dialClearance),
         )
         MedicationLabel(name = dose.medicationName, colorKey = dose.colorKey)
         BwText(
@@ -226,6 +237,7 @@ private fun rememberNow(): Long {
 }
 
 private const val TICK_SECONDS = 30L
+private const val DAY_MILLIS = 24 * 60 * 60 * 1000L
 private val TICK = Duration.ofSeconds(TICK_SECONDS)
 
 /**

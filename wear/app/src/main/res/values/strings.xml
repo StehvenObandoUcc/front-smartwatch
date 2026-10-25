@@ -3,6 +3,7 @@
     <string name="app_name">Recordatorios</string>
 
     <string name="next_now">Ahora</string>
+    <string name="next_label">Próxima toma</string>
     <string name="next_detail">%1$s · %2$s</string>
     <plurals name="next_in_minutes">
         <item quantity="one">En %1$d min</item>
