@@ -56,8 +56,11 @@
  *   en PDF y chat con IA (SSE para la web, respuesta corta para el reloj). El envío de avisos
  *   (alerta de dosis omitida, reporte semanal) lo hace un worker en segundo plano: no hay
  *   endpoint para dispararlos.
+ * - 4 Tras el E2E con el reloj: tomas y adherencia desde la web y el reloj, medicamentos
+ *   creados desde el reloj (también por voz con el asistente), desvinculación desde el reloj,
+ *   batería del reloj y deshacer una toma registrada.
  *
- * OpenAPI spec version: 0.6.0
+ * OpenAPI spec version: 0.10.0
  */
 import {
   useMutation,
@@ -425,11 +428,31 @@ export interface Device {
   pairedAt: string;
   lastSeenAt: string | null;
   hasPushToken: boolean;
+  /** Última batería informada por el reloj (0-100); `null` si nunca la envió. */
+  batteryLevel: number | null;
+  /** Cuándo llegó esa lectura; `null` si nunca la envió. */
+  batteryReportedAt: string | null;
 }
+
+/**
+ * El reloj autenticado, con el nombre del paciente para mostrarlo o decirlo.
+ */
+export type MyDevice = Device & {
+  patientDisplayName: string;
+};
 
 export interface DevicePage {
   items: Device[];
   nextCursor: string | null;
+}
+
+export interface BatteryUpdate {
+  /**
+     * Porcentaje de batería.
+     * @minimum 0
+     * @maximum 100
+     */
+  level: number;
 }
 
 export interface PushTokenUpdate {
@@ -479,6 +502,77 @@ export interface MedicationCreate {
   color?: Color;
 }
 
+/**
+ * Hora local del paciente, HH:MM de 24 h.
+ * @pattern ^([01][0-9]|2[0-3]):[0-5][0-9]$
+ */
+export type LocalTime = string;
+
+/**
+ * ISO 8601, 1 = lunes … 7 = domingo.
+ * @minimum 1
+ * @maximum 7
+ */
+export type DayOfWeek = number;
+
+export interface ScheduleCreate {
+  /**
+     * @minItems 1
+     * @maxItems 12
+     */
+  times: LocalTime[];
+  /**
+     * @minItems 1
+     * @maxItems 7
+     */
+  daysOfWeek: DayOfWeek[];
+  startDate: string;
+  /** Debe ser mayor o igual que `startDate`. */
+  endDate?: string | null;
+}
+
+export interface DeviceMedicationCreate {
+  /** Lo genera el reloj; hace la petición idempotente. */
+  clientId: string;
+  /**
+     * @minLength 1
+     * @maxLength 120
+     */
+  name: string;
+  /**
+     * @minLength 1
+     * @maxLength 80
+     */
+  dosage: string;
+  color?: Color;
+  schedule: ScheduleCreate;
+}
+
+export interface Schedule {
+  id: string;
+  medicationId: string;
+  /**
+     * Horas del día, sin repetir, ordenadas.
+     * @minItems 1
+     * @maxItems 12
+     */
+  times: LocalTime[];
+  /**
+     * @minItems 1
+     * @maxItems 7
+     */
+  daysOfWeek: DayOfWeek[];
+  /** Primer día del tratamiento (fecha local del paciente). */
+  startDate: string;
+  /** Último día (inclusive); `null` = sin fin. */
+  endDate: string | null;
+}
+
+export interface MedicationWithSchedule {
+  medication: Medication;
+  schedule: Schedule;
+}
+
 export interface MedicationUpdate {
   /**
      * @minLength 1
@@ -501,55 +595,6 @@ export interface MedicationUpdate {
 export interface MedicationPage {
   items: Medication[];
   nextCursor: string | null;
-}
-
-/**
- * Hora local del paciente, HH:MM de 24 h.
- * @pattern ^([01][0-9]|2[0-3]):[0-5][0-9]$
- */
-export type LocalTime = string;
-
-/**
- * ISO 8601, 1 = lunes … 7 = domingo.
- * @minimum 1
- * @maximum 7
- */
-export type DayOfWeek = number;
-
-export interface Schedule {
-  id: string;
-  medicationId: string;
-  /**
-     * Horas del día, sin repetir, ordenadas.
-     * @minItems 1
-     * @maxItems 12
-     */
-  times: LocalTime[];
-  /**
-     * @minItems 1
-     * @maxItems 7
-     */
-  daysOfWeek: DayOfWeek[];
-  /** Primer día del tratamiento (fecha local del paciente). */
-  startDate: string;
-  /** Último día (inclusive); `null` = sin fin. */
-  endDate: string | null;
-}
-
-export interface ScheduleCreate {
-  /**
-     * @minItems 1
-     * @maxItems 12
-     */
-  times: LocalTime[];
-  /**
-     * @minItems 1
-     * @maxItems 7
-     */
-  daysOfWeek: DayOfWeek[];
-  startDate: string;
-  /** Debe ser mayor o igual que `startDate`. */
-  endDate?: string | null;
 }
 
 export interface ScheduleUpdate {
@@ -666,11 +711,38 @@ export interface DoseHistoryItem {
   status: DoseStatus;
   /** `null` si `MISSED`. */
   actedAt: string | null;
+  /** Evento registrado (para deshacerlo); `null` si `MISSED`. */
+  eventId: string | null;
 }
 
 export interface DoseHistoryPage {
   items: DoseHistoryItem[];
   nextCursor: string | null;
+}
+
+export interface DayAdherence {
+  /** Fecha local del paciente. */
+  date: string;
+  /** @minimum 0 */
+  taken: number;
+  /** @minimum 0 */
+  skipped: number;
+  /** @minimum 0 */
+  missed: number;
+}
+
+export interface DeviceAdherence {
+  from: string;
+  to: string;
+  /** @minimum 0 */
+  taken: number;
+  /** @minimum 0 */
+  skipped: number;
+  /** @minimum 0 */
+  missed: number;
+  percentage: number | null;
+  /** Un elemento por cada día del rango, en orden; los días sin dosis van en 0. */
+  days: DayAdherence[];
 }
 
 export interface Adherence {
@@ -777,6 +849,13 @@ export const ReportTrigger = {
 export interface MedicationAdherence {
   medicationId: string;
   medicationName: string;
+  /** Dosis vigente del medicamento al final del periodo (por ejemplo "850 mg"). */
+  dosage: string;
+  /**
+     * Dosis programadas del periodo (`taken + skipped + missed`).
+     * @minimum 0
+     */
+  scheduled: number;
   /** @minimum 0 */
   taken: number;
   /** @minimum 0 */
@@ -798,6 +877,8 @@ export interface ReportSummary {
   missed: number;
   percentage: number | null;
   byMedication: MedicationAdherence[];
+  /** Un elemento por cada día del periodo (7), en orden, aunque no haya dosis. */
+  byDay: DayAdherence[];
 }
 
 export interface Report {
@@ -854,11 +935,59 @@ export interface ChatRequest {
   history?: ChatTurn[];
 }
 
+/**
+ * Exactamente uno de `message` o `confirmActionId` (si no, 422).
+ */
+export interface WatchChatRequest {
+  /**
+     * @minLength 1
+     * @maxLength 500
+     */
+  message?: string;
+  /**
+     * Turnos anteriores, del más antiguo al más reciente.
+     * @maxItems 10
+     */
+  history?: ChatTurn[];
+  /** Confirma una `pendingAction` propuesta antes. */
+  confirmActionId?: string;
+}
+
+export type PendingActionType = typeof PendingActionType[keyof typeof PendingActionType];
+
+
+export const PendingActionType = {
+  create_medication: 'create_medication',
+} as const;
+
+export interface PendingAction {
+  id: string;
+  type: PendingActionType;
+  summary: string;
+}
+
+export type ChatActionType = typeof ChatActionType[keyof typeof ChatActionType];
+
+
+export const ChatActionType = {
+  medication_created: 'medication_created',
+} as const;
+
+export interface ChatAction {
+  type: ChatActionType;
+  medicationId: string;
+  scheduleId: string;
+}
+
 export interface WatchChatReply {
   /** Texto plano de hasta 3 frases, listo para leerse en voz alta. */
   reply: string;
   /** @minimum 0 */
   remainingMessages: number;
+  /** Acción propuesta que espera confirmación; `null` si no hay ninguna. */
+  pendingAction?: PendingAction | null;
+  /** Acciones ya ejecutadas en esta respuesta (vacío si ninguna). */
+  actions?: ChatAction[];
 }
 
 /**
@@ -974,6 +1103,17 @@ cursor?: CursorParameter;
  */
 limit?: LimitParameter;
 includeArchived?: boolean;
+};
+
+export type GetMyDeviceAdherenceParams = {
+/**
+ * Inicio del rango (inclusive), fecha local del paciente.
+ */
+from?: FromQueryParameter;
+/**
+ * Fin del rango (inclusive), fecha local del paciente.
+ */
+to?: ToQueryParameter;
 };
 
 export type ListDoseHistoryParams = {
@@ -2901,7 +3041,7 @@ export const getMyDevice = (
 ) => {
 
 
-      return http<Device>(
+      return http<MyDevice>(
       {url: `/devices/me`, method: 'GET', signal
     },
       options);
@@ -2986,6 +3126,151 @@ export function useGetMyDevice<TData = Awaited<ReturnType<typeof getMyDevice>>, 
 
 
 /**
+ * Solo con token de reloj; un token de usuario recibe 403. Revoca de inmediato el token de
+ * acceso y el refresh token del reloj, y el reloj deja de aparecer en
+ * `GET /patients/{patientId}/devices`. Con un token ya revocado responde 401
+ * (`code: device_unpaired`); el reloj puede tratar 204 y 401 igual.
+ * @summary El reloj se desvincula a sí mismo
+ */
+export const unpairMyDevice = (
+
+ options?: SecondParameter<typeof http>,signal?: AbortSignal
+) => {
+
+
+      return http<void>(
+      {url: `/devices/me`, method: 'DELETE', signal
+    },
+      options);
+    }
+
+
+
+
+export const getUnpairMyDeviceMutationKey = () => ['unpairMyDevice'] as const;
+
+export const getUnpairMyDeviceMutationOptions = <TError = UnauthorizedResponse | ForbiddenResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof unpairMyDevice>>, TError,void, TContext>, request?: SecondParameter<typeof http>}
+): UseMutationOptions<Awaited<ReturnType<typeof unpairMyDevice>>, TError,void, TContext> => {
+
+const mutationKey = getUnpairMyDeviceMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof unpairMyDevice>>, void> = () => {
+
+
+          return  unpairMyDevice(requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UnpairMyDeviceMutationResult = NonNullable<Awaited<ReturnType<typeof unpairMyDevice>>>
+
+    export type UnpairMyDeviceMutationError = UnauthorizedResponse | ForbiddenResponse
+
+
+    /**
+ * @summary El reloj se desvincula a sí mismo
+ */
+export const useUnpairMyDevice = <TError = UnauthorizedResponse | ForbiddenResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof unpairMyDevice>>, TError,void, TContext>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof unpairMyDevice>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getUnpairMyDeviceMutationOptions(options), queryClient);
+    }
+
+/**
+ * Solo con token de reloj (403 con token de usuario). Crea el medicamento y su horario para
+ * el paciente vinculado, en una sola transacción, y sube la versión del plan (cambia el
+ * `ETag` de `GET /devices/me/plan`). Requiere el consentimiento `health_data`
+ * (403 `consent_required`).
+ *
+ * Idempotente por `clientId` (lo genera el reloj): repetir la petición con el mismo
+ * `clientId` responde 200 con lo ya creado, sin crear nada nuevo ni comparar el cuerpo.
+ * @summary Crear un medicamento con su horario desde el reloj
+ */
+export const createMyMedication = (
+    deviceMedicationCreate: DeviceMedicationCreate,
+ options?: SecondParameter<typeof http>,signal?: AbortSignal
+) => {
+
+
+      return http<MedicationWithSchedule>(
+      {url: `/devices/me/medications`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: deviceMedicationCreate, signal
+    },
+      options);
+    }
+
+
+
+
+export const getCreateMyMedicationMutationKey = () => ['createMyMedication'] as const;
+
+export const getCreateMyMedicationMutationOptions = <TError = UnauthorizedResponse | ForbiddenResponse | ValidationErrorResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createMyMedication>>, TError,CreateMyMedicationMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+): UseMutationOptions<Awaited<ReturnType<typeof createMyMedication>>, TError,CreateMyMedicationMutationVariables, TContext> => {
+
+const mutationKey = getCreateMyMedicationMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createMyMedication>>, CreateMyMedicationMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  createMyMedication(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateMyMedicationMutationResult = NonNullable<Awaited<ReturnType<typeof createMyMedication>>>
+    export type CreateMyMedicationMutationBody = DeviceMedicationCreate
+    export type CreateMyMedicationMutationError = UnauthorizedResponse | ForbiddenResponse | ValidationErrorResponse
+    export type CreateMyMedicationMutationVariables = {data: DeviceMedicationCreate}
+
+    /**
+ * @summary Crear un medicamento con su horario desde el reloj
+ */
+export const useCreateMyMedication = <TError = UnauthorizedResponse | ForbiddenResponse | ValidationErrorResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createMyMedication>>, TError,CreateMyMedicationMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof createMyMedication>>,
+        TError,
+        CreateMyMedicationMutationVariables,
+        TContext
+      > => {
+      return useMutation(getCreateMyMedicationMutationOptions(options), queryClient);
+    }
+
+/**
  * Solo con token de reloj; un token de usuario recibe 403. Idempotente; reemplaza el anterior.
  * @summary Registrar el token FCM del reloj
  */
@@ -3052,6 +3337,77 @@ export const useSetMyPushToken = <TError = UnauthorizedResponse | ForbiddenRespo
         TContext
       > => {
       return useMutation(getSetMyPushTokenMutationOptions(options), queryClient);
+    }
+
+/**
+ * Solo con token de reloj; un token de usuario recibe 403. El reloj lo envía al sincronizar.
+ * Guarda el nivel y la hora de recepción, que se ven en `Device` (`batteryLevel`,
+ * `batteryReportedAt`). Reemplaza la lectura anterior.
+ * @summary El reloj informa su nivel de batería
+ */
+export const setMyBattery = (
+    batteryUpdate: BatteryUpdate,
+ options?: SecondParameter<typeof http>,signal?: AbortSignal
+) => {
+
+
+      return http<void>(
+      {url: `/devices/me/battery`, method: 'PUT',
+      headers: {'Content-Type': 'application/json', },
+      data: batteryUpdate, signal
+    },
+      options);
+    }
+
+
+
+
+export const getSetMyBatteryMutationKey = () => ['setMyBattery'] as const;
+
+export const getSetMyBatteryMutationOptions = <TError = UnauthorizedResponse | ForbiddenResponse | ValidationErrorResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setMyBattery>>, TError,SetMyBatteryMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+): UseMutationOptions<Awaited<ReturnType<typeof setMyBattery>>, TError,SetMyBatteryMutationVariables, TContext> => {
+
+const mutationKey = getSetMyBatteryMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof setMyBattery>>, SetMyBatteryMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  setMyBattery(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SetMyBatteryMutationResult = NonNullable<Awaited<ReturnType<typeof setMyBattery>>>
+    export type SetMyBatteryMutationBody = BatteryUpdate
+    export type SetMyBatteryMutationError = UnauthorizedResponse | ForbiddenResponse | ValidationErrorResponse
+    export type SetMyBatteryMutationVariables = {data: BatteryUpdate}
+
+    /**
+ * @summary El reloj informa su nivel de batería
+ */
+export const useSetMyBattery = <TError = UnauthorizedResponse | ForbiddenResponse | ValidationErrorResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setMyBattery>>, TError,SetMyBatteryMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof setMyBattery>>,
+        TError,
+        SetMyBatteryMutationVariables,
+        TContext
+      > => {
+      return useMutation(getSetMyBatteryMutationOptions(options), queryClient);
     }
 
 /**
@@ -4145,6 +4501,105 @@ export function useGetPatientPlan<TData = Awaited<ReturnType<typeof getPatientPl
 
 
 /**
+ * Solo con token de reloj (403 con token de usuario). El paciente es el del reloj vinculado.
+ * Mismas reglas que `GET /patients/{patientId}/adherence`: `percentage` = taken / (taken +
+ * skipped + missed) * 100 sobre las dosis vencidas, o null si no hubo ninguna. Rango por
+ * defecto: los últimos 14 días en la zona horaria del paciente; máximo 90 días. Requiere el
+ * consentimiento `health_data` (403 `consent_required`).
+ * @summary Adherencia del paciente del reloj
+ */
+export const getMyDeviceAdherence = (
+    params?: GetMyDeviceAdherenceParams,
+ options?: SecondParameter<typeof http>,signal?: AbortSignal
+) => {
+
+
+      return http<DeviceAdherence>(
+      {url: `/devices/me/adherence`, method: 'GET',
+        params, signal
+    },
+      options);
+    }
+
+
+
+
+export const getGetMyDeviceAdherenceQueryKey = (params?: GetMyDeviceAdherenceParams,) => {
+    return [
+    `/devices/me/adherence`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetMyDeviceAdherenceQueryOptions = <TData = Awaited<ReturnType<typeof getMyDeviceAdherence>>, TError = UnauthorizedResponse | ForbiddenResponse | ValidationErrorResponse>(params?: GetMyDeviceAdherenceParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyDeviceAdherence>>, TError, TData>>, request?: SecondParameter<typeof http>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetMyDeviceAdherenceQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getMyDeviceAdherence>>> = ({ signal }) => getMyDeviceAdherence(params, requestOptions, signal);
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getMyDeviceAdherence>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetMyDeviceAdherenceQueryResult = NonNullable<Awaited<ReturnType<typeof getMyDeviceAdherence>>>
+export type GetMyDeviceAdherenceQueryError = UnauthorizedResponse | ForbiddenResponse | ValidationErrorResponse
+
+
+export function useGetMyDeviceAdherence<TData = Awaited<ReturnType<typeof getMyDeviceAdherence>>, TError = UnauthorizedResponse | ForbiddenResponse | ValidationErrorResponse>(
+ params: undefined |  GetMyDeviceAdherenceParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyDeviceAdherence>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getMyDeviceAdherence>>,
+          TError,
+          Awaited<ReturnType<typeof getMyDeviceAdherence>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetMyDeviceAdherence<TData = Awaited<ReturnType<typeof getMyDeviceAdherence>>, TError = UnauthorizedResponse | ForbiddenResponse | ValidationErrorResponse>(
+ params?: GetMyDeviceAdherenceParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyDeviceAdherence>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getMyDeviceAdherence>>,
+          TError,
+          Awaited<ReturnType<typeof getMyDeviceAdherence>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetMyDeviceAdherence<TData = Awaited<ReturnType<typeof getMyDeviceAdherence>>, TError = UnauthorizedResponse | ForbiddenResponse | ValidationErrorResponse>(
+ params?: GetMyDeviceAdherenceParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyDeviceAdherence>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Adherencia del paciente del reloj
+ */
+
+export function useGetMyDeviceAdherence<TData = Awaited<ReturnType<typeof getMyDeviceAdherence>>, TError = UnauthorizedResponse | ForbiddenResponse | ValidationErrorResponse>(
+ params?: GetMyDeviceAdherenceParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyDeviceAdherence>>, TError, TData>>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetMyDeviceAdherenceQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+/**
  * Solo con token de reloj. Hasta 100 eventos por lote. Idempotente por `eventId`: reenviar un
  * evento ya guardado devuelve `outcome: duplicate` sin duplicar nada. Cada evento se
  * resuelve por separado y el lote responde 200; un evento inválido no hace fallar a los
@@ -4218,6 +4673,155 @@ export const useCreateMyDoseEvents = <TError = UnauthorizedResponse | ForbiddenR
         TContext
       > => {
       return useMutation(getCreateMyDoseEventsMutationOptions(options), queryClient);
+    }
+
+/**
+ * Solo con token de reloj (403 con token de usuario) y solo eventos del paciente del reloj,
+ * los haya registrado el reloj o la web.
+ * Borra el evento de una dosis: la dosis vuelve a estar pendiente (o `MISSED` si ya pasó
+ * su hora), sale del historial y de la adherencia, y la dosis admite un evento nuevo. Para
+ * corregir (por ejemplo, de `TAKEN` a `SKIPPED`) se deshace y se registra otro con un
+ * `eventId` nuevo. Idempotente: un `eventId` que no existe o ya se deshizo responde 204.
+ * Un `eventId` deshecho puede volver a enviarse en un lote. Requiere el consentimiento
+ * `health_data` (403 `consent_required`).
+ * @summary Deshacer una toma desde el reloj
+ */
+export const deleteMyDoseEvent = (
+    eventId: string,
+ options?: SecondParameter<typeof http>,signal?: AbortSignal
+) => {
+
+
+      return http<void>(
+      {url: `/devices/me/dose-events/${eventId}`, method: 'DELETE', signal
+    },
+      options);
+    }
+
+
+
+
+export const getDeleteMyDoseEventMutationKey = () => ['deleteMyDoseEvent'] as const;
+
+export const getDeleteMyDoseEventMutationOptions = <TError = UnauthorizedResponse | ForbiddenResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteMyDoseEvent>>, TError,DeleteMyDoseEventMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteMyDoseEvent>>, TError,DeleteMyDoseEventMutationVariables, TContext> => {
+
+const mutationKey = getDeleteMyDoseEventMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteMyDoseEvent>>, DeleteMyDoseEventMutationVariables> = (props) => {
+          const {eventId} = props ?? {};
+
+          return  deleteMyDoseEvent(eventId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteMyDoseEventMutationResult = NonNullable<Awaited<ReturnType<typeof deleteMyDoseEvent>>>
+
+    export type DeleteMyDoseEventMutationError = UnauthorizedResponse | ForbiddenResponse
+    export type DeleteMyDoseEventMutationVariables = {eventId: string}
+
+    /**
+ * @summary Deshacer una toma desde el reloj
+ */
+export const useDeleteMyDoseEvent = <TError = UnauthorizedResponse | ForbiddenResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteMyDoseEvent>>, TError,DeleteMyDoseEventMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof deleteMyDoseEvent>>,
+        TError,
+        DeleteMyDoseEventMutationVariables,
+        TContext
+      > => {
+      return useMutation(getDeleteMyDoseEventMutationOptions(options), queryClient);
+    }
+
+/**
+ * Para el paciente con cuenta o un cuidador con vínculo activo; un paciente sin vínculo es
+ * 404. Sirve para eventos del reloj o de la web (el `eventId` está en el historial).
+ * Borra el evento de una dosis: la dosis vuelve a estar pendiente (o `MISSED` si ya pasó
+ * su hora), sale del historial y de la adherencia, y la dosis admite un evento nuevo. Para
+ * corregir (por ejemplo, de `TAKEN` a `SKIPPED`) se deshace y se registra otro con un
+ * `eventId` nuevo. Idempotente: un `eventId` que no existe o ya se deshizo responde 204.
+ * Un `eventId` deshecho puede volver a enviarse en un lote. Requiere el consentimiento
+ * `health_data` (403 `consent_required`).
+ * @summary Deshacer una toma desde la web
+ */
+export const deletePatientDoseEvent = (
+    patientId: string,
+    eventId: string,
+ options?: SecondParameter<typeof http>,signal?: AbortSignal
+) => {
+
+
+      return http<void>(
+      {url: `/patients/${patientId}/dose-events/${eventId}`, method: 'DELETE', signal
+    },
+      options);
+    }
+
+
+
+
+export const getDeletePatientDoseEventMutationKey = () => ['deletePatientDoseEvent'] as const;
+
+export const getDeletePatientDoseEventMutationOptions = <TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deletePatientDoseEvent>>, TError,DeletePatientDoseEventMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+): UseMutationOptions<Awaited<ReturnType<typeof deletePatientDoseEvent>>, TError,DeletePatientDoseEventMutationVariables, TContext> => {
+
+const mutationKey = getDeletePatientDoseEventMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deletePatientDoseEvent>>, DeletePatientDoseEventMutationVariables> = (props) => {
+          const {patientId,eventId} = props ?? {};
+
+          return  deletePatientDoseEvent(patientId,eventId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeletePatientDoseEventMutationResult = NonNullable<Awaited<ReturnType<typeof deletePatientDoseEvent>>>
+
+    export type DeletePatientDoseEventMutationError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse
+    export type DeletePatientDoseEventMutationVariables = {patientId: string;eventId: string}
+
+    /**
+ * @summary Deshacer una toma desde la web
+ */
+export const useDeletePatientDoseEvent = <TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deletePatientDoseEvent>>, TError,DeletePatientDoseEventMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof deletePatientDoseEvent>>,
+        TError,
+        DeletePatientDoseEventMutationVariables,
+        TContext
+      > => {
+      return useMutation(getDeletePatientDoseEventMutationOptions(options), queryClient);
     }
 
 /**
@@ -5732,10 +6336,22 @@ export const useSendChatMessage = <TError = UnauthorizedResponse | ForbiddenResp
  * consentimientos (`health_data` y `ai_chat` del paciente) que el chat web, pero responde JSON sin streaming y
  * con una respuesta corta (como máximo 3 frases, sin listas ni formato) para leerla en voz
  * alta. El límite diario cuenta por reloj.
+ *
+ * Agregar un medicamento por voz (fase 4), en dos pasos:
+ * 1. Si el usuario pide agregar un medicamento nuevo ("agrega Losartán 50 mg a las 8"), la
+ *    respuesta trae `pendingAction` con su resumen y no crea nada. Si falta un dato
+ *    (nombre, dosis u hora), el asistente lo pregunta y no hay `pendingAction`.
+ * 2. El reloj confirma con `{ "confirmActionId": "<pendingAction.id>" }` (sin `message`).
+ *    Entonces se crea igual que en `POST /devices/me/medications` y la respuesta trae
+ *    `actions: [{ type: medication_created, medicationId, scheduleId }]` para sincronizar
+ *    el plan al momento. Confirmar no llama al modelo ni gasta el cupo diario; reintentar
+ *    la confirmación devuelve el mismo medicamento. Una propuesta caduca a los 10 minutos
+ *    o si es de otro reloj: 404 (`code: chat_action_not_found`).
+ * El asistente nunca modifica ni borra medicamentos o dosis existentes.
  * @summary Preguntar al asistente desde el reloj (respuesta corta)
  */
 export const sendMyChatMessage = (
-    chatRequest: ChatRequest,
+    watchChatRequest: WatchChatRequest,
  options?: SecondParameter<typeof http>,signal?: AbortSignal
 ) => {
 
@@ -5743,7 +6359,7 @@ export const sendMyChatMessage = (
       return http<WatchChatReply>(
       {url: `/devices/me/chat/messages`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
-      data: chatRequest, signal
+      data: watchChatRequest, signal
     },
       options);
     }
@@ -5753,7 +6369,7 @@ export const sendMyChatMessage = (
 
 export const getSendMyChatMessageMutationKey = () => ['sendMyChatMessage'] as const;
 
-export const getSendMyChatMessageMutationOptions = <TError = UnauthorizedResponse | ForbiddenResponse | ValidationErrorResponse | TooManyRequestsResponse | ServiceUnavailableResponse,
+export const getSendMyChatMessageMutationOptions = <TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | ValidationErrorResponse | TooManyRequestsResponse | ServiceUnavailableResponse,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof sendMyChatMessage>>, TError,SendMyChatMessageMutationVariables, TContext>, request?: SecondParameter<typeof http>}
 ): UseMutationOptions<Awaited<ReturnType<typeof sendMyChatMessage>>, TError,SendMyChatMessageMutationVariables, TContext> => {
 
@@ -5781,14 +6397,14 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
   return  { mutationFn, ...mutationOptions }}
 
     export type SendMyChatMessageMutationResult = NonNullable<Awaited<ReturnType<typeof sendMyChatMessage>>>
-    export type SendMyChatMessageMutationBody = ChatRequest
-    export type SendMyChatMessageMutationError = UnauthorizedResponse | ForbiddenResponse | ValidationErrorResponse | TooManyRequestsResponse | ServiceUnavailableResponse
-    export type SendMyChatMessageMutationVariables = {data: ChatRequest}
+    export type SendMyChatMessageMutationBody = WatchChatRequest
+    export type SendMyChatMessageMutationError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | ValidationErrorResponse | TooManyRequestsResponse | ServiceUnavailableResponse
+    export type SendMyChatMessageMutationVariables = {data: WatchChatRequest}
 
     /**
  * @summary Preguntar al asistente desde el reloj (respuesta corta)
  */
-export const useSendMyChatMessage = <TError = UnauthorizedResponse | ForbiddenResponse | ValidationErrorResponse | TooManyRequestsResponse | ServiceUnavailableResponse,
+export const useSendMyChatMessage = <TError = UnauthorizedResponse | ForbiddenResponse | NotFoundResponse | ValidationErrorResponse | TooManyRequestsResponse | ServiceUnavailableResponse,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof sendMyChatMessage>>, TError,SendMyChatMessageMutationVariables, TContext>, request?: SecondParameter<typeof http>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof sendMyChatMessage>>,

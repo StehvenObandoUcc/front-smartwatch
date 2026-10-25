@@ -9,6 +9,7 @@ All URIs are relative to *http://localhost:8000*
 | [**getMyDevice**](DevicesApi.md#getMyDevice) | **GET** devices/me | El reloj consulta su vinculación |
 | [**listPatientDevices**](DevicesApi.md#listPatientDevices) | **GET** patients/{patientId}/devices | Relojes de un paciente |
 | [**requestDeviceToken**](DevicesApi.md#requestDeviceToken) | **POST** devices/token | El reloj obtiene o renueva sus tokens |
+| [**setMyBattery**](DevicesApi.md#setMyBattery) | **PUT** devices/me/battery | El reloj informa su nivel de batería |
 | [**setMyPushToken**](DevicesApi.md#setMyPushToken) | **PUT** devices/me/push-token | Registrar el token FCM del reloj |
 | [**unpairDevice**](DevicesApi.md#unpairDevice) | **DELETE** devices/{deviceId} | Desvincular un reloj |
 | [**unpairMyDevice**](DevicesApi.md#unpairMyDevice) | **DELETE** devices/me | El reloj se desvincula a sí mismo |
@@ -218,6 +219,48 @@ No authorization required
 
  - **Content-Type**: application/json
  - **Accept**: application/json, application/problem+json
+
+
+El reloj informa su nivel de batería
+
+Solo con token de reloj; un token de usuario recibe 403. El reloj lo envía al sincronizar. Guarda el nivel y la hora de recepción, que se ven en &#x60;Device&#x60; (&#x60;batteryLevel&#x60;, &#x60;batteryReportedAt&#x60;). Reemplaza la lectura anterior. 
+
+### Example
+```kotlin
+// Import classes:
+//import com.smartwatch.recordatorios.api.*
+//import com.smartwatch.recordatorios.api.infrastructure.*
+//import com.smartwatch.recordatorios.api.models.*
+
+val apiClient = ApiClient()
+apiClient.setBearerToken("TOKEN")
+val webService = apiClient.createWebservice(DevicesApi::class.java)
+val batteryUpdate : BatteryUpdate =  // BatteryUpdate | 
+
+launch(Dispatchers.IO) {
+    webService.setMyBattery(batteryUpdate)
+}
+```
+
+### Parameters
+| Name | Type | Description  | Notes |
+| ------------- | ------------- | ------------- | ------------- |
+| **batteryUpdate** | [**BatteryUpdate**](BatteryUpdate.md)|  | |
+
+### Return type
+
+null (empty response body)
+
+### Authorization
+
+
+Configure bearerAuth:
+    ApiClient().setBearerToken("TOKEN")
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/problem+json
 
 
 Registrar el token FCM del reloj

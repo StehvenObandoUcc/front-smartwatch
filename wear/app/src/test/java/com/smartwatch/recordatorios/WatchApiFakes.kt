@@ -2,6 +2,7 @@ package com.smartwatch.recordatorios
 
 import com.smartwatch.recordatorios.api.apis.DevicesApi
 import com.smartwatch.recordatorios.api.apis.MedicationsApi
+import com.smartwatch.recordatorios.api.models.BatteryUpdate
 import com.smartwatch.recordatorios.api.models.Device
 import com.smartwatch.recordatorios.api.models.DeviceMedicationCreate
 import com.smartwatch.recordatorios.api.models.DevicePage
@@ -96,6 +97,7 @@ class FakeDeviceSessionApi : DevicesApi {
     var revoked = 0
     var unpair: () -> Response<Unit> = { Response.success(Unit) }
     var me: () -> Response<MyDevice> = { error("sin respuesta configurada") }
+    val batteries = mutableListOf<Int>()
 
     override suspend fun unpairMyDevice(): Response<Unit> {
         revoked++
@@ -120,6 +122,11 @@ class FakeDeviceSessionApi : DevicesApi {
     override suspend fun requestDeviceToken(kotlinxSerializationJsonJsonObject: JsonObject): Response<TokenPair> = web()
 
     override suspend fun setMyPushToken(pushTokenUpdate: PushTokenUpdate): Response<Unit> = web()
+
+    override suspend fun setMyBattery(batteryUpdate: BatteryUpdate): Response<Unit> {
+        batteries += batteryUpdate.level
+        return Response.success(Unit)
+    }
 
     override suspend fun unpairDevice(deviceId: UUID): Response<Unit> = web()
 }

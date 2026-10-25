@@ -56,8 +56,11 @@
  *   en PDF y chat con IA (SSE para la web, respuesta corta para el reloj). El envío de avisos
  *   (alerta de dosis omitida, reporte semanal) lo hace un worker en segundo plano: no hay
  *   endpoint para dispararlos.
+ * - 4 Tras el E2E con el reloj: tomas y adherencia desde la web y el reloj, medicamentos
+ *   creados desde el reloj (también por voz con el asistente), desvinculación desde el reloj,
+ *   batería del reloj y deshacer una toma registrada.
  *
- * OpenAPI spec version: 0.6.0
+ * OpenAPI spec version: 0.10.0
  */
 import {
   faker
@@ -91,17 +94,21 @@ import type {
   ConsentActor,
   ConsentList,
   Device,
+  DeviceAdherence,
   DevicePage,
   DoseEventBatchResult,
   DoseHistoryPage,
   Health,
   Medication,
   MedicationPage,
+  MedicationWithSchedule,
+  MyDevice,
   NotificationChannelList,
   NotificationPreferences,
   PairingCode,
   Patient,
   PatientPage,
+  PendingAction,
   Plan,
   Readiness,
   Report,
@@ -162,13 +169,15 @@ export const getAcceptCaregiverInvitationResponseMock = (overrideResponse: Parti
 
 export const getCreatePairingCodeResponseMock = (overrideResponse: Partial<Extract<PairingCode, object>> = {}): PairingCode => ({code: faker.helpers.fromRegExp("^[BCDFGHJKLMNPQRSTVWXZ]{4}-[BCDFGHJKLMNPQRSTVWXZ]{4}$"), deviceCode: faker.string.alpha({length: {min: 10, max: 20}}), expiresIn: faker.number.int(), interval: faker.number.int(), ...overrideResponse})
 
-export const getConfirmPairingCodeResponseMock = (overrideResponse: Partial<Extract<Device, object>> = {}): Device => ({id: faker.string.uuid(), patientId: faker.string.uuid(), model: faker.string.alpha({length: {min: 10, max: 20}}), pairedAt: faker.date.past().toISOString().slice(0, 19) + 'Z', lastSeenAt: faker.helpers.arrayElement([faker.date.past().toISOString().slice(0, 19) + 'Z',null,]), hasPushToken: faker.datatype.boolean(), ...overrideResponse})
+export const getConfirmPairingCodeResponseMock = (overrideResponse: Partial<Extract<Device, object>> = {}): Device => ({id: faker.string.uuid(), patientId: faker.string.uuid(), model: faker.string.alpha({length: {min: 10, max: 20}}), pairedAt: faker.date.past().toISOString().slice(0, 19) + 'Z', lastSeenAt: faker.helpers.arrayElement([faker.date.past().toISOString().slice(0, 19) + 'Z',null,]), hasPushToken: faker.datatype.boolean(), batteryLevel: faker.helpers.arrayElement([faker.number.int({min: 0, max: 100}),null,]), batteryReportedAt: faker.helpers.arrayElement([faker.date.past().toISOString().slice(0, 19) + 'Z',null,]), ...overrideResponse})
 
 export const getRequestDeviceTokenResponseMock = (overrideResponse: Partial<Extract<TokenPair, object>> = {}): TokenPair => ({accessToken: faker.string.alpha({length: {min: 10, max: 20}}), refreshToken: faker.string.alpha({length: {min: 10, max: 20}}), tokenType: faker.helpers.arrayElement(['Bearer'] as const), expiresIn: faker.number.int(), ...overrideResponse})
 
-export const getGetMyDeviceResponseMock = (overrideResponse: Partial<Extract<Device, object>> = {}): Device => ({id: faker.string.uuid(), patientId: faker.string.uuid(), model: faker.string.alpha({length: {min: 10, max: 20}}), pairedAt: faker.date.past().toISOString().slice(0, 19) + 'Z', lastSeenAt: faker.helpers.arrayElement([faker.date.past().toISOString().slice(0, 19) + 'Z',null,]), hasPushToken: faker.datatype.boolean(), ...overrideResponse})
+export const getGetMyDeviceResponseMock = (): MyDevice => ({...{id: faker.string.uuid(), patientId: faker.string.uuid(), model: faker.string.alpha({length: {min: 10, max: 20}}), pairedAt: faker.date.past().toISOString().slice(0, 19) + 'Z', lastSeenAt: faker.helpers.arrayElement([faker.date.past().toISOString().slice(0, 19) + 'Z',null,]), hasPushToken: faker.datatype.boolean(), batteryLevel: faker.helpers.arrayElement([faker.number.int({min: 0, max: 100}),null,]), batteryReportedAt: faker.helpers.arrayElement([faker.date.past().toISOString().slice(0, 19) + 'Z',null,])},...{patientDisplayName: faker.string.alpha({length: {min: 10, max: 20}})},})
 
-export const getListPatientDevicesResponseMock = (overrideResponse: Partial<Extract<DevicePage, object>> = {}): DevicePage => ({items: Array.from({ length: faker.number.int({min: 1, max: 10}) }, (_, i) => i + 1).map(() => ({id: faker.string.uuid(), patientId: faker.string.uuid(), model: faker.string.alpha({length: {min: 10, max: 20}}), pairedAt: faker.date.past().toISOString().slice(0, 19) + 'Z', lastSeenAt: faker.helpers.arrayElement([faker.date.past().toISOString().slice(0, 19) + 'Z',null,]), hasPushToken: faker.datatype.boolean()})), nextCursor: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}),null,]), ...overrideResponse})
+export const getCreateMyMedicationResponseMock = (overrideResponse: Partial<Extract<MedicationWithSchedule, object>> = {}): MedicationWithSchedule => (faker.helpers.arrayElement([{medication: {id: faker.string.uuid(), patientId: faker.string.uuid(), name: faker.string.alpha({length: {min: 10, max: 20}}), dosage: faker.string.alpha({length: {min: 10, max: 20}}), instructions: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), color: faker.helpers.fromRegExp("^#[0-9A-Fa-f]{6}$"), archived: faker.datatype.boolean(), createdAt: faker.date.past().toISOString().slice(0, 19) + 'Z', updatedAt: faker.date.past().toISOString().slice(0, 19) + 'Z'}, schedule: {id: faker.string.uuid(), medicationId: faker.string.uuid(), times: Array.from({ length: faker.number.int({min: 1, max: 12}) }, (_, i) => i + 1).map(() => (faker.helpers.fromRegExp("^([01][0-9]|2[0-3]):[0-5][0-9]$"))), daysOfWeek: Array.from({ length: faker.number.int({min: 1, max: 7}) }, (_, i) => i + 1).map(() => (faker.number.int({min: 1, max: 7}))), startDate: faker.date.past().toISOString().slice(0, 10), endDate: faker.helpers.arrayElement([faker.date.past().toISOString().slice(0, 10),null,])}, ...overrideResponse}, {medication: {id: faker.string.uuid(), patientId: faker.string.uuid(), name: faker.string.alpha({length: {min: 10, max: 20}}), dosage: faker.string.alpha({length: {min: 10, max: 20}}), instructions: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), color: faker.helpers.fromRegExp("^#[0-9A-Fa-f]{6}$"), archived: faker.datatype.boolean(), createdAt: faker.date.past().toISOString().slice(0, 19) + 'Z', updatedAt: faker.date.past().toISOString().slice(0, 19) + 'Z'}, schedule: {id: faker.string.uuid(), medicationId: faker.string.uuid(), times: Array.from({ length: faker.number.int({min: 1, max: 12}) }, (_, i) => i + 1).map(() => (faker.helpers.fromRegExp("^([01][0-9]|2[0-3]):[0-5][0-9]$"))), daysOfWeek: Array.from({ length: faker.number.int({min: 1, max: 7}) }, (_, i) => i + 1).map(() => (faker.number.int({min: 1, max: 7}))), startDate: faker.date.past().toISOString().slice(0, 10), endDate: faker.helpers.arrayElement([faker.date.past().toISOString().slice(0, 10),null,])}, ...overrideResponse}]))
+
+export const getListPatientDevicesResponseMock = (overrideResponse: Partial<Extract<DevicePage, object>> = {}): DevicePage => ({items: Array.from({ length: faker.number.int({min: 1, max: 10}) }, (_, i) => i + 1).map(() => ({id: faker.string.uuid(), patientId: faker.string.uuid(), model: faker.string.alpha({length: {min: 10, max: 20}}), pairedAt: faker.date.past().toISOString().slice(0, 19) + 'Z', lastSeenAt: faker.helpers.arrayElement([faker.date.past().toISOString().slice(0, 19) + 'Z',null,]), hasPushToken: faker.datatype.boolean(), batteryLevel: faker.helpers.arrayElement([faker.number.int({min: 0, max: 100}),null,]), batteryReportedAt: faker.helpers.arrayElement([faker.date.past().toISOString().slice(0, 19) + 'Z',null,])})), nextCursor: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}),null,]), ...overrideResponse})
 
 export const getListMedicationsResponseMock = (overrideResponse: Partial<Extract<MedicationPage, object>> = {}): MedicationPage => ({items: Array.from({ length: faker.number.int({min: 1, max: 10}) }, (_, i) => i + 1).map(() => ({id: faker.string.uuid(), patientId: faker.string.uuid(), name: faker.string.alpha({length: {min: 10, max: 20}}), dosage: faker.string.alpha({length: {min: 10, max: 20}}), instructions: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), color: faker.helpers.fromRegExp("^#[0-9A-Fa-f]{6}$"), archived: faker.datatype.boolean(), createdAt: faker.date.past().toISOString().slice(0, 19) + 'Z', updatedAt: faker.date.past().toISOString().slice(0, 19) + 'Z'})), nextCursor: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}),null,]), ...overrideResponse})
 
@@ -188,11 +197,13 @@ export const getGetMyPlanResponseMock = (overrideResponse: Partial<Extract<Plan,
 
 export const getGetPatientPlanResponseMock = (overrideResponse: Partial<Extract<Plan, object>> = {}): Plan => ({version: faker.number.int({min: 0}), patientTimezone: faker.string.alpha({length: {min: 1, max: 64}}), generatedAt: faker.date.past().toISOString().slice(0, 19) + 'Z', validFrom: faker.date.past().toISOString().slice(0, 19) + 'Z', validUntil: faker.date.past().toISOString().slice(0, 19) + 'Z', doses: Array.from({ length: faker.number.int({min: 1, max: 10}) }, (_, i) => i + 1).map(() => ({scheduleId: faker.string.uuid(), medicationId: faker.string.uuid(), medicationName: faker.string.alpha({length: {min: 10, max: 20}}), dosage: faker.string.alpha({length: {min: 10, max: 20}}), instructions: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), color: faker.helpers.fromRegExp("^#[0-9A-Fa-f]{6}$"), scheduledAt: faker.date.past().toISOString().slice(0, 19) + 'Z'})), ...overrideResponse})
 
+export const getGetMyDeviceAdherenceResponseMock = (overrideResponse: Partial<Extract<DeviceAdherence, object>> = {}): DeviceAdherence => ({from: faker.date.past().toISOString().slice(0, 10), to: faker.date.past().toISOString().slice(0, 10), taken: faker.number.int({min: 0}), skipped: faker.number.int({min: 0}), missed: faker.number.int({min: 0}), percentage: faker.helpers.arrayElement([faker.number.float({min: 0, max: 100, fractionDigits: 2}),null,]), days: Array.from({ length: faker.number.int({min: 1, max: 10}) }, (_, i) => i + 1).map(() => ({date: faker.date.past().toISOString().slice(0, 10), taken: faker.number.int({min: 0}), skipped: faker.number.int({min: 0}), missed: faker.number.int({min: 0})})), ...overrideResponse})
+
 export const getCreateMyDoseEventsResponseMock = (overrideResponse: Partial<Extract<DoseEventBatchResult, object>> = {}): DoseEventBatchResult => ({results: Array.from({ length: faker.number.int({min: 1, max: 10}) }, (_, i) => i + 1).map(() => ({eventId: faker.string.uuid(), outcome: faker.helpers.arrayElement(['created','duplicate','rejected'] as const), code: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null])})), ...overrideResponse})
 
 export const getCreatePatientDoseEventsResponseMock = (overrideResponse: Partial<Extract<DoseEventBatchResult, object>> = {}): DoseEventBatchResult => ({results: Array.from({ length: faker.number.int({min: 1, max: 10}) }, (_, i) => i + 1).map(() => ({eventId: faker.string.uuid(), outcome: faker.helpers.arrayElement(['created','duplicate','rejected'] as const), code: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null])})), ...overrideResponse})
 
-export const getListDoseHistoryResponseMock = (overrideResponse: Partial<Extract<DoseHistoryPage, object>> = {}): DoseHistoryPage => ({items: Array.from({ length: faker.number.int({min: 1, max: 10}) }, (_, i) => i + 1).map(() => ({scheduleId: faker.string.uuid(), medicationId: faker.string.uuid(), medicationName: faker.string.alpha({length: {min: 10, max: 20}}), dosage: faker.string.alpha({length: {min: 10, max: 20}}), scheduledAt: faker.date.past().toISOString().slice(0, 19) + 'Z', status: faker.helpers.arrayElement(Object.values(DoseStatus)), actedAt: faker.helpers.arrayElement([faker.date.past().toISOString().slice(0, 19) + 'Z',null,])})), nextCursor: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}),null,]), ...overrideResponse})
+export const getListDoseHistoryResponseMock = (overrideResponse: Partial<Extract<DoseHistoryPage, object>> = {}): DoseHistoryPage => ({items: Array.from({ length: faker.number.int({min: 1, max: 10}) }, (_, i) => i + 1).map(() => ({scheduleId: faker.string.uuid(), medicationId: faker.string.uuid(), medicationName: faker.string.alpha({length: {min: 10, max: 20}}), dosage: faker.string.alpha({length: {min: 10, max: 20}}), scheduledAt: faker.date.past().toISOString().slice(0, 19) + 'Z', status: faker.helpers.arrayElement(Object.values(DoseStatus)), actedAt: faker.helpers.arrayElement([faker.date.past().toISOString().slice(0, 19) + 'Z',null,]), eventId: faker.helpers.arrayElement([faker.string.uuid(),null,])})), nextCursor: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}),null,]), ...overrideResponse})
 
 export const getGetAdherenceResponseMock = (overrideResponse: Partial<Extract<Adherence, object>> = {}): Adherence => ({from: faker.date.past().toISOString().slice(0, 10), to: faker.date.past().toISOString().slice(0, 10), taken: faker.number.int({min: 0}), skipped: faker.number.int({min: 0}), missed: faker.number.int({min: 0}), percentage: faker.helpers.arrayElement([faker.number.float({min: 0, max: 100, fractionDigits: 2}),null,]), ...overrideResponse})
 
@@ -204,15 +215,15 @@ export const getGetMyNotificationPreferencesResponseMock = (overrideResponse: Pa
 
 export const getSetMyNotificationPreferencesResponseMock = (overrideResponse: Partial<Extract<NotificationPreferences, object>> = {}): NotificationPreferences => ({missedDose: {...{email: faker.datatype.boolean(), telegram: faker.datatype.boolean()},}, weeklyReport: {...{email: faker.datatype.boolean(), telegram: faker.datatype.boolean()},}, ...overrideResponse})
 
-export const getListReportsResponseReportSummaryMock = (overrideResponse: Partial<ReportSummary> = {}): ReportSummary => ({...{taken: faker.number.int({min: 0}), skipped: faker.number.int({min: 0}), missed: faker.number.int({min: 0}), percentage: faker.helpers.arrayElement([faker.number.float({min: 0, max: 100, fractionDigits: 2}),null,]), byMedication: Array.from({ length: faker.number.int({min: 1, max: 10}) }, (_, i) => i + 1).map(() => ({medicationId: faker.string.uuid(), medicationName: faker.string.alpha({length: {min: 10, max: 20}}), taken: faker.number.int({min: 0}), skipped: faker.number.int({min: 0}), missed: faker.number.int({min: 0}), percentage: faker.helpers.arrayElement([faker.number.float({min: 0, max: 100, fractionDigits: 2}),null,])}))}, ...overrideResponse});
+export const getListReportsResponseReportSummaryMock = (overrideResponse: Partial<ReportSummary> = {}): ReportSummary => ({...{taken: faker.number.int({min: 0}), skipped: faker.number.int({min: 0}), missed: faker.number.int({min: 0}), percentage: faker.helpers.arrayElement([faker.number.float({min: 0, max: 100, fractionDigits: 2}),null,]), byMedication: Array.from({ length: faker.number.int({min: 1, max: 10}) }, (_, i) => i + 1).map(() => ({medicationId: faker.string.uuid(), medicationName: faker.string.alpha({length: {min: 10, max: 20}}), dosage: faker.string.alpha({length: {min: 10, max: 20}}), scheduled: faker.number.int({min: 0}), taken: faker.number.int({min: 0}), skipped: faker.number.int({min: 0}), missed: faker.number.int({min: 0}), percentage: faker.helpers.arrayElement([faker.number.float({min: 0, max: 100, fractionDigits: 2}),null,])})), byDay: Array.from({ length: faker.number.int({min: 1, max: 10}) }, (_, i) => i + 1).map(() => ({date: faker.date.past().toISOString().slice(0, 10), taken: faker.number.int({min: 0}), skipped: faker.number.int({min: 0}), missed: faker.number.int({min: 0})}))}, ...overrideResponse});
 
 export const getListReportsResponseMock = (overrideResponse: Partial<Extract<ReportPage, object>> = {}): ReportPage => ({items: Array.from({ length: faker.number.int({min: 1, max: 10}) }, (_, i) => i + 1).map(() => ({id: faker.string.uuid(), patientId: faker.string.uuid(), periodStart: faker.date.past().toISOString().slice(0, 10), periodEnd: faker.date.past().toISOString().slice(0, 10), trigger: faker.helpers.arrayElement(Object.values(ReportTrigger)), status: faker.helpers.arrayElement(Object.values(ReportStatus)), createdAt: faker.date.past().toISOString().slice(0, 19) + 'Z', generatedAt: faker.helpers.arrayElement([faker.date.past().toISOString().slice(0, 19) + 'Z',null,]), summary: faker.helpers.arrayElement([{...getListReportsResponseReportSummaryMock()},null,])})), nextCursor: faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}),null,]), ...overrideResponse})
 
-export const getCreateReportResponseReportSummaryMock = (overrideResponse: Partial<ReportSummary> = {}): ReportSummary => ({...{taken: faker.number.int({min: 0}), skipped: faker.number.int({min: 0}), missed: faker.number.int({min: 0}), percentage: faker.helpers.arrayElement([faker.number.float({min: 0, max: 100, fractionDigits: 2}),null,]), byMedication: Array.from({ length: faker.number.int({min: 1, max: 10}) }, (_, i) => i + 1).map(() => ({medicationId: faker.string.uuid(), medicationName: faker.string.alpha({length: {min: 10, max: 20}}), taken: faker.number.int({min: 0}), skipped: faker.number.int({min: 0}), missed: faker.number.int({min: 0}), percentage: faker.helpers.arrayElement([faker.number.float({min: 0, max: 100, fractionDigits: 2}),null,])}))}, ...overrideResponse});
+export const getCreateReportResponseReportSummaryMock = (overrideResponse: Partial<ReportSummary> = {}): ReportSummary => ({...{taken: faker.number.int({min: 0}), skipped: faker.number.int({min: 0}), missed: faker.number.int({min: 0}), percentage: faker.helpers.arrayElement([faker.number.float({min: 0, max: 100, fractionDigits: 2}),null,]), byMedication: Array.from({ length: faker.number.int({min: 1, max: 10}) }, (_, i) => i + 1).map(() => ({medicationId: faker.string.uuid(), medicationName: faker.string.alpha({length: {min: 10, max: 20}}), dosage: faker.string.alpha({length: {min: 10, max: 20}}), scheduled: faker.number.int({min: 0}), taken: faker.number.int({min: 0}), skipped: faker.number.int({min: 0}), missed: faker.number.int({min: 0}), percentage: faker.helpers.arrayElement([faker.number.float({min: 0, max: 100, fractionDigits: 2}),null,])})), byDay: Array.from({ length: faker.number.int({min: 1, max: 10}) }, (_, i) => i + 1).map(() => ({date: faker.date.past().toISOString().slice(0, 10), taken: faker.number.int({min: 0}), skipped: faker.number.int({min: 0}), missed: faker.number.int({min: 0})}))}, ...overrideResponse});
 
 export const getCreateReportResponseMock = (overrideResponse: Partial<Extract<Report, object>> = {}): Report => ({id: faker.string.uuid(), patientId: faker.string.uuid(), periodStart: faker.date.past().toISOString().slice(0, 10), periodEnd: faker.date.past().toISOString().slice(0, 10), trigger: faker.helpers.arrayElement(Object.values(ReportTrigger)), status: faker.helpers.arrayElement(Object.values(ReportStatus)), createdAt: faker.date.past().toISOString().slice(0, 19) + 'Z', generatedAt: faker.helpers.arrayElement([faker.date.past().toISOString().slice(0, 19) + 'Z',null,]), summary: faker.helpers.arrayElement([{...getCreateReportResponseReportSummaryMock()},null,]), ...overrideResponse})
 
-export const getGetReportResponseReportSummaryMock = (overrideResponse: Partial<ReportSummary> = {}): ReportSummary => ({...{taken: faker.number.int({min: 0}), skipped: faker.number.int({min: 0}), missed: faker.number.int({min: 0}), percentage: faker.helpers.arrayElement([faker.number.float({min: 0, max: 100, fractionDigits: 2}),null,]), byMedication: Array.from({ length: faker.number.int({min: 1, max: 10}) }, (_, i) => i + 1).map(() => ({medicationId: faker.string.uuid(), medicationName: faker.string.alpha({length: {min: 10, max: 20}}), taken: faker.number.int({min: 0}), skipped: faker.number.int({min: 0}), missed: faker.number.int({min: 0}), percentage: faker.helpers.arrayElement([faker.number.float({min: 0, max: 100, fractionDigits: 2}),null,])}))}, ...overrideResponse});
+export const getGetReportResponseReportSummaryMock = (overrideResponse: Partial<ReportSummary> = {}): ReportSummary => ({...{taken: faker.number.int({min: 0}), skipped: faker.number.int({min: 0}), missed: faker.number.int({min: 0}), percentage: faker.helpers.arrayElement([faker.number.float({min: 0, max: 100, fractionDigits: 2}),null,]), byMedication: Array.from({ length: faker.number.int({min: 1, max: 10}) }, (_, i) => i + 1).map(() => ({medicationId: faker.string.uuid(), medicationName: faker.string.alpha({length: {min: 10, max: 20}}), dosage: faker.string.alpha({length: {min: 10, max: 20}}), scheduled: faker.number.int({min: 0}), taken: faker.number.int({min: 0}), skipped: faker.number.int({min: 0}), missed: faker.number.int({min: 0}), percentage: faker.helpers.arrayElement([faker.number.float({min: 0, max: 100, fractionDigits: 2}),null,])})), byDay: Array.from({ length: faker.number.int({min: 1, max: 10}) }, (_, i) => i + 1).map(() => ({date: faker.date.past().toISOString().slice(0, 10), taken: faker.number.int({min: 0}), skipped: faker.number.int({min: 0}), missed: faker.number.int({min: 0})}))}, ...overrideResponse});
 
 export const getGetReportResponseMock = (overrideResponse: Partial<Extract<Report, object>> = {}): Report => ({id: faker.string.uuid(), patientId: faker.string.uuid(), periodStart: faker.date.past().toISOString().slice(0, 10), periodEnd: faker.date.past().toISOString().slice(0, 10), trigger: faker.helpers.arrayElement(Object.values(ReportTrigger)), status: faker.helpers.arrayElement(Object.values(ReportStatus)), createdAt: faker.date.past().toISOString().slice(0, 19) + 'Z', generatedAt: faker.helpers.arrayElement([faker.date.past().toISOString().slice(0, 19) + 'Z',null,]), summary: faker.helpers.arrayElement([{...getGetReportResponseReportSummaryMock()},null,]), ...overrideResponse})
 
@@ -220,7 +231,9 @@ export const getDownloadReportPdfResponseMock = (): Blob => (new Blob([new Uint8
 
 export const getSendChatMessageResponseMock = (): string => (faker.word.sample())
 
-export const getSendMyChatMessageResponseMock = (overrideResponse: Partial<Extract<WatchChatReply, object>> = {}): WatchChatReply => ({reply: faker.string.alpha({length: {min: 10, max: 20}}), remainingMessages: faker.number.int({min: 0}), ...overrideResponse})
+export const getSendMyChatMessageResponsePendingActionMock = (overrideResponse: Partial<PendingAction> = {}): PendingAction => ({...{id: faker.string.uuid(), type: faker.helpers.arrayElement(['create_medication'] as const), summary: faker.string.alpha({length: {min: 10, max: 20}})}, ...overrideResponse});
+
+export const getSendMyChatMessageResponseMock = (overrideResponse: Partial<Extract<WatchChatReply, object>> = {}): WatchChatReply => ({reply: faker.string.alpha({length: {min: 10, max: 20}}), remainingMessages: faker.number.int({min: 0}), pendingAction: faker.helpers.arrayElement([{...getSendMyChatMessageResponsePendingActionMock()},null,]), actions: faker.helpers.arrayElement([Array.from({ length: faker.number.int({min: 1, max: 10}) }, (_, i) => i + 1).map(() => ({type: faker.helpers.arrayElement(['medication_created'] as const), medicationId: faker.string.uuid(), scheduleId: faker.string.uuid()})), undefined]), ...overrideResponse})
 
 
 export const getGetHealthMockHandler = (overrideResponse?: Health | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<Health> | Health), options?: RequestHandlerOptions) => {
@@ -495,7 +508,7 @@ export const getRequestDeviceTokenMockHandler = (overrideResponse?: TokenPair | 
   }, options)
 }
 
-export const getGetMyDeviceMockHandler = (overrideResponse?: Device | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<Device> | Device), options?: RequestHandlerOptions) => {
+export const getGetMyDeviceMockHandler = (overrideResponse?: MyDevice | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<MyDevice> | MyDevice), options?: RequestHandlerOptions) => {
   return http.get('*/devices/me', async (info: Parameters<Parameters<typeof http.get>[1]>[0]) => {
 
 
@@ -507,8 +520,40 @@ export const getGetMyDeviceMockHandler = (overrideResponse?: Device | ((info: Pa
   }, options)
 }
 
+export const getUnpairMyDeviceMockHandler = (overrideResponse?: void | ((info: Parameters<Parameters<typeof http.delete>[1]>[0]) => Promise<void> | void), options?: RequestHandlerOptions) => {
+  return http.delete('*/devices/me', async (info: Parameters<Parameters<typeof http.delete>[1]>[0]) => {
+  if (typeof overrideResponse === 'function') {await overrideResponse(info); }
+
+    return new HttpResponse(null,
+      { status: 204
+      })
+  }, options)
+}
+
+export const getCreateMyMedicationMockHandler = (overrideResponse?: MedicationWithSchedule | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Promise<MedicationWithSchedule> | MedicationWithSchedule), options?: RequestHandlerOptions) => {
+  return http.post('*/devices/me/medications', async (info: Parameters<Parameters<typeof http.post>[1]>[0]) => {
+
+
+    return HttpResponse.json(overrideResponse !== undefined
+    ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse)
+    : getCreateMyMedicationResponseMock(),
+      { status: 200
+      })
+  }, options)
+}
+
 export const getSetMyPushTokenMockHandler = (overrideResponse?: void | ((info: Parameters<Parameters<typeof http.put>[1]>[0]) => Promise<void> | void), options?: RequestHandlerOptions) => {
   return http.put('*/devices/me/push-token', async (info: Parameters<Parameters<typeof http.put>[1]>[0]) => {
+  if (typeof overrideResponse === 'function') {await overrideResponse(info); }
+
+    return new HttpResponse(null,
+      { status: 204
+      })
+  }, options)
+}
+
+export const getSetMyBatteryMockHandler = (overrideResponse?: void | ((info: Parameters<Parameters<typeof http.put>[1]>[0]) => Promise<void> | void), options?: RequestHandlerOptions) => {
+  return http.put('*/devices/me/battery', async (info: Parameters<Parameters<typeof http.put>[1]>[0]) => {
   if (typeof overrideResponse === 'function') {await overrideResponse(info); }
 
     return new HttpResponse(null,
@@ -667,6 +712,18 @@ export const getGetPatientPlanMockHandler = (overrideResponse?: Plan | ((info: P
   }, options)
 }
 
+export const getGetMyDeviceAdherenceMockHandler = (overrideResponse?: DeviceAdherence | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<DeviceAdherence> | DeviceAdherence), options?: RequestHandlerOptions) => {
+  return http.get('*/devices/me/adherence', async (info: Parameters<Parameters<typeof http.get>[1]>[0]) => {
+
+
+    return HttpResponse.json(overrideResponse !== undefined
+    ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse)
+    : getGetMyDeviceAdherenceResponseMock(),
+      { status: 200
+      })
+  }, options)
+}
+
 export const getCreateMyDoseEventsMockHandler = (overrideResponse?: DoseEventBatchResult | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Promise<DoseEventBatchResult> | DoseEventBatchResult), options?: RequestHandlerOptions) => {
   return http.post('*/devices/me/dose-events', async (info: Parameters<Parameters<typeof http.post>[1]>[0]) => {
 
@@ -675,6 +732,26 @@ export const getCreateMyDoseEventsMockHandler = (overrideResponse?: DoseEventBat
     ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse)
     : getCreateMyDoseEventsResponseMock(),
       { status: 200
+      })
+  }, options)
+}
+
+export const getDeleteMyDoseEventMockHandler = (overrideResponse?: void | ((info: Parameters<Parameters<typeof http.delete>[1]>[0]) => Promise<void> | void), options?: RequestHandlerOptions) => {
+  return http.delete('*/devices/me/dose-events/:eventId', async (info: Parameters<Parameters<typeof http.delete>[1]>[0]) => {
+  if (typeof overrideResponse === 'function') {await overrideResponse(info); }
+
+    return new HttpResponse(null,
+      { status: 204
+      })
+  }, options)
+}
+
+export const getDeletePatientDoseEventMockHandler = (overrideResponse?: void | ((info: Parameters<Parameters<typeof http.delete>[1]>[0]) => Promise<void> | void), options?: RequestHandlerOptions) => {
+  return http.delete('*/patients/:patientId/dose-events/:eventId', async (info: Parameters<Parameters<typeof http.delete>[1]>[0]) => {
+  if (typeof overrideResponse === 'function') {await overrideResponse(info); }
+
+    return new HttpResponse(null,
+      { status: 204
       })
   }, options)
 }
@@ -921,7 +998,10 @@ export const getAPIDeRecordatoriosDeMedicamentosMock = () => [
   getConfirmPairingCodeMockHandler(),
   getRequestDeviceTokenMockHandler(),
   getGetMyDeviceMockHandler(),
+  getUnpairMyDeviceMockHandler(),
+  getCreateMyMedicationMockHandler(),
   getSetMyPushTokenMockHandler(),
+  getSetMyBatteryMockHandler(),
   getListPatientDevicesMockHandler(),
   getUnpairDeviceMockHandler(),
   getListMedicationsMockHandler(),
@@ -935,7 +1015,10 @@ export const getAPIDeRecordatoriosDeMedicamentosMock = () => [
   getDeleteScheduleMockHandler(),
   getGetMyPlanMockHandler(),
   getGetPatientPlanMockHandler(),
+  getGetMyDeviceAdherenceMockHandler(),
   getCreateMyDoseEventsMockHandler(),
+  getDeleteMyDoseEventMockHandler(),
+  getDeletePatientDoseEventMockHandler(),
   getCreatePatientDoseEventsMockHandler(),
   getListDoseHistoryMockHandler(),
   getGetAdherenceMockHandler(),

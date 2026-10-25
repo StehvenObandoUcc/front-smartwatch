@@ -6,7 +6,7 @@ import { EmptyState } from '../components/molecules/EmptyState';
 import { ErrorRetry } from '../components/molecules/ErrorRetry';
 import { SignBar } from '../components/molecules/SignBar';
 import { DoseRow } from '../features/doses/DoseRow';
-import { doseState, useDoseHistory } from '../features/doses/doseState';
+import { doseState, eventOf, useDoseHistory } from '../features/doses/doseState';
 import { groupByDay } from '../features/plan/groupByDay';
 import { usePatient } from '../features/patients/PatientGate';
 import { formatDay, localDate } from '../lib/dates';
@@ -57,6 +57,7 @@ export function AgendaPage() {
                 timeZone={tz}
                 patientId={patientId}
                 recordable={day === today}
+                eventId={eventOf(dose, history.index)}
               />
             ))}
           </ul>

@@ -16,6 +16,7 @@ import { ErrorRetry } from '../components/molecules/ErrorRetry';
 import { SignBar } from '../components/molecules/SignBar';
 import { AdherenceChart } from '../features/doses/AdherenceChart';
 import { DoseActions } from '../features/doses/DoseActions';
+import { UndoDose } from '../features/doses/UndoDose';
 import { usePatient } from '../features/patients/PatientGate';
 import { countText } from '../features/reports/ReportView';
 import { daysAgo, formatDay, formatTime, localDate } from '../lib/dates';
@@ -138,6 +139,14 @@ export function AdherencePage() {
                     patientId={patientId}
                     scheduleId={item.scheduleId}
                     scheduledAt={item.scheduledAt}
+                    label={item.medicationName}
+                  />
+                )}
+                {/* Se marcó por error: se deshace y la dosis vuelve a pendiente. */}
+                {item.eventId && (
+                  <UndoDose
+                    patientId={patientId}
+                    eventId={item.eventId}
                     label={item.medicationName}
                   />
                 )}

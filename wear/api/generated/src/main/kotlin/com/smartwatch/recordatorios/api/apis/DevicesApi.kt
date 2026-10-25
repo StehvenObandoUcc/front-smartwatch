@@ -7,6 +7,7 @@ import okhttp3.RequestBody
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+import com.smartwatch.recordatorios.api.models.BatteryUpdate
 import com.smartwatch.recordatorios.api.models.Device
 import com.smartwatch.recordatorios.api.models.DevicePage
 import com.smartwatch.recordatorios.api.models.MyDevice
@@ -101,6 +102,22 @@ interface DevicesApi {
      */
     @POST("devices/token")
     suspend fun requestDeviceToken(@Body kotlinxSerializationJsonJsonObject: kotlinx.serialization.json.JsonObject): Response<TokenPair>
+
+    /**
+     * PUT devices/me/battery
+     * El reloj informa su nivel de batería
+     * Solo con token de reloj; un token de usuario recibe 403. El reloj lo envía al sincronizar. Guarda el nivel y la hora de recepción, que se ven en &#x60;Device&#x60; (&#x60;batteryLevel&#x60;, &#x60;batteryReportedAt&#x60;). Reemplaza la lectura anterior. 
+     * Responses:
+     *  - 204: Lectura guardada.
+     *  - 401: Falta el token, es inválido o caducó (o credenciales incorrectas en login).
+     *  - 403: Autenticado pero sin permiso: rol que no permite la acción sobre un recurso accesible, o tipo de token equivocado (`wrong_token_type`). Nunca se usa para pacientes sin vínculo (eso es 404). 
+     *  - 422: La petición no cumple el esquema.
+     *
+     * @param batteryUpdate 
+     * @return [Unit]
+     */
+    @PUT("devices/me/battery")
+    suspend fun setMyBattery(@Body batteryUpdate: BatteryUpdate): Response<Unit>
 
     /**
      * PUT devices/me/push-token

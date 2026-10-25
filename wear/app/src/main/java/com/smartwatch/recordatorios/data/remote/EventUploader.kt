@@ -15,7 +15,10 @@ import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
 
-/** Sube los eventos PENDING en lotes y los marca CONFIRMED (el backend es idempotente por eventId). */
+/**
+ * Borra en el backend las tomas deshechas y sube los eventos PENDING en lotes, que pasan a
+ * CONFIRMED (el backend es idempotente por eventId).
+ */
 @Singleton
 class EventUploader
     @Inject
@@ -28,12 +31,31 @@ class EventUploader
         /** Al desvincular: los eventos son del paciente anterior. */
         suspend fun clearAll() = eventDao.deleteAll()
 
-        /** true si no queda nada pendiente; false si hay que reintentar más tarde. */
-        suspend fun upload(): Boolean {
+        /**
+         * true si no queda nada pendiente; false si hay que reintentar más tarde. Primero los
+         * borrados: si se volvió a marcar la dosis, el evento nuevo no choca con el viejo.
+         */
+        suspend fun upload(): Boolean = deleteUndone() && uploadPending()
+
+        private suspend fun uploadPending(): Boolean {
             var batch = eventDao.pending(BATCH_SIZE)
             while (batch.isNotEmpty()) {
                 if (!uploadBatch(batch)) return false
                 batch = eventDao.pending(BATCH_SIZE)
+            }
+            return true
+        }
+
+        private suspend fun deleteUndone(): Boolean {
+            for (event in eventDao.undone()) {
+                val deleted =
+                    try {
+                        api.deleteMyDoseEvent(UUID.fromString(event.eventId)).isSuccessful
+                    } catch (_: IOException) {
+                        false
+                    }
+                if (!deleted) return false
+                eventDao.deleteEvent(event.eventId)
             }
             return true
         }

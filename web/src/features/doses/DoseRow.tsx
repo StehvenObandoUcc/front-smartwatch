@@ -6,6 +6,7 @@ import { Plate } from '../../components/atoms/Plate/Plate';
 import { formatTime } from '../../lib/dates';
 import { DoseActions } from './DoseActions';
 import { DoseStateBadge } from './DoseStateBadge';
+import { UndoDose } from './UndoDose';
 import { canRecord, type DoseState } from './doseState';
 
 type Props = {
@@ -17,6 +18,8 @@ type Props = {
   recordable: boolean;
   /** Tomada / Omitir detrás de «Marcar», cuando la acción principal vive en otro sitio (el bloque Hoy). */
   disclose?: boolean;
+  /** Evento registrado: en las de hoy, ya tomadas u omitidas, permite «Deshacer». */
+  eventId?: string | null;
 };
 
 /**
@@ -24,8 +27,17 @@ type Props = {
  * y dosis; a la derecha la hora grande y la placa de estado (bajan a otra línea si no caben). Si
  * falta registrarla, debajo van Tomada / Omitir (o «Marcar», que las muestra, con `disclose`).
  */
-export function DoseRow({ dose, state, timeZone, patientId, recordable, disclose }: Props) {
+export function DoseRow({
+  dose,
+  state,
+  timeZone,
+  patientId,
+  recordable,
+  disclose,
+  eventId,
+}: Props) {
   const actionable = recordable && canRecord(state);
+  const undoable = recordable && (state === 'taken' || state === 'skipped') && eventId;
   const [open, setOpen] = useState(!disclose);
   return (
     <li className="flex flex-col gap-3">
@@ -39,6 +51,9 @@ export function DoseRow({ dose, state, timeZone, patientId, recordable, disclose
           <span className="text-lg font-extrabold">{formatTime(dose.scheduledAt, timeZone)}</span>
           {/* «Más tarde» solo en las de hoy: en los días que vienen, todas lo son. */}
           {(recordable || state !== 'upcoming') && <DoseStateBadge state={state} />}
+          {undoable && (
+            <UndoDose patientId={patientId} eventId={eventId} label={dose.medicationName} />
+          )}
           {actionable && disclose && (
             <Button
               variant="secondary"

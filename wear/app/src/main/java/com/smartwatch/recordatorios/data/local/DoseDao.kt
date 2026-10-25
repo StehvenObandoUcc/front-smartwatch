@@ -52,8 +52,15 @@ interface DoseEventDao {
     )
     suspend fun pending(limit: Int): List<DoseEventEntity>
 
-    @Query("UPDATE dose_events SET syncState = 'CONFIRMED' WHERE eventId IN (:ids)")
+    // Solo las PENDING: si se deshizo mientras subía, sigue UNDONE y se borra después.
+    @Query("UPDATE dose_events SET syncState = 'CONFIRMED' WHERE syncState = 'PENDING' AND eventId IN (:ids)")
     suspend fun markConfirmed(ids: List<String>)
+
+    @Query("UPDATE dose_events SET syncState = 'UNDONE' WHERE eventId = :eventId")
+    suspend fun markUndone(eventId: String)
+
+    @Query("SELECT * FROM dose_events WHERE syncState = 'UNDONE' ORDER BY occurredAt")
+    suspend fun undone(): List<DoseEventEntity>
 
     @Query("DELETE FROM dose_events WHERE eventId = :eventId")
     suspend fun deleteEvent(eventId: String)

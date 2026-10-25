@@ -20,20 +20,24 @@ function key(scheduleId: string, scheduledAt: string) {
   return `${scheduleId}@${new Date(scheduledAt).getTime()}`;
 }
 
-export function historyIndex(items: DoseHistoryItem[]): Map<string, DoseHistoryItem['status']> {
-  return new Map(items.map((item) => [key(item.scheduleId, item.scheduledAt), item.status]));
+/** Registro del historial de cada dosis, por dosis. */
+export type HistoryIndex = Map<string, DoseHistoryItem>;
+
+export function historyIndex(items: DoseHistoryItem[]): HistoryIndex {
+  return new Map(items.map((item) => [key(item.scheduleId, item.scheduledAt), item]));
+}
+
+/** Evento registrado de la dosis (para deshacerlo), o null si no tiene. */
+export function eventOf(dose: PlannedDose, history: HistoryIndex): string | null {
+  return history.get(key(dose.scheduleId, dose.scheduledAt))?.eventId ?? null;
 }
 
 /**
  * Estado de una dosis del plan cruzándola con el historial. El backend informa MISSED a los 60 min;
  * antes de eso, una dosis ya en su hora y sin registro está «Pendiente».
  */
-export function doseState(
-  dose: PlannedDose,
-  history: Map<string, DoseHistoryItem['status']>,
-  now: number,
-): DoseState {
-  const status = history.get(key(dose.scheduleId, dose.scheduledAt));
+export function doseState(dose: PlannedDose, history: HistoryIndex, now: number): DoseState {
+  const status = history.get(key(dose.scheduleId, dose.scheduledAt))?.status;
   if (status === 'TAKEN') return 'taken';
   if (status === 'SKIPPED') return 'skipped';
   if (status === 'MISSED') return 'missed';

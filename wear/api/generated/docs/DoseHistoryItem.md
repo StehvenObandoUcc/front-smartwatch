@@ -11,6 +11,7 @@
 | **scheduledAt** | [**java.time.OffsetDateTime**](java.time.OffsetDateTime.md) |  |  |
 | **status** | [**DoseStatus**](DoseStatus.md) |  |  |
 | **actedAt** | [**java.time.OffsetDateTime**](java.time.OffsetDateTime.md) |  |  |
+| **eventId** | [**java.util.UUID**](java.util.UUID.md) |  |  |
 
 
 

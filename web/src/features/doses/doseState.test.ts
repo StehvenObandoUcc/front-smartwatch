@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import type { DoseHistoryItem, PlannedDose } from '../../api/generated';
-import { canRecord, doseState, historyIndex, nextDose } from './doseState';
+import { canRecord, doseState, eventOf, historyIndex, nextDose } from './doseState';
 
 const dose: PlannedDose = {
   scheduleId: 's1',
@@ -21,6 +21,7 @@ function item(status: DoseHistoryItem['status'], scheduledAt = dose.scheduledAt)
     scheduledAt,
     status,
     actedAt: null,
+    eventId: null,
   };
 }
 
@@ -30,6 +31,11 @@ describe('doseState', () => {
   it('usa el estado del historial aunque el ISO venga con otro formato', () => {
     const index = historyIndex([item('TAKEN', '2026-10-22T08:00:00-05:00')]);
     expect(doseState(dose, index, at('2026-10-22T15:00:00Z'))).toBe('taken');
+  });
+
+  it('da el evento registrado para deshacerlo, o null', () => {
+    expect(eventOf(dose, historyIndex([{ ...item('TAKEN'), eventId: 'e1' }]))).toBe('e1');
+    expect(eventOf(dose, historyIndex([]))).toBeNull();
   });
 
   it('distingue omitida y no tomada', () => {

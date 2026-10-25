@@ -29,6 +29,8 @@ import kotlinx.serialization.Contextual
  * @param pairedAt 
  * @param lastSeenAt 
  * @param hasPushToken 
+ * @param batteryLevel 
+ * @param batteryReportedAt 
  */
 @Serializable
 
@@ -50,7 +52,13 @@ data class Device (
     val lastSeenAt: java.time.OffsetDateTime?,
 
     @SerialName(value = "hasPushToken")
-    val hasPushToken: kotlin.Boolean
+    val hasPushToken: kotlin.Boolean,
+
+    @SerialName(value = "batteryLevel")
+    val batteryLevel: kotlin.Int?,
+
+    @Contextual @SerialName(value = "batteryReportedAt")
+    val batteryReportedAt: java.time.OffsetDateTime?
 
 ) {
 

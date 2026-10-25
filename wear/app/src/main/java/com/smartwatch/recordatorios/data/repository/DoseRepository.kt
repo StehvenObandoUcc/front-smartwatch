@@ -74,19 +74,29 @@ class DoseRepository
             }
 
         /**
-         * Deshace un «Tomada» recién registrado: la dosis vuelve a pendiente y su evento se borra, solo
-         * si aún no se subió (sigue PENDING). Devuelve false si ya no se puede (ya subido o no tomada).
+         * Deshace un «Tomada»: la dosis vuelve a pendiente y su evento queda UNDONE para que
+         * EventUploader lo borre en el backend (aunque aún no se hubiera subido: borrar es idempotente).
+         * Las dosis locales no existen en el backend: su evento se borra aquí. Devuelve false si no
+         * estaba tomada.
          */
         suspend fun undoTaken(doseId: String): Boolean =
             db.withTransaction {
                 val dose = doseDao.get(doseId)
                 val event =
                     eventDao.forDose(doseId).lastOrNull {
-                        it.action == DoseAction.TAKEN && it.syncState == SyncState.PENDING
+                        it.action == DoseAction.TAKEN && it.syncState != SyncState.UNDONE
                     }
                 if (dose?.status != DoseStatus.TAKEN || event == null) return@withTransaction false
-                eventDao.deleteEvent(event.eventId)
+                if (event.scheduleId.startsWith(LOCAL)) {
+                    eventDao.deleteEvent(event.eventId)
+                } else {
+                    eventDao.markUndone(event.eventId)
+                }
                 doseDao.update(dose.copy(status = DoseStatus.SCHEDULED))
                 true
             }
+
+        private companion object {
+            const val LOCAL = "local:"
+        }
     }

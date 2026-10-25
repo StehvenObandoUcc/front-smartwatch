@@ -93,6 +93,41 @@ class EventUploaderTest {
         }
 
     @Test
+    fun `una toma ya subida se deshace con DELETE y se puede volver a marcar`() =
+        runTest {
+            graph.seed()
+            graph.repository.record("demo-1", DoseAction.TAKEN)
+            assertThat(graph.uploader.upload()).isTrue()
+            val first = states().single().eventId
+
+            graph.repository.undoTaken("demo-1")
+            graph.repository.record("demo-1", DoseAction.SKIPPED)
+            assertThat(graph.uploader.upload()).isTrue()
+
+            assertThat(graph.dosesApi.deleted.map { it.toString() }).containsExactly(first)
+            assertThat(
+                graph.dosesApi.batches
+                    .last()
+                    .events
+                    .single()
+                    .status,
+            ).isEqualTo(DoseEventStatus.SKIPPED)
+            assertThat(states().map { it.syncState }).containsExactly(SyncState.CONFIRMED)
+        }
+
+    @Test
+    fun `sin red el borrado queda pendiente y no se sube lo demas`() =
+        runTest {
+            graph.seed()
+            graph.repository.record("demo-1", DoseAction.TAKEN)
+            graph.repository.undoTaken("demo-1")
+            graph.dosesApi.offline = true
+
+            assertThat(graph.uploader.upload()).isFalse()
+            assertThat(states().single().syncState).isEqualTo(SyncState.UNDONE)
+        }
+
+    @Test
     fun `posponer es local y nunca se sube`() =
         runTest {
             graph.seed()
