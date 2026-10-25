@@ -17,7 +17,9 @@ export function AccountSection() {
         Tu cuenta
       </Text>
       <div className="flex flex-wrap items-center gap-2">
-        <Text as="p">{email}</Text>
+        <Text as="p" className="break-all">
+          {email}
+        </Text>
         <Badge tone={emailVerified ? 'success' : 'warning'}>
           {emailVerified ? 'Correo verificado' : 'Correo sin verificar'}
         </Badge>
