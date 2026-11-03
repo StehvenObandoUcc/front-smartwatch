@@ -1,7 +1,4 @@
-import { useState } from 'react';
-
 import type { PlannedDose } from '../../api/generated';
-import { Button } from '../../components/atoms/Button/Button';
 import { Plate } from '../../components/atoms/Plate/Plate';
 import { formatTime } from '../../lib/dates';
 import { DoseActions } from './DoseActions';
@@ -14,66 +11,47 @@ type Props = {
   state: DoseState;
   timeZone: string;
   patientId: string;
-  /** Mostrar Tomada / Omitir cuando aún no tiene registro (solo las de hoy). */
+  /** Mostrar Marcar tomada / Omitir cuando aún no tiene registro (solo las de hoy). */
   recordable: boolean;
-  /** Tomada / Omitir detrás de «Marcar», cuando la acción principal vive en otro sitio (el bloque Hoy). */
-  disclose?: boolean;
   /** Evento registrado: en las de hoy, ya tomadas u omitidas, permite «Deshacer». */
   eventId?: string | null;
 };
 
 /**
- * Una dosis como señal, en una fila de una lista `rows`: placa del medicamento en su color, nombre
- * y dosis; a la derecha la hora grande y la placa de estado (bajan a otra línea si no caben). Si
- * falta registrarla, debajo van Tomada / Omitir (o «Marcar», que las muestra, con `disclose`).
+ * Una dosis en una fila de una lista `rows`: placa del medicamento en su color, nombre y dosis, y la
+ * hora a la derecha; debajo, el estado y las acciones visibles (Marcar tomada / Omitir, o Deshacer).
  */
-export function DoseRow({
-  dose,
-  state,
-  timeZone,
-  patientId,
-  recordable,
-  disclose,
-  eventId,
-}: Props) {
+export function DoseRow({ dose, state, timeZone, patientId, recordable, eventId }: Props) {
   const actionable = recordable && canRecord(state);
   const undoable = recordable && (state === 'taken' || state === 'skipped') && eventId;
-  const [open, setOpen] = useState(!disclose);
+  // «Más tarde» solo en las de hoy: en los días que vienen, todas lo son.
+  const showState = recordable || state !== 'upcoming';
   return (
     <li className="flex flex-col gap-3">
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+      <div className="flex items-center gap-3">
         <Plate icon="medications" hex={dose.color} />
-        <div className="min-w-0 flex-1 basis-40">
-          <p className="text-lg leading-tight font-extrabold break-words">{dose.medicationName}</p>
-          <p className="text-text-muted">{dose.dosage}</p>
+        <div className="min-w-0 flex-1">
+          <p className="text-lg leading-tight font-medium break-words">{dose.medicationName}</p>
+          <p className="text-caption text-text-muted">{dose.dosage}</p>
         </div>
-        <div className="ml-auto flex flex-wrap items-center gap-x-3 gap-y-2">
-          <span className="text-lg font-extrabold">{formatTime(dose.scheduledAt, timeZone)}</span>
-          {/* «Más tarde» solo en las de hoy: en los días que vienen, todas lo son. */}
-          {(recordable || state !== 'upcoming') && <DoseStateBadge state={state} />}
+        <span className="text-lg font-medium">{formatTime(dose.scheduledAt, timeZone)}</span>
+      </div>
+      {(showState || actionable || undoable) && (
+        <div className="flex flex-wrap items-center gap-2 tablet:pl-14">
+          {showState && <DoseStateBadge state={state} />}
           {undoable && (
             <UndoDose patientId={patientId} eventId={eventId} label={dose.medicationName} />
           )}
-          {actionable && disclose && (
-            <Button
-              variant="secondary"
-              icon="edit"
-              aria-expanded={open}
-              aria-label={`Marcar ${dose.medicationName}`}
-              onClick={() => setOpen((o) => !o)}
-            >
-              Marcar
-            </Button>
+          {actionable && (
+            <DoseActions
+              compact
+              patientId={patientId}
+              scheduleId={dose.scheduleId}
+              scheduledAt={dose.scheduledAt}
+              label={dose.medicationName}
+            />
           )}
         </div>
-      </div>
-      {actionable && open && (
-        <DoseActions
-          patientId={patientId}
-          scheduleId={dose.scheduleId}
-          scheduledAt={dose.scheduledAt}
-          label={dose.medicationName}
-        />
       )}
     </li>
   );
