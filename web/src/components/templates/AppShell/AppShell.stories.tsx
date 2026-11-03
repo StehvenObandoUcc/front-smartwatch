@@ -27,10 +27,11 @@ const meta = {
   args: {
     appName: 'Recuerda',
     title: 'Hoy',
-    icon: 'today',
     nav,
+    subtitle: 'Ana · martes 3 de noviembre',
+    footer: <Text tone="muted">Ana · Paciente</Text>,
     actions: (
-      <Button variant="ghost" icon="logout" className="text-on-sign">
+      <Button variant="quiet" icon="logout">
         Salir
       </Button>
     ),
