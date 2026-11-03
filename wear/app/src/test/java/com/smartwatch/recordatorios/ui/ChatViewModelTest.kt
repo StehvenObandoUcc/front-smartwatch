@@ -2,6 +2,7 @@ package com.smartwatch.recordatorios.ui
 
 import com.google.common.truth.Truth.assertThat
 import com.smartwatch.recordatorios.api.apis.ChatApi
+import com.smartwatch.recordatorios.api.infrastructure.Serializer
 import com.smartwatch.recordatorios.api.models.ChatAction
 import com.smartwatch.recordatorios.api.models.ChatRequest
 import com.smartwatch.recordatorios.api.models.PendingAction
@@ -70,6 +71,9 @@ class ChatViewModelTest {
         assertThat(viewModel.state.value).isEqualTo(ChatState.Reply("Te toca la metformina a las 20:00.", 26))
         assertThat(spoken).containsExactly("Te toca la metformina a las 20:00.")
         assertThat(api.sent.single().message).isEqualTo("¿qué me toca esta noche?")
+        // El backend rechaza `"history": null` con 422: siempre va la lista, aunque esté vacía.
+        val json = Serializer.kotlinxSerializationJson.encodeToString(WatchChatRequest.serializer(), api.sent.single())
+        assertThat(json).contains("\"history\":[]")
     }
 
     @Test
@@ -120,7 +124,7 @@ class ChatViewModelTest {
         api.reply = { Response.success(WatchChatReply("Listo, agregado.", 19, actions = listOf(created))) }
         viewModel.confirm()
 
-        assertThat(api.sent.last()).isEqualTo(WatchChatRequest(confirmActionId = id))
+        assertThat(api.sent.last()).isEqualTo(WatchChatRequest(confirmActionId = id, history = emptyList()))
         assertThat(viewModel.state.value).isEqualTo(ChatState.Reply("Listo, agregado.", 19))
         assertThat(planRefreshes).isEqualTo(1)
     }
