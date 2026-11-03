@@ -150,8 +150,6 @@ object Sizes {
     val colorDot = 14.dp
     val outline = 1.dp
     val actionPill = 64.dp
-    val mic = 72.dp
-    val micRing = 12.dp
     val codeBox = 30.dp
     val icon = 24.dp
     val touchMin = 48.dp
@@ -175,12 +173,6 @@ object Sizes {
     val discMain = 60.dp
     val discSecondary = 48.dp
     val discIcon = 26.dp
-
-    /** Botón redondo de esquina: visual de 36 dp dentro de un área táctil de 48 dp. */
-    val corner = 36.dp
-
-    /** Espacio extra arriba cuando la pantalla lleva botones de esquina. */
-    val cornerClearance = 40.dp
 
     /** Margen lateral del dato central para no pisar los números de la esfera. */
     val dialClearance = 30.dp
