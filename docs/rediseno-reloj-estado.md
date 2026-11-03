@@ -1,50 +1,32 @@
-# Rediseño del reloj: estado y siguientes pasos
+# Rediseño: estado y siguientes pasos
 
-Rama: `feat/wear-tema-propio`. Al 18 de octubre de 2026 está subida al remoto, pero todavía sin PR. `./gradlew ktlintCheck detekt testDebugUnitTest` pasa en verde, con 48 pruebas.
+Al 3 de noviembre de 2026. `main` está limpio y no hay PR abiertos. La historia detallada está en los PR #29 a #63; aquí solo lo vigente.
+
+## Sistema visual vigente
+
+- **Reloj (`wear/`)**: «esferas a sangre», cuatro colores (`ui/theme/Tokens.kt`): petróleo `#083B38` de fondo en degradado tonal, aguamarina para arcos, «ahora» y pendiente, naranja rojizo para la alarma, verde para «Tomada». Texto crema `#F7F2EC`, acción principal en relleno crema con tinta, vidrio claro para superficies. Sin negro ni blanco puros, un solo tema oscuro.
+- **Web (`web/`)**: los mismos colores del reloj (#62), un solo tema oscuro; cabecera y menú inferior de vidrio, filo claro en la elevación y botones que responden al pulsar (#63). Títulos sin guion automático.
+- Documentos de diseño: `PRODUCT.md` y `DESIGN.md` en la raíz, `wear/PRODUCT.md`. Mesa de diseño (artifact con las decisiones) y concepto de referencia: ver `docs/producto-recuerda`.
 
 ## Hecho
 
-### Lotes 1 a 3 de la auditoría Nielsen
-- Tema propio sin Material 3: solo se conservan `AppScaffold`, `ScreenScaffold`, `ScrollIndicator` y `TimeText`, dentro de `BwScaffold.kt`.
-- Componentes base en `ui/components/`: `BwText`, `BwButton`, `BwActionPill`, `BwCard`, `BwHeader`, `BwBanner`, `BwIcon`, `BwMicButton`, `BwProgress`, `BwSuccessMark` y `MedicationLabel`.
-- Alerta de dosis (A1 a A6):
-  - «Tomada» se ve sin desplazarse.
-  - Al tocarla aparece la marca de éxito durante 1,5 s.
-  - Al llegar al tope se muestra «Sin más pospuestas».
-  - Omitir pide confirmación nombrando el medicamento.
-  - Los números de posponer salen de `SnoozePolicy`.
-
-### Estilo del concepto visual
-Referencia de 12 vistas redondas: https://claude.ai/artifact/Sp9beKWxm2sQt3Z7fUX4Wz
-
-- Un solo modo oscuro: se quitaron `ThemePrefs`, la paleta clara y el botón «Tema».
-- Fondo negro con difuminado púrpura en todas las pantallas.
-- «Tomada» y «Volver» en degradado turquesa a verde; Posponer y Omitir en cápsulas magenta.
-- Avisos en amarillo; tiempo y asistente en cian.
-- Asistente con micrófono redondo.
-- Vinculación con el código letra a letra en casillas.
-- Todos los colores están en `ui/theme/Tokens.kt` y los contrastes calculados en `docs/validacion-pendiente.md`.
-
-### Otros
-- La notificación toma los minutos de posponer de `SnoozePolicy`.
-- Los iconos son vectoriales: no dependen de la fuente del reloj.
-- El fondo de la ventana coincide con el tema (`res/values/themes.xml`), así que no hay destello al abrir.
+- Reloj: alerta con Tomada / Posponer / Omitir, Inicio en 3 páginas (Próxima, Hoy, Adherencia), adherencia del mes e historial de 7 días, Tile «Anillo del día», modo local sin cuenta, vinculación por pasos y desvinculación, deshacer «Tomada» (subida retrasada 10 s), asistente por voz en español, batería informada al backend.
+- Web: landing en `/`, login dividido con `WatchMock`, panel bento (Hoy con anillo, Franjas con «Marcar», Adherencia, Reloj con batería real, Avisos), medicamentos y horarios, agenda, historial, ajustes, deshacer con `DELETE` real.
+- Contrato 0.10.0 integrado en ambos clientes (#61).
+- Backend en Heroku (v21, d0a2fdc): migraciones 0011 y 0012 aplicadas en la fase release; `TRUSTED_PROXY_HOPS=2` puesto. Los pedidos al backend de esta etapa están resueltos.
 
 ## Pendiente
 
-1. **Abrir el PR** de `feat/wear-tema-propio` hacia `main`.
-2. **Vistas del concepto que la app no tiene.** Necesitan datos o pantallas nuevas:
-   - Esfera con la próxima toma marcada.
-   - Anillo de cuenta atrás hasta la siguiente dosis.
-   - Adherencia (porcentaje y barras por día).
-   - Pantalla de pospuestas («2/3, suena a las 10:50»).
-   - Pantalla de sin conexión («Tus alarmas siguen sonando»).
-3. **Lotes 4 a 6 de la auditoría**: Inicio y Hoy, Vinculación y Asistente. Faltan estados de carga, avisos del plan destacados y textos más claros.
-4. **Comprobar en un reloj** las cápsulas de la alerta con la fuente del sistema al máximo; podrían cortarse en 192 dp.
-5. **Deshacer «Tomada»**: decidido no hacerlo por ahora (ver `docs/validacion-pendiente.md`).
+1. **Diseño de la web**: la valoración visual del tema nuevo (#62 y #63) quedó abierta; el usuario la considera floja. Se retoma aparte, con capturas de Hoy, Agenda, Adherencia, Medicamentos y Ajustes en móvil y escritorio.
+2. **Cierre del plan exprés**: Storybook completo, Complications, FCM, Playwright amplio y cobertura alta.
+3. **Validación en reloj o emulador**: no se ha hecho; ver `docs/validacion-pendiente.md`.
+4. **Esfera** (watch face): fuera del plan.
+5. **Cuenta de prueba en Heroku** `prueba.critica.20261022@example.com`: decidir si se borra.
 
 ## Reglas acordadas
-- Commits con la identidad `stehven.obando@campusucc.edu.co` y sin co-autor.
-- Push y PR solo con confirmación.
-- Solo se toca `ui/` y `strings.xml`, salvo excepción aprobada. ViewModels, repositorios y `SnoozePolicy` solo se leen.
-- No hay reloj ni emulador: lo que no se pueda comprobar se anota en `docs/validacion-pendiente.md`.
+
+- Commits convencionales, un archivo por commit, con la identidad de Steve y sin co-autor ni firmas de IA.
+- Una rama y un PR por tarea; se fusionan con CI en verde. Push y PR de cambios fuera del plan, con confirmación.
+- No se abre el emulador: lo prueba Steve al cierre de cada sprint.
+- En local solo lint y pruebas rápidas (`./gradlew ktlintCheck detekt testDebugUnitTest`; web: `eslint`, `tsc --noEmit`, `vitest run --project unit`).
+- Máquina con poca RAM: Gradle con `--no-daemon` y `-Xmx1200m`.

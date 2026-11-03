@@ -1,32 +1,18 @@
 # Validación pendiente del reloj (`wear/`)
 
-El rediseño del reloj (tema propio, Lotes 1 a 3 de la auditoría Nielsen y el estilo del concepto visual) se cerró **sin validación visual**: no hubo reloj ni emulador. Este documento recoge lo que no se ha verificado y lo que hace falta para verificarlo.
-
-Rama: `feat/wear-tema-propio`.
+Al 3 de noviembre de 2026. El reloj se rediseñó varias veces (tema propio, Lotes 1 a 3 de la auditoría Nielsen, «Señalética de salud» y, ahora, «esferas a sangre») **sin validación visual**: no hubo reloj ni emulador. Este documento recoge lo que no se ha verificado y lo que hace falta para verificarlo.
 
 ## Qué sí está verificado
 
-- `./gradlew ktlintCheck detekt testDebugUnitTest` en verde (48 pruebas).
-- Tema actual: un único modo oscuro, como en el concepto visual. Fondo negro con difuminado púrpura en todas las pantallas, acción principal en degradado turquesa-verde, Posponer y Omitir en cápsulas magenta, avisos en amarillo y tiempo en cian.
-- Contrastes WCAG calculados (fórmula de luminancia relativa):
-
-| Par | Contraste |
-|---|---|
-| Texto blanco / centro del difuminado (#3A1F5E) | 13,66 |
-| Texto blanco / superficie (#1E1D2A) | ≥ 13 |
-| Texto suave (#B7B4CC) / centro del difuminado | 6,77 |
-| Texto oscuro / degradado principal (turquesa a verde) | 9,06 a 10,5 |
-| Texto blanco / cápsula magenta (#B52DAB a #8E1F86) | 5,35 a 7,81 |
-| Texto oscuro / amarillo de aviso | 11,26 |
-| Amarillo / superficie | 10,93 |
-| Colores de medicamento (mínimo sobre superficie y difuminado) | 4,3 |
-
-- El gris de la referencia (#8E8CA6) no se usa para texto: sobre el difuminado da 4,2:1.
-- `DoseAlertScreenTest` usa Robolectric con gráficos nativos, en un reloj redondo de 192 dp con fuente al 1,3x. Comprueba que «Tomada» se ve sin desplazarse, también con un nombre de dos líneas. Robolectric mide con sus propias fuentes, no con las del reloj, así que es orientativo.
+- `./gradlew ktlintCheck detekt testDebugUnitTest` en verde.
+- Paleta vigente (`ui/theme/Tokens.kt`): petróleo `#083B38`, crema `#F7F2EC`, aguamarina, naranja rojizo y verde; un único modo oscuro.
+- Contrastes WCAG calculados: texto crema sobre el extremo claro de cada degradado ≥ 4,8:1; tinta sobre la acción principal 16:1, sobre aguamarina 11,5:1, sobre verde claro 11,8:1, sobre naranja claro 10,1:1 y sobre rojo claro 7,8:1.
+- `DoseAlertScreenTest` (Robolectric, gráficos nativos, reloj redondo de 192 dp, fuente 1,3x): «Tomada» se ve sin desplazarse, también con nombre de dos líneas. Robolectric mide con fuentes propias, así que es orientativo.
+- Capturas sin emulador con un test Robolectric temporal (`captureToImage`); sirven para el aspecto, no para tipografía real.
 
 ## Qué no está verificado
 
-1. **Apariencia real.** Difuminado, degradados, cápsulas e insignia de éxito en pantalla real.
+1. **Apariencia real.** Degradado petróleo, anillos, cápsulas e insignia de éxito en pantalla real.
 2. **Cápsulas de la alerta con fuente grande.** «Posponer» y «Omitir» van lado a lado en una sola línea; con la fuente al máximo podrían cortarse en relojes de 192 dp.
 3. **Casillas del código de vinculación** con códigos largos: se estrechan para caber, pero no se ha visto con el código real.
 4. **TalkBack.**
@@ -41,11 +27,11 @@ Rama: `feat/wear-tema-propio`.
 7. **Fuente máxima del sistema.** Las pruebas usan 1,3x.
 8. **Marca de éxito sobre la pantalla de bloqueo** durante 1,5 s antes de cerrarse.
 9. **Iconos vectoriales** (aviso, visto, cerrar, atrás, reloj, micrófono): tamaño y nitidez.
-10. **Indicador de scroll y hora** sobre el difuminado.
+10. **Indicador de scroll y hora** sobre el degradado.
 
 ## Pendientes de diseño (no implementados)
 
-- **Deshacer «Tomada».** Decidido no implementarlo por ahora.
+- **Deshacer «Tomada».** Hecho en #50 y #51 (subida retrasada 10 s; el contrato 0.10.0 trae `DELETE` real).
   - Una ventana corta (1,5 a 2 s), registrando al final, no toca datos, pero da poco tiempo y pierde la toma si se desliza para salir.
   - Un deshacer útil (5 s o más) necesita revertir un registro ya guardado, lo que toca la capa de datos.
 - **Lotes 4 a 6 de la auditoría** (Inicio y Hoy, Vinculación, Asistente): sin empezar en lo funcional (estados de carga, avisos de plan y textos).
