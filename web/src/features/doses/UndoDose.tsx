@@ -25,7 +25,7 @@ export function UndoDose({ patientId, eventId, label }: Props) {
   return (
     <>
       <Button
-        variant="secondary"
+        variant="quiet"
         icon="undo"
         loading={undo.isPending}
         aria-label={`Deshacer ${label}`}
