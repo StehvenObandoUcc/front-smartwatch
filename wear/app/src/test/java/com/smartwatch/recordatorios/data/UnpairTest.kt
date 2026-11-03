@@ -12,6 +12,7 @@ import com.smartwatch.recordatorios.data.remote.AdherenceRepository
 import com.smartwatch.recordatorios.data.remote.DeviceSession
 import com.smartwatch.recordatorios.data.remote.PairingRepository
 import com.smartwatch.recordatorios.data.remote.TokenStore
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before
@@ -79,5 +80,28 @@ class UnpairTest {
 
             assertThat(graph.db.doseDao().all()).isEmpty()
             assertThat(TokenStore(graph.context).paired.value).isFalse()
+        }
+
+    @Test
+    fun `perder la sesion desde fuera borra el plan y sus alarmas`() =
+        runTest {
+            graph.seed().forEach { graph.scheduler.schedule(it) }
+
+            pairing().forgetWhenLost(flowOf(true, false))
+
+            assertThat(graph.db.doseDao().all()).isEmpty()
+            assertThat(graph.shadowAlarms.scheduledAlarms).isEmpty()
+            assertThat(sessionApi.revoked).isEqualTo(0)
+        }
+
+    @Test
+    fun `sin vinculacion previa no borra nada (modo local)`() =
+        runTest {
+            graph.seed().forEach { graph.scheduler.schedule(it) }
+
+            pairing().forgetWhenLost(flowOf(false, false))
+
+            assertThat(graph.db.doseDao().all()).hasSize(2)
+            assertThat(graph.shadowAlarms.scheduledAlarms).hasSize(2)
         }
 }
