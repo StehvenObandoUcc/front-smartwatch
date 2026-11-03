@@ -26,6 +26,11 @@ function localHour(iso: string, timeZone: string): number {
   return Number.parseInt(hour, 10);
 }
 
+/** La franja en la que está ahora el paciente (en su zona horaria). */
+export function franjaAt(now: Date, timeZone: string): Franja {
+  return franjaOf(localHour(now.toISOString(), timeZone));
+}
+
 /** Las dosis del día `day` (YYYY-MM-DD, zona del paciente) agrupadas por franja, en orden de hora. */
 export function groupByFranja(
   doses: PlannedDose[],
