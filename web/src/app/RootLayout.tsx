@@ -31,6 +31,8 @@ export function RootLayout() {
     );
   }
   if (auth.status === 'anon') {
+    // Tras eliminar la cuenta no hay a dónde volver: el login muestra el aviso.
+    if (auth.accountDeleted) return <Navigate to="/login?cuentaEliminada=1" replace />;
     // En la raíz, quien no ha entrado ve la landing; en cualquier otra ruta, la entrada.
     if (pathname === '/') {
       return (
