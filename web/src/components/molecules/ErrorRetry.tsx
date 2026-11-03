@@ -9,7 +9,7 @@ export function ErrorRetry({ message, onRetry }: Props) {
   return (
     <div
       role="alert"
-      className="flex flex-col items-start gap-3 rounded-lg border-2 border-danger p-4"
+      className="flex flex-col items-start gap-3 rounded-lg border border-danger bg-danger/5 p-4"
     >
       <div className="flex items-start gap-2 text-danger">
         <Icon name="alert" className="mt-0.5" />
