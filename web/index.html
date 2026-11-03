@@ -3,15 +3,37 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;700;800&display=swap"
+      rel="preload"
+      href="/fonts/inter-tight-latin-wght-normal.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
     />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Recuerda</title>
-    <meta name="theme-color" content="#0e5a57" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#fbf6ef" />
+    <script>
+      // Tema antes de pintar (sin destello): la elección guardada o, si no hay, la del sistema.
+      // Espejo de src/lib/theme.ts; los colores son el fondo de cada tema (tokens.css).
+      (function () {
+        var t;
+        try {
+          t = localStorage.getItem('recuerda-tema');
+        } catch (e) {}
+        if (t !== 'light' && t !== 'dark') {
+          t =
+            window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches
+              ? 'dark'
+              : 'light';
+        }
+        document.documentElement.dataset.theme = t;
+        document
+          .querySelector('meta[name="theme-color"]')
+          .setAttribute('content', t === 'dark' ? '#083b38' : '#fbf6ef');
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
