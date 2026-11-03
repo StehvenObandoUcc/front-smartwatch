@@ -1,10 +1,8 @@
 package com.smartwatch.recordatorios.ui.screens.today
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -13,21 +11,16 @@ import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
 import com.smartwatch.recordatorios.R
 import com.smartwatch.recordatorios.data.local.DoseEntity
 import com.smartwatch.recordatorios.data.local.DoseStatus
-import com.smartwatch.recordatorios.ui.components.BwCard
-import com.smartwatch.recordatorios.ui.components.BwDial
+import com.smartwatch.recordatorios.ui.components.BwDoseRow
 import com.smartwatch.recordatorios.ui.components.BwEmptyState
 import com.smartwatch.recordatorios.ui.components.BwHeader
 import com.smartwatch.recordatorios.ui.components.BwScreenScaffold
 import com.smartwatch.recordatorios.ui.components.BwSignBar
-import com.smartwatch.recordatorios.ui.components.BwStatePlate
 import com.smartwatch.recordatorios.ui.components.BwText
 import com.smartwatch.recordatorios.ui.components.DayPart
 import com.smartwatch.recordatorios.ui.components.DoseStateTone
-import com.smartwatch.recordatorios.ui.components.MedicationLabel
-import com.smartwatch.recordatorios.ui.components.dialMarks
 import com.smartwatch.recordatorios.ui.components.doseStatusLabel
 import com.smartwatch.recordatorios.ui.components.edgeItem
-import com.smartwatch.recordatorios.ui.components.hourOfDay
 import com.smartwatch.recordatorios.ui.theme.BwTheme
 import com.smartwatch.recordatorios.ui.theme.Spacing
 import com.smartwatch.recordatorios.ui.theme.timeText
@@ -45,16 +38,13 @@ fun TodayScreen(
     now: Long = System.currentTimeMillis(),
 ) {
     val listState = rememberTransformingLazyColumnState()
-    val marks = dialMarks(doses.orEmpty(), now)
-    BwScreenScaffold(scrollState = listState, backdrop = {
-        BwDial(marks = marks, now = hourOfDay(now), numbers = false)
-    }) { contentPadding ->
+    BwScreenScaffold(scrollState = listState) { contentPadding ->
         TransformingLazyColumn(
             state = listState,
             contentPadding = contentPadding,
             verticalArrangement = Arrangement.spacedBy(Spacing.sm),
         ) {
-            edgeItem { BwHeader(stringResource(R.string.today_title), icon = R.drawable.ic_snooze) }
+            edgeItem { BwHeader(stringResource(R.string.today_title)) }
             if (!doses.isNullOrEmpty()) {
                 edgeItem {
                     BwText(
@@ -87,7 +77,7 @@ fun TodayScreen(
                             BwSignBar(part, stringResource(part.label()))
                         }
                         partDoses.forEach { dose ->
-                            edgeItem(key = dose.id, container = true) {
+                            edgeItem(key = dose.id) {
                                 DoseRow(dose, now, onClick = { onOpenDose(dose) })
                             }
                         }
@@ -97,32 +87,22 @@ fun TodayScreen(
     }
 }
 
-/**
- * Una fila por dosis, en una sola columna: el medicamento con su placa, «19:01 · 50 mg» y la placa
- * de estado. Nada va pegado al borde izquierdo, que en la pantalla redonda corta el bisel.
- */
+/** Una fila por dosis, como en Historial: hora, medicamento y el estado si ya tocó o se resolvió. */
 @Composable
 private fun DoseRow(
     dose: DoseEntity,
     now: Long,
     onClick: () -> Unit,
 ) {
-    BwCard(
-        onClick = onClick,
+    BwDoseRow(
+        time = timeText(dose.scheduledAt),
+        name = dose.medicationName,
+        colorKey = dose.colorKey,
+        tone = stateTone(dose, now),
+        stateLabel = doseStatusLabel(dose),
         onClickLabel = stringResource(R.string.open_dose),
-        horizontalAlignment = Alignment.Start,
-        modifier = Modifier.fillMaxWidth(),
-    ) {
-        Column(verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
-            MedicationLabel(name = dose.medicationName, colorKey = dose.colorKey, centered = false)
-            BwText(
-                text = "${timeText(dose.scheduledAt)} · ${dose.doseLabel}",
-                style = BwTheme.type.support.merge(fontFeatureSettings = "tnum"),
-                color = BwTheme.colors.contentSoft,
-            )
-            stateTone(dose, now)?.let { BwStatePlate(it, doseStatusLabel(dose)) }
-        }
-    }
+        onClick = onClick,
+    )
 }
 
 /** Las mismas franjas que el panel web: 5 a 12 mañana, 12 a 19 tarde, el resto noche. */
