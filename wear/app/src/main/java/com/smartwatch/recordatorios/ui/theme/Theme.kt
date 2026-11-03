@@ -40,7 +40,7 @@ private const val BOLD = 700
 private const val EXTRA_BOLD = 800
 
 /** Español con palabras largas («Hidroclorotiazida»): partir con guion, nunca a mitad sin aviso. */
-private val Base = TextStyle(fontFamily = AtkinsonNext, hyphens = Hyphens.Auto, lineBreak = LineBreak.Paragraph)
+private val Base = TextStyle(fontFamily = AtkinsonNext, hyphens = Hyphens.None, lineBreak = LineBreak.Paragraph)
 
 object BwTypography {
     val title = Base.copy(fontSize = TypeScale.title, fontWeight = FontWeight.ExtraBold)
