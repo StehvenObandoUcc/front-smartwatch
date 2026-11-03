@@ -25,12 +25,12 @@ export function Block({ icon, title, question, action, children, className }: Pr
   return (
     <section
       aria-labelledby={id}
-      className={cn('raised flex min-w-0 flex-col gap-4 p-5 motion-safe:animate-rise', className)}
+      className={cn('raised flex min-w-0 flex-col gap-4 p-4 tablet:p-6', className)}
     >
       <header className="flex flex-wrap items-start gap-x-3 gap-y-2">
         <Plate icon={icon} size="sm" />
         <div className="min-w-0 flex-1 basis-40">
-          <h2 id={id} className="text-lg leading-tight font-extrabold tracking-tight">
+          <h2 id={id} className="text-lg leading-tight font-medium tracking-tight">
             {title}
           </h2>
           <p className="text-text-muted">{question}</p>
