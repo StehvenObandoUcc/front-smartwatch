@@ -6,8 +6,8 @@ import { Icon, type IconName } from '../../atoms/Icon/Icon';
 import { Plate } from '../../atoms/Plate/Plate';
 
 /**
- * `short` es la palabra del menú inferior móvil. `mobile: false` deja la opción solo en el riel
- * (en el móvil se llega desde «Más»); `desktop: false`, solo en el menú móvil.
+ * `short` es la palabra de la barra de pestañas del móvil. `mobile: false` deja la opción solo en
+ * la barra lateral (en el móvil se llega desde «Más»); `desktop: false`, solo en las pestañas.
  */
 export type NavItem = {
   to: string;
@@ -21,25 +21,34 @@ export type NavItem = {
 type Props = {
   appName: string;
   title: string;
-  /** Pictograma de la sección actual, en la placa de la cabecera. */
-  icon: IconName;
   /** Segunda línea de la cabecera: quién y qué día. */
   subtitle?: ReactNode;
   nav: NavItem[];
-  /** Acciones de la cabecera (cerrar sesión…), sobre el panel de señal. */
+  /** Acciones de la cabecera (tema, salir…). */
   actions?: ReactNode;
+  /** Pie de la barra lateral (quién ha entrado). */
+  footer?: ReactNode;
   children: ReactNode;
 };
 
 const MAIN_ID = 'contenido';
 
+/** La marca: placa de tinta con la cápsula y la palabra. */
+function Brand({ appName, wordClass }: { appName: string; wordClass?: string }) {
+  return (
+    <span className="flex items-center gap-3 text-lg font-medium tracking-tight">
+      <Plate icon="medications" tone="ink" size="sm" />
+      <span className={wordClass}>{appName}</span>
+    </span>
+  );
+}
+
 /**
- * Señalética: la cabecera es un panel de señal (placa de la sección y su palabra) y la navegación,
- * una fila de señales (placa y palabra; la activa, encendida). Cabecera y menú inferior son vidrio
- * translúcido: el contenido pasa por debajo y no se pierde el lugar.
- * Móvil (< 640): cabecera + menú inferior. Tablet y escritorio: riel lateral de señal.
+ * Móvil (< 640): barra superior con la sección y barra inferior de pestañas. Tablet: barra lateral
+ * estrecha (pictograma sobre la palabra). Escritorio: barra lateral de 256 px con pictograma y
+ * palabra en línea. La opción activa es una tarjeta elevada, no solo un color.
  */
-export function AppShell({ appName, title, icon, subtitle, nav, actions, children }: Props) {
+export function AppShell({ appName, title, subtitle, nav, actions, footer, children }: Props) {
   return (
     <div className="min-h-dvh bg-bg text-text tablet:flex">
       <a
@@ -51,11 +60,10 @@ export function AppShell({ appName, title, icon, subtitle, nav, actions, childre
 
       <nav
         aria-label="Principal"
-        className="hidden bg-sign text-on-sign tablet:sticky tablet:top-0 tablet:flex tablet:h-dvh tablet:w-28 tablet:flex-col tablet:gap-1 tablet:overflow-y-auto tablet:p-2 desktop:w-sidebar desktop:p-4"
+        className="hidden border-r border-border tablet:sticky tablet:top-0 tablet:flex tablet:h-dvh tablet:w-28 tablet:shrink-0 tablet:flex-col tablet:gap-1 tablet:overflow-y-auto tablet:p-3 desktop:w-sidebar desktop:p-4"
       >
-        <p className="flex items-center gap-3 px-2 pt-2 pb-6 text-xl font-extrabold tracking-tight">
-          <Plate icon="medications" tone="onSign" size="sm" />
-          <span className="hidden desktop:inline">{appName}</span>
+        <p className="flex justify-center px-2 pt-1 pb-6 desktop:justify-start">
+          <Brand appName={appName} wordClass="hidden desktop:inline" />
         </p>
         {nav
           .filter((item) => item.desktop !== false)
@@ -66,33 +74,33 @@ export function AppShell({ appName, title, icon, subtitle, nav, actions, childre
               end={item.to === '/'}
               className={({ isActive }) =>
                 cn(
-                  'flex min-h-touch flex-col items-center justify-center gap-1 rounded-md px-2 py-2 text-caption font-bold focus-visible:outline-on-sign desktop:flex-row desktop:justify-start desktop:gap-3 desktop:text-body',
-                  isActive ? 'bg-on-sign text-sign' : 'text-on-sign hover:bg-on-sign/10',
+                  'flex min-h-touch flex-col items-center justify-center gap-1 rounded-md px-2 py-2 text-caption font-medium transition-colors motion-reduce:transition-none desktop:flex-row desktop:justify-start desktop:gap-3 desktop:px-3 desktop:text-body',
+                  isActive
+                    ? 'bg-surface-raised text-text shadow-raised'
+                    : 'text-text-muted hover:bg-surface hover:text-text',
                 )
               }
             >
-              <Icon name={item.icon} className="size-7" />
+              <Icon name={item.icon} className="size-6" />
               {item.label}
             </NavLink>
           ))}
+        {footer && <div className="mt-auto hidden pt-6 desktop:block">{footer}</div>}
       </nav>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="glass sticky top-0 z-10 flex min-h-16 items-center gap-3 px-4 text-on-sign tablet:px-6">
-          <Plate icon={icon} tone="onSign" size="sm" />
+        <header className="glass sticky top-0 z-10 flex min-h-16 items-center gap-3 border-b px-4 tablet:px-8">
           <div className="min-w-0 flex-1 py-2">
-            <h1 className="truncate text-xl leading-tight font-extrabold tracking-tight">
-              {title}
-            </h1>
-            {subtitle && <p className="text-caption leading-snug text-sign-muted">{subtitle}</p>}
+            <h1 className="truncate text-xl leading-tight font-medium tracking-tight">{title}</h1>
+            {subtitle && <p className="text-caption leading-snug text-text-muted">{subtitle}</p>}
           </div>
-          {actions}
+          {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
         </header>
 
         <main
           id={MAIN_ID}
           tabIndex={-1}
-          className="mx-auto w-full max-w-content flex-1 p-4 pb-32 tablet:p-6 tablet:pb-6"
+          className="mx-auto w-full max-w-content flex-1 p-4 pb-32 tablet:p-8 tablet:pb-8"
         >
           {children}
         </main>
@@ -100,7 +108,7 @@ export function AppShell({ appName, title, icon, subtitle, nav, actions, childre
 
       <nav
         aria-label="Principal móvil"
-        className="glass fixed inset-x-0 bottom-0 z-10 flex border-t border-on-sign/10 pb-safe-bottom tablet:hidden"
+        className="glass fixed inset-x-0 bottom-0 z-10 flex border-t pb-safe-bottom tablet:hidden"
       >
         {nav
           .filter((item) => item.mobile !== false)
@@ -111,14 +119,21 @@ export function AppShell({ appName, title, icon, subtitle, nav, actions, childre
               end={item.to === '/'}
               className={({ isActive }) =>
                 cn(
-                  'flex min-h-20 min-w-0 flex-1 flex-col items-center justify-center gap-1 text-center text-caption leading-tight font-bold tracking-tight',
+                  'flex min-h-18 min-w-0 flex-1 flex-col items-center justify-center gap-1 text-center text-label leading-tight font-medium',
                   isActive ? 'text-text' : 'text-text-muted',
                 )
               }
             >
               {({ isActive }) => (
                 <>
-                  <Plate icon={item.icon} tone={isActive ? 'sign' : 'neutral'} size="sm" />
+                  <span
+                    className={cn(
+                      'grid h-8 w-14 place-items-center rounded-full transition-colors motion-reduce:transition-none',
+                      isActive && 'bg-sign text-on-sign',
+                    )}
+                  >
+                    <Icon name={item.icon} className="size-6" />
+                  </span>
                   <span>{item.short ?? item.label}</span>
                 </>
               )}

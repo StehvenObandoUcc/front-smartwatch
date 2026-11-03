@@ -13,13 +13,15 @@ type Props = {
   scheduledAt: string;
   /** Nombre del medicamento, para que cada botón se distinga con lector de pantalla. */
   label: string;
+  /** En una fila: «Marcar tomada» de 48 px con borde y «Omitir» discreto. */
+  compact?: boolean;
 };
 
 /**
  * Marcar una dosis como tomada u omitida desde la web (omitir pide confirmación). Se envía al
  * momento; si fue un error, la fila de la dosis ofrece «Deshacer».
  */
-export function DoseActions({ patientId, scheduleId, scheduledAt, label }: Props) {
+export function DoseActions({ patientId, scheduleId, scheduledAt, label, compact = false }: Props) {
   const queryClient = useQueryClient();
   // Un solo eventId por dosis: si se reintenta tras un fallo de red, el backend no la duplica.
   const [eventId] = useState(() => crypto.randomUUID());
@@ -70,16 +72,17 @@ export function DoseActions({ patientId, scheduleId, scheduledAt, label }: Props
           <Button
             icon="taken"
             loading={record.isPending}
-            aria-label={`Marcar ${label} como tomada`}
+            variant={compact ? 'secondary' : 'primary'}
+            aria-label={`Marcar tomada: ${label}`}
             onClick={() => send('TAKEN')}
           >
-            Tomada
+            Marcar tomada
           </Button>
           <Button
-            variant="secondary"
+            variant={compact ? 'quiet' : 'secondary'}
             icon="skipped"
             disabled={record.isPending}
-            aria-label={`Marcar ${label} como omitida`}
+            aria-label={`Omitir: ${label}`}
             onClick={() => setConfirmingSkip(true)}
           >
             Omitir

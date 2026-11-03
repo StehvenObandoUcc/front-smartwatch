@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useSyncExternalStore } from 'react';
 
 /** Lo que elige la persona: seguir al sistema o fijar un tema. */
 export type ThemeChoice = 'system' | 'light' | 'dark';
@@ -19,13 +19,28 @@ export function readChoice(): ThemeChoice {
   }
 }
 
+// Sin almacenamiento (modo privado), la elección vive solo en memoria durante la visita.
+let memory: ThemeChoice | null = null;
+const listeners = new Set<() => void>();
+
+function current(): ThemeChoice {
+  return memory ?? readChoice();
+}
+
 function saveChoice(choice: ThemeChoice) {
+  memory = choice;
   try {
     if (choice === 'system') localStorage.removeItem(THEME_KEY);
     else localStorage.setItem(THEME_KEY, choice);
   } catch {
-    // Sin almacenamiento (modo privado): el tema vale solo para esta visita.
+    // Se queda en memoria.
   }
+  listeners.forEach((notify) => notify());
+}
+
+function subscribe(notify: () => void) {
+  listeners.add(notify);
+  return () => listeners.delete(notify);
 }
 
 function systemTheme(): Theme {
@@ -45,9 +60,12 @@ export function applyTheme(theme: Theme) {
   if (meta && bg) meta.setAttribute('content', bg);
 }
 
-/** Tema elegido, guardado y aplicado; con «Sistema» sigue los cambios del sistema en vivo. */
+/**
+ * Tema elegido, guardado y aplicado; todos los selectores de la página comparten la elección. Con
+ * «Sistema» sigue los cambios del sistema en vivo.
+ */
 export function useTheme() {
-  const [choice, setChoice] = useState<ThemeChoice>(readChoice);
+  const choice = useSyncExternalStore(subscribe, current, () => 'system' as const);
   useEffect(() => {
     applyTheme(resolveTheme(choice, systemTheme()));
     if (choice !== 'system' || !window.matchMedia) return;
@@ -56,11 +74,5 @@ export function useTheme() {
     media.addEventListener('change', onChange);
     return () => media.removeEventListener('change', onChange);
   }, [choice]);
-  return {
-    choice,
-    setChoice: (next: ThemeChoice) => {
-      saveChoice(next);
-      setChoice(next);
-    },
-  };
+  return { choice, setChoice: saveChoice };
 }

@@ -4,10 +4,12 @@ import { Navigate, Outlet, useLocation } from 'react-router';
 import { Button } from '../components/atoms/Button/Button';
 import { Spinner } from '../components/atoms/Spinner/Spinner';
 import { Text } from '../components/atoms/Text/Text';
+import { ThemeSwitch } from '../components/molecules/ThemeSwitch';
 import { AppShell } from '../components/templates/AppShell/AppShell';
 import { useAuth } from '../features/auth/AuthContext';
 import { PatientGate } from '../features/patients/PatientGate';
 import { VerifyEmailBanner } from '../features/auth/VerifyEmailBanner';
+import { useTheme } from '../lib/theme';
 import { headerFor, navItems } from './navigation';
 
 // La landing solo la descarga quien llega sin sesión.
@@ -18,6 +20,8 @@ const LandingPage = lazy(() =>
 export function RootLayout() {
   const { pathname, search } = useLocation();
   const { auth, signOut } = useAuth();
+  // El tema se aplica también en la landing (sin sesión).
+  const theme = useTheme();
   if (auth.status === 'loading') {
     // El backend puede tardar en despertar: se dice qué pasa, centrado, en lugar de un spinner suelto.
     return (
@@ -56,7 +60,6 @@ export function RootLayout() {
     <AppShell
       appName="Recuerda"
       title={header.title}
-      icon={header.icon}
       subtitle={
         // En el móvil, quién y el día corto; desde tablet, también el papel y el día largo.
         <>
@@ -70,10 +73,13 @@ export function RootLayout() {
       }
       nav={navItems}
       actions={
-        // En el móvil solo el pictograma (la palabra queda para el lector): el título no se corta.
-        <Button variant="quiet" icon="logout" className="px-3" onClick={() => void signOut()}>
-          <span className="sr-only tablet:not-sr-only">Salir</span>
-        </Button>
+        // En el móvil, el tema compacto y solo el pictograma de salir: el título no se corta.
+        <>
+          <ThemeSwitch compact value={theme.choice} onChange={theme.setChoice} />
+          <Button variant="quiet" icon="logout" className="px-3" onClick={() => void signOut()}>
+            <span className="sr-only tablet:not-sr-only">Salir</span>
+          </Button>
+        </>
       }
     >
       {auth.user.emailVerified === false && <VerifyEmailBanner />}

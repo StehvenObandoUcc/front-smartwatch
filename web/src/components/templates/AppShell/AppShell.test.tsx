@@ -17,7 +17,7 @@ function renderShell(path = '/') {
         <Route
           path="*"
           element={
-            <AppShell appName="Recuerda" title="Hoy" icon="today" nav={nav}>
+            <AppShell appName="Recuerda" title="Hoy" nav={nav}>
               <p>Contenido</p>
             </AppShell>
           }
