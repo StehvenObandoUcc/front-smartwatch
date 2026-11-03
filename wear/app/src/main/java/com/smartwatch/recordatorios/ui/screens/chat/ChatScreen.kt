@@ -14,7 +14,6 @@ import com.smartwatch.recordatorios.ui.components.BwButton
 import com.smartwatch.recordatorios.ui.components.BwCard
 import com.smartwatch.recordatorios.ui.components.BwEmptyState
 import com.smartwatch.recordatorios.ui.components.BwHeader
-import com.smartwatch.recordatorios.ui.components.BwMicButton
 import com.smartwatch.recordatorios.ui.components.BwScreenScaffold
 import com.smartwatch.recordatorios.ui.components.BwText
 import com.smartwatch.recordatorios.ui.components.edgeItem
@@ -87,13 +86,15 @@ fun ChatScreen(
                 }
             }
             if (state !is ChatState.Thinking && proposal == null) {
-                edgeItem(container = true) {
-                    BwMicButton(
+                edgeItem {
+                    BwButton(
                         label =
                             stringResource(
                                 if (state is ChatState.Idle) R.string.chat_ask else R.string.chat_again,
                             ),
                         onClick = onAsk,
+                        primary = true,
+                        icon = R.drawable.ic_mic,
                         modifier = Modifier.fillMaxWidth(),
                     )
                 }
