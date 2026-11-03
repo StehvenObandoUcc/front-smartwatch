@@ -4,7 +4,7 @@ import { Link, useSearchParams } from 'react-router';
 
 import { useResetPassword } from '../api/generated';
 import { Button } from '../components/atoms/Button/Button';
-import { Input } from '../components/atoms/Input/Input';
+import { PasswordInput } from '../components/molecules/PasswordInput';
 import { Text } from '../components/atoms/Text/Text';
 import { FormField } from '../components/molecules/FormField';
 import { AuthLayout } from '../components/templates/AuthLayout';
@@ -53,18 +53,11 @@ export function ResetPasswordPage() {
             hint="Mínimo 10 caracteres"
           >
             {(p) => (
-              <Input
-                type="password"
-                autoComplete="new-password"
-                {...p}
-                {...register('newPassword')}
-              />
+              <PasswordInput autoComplete="new-password" {...p} {...register('newPassword')} />
             )}
           </FormField>
           <FormField label="Repite la contraseña" error={errors.confirm?.message}>
-            {(p) => (
-              <Input type="password" autoComplete="new-password" {...p} {...register('confirm')} />
-            )}
+            {(p) => <PasswordInput autoComplete="new-password" {...p} {...register('confirm')} />}
           </FormField>
           {reset.error && (
             <Text tone="danger" as="p">
