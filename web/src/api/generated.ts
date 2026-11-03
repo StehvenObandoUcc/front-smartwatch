@@ -60,7 +60,7 @@
  *   creados desde el reloj (también por voz con el asistente), desvinculación desde el reloj,
  *   batería del reloj y deshacer una toma registrada.
  *
- * OpenAPI spec version: 0.10.0
+ * OpenAPI spec version: 0.11.0
  */
 import {
   useMutation,
@@ -264,6 +264,15 @@ export interface UserUpdate {
   locale?: Locale;
 }
 
+export interface DeleteAccountRequest {
+  /**
+     * Contraseña actual de la cuenta.
+     * @minLength 1
+     * @maxLength 128
+     */
+  password: string;
+}
+
 export type ConsentPurpose = typeof ConsentPurpose[keyof typeof ConsentPurpose];
 
 
@@ -288,7 +297,8 @@ export interface Consent {
   updatedAt: string | null;
   /**
      * Quién tomó la última decisión: el propio titular o, en un paciente gestionado, el
-     * cuidador que decidió en su nombre. Null si nunca se ha respondido.
+     * cuidador que decidió en su nombre. Null si nunca se ha respondido o si quien decidió ya
+     * eliminó su cuenta (la decisión se conserva como prueba de consentimiento).
      */
   grantedBy: ConsentActor | null;
 }
@@ -1815,6 +1825,91 @@ export const useUpdateMe = <TError = UnauthorizedResponse | ValidationErrorRespo
         TContext
       > => {
       return useMutation(getUpdateMeMutationOptions(options), queryClient);
+    }
+
+/**
+ * Derecho de supresión (Ley 1581 de 2012). Exige la contraseña actual en el cuerpo y es
+ * **irreversible**: todo ocurre en una sola transacción.
+ * - Se borra la cuenta, sus sesiones, su vinculación de Telegram y sus preferencias.
+ * - Si es un paciente con cuenta, se borra su registro de paciente con todo su contenido
+ *   (medicamentos, horarios, tomas, reportes, relojes, vínculos y consentimientos).
+ * - Si es cuidador, cada paciente gestionado donde es el **único** cuidador activo se borra
+ *   con todo su contenido; si hay otros cuidadores activos, el paciente se conserva y solo
+ *   desaparece el vínculo de este usuario.
+ * - Se borra el uso del chat y los mensajes de notificación aún sin enviar dirigidos a su
+ *   correo o a su chat de Telegram.
+ * - Los consentimientos que otros conservan (p. ej. los que dio en nombre de un paciente
+ *   gestionado que sigue existiendo) se mantienen, con `grantedBy: null`.
+ * - Los tokens de acceso ya emitidos caducan solos (15 min) y dejan de servir: el usuario
+ *   ya no existe (401 `invalid_token`). Los refresh tokens y los relojes quedan invalidados.
+ * Responde 403 `invalid_password` (no 401, para que el cliente web no intente renovar la
+ * sesión) si la contraseña no es correcta. Límite de intentos por usuario: 429 con
+ * `Retry-After`.
+ * @summary Eliminar la cuenta
+ */
+export const deleteMe = (
+    deleteAccountRequest: DeleteAccountRequest,
+ options?: SecondParameter<typeof http>,signal?: AbortSignal
+) => {
+
+
+      return http<void>(
+      {url: `/users/me`, method: 'DELETE',
+      headers: {'Content-Type': 'application/json', },
+      data: deleteAccountRequest, signal
+    },
+      options);
+    }
+
+
+
+
+export const getDeleteMeMutationKey = () => ['deleteMe'] as const;
+
+export const getDeleteMeMutationOptions = <TError = UnauthorizedResponse | ForbiddenResponse | ValidationErrorResponse | TooManyRequestsResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteMe>>, TError,DeleteMeMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteMe>>, TError,DeleteMeMutationVariables, TContext> => {
+
+const mutationKey = getDeleteMeMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteMe>>, DeleteMeMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  deleteMe(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteMeMutationResult = NonNullable<Awaited<ReturnType<typeof deleteMe>>>
+    export type DeleteMeMutationBody = DeleteAccountRequest
+    export type DeleteMeMutationError = UnauthorizedResponse | ForbiddenResponse | ValidationErrorResponse | TooManyRequestsResponse
+    export type DeleteMeMutationVariables = {data: DeleteAccountRequest}
+
+    /**
+ * @summary Eliminar la cuenta
+ */
+export const useDeleteMe = <TError = UnauthorizedResponse | ForbiddenResponse | ValidationErrorResponse | TooManyRequestsResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteMe>>, TError,DeleteMeMutationVariables, TContext>, request?: SecondParameter<typeof http>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof deleteMe>>,
+        TError,
+        DeleteMeMutationVariables,
+        TContext
+      > => {
+      return useMutation(getDeleteMeMutationOptions(options), queryClient);
     }
 
 /**

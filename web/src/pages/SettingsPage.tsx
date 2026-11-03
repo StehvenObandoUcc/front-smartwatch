@@ -16,6 +16,7 @@ import { ErrorRetry } from '../components/molecules/ErrorRetry';
 import { FormField } from '../components/molecules/FormField';
 import { AccountSection } from '../features/auth/AccountSection';
 import { useAuth } from '../features/auth/AuthContext';
+import { DeleteAccountSection } from '../features/auth/DeleteAccountSection';
 import { CaregiversSection } from '../features/caregivers/CaregiversSection';
 import { usePatient } from '../features/patients/PatientGate';
 import { errorMessage } from '../lib/errors';
@@ -108,6 +109,8 @@ export function SettingsPage() {
           ))}
         </ul>
       </section>
+
+      <DeleteAccountSection />
     </div>
   );
 }

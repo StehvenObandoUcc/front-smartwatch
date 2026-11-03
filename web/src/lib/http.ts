@@ -11,10 +11,13 @@ type RequestConfig = {
 export class ApiError extends Error {
   readonly status: number;
   readonly code: string | undefined;
-  constructor(status: number, code: string | undefined, message: string) {
+  /** Segundos que indica la cabecera `Retry-After` (p. ej. en un 429); undefined si falta o no es válida. */
+  readonly retryAfter: number | undefined;
+  constructor(status: number, code: string | undefined, message: string, retryAfter?: number) {
     super(message);
     this.status = status;
     this.code = code;
+    this.retryAfter = retryAfter;
   }
 }
 
@@ -96,13 +99,24 @@ async function sendWithRefresh(config: RequestConfig, options?: RequestInit): Pr
   return res;
 }
 
-async function toApiError(res: Response): Promise<ApiError> {
+/** `Retry-After` en segundos enteros; se ignoran fechas HTTP y valores no válidos. */
+function parseRetryAfter(value: string | null): number | undefined {
+  if (!value || !/^\d+$/.test(value.trim())) return undefined;
+  return Number(value.trim());
+}
+
+export async function toApiError(res: Response): Promise<ApiError> {
   const problem = ((await res.json().catch(() => undefined)) ?? {}) as {
     code?: string;
     detail?: string;
     title?: string;
   };
-  return new ApiError(res.status, problem.code, problem.detail ?? problem.title ?? res.statusText);
+  return new ApiError(
+    res.status,
+    problem.code,
+    problem.detail ?? problem.title ?? res.statusText,
+    parseRetryAfter(res.headers.get('Retry-After')),
+  );
 }
 
 export async function http<T>(config: RequestConfig, options?: RequestInit): Promise<T> {

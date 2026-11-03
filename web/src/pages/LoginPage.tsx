@@ -15,7 +15,9 @@ import { errorMessage } from '../lib/errors';
 
 export function LoginPage() {
   const { auth, signIn } = useAuth();
-  const requested = useSearchParams()[0].get('next');
+  const params = useSearchParams()[0];
+  const requested = params.get('next');
+  const accountDeleted = params.get('cuentaEliminada') === '1';
   // Solo rutas internas: evita redirigir a otro sitio.
   const next = requested?.startsWith('/') && !requested.startsWith('//') ? requested : '/';
   // «Vincular un reloj» entra igual y luego lleva a Ajustes, donde se escribe el código del reloj.
@@ -28,6 +30,13 @@ export function LoginPage() {
   const { errors } = formState;
   return (
     <AuthLayout title="Iniciar sesión">
+      {accountDeleted && (
+        <div role="status">
+          <Text tone="success" as="p">
+            Tu cuenta se eliminó correctamente.
+          </Text>
+        </div>
+      )}
       <form
         noValidate
         onSubmit={handleSubmit((data) => login.mutate({ data }, { onSuccess: signIn }))}
