@@ -1,5 +1,15 @@
 import {
   Archive,
+  BatteryMedium,
+  BatteryWarning,
+  Eye,
+  EyeOff,
+  Monitor,
+  MoonStar,
+  Pause,
+  Play,
+  SunMedium,
+  WifiOff,
   CalendarDays,
   ChartColumn,
   Check,
@@ -79,6 +89,18 @@ export const icons = {
   logout: LogOut,
   alert: TriangleAlert,
   close: X,
+  show: Eye,
+  hide: EyeOff,
+  pause: Pause,
+  play: Play,
+  // Reloj
+  battery: BatteryMedium,
+  batteryLow: BatteryWarning,
+  offline: WifiOff,
+  // Tema
+  themeSystem: Monitor,
+  themeLight: SunMedium,
+  themeDark: MoonStar,
 } satisfies Record<string, LucideIcon>;
 
 export type IconName = keyof typeof icons;
