@@ -1,17 +1,10 @@
 import type { ElementType, ReactNode } from 'react';
 
 import { cn } from '../../lib/cn';
-import { Icon, type IconName } from '../atoms/Icon/Icon';
+import type { IconName } from '../atoms/Icon/Icon';
+import { Plate } from '../atoms/Plate/Plate';
 
 type Tone = 'sign' | 'sun' | 'dusk' | 'night' | 'neutral';
-
-const toneClass: Record<Tone, string> = {
-  sign: 'bg-sign text-on-sign',
-  sun: 'bg-morning text-on-morning',
-  dusk: 'bg-afternoon text-on-afternoon',
-  night: 'bg-night text-on-night',
-  neutral: 'bg-surface text-text',
-};
 
 type Props = {
   icon: IconName;
@@ -25,7 +18,7 @@ type Props = {
   className?: string;
 };
 
-/** Encabezado de sección como una señal: banda de color, pictograma grande y una palabra. */
+/** Encabezado de sección: placa del color de la franja, su palabra y un dato, sobre un filete. */
 export function SignBar({
   icon,
   title,
@@ -38,16 +31,15 @@ export function SignBar({
   return (
     <div
       className={cn(
-        'flex min-h-touch flex-wrap items-center gap-x-3 gap-y-1 rounded-md px-4 py-2.5',
-        toneClass[tone],
+        'flex min-h-touch flex-wrap items-center gap-x-3 gap-y-1 border-b border-border pb-3',
         className,
       )}
     >
-      <Icon name={icon} className="size-7" />
-      <Heading id={id} className="flex-1 text-lg leading-tight font-extrabold text-balance">
+      <Plate icon={icon} tone={tone} size="sm" />
+      <Heading id={id} className="flex-1 text-lg leading-tight font-medium text-balance">
         {title}
       </Heading>
-      {meta && <span className="text-caption font-bold whitespace-nowrap">{meta}</span>}
+      {meta && <span className="text-caption whitespace-nowrap text-text-muted">{meta}</span>}
     </div>
   );
 }
