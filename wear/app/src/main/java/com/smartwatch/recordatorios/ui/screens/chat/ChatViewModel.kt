@@ -56,7 +56,8 @@ class ChatViewModel
         val state: StateFlow<ChatState> = _state.asStateFlow()
 
         /**
-         * El reloj no guarda la conversación: cada pregunta va sola y la respuesta es corta. Sin texto
+         * El reloj no guarda la conversación: cada pregunta va sola (`history` vacío, nunca null: el
+         * cliente generado manda los null y el backend los rechaza con 422) y la respuesta es corta. Sin texto
          * (el micrófono no oyó nada o se canceló) se avisa en lugar de quedarse callado.
          */
         fun ask(message: String) {
@@ -67,7 +68,7 @@ class ChatViewModel
             }
             _state.value = ChatState.Thinking
             viewModelScope.launch {
-                _state.value = send(WatchChatRequest(message = message.trim().take(MAX_CHARS)))
+                _state.value = send(WatchChatRequest(message = message.trim().take(MAX_CHARS), history = emptyList()))
                 (_state.value as? ChatState.Reply)?.let { speaker.speak(it.text) }
             }
         }
@@ -77,7 +78,7 @@ class ChatViewModel
             val id = (_state.value as? ChatState.Reply)?.pending ?: return
             _state.value = ChatState.Thinking
             viewModelScope.launch {
-                _state.value = send(WatchChatRequest(confirmActionId = id))
+                _state.value = send(WatchChatRequest(confirmActionId = id, history = emptyList()))
                 (_state.value as? ChatState.Reply)?.let { speaker.speak(it.text) }
             }
         }

@@ -176,7 +176,7 @@ class MainActivity : ComponentActivity() {
         var saving by remember { mutableStateOf(false) }
         // Sin vincular no hay adherencia (la calcula el backend): esa página no aparece.
         val pages = if (paired) PAIRED_PAGES else LOCAL_PAGES
-        // Fuera del when: al volver del chat se sigue en la misma página.
+        // Fuera del when: al volver de agregar se sigue en la misma página.
         val pagerState = rememberPagerState(pageCount = { pages.size })
         val localMedications by localPlan.medications.collectAsStateWithLifecycle(emptyList())
         val patientName by deviceSession.patientName.collectAsStateWithLifecycle()
@@ -193,21 +193,9 @@ class MainActivity : ComponentActivity() {
         val history by viewModel.history.collectAsStateWithLifecycle()
         val adherence by viewModel.adherence.collectAsStateWithLifecycle()
         val planInfo by viewModel.planInfo.collectAsStateWithLifecycle()
-        BackHandler(enabled = screen != Screen.HOME && !saving) {
-            screen = Screen.HOME
-            chatViewModel.reset()
-        }
+        BackHandler(enabled = screen != Screen.HOME && !saving) { screen = Screen.HOME }
 
         when (screen) {
-            Screen.CHAT ->
-                ChatScreen(
-                    state = chatState,
-                    onAsk = { askByVoice { speechLauncher.launch(it) } },
-                    onConfirm = chatViewModel::confirm,
-                    onDecline = chatViewModel::reset,
-                    // Sin vincular se explica por qué no está y se ofrece vincular.
-                    onPair = if (paired) null else onPair,
-                )
             Screen.ADD ->
                 AddMedicationScreen(saving = saving) { name, dose, times ->
                     saving = true
@@ -229,8 +217,6 @@ class MainActivity : ComponentActivity() {
                                 onRequestExactAlarms = ::openExactAlarmSettings,
                                 onRequestNotifications = requestNotifications,
                                 onOpenDose = ::openDose,
-                                // Sin vincular abre igual: la pantalla dice que necesita el panel web.
-                                onOpenChat = { screen = Screen.CHAT },
                                 onRetryPlan = syncScheduler::syncNow,
                                 onAddMedication = onAdd,
                                 today = today.orEmpty(),
@@ -238,6 +224,15 @@ class MainActivity : ComponentActivity() {
                         Page.TODAY -> TodayScreen(doses = today, onOpenDose = ::openDose)
                         Page.ADHERENCE -> AdherenceScreen(summary = adherence)
                         Page.HISTORY -> HistoryScreen(entries = history)
+                        Page.ASSISTANT ->
+                            ChatScreen(
+                                state = chatState,
+                                onAsk = { askByVoice { speechLauncher.launch(it) } },
+                                onConfirm = chatViewModel::confirm,
+                                onDecline = chatViewModel::reset,
+                                // Sin vincular se explica por qué no está y se ofrece vincular.
+                                onPair = if (paired) null else onPair,
+                            )
                         Page.WATCH ->
                             WatchScreen(
                                 paired = paired,
@@ -289,13 +284,13 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-/** HOME son las páginas ([Page]); CHAT y ADD, pantallas encima. */
-private enum class Screen { HOME, CHAT, ADD }
+/** HOME son las páginas ([Page]); ADD, la pantalla encima. */
+private enum class Screen { HOME, ADD }
 
-private enum class Page { NEXT, TODAY, ADHERENCE, HISTORY, WATCH }
+private enum class Page { NEXT, TODAY, ADHERENCE, HISTORY, ASSISTANT, WATCH }
 
-private val PAIRED_PAGES = listOf(Page.NEXT, Page.TODAY, Page.ADHERENCE, Page.HISTORY, Page.WATCH)
-private val LOCAL_PAGES = listOf(Page.NEXT, Page.TODAY, Page.HISTORY, Page.WATCH)
+private val PAIRED_PAGES = listOf(Page.NEXT, Page.TODAY, Page.ADHERENCE, Page.HISTORY, Page.ASSISTANT, Page.WATCH)
+private val LOCAL_PAGES = listOf(Page.NEXT, Page.TODAY, Page.HISTORY, Page.ASSISTANT, Page.WATCH)
 private const val KEY_MODE = "mode"
 private const val MODE_LOCAL = "local"
 private const val MODE_PAIR = "pair"

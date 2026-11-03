@@ -54,7 +54,7 @@
     <string name="chat_unpaired_body">Funciona con el reloj vinculado al panel web.</string>
     <string name="chat_pair">Vincular</string>
     <string name="chat_disclaimer">No sustituye al médico.</string>
-    <string name="chat_ask">Preguntar por voz</string>
+    <string name="chat_ask">Preguntar</string>
     <string name="chat_prompt">Pregunta por tu plan</string>
     <string name="chat_thinking">Pensando…</string>
     <string name="chat_remaining">Te quedan %1$d mensajes hoy</string>

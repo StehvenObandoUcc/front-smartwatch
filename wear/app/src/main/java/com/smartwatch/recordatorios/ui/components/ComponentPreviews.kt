@@ -36,7 +36,7 @@ private fun ButtonsPreview() =
     PreviewFrame {
         BwHeader("Hoy")
         BwButton("Tomada", onClick = {}, primary = true, icon = R.drawable.ic_check, modifier = Modifier.fillMaxWidth())
-        BwButton("Preguntar por voz", onClick = {}, icon = R.drawable.ic_mic, modifier = Modifier.fillMaxWidth())
+        BwButton("Preguntar", onClick = {}, icon = R.drawable.ic_mic, modifier = Modifier.fillMaxWidth())
     }
 
 @WearPreviewDevices
@@ -54,10 +54,6 @@ private fun ActionPillsPreview() =
             BwActionPill("Omitir", R.drawable.ic_close, onClick = {}, quiet = true, modifier = Modifier.weight(1f))
         }
     }
-
-@WearPreviewDevices
-@Composable
-private fun MicPreview() = PreviewFrame { BwMicButton("Preguntar por voz", onClick = {}) }
 
 @WearPreviewDevices
 @Composable
