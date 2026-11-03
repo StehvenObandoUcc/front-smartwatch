@@ -60,7 +60,7 @@
  *   creados desde el reloj (también por voz con el asistente), desvinculación desde el reloj,
  *   batería del reloj y deshacer una toma registrada.
  *
- * OpenAPI spec version: 0.10.0
+ * OpenAPI spec version: 0.11.0
  */
 import {
   faker
@@ -326,6 +326,16 @@ export const getUpdateMeMockHandler = (overrideResponse?: User | ((info: Paramet
     ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse)
     : getUpdateMeResponseMock(),
       { status: 200
+      })
+  }, options)
+}
+
+export const getDeleteMeMockHandler = (overrideResponse?: void | ((info: Parameters<Parameters<typeof http.delete>[1]>[0]) => Promise<void> | void), options?: RequestHandlerOptions) => {
+  return http.delete('*/users/me', async (info: Parameters<Parameters<typeof http.delete>[1]>[0]) => {
+  if (typeof overrideResponse === 'function') {await overrideResponse(info); }
+
+    return new HttpResponse(null,
+      { status: 204
       })
   }, options)
 }
@@ -982,6 +992,7 @@ export const getAPIDeRecordatoriosDeMedicamentosMock = () => [
   getLogoutMockHandler(),
   getGetMeMockHandler(),
   getUpdateMeMockHandler(),
+  getDeleteMeMockHandler(),
   getListMyConsentsMockHandler(),
   getSetMyConsentMockHandler(),
   getListPatientsMockHandler(),
