@@ -25,8 +25,6 @@ import com.smartwatch.recordatorios.data.remote.PlanInfo
 import com.smartwatch.recordatorios.data.remote.PlanStatus
 import com.smartwatch.recordatorios.ui.components.BwBanner
 import com.smartwatch.recordatorios.ui.components.BwButton
-import com.smartwatch.recordatorios.ui.components.BwCornerButton
-import com.smartwatch.recordatorios.ui.components.BwCorners
 import com.smartwatch.recordatorios.ui.components.BwEmptyState
 import com.smartwatch.recordatorios.ui.components.BwScreenScaffold
 import com.smartwatch.recordatorios.ui.components.BwSuccessMark
@@ -45,7 +43,7 @@ import java.time.Duration
 /**
  * Primera página: avisos de permisos, próxima dosis y estado del plan. Hoy y las demás son las
  * páginas siguientes (deslizar). Los datos y permisos entran por parámetros. Sin vincular
- * ([planInfo] null) no hay plan ni asistente, y [onAddMedication] deja crear medicamentos aquí.
+ * ([planInfo] null) no hay plan, y [onAddMedication] deja crear medicamentos aquí.
  */
 @Composable
 fun HomeScreen(
@@ -56,7 +54,6 @@ fun HomeScreen(
     onRequestExactAlarms: () -> Unit,
     onRequestNotifications: () -> Unit,
     onOpenDose: (DoseEntity) -> Unit,
-    onOpenChat: (() -> Unit)?,
     onRetryPlan: () -> Unit,
     onAddMedication: (() -> Unit)? = null,
     now: Long = rememberNow(),
@@ -64,13 +61,11 @@ fun HomeScreen(
 ) {
     val listState = rememberTransformingLazyColumnState()
     val planStatus = planInfo?.let { planStatusText(it, now) }
-    val ask = stringResource(R.string.chat_ask)
     // Ya no queda nada por tomar hoy: la página descansa en verde hasta mañana.
     val allDone = today.isNotEmpty() && today.none { it.status == DoseStatus.SCHEDULED }
     BwScreenScaffold(
         scrollState = listState,
         tone = if (allDone) BwTone.DONE else BwTone.PETROL,
-        corners = onOpenChat?.let { chat -> BwCorners(start = { BwCornerButton(R.drawable.ic_mic, ask, chat) }) },
     ) { contentPadding ->
         TransformingLazyColumn(
             state = listState,
@@ -322,7 +317,6 @@ private fun HomeScreenPreview() {
             onRequestExactAlarms = {},
             onRequestNotifications = {},
             onOpenDose = {},
-            onOpenChat = {},
             onRetryPlan = {},
         )
     }
