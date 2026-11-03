@@ -21,11 +21,13 @@ Al 3 de noviembre de 2026. `main` está limpio y no hay PR abiertos. La historia
 
 ## Pendiente
 
-1. **Diseño de la web**: la valoración visual del tema nuevo (#62 y #63) quedó abierta; el usuario la considera floja. Se retoma aparte, con capturas de Hoy, Agenda, Adherencia, Medicamentos y Ajustes en móvil y escritorio.
-2. **Cierre del plan exprés**: FCM (necesita un proyecto de Firebase; decisión pendiente), cobertura alta, E2E más amplias, accesibilidad con lector de pantalla, publicación en Play Store y política de privacidad.
-3. **Validación en reloj o emulador**: no se ha hecho; ver `docs/validacion-pendiente.md`.
-4. **Esfera** (watch face): fuera del plan.
-5. **Cuenta de prueba en Heroku** `prueba.critica.20261022@example.com`: decidir si se borra.
+Alcance recortado el 3 de noviembre de 2026: la app no se publica en Play Store. Solo queda lo que hace falta para que funcione bien:
+
+1. **Validación en emulador o reloj** (Steve): ver `docs/validacion-pendiente.md`.
+2. **Arreglos que salgan de esa validación.**
+3. **Diseño de la web**: se retoma aparte.
+
+Fuera del alcance: Play Store, política de privacidad, FCM y Firebase (basta la sincronización periódica), cobertura alta, E2E amplias, esfera propia (watch face) y cuenta de prueba en Heroku.
 
 ## Reglas acordadas
 
