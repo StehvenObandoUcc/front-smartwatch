@@ -7,6 +7,7 @@ import com.smartwatch.recordatorios.api.models.PairingCode
 import com.smartwatch.recordatorios.api.models.PairingCodeRequest
 import com.smartwatch.recordatorios.api.models.TokenPair
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonObject
@@ -36,10 +37,31 @@ class PairingRepository
         suspend fun unpair() {
             events.upload()
             device.revoke()
+            forget()
+            tokens.clear()
+        }
+
+        /**
+         * Si la sesión se pierde desde fuera (el cuidador desvincula en la web, se borra la cuenta o
+         * caduca el refresh), limpia igual que [unpair]: sin esto seguirían sonando las alarmas del
+         * paciente anterior. Solo actúa al pasar de vinculado a desvinculado; el modo local no se toca.
+         */
+        suspend fun forgetWhenLost(paired: Flow<Boolean> = tokens.paired) {
+            // ponytail: si el proceso muere entre perder los tokens y limpiar, quedan alarmas hasta la
+            // próxima desvinculación; guardar un indicador «por limpiar» si se ve en la práctica.
+            var was: Boolean? = null
+            paired.collect { now ->
+                if (was == true && !now) forget()
+                was = now
+            }
+        }
+
+        // Plan, alarmas, adherencia, eventos y datos del paciente; los medicamentos del reloj se quedan.
+        private suspend fun forget() {
             plan.reset()
             adherence.clear()
             events.clearAll()
-            tokens.clear()
+            device.clear()
         }
 
         suspend fun requestCode(): PairingCode? =

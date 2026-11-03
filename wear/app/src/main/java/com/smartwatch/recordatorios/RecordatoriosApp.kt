@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
 import com.smartwatch.recordatorios.alarm.DoseNotifier
+import com.smartwatch.recordatorios.data.remote.PairingRepository
 import com.smartwatch.recordatorios.data.repository.DoseRepository
 import com.smartwatch.recordatorios.di.ApplicationScope
 import com.smartwatch.recordatorios.sync.SyncScheduler
@@ -26,6 +27,8 @@ class RecordatoriosApp :
 
     @Inject lateinit var doses: DoseRepository
 
+    @Inject lateinit var pairing: PairingRepository
+
     @Inject @ApplicationScope
     lateinit var appScope: CoroutineScope
 
@@ -36,6 +39,7 @@ class RecordatoriosApp :
         super.onCreate()
         notifier.ensureChannel()
         syncScheduler.schedulePeriodic()
+        appScope.launch { pairing.forgetWhenLost() }
         // Un solo punto para el Tile: cualquier cambio de dosis (registrar, posponer, sincronizar,
         // modo local) lo refresca, venga de la app, de la alarma o del worker.
         appScope.launch {
