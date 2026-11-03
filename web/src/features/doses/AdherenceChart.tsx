@@ -74,7 +74,7 @@ export function AdherenceChart() {
             <svg
               viewBox="0 0 10 100"
               preserveAspectRatio="none"
-              className="w-full flex-1 border-b-2 border-border"
+              className="w-full flex-1 border-b border-border-strong"
             >
               {d.percentage !== null && (
                 <rect
@@ -82,7 +82,7 @@ export function AdherenceChart() {
                   width="10"
                   y={100 - Math.max(d.percentage, 2)}
                   height={Math.max(d.percentage, 2)}
-                  className="fill-primary"
+                  className="fill-accent"
                 />
               )}
             </svg>
@@ -106,7 +106,7 @@ export function AdherenceChart() {
           </thead>
           <tbody>
             {data.map((d) => (
-              <tr key={d.day} className="border-t-2 border-border">
+              <tr key={d.day} className="border-t border-border">
                 <th scope="row" className="py-2 font-normal">
                   {weekday(d.day, 'long')}
                 </th>
