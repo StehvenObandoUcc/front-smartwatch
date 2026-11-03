@@ -14,11 +14,11 @@ type Props = {
   children: ReactNode;
 };
 
-// Una sola letra en tres pesos: el peso y el tamaño separan los niveles, no otra familia.
+// Una sola letra, Inter Tight, en 400 y 500: el tamaño y el peso separan los niveles.
 const variantClass: Record<Variant, string> = {
-  display: 'text-2xl font-extrabold tracking-display text-balance',
-  title: 'text-xl font-extrabold tracking-tight text-balance',
-  subtitle: 'text-lg font-bold text-balance',
+  display: 'text-2xl font-medium tracking-display text-balance tablet:text-3xl',
+  title: 'text-xl font-medium tracking-tight text-balance',
+  subtitle: 'text-lg font-medium text-balance',
   body: 'text-body text-pretty',
   caption: 'text-caption text-pretty',
 };
