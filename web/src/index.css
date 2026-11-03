@@ -44,6 +44,13 @@
     caret-color: var(--accent);
   }
 
+  /* Casillas y opciones nativas con el color del sistema y un tamaño que se acierta con el dedo. */
+  input[type='checkbox'],
+  input[type='radio'] {
+    @apply size-6;
+    accent-color: var(--accent);
+  }
+
   :focus-visible {
     @apply outline-3 outline-offset-2 outline-focus;
   }
