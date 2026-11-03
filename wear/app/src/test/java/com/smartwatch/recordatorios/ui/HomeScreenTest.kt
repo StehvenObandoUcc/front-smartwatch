@@ -57,7 +57,8 @@ class HomeScreenTest {
     fun `sin alarmas exactas muestra el aviso y abre el permiso`() {
         show(exact = false, notifications = true)
 
-        compose.onNodeWithText("Alarmas desactivadas").assertIsDisplayed().performClick()
+        compose.onNodeWithText("Alarmas desactivadas").assertIsDisplayed()
+        compose.onNodeWithText("Activar").performClick()
 
         assertThat(exactRequests).isEqualTo(1)
         compose.onNodeWithText("Avisos desactivados").assertDoesNotExist()
@@ -67,7 +68,8 @@ class HomeScreenTest {
     fun `sin notificaciones muestra el aviso y pide el permiso`() {
         show(exact = true, notifications = false)
 
-        compose.onNodeWithText("Avisos desactivados").assertIsDisplayed().performClick()
+        compose.onNodeWithText("Avisos desactivados").assertIsDisplayed()
+        compose.onNodeWithText("Activar").performClick()
 
         assertThat(notificationRequests).isEqualTo(1)
     }
@@ -104,7 +106,8 @@ class HomeScreenTest {
     fun `sin red avisa que las alarmas siguen y permite reintentar`() {
         show(exact = true, notifications = true, plan = PlanStatus.OFFLINE)
 
-        compose.onNodeWithText("Sin conexión").assertIsDisplayed().performClick()
+        compose.onNodeWithText("Sin conexión").assertIsDisplayed()
+        compose.onNodeWithText("Reintentar").performClick()
 
         assertThat(retries).isEqualTo(1)
     }
