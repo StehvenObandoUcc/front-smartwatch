@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import type { PlannedDose } from '../../api/generated';
-import { franjaOf, groupByFranja } from './franja';
+import { franjaAt, franjaOf, groupByFranja } from './franja';
 
 function dose(scheduledAt: string, name = 'Losartán'): PlannedDose {
   return {
@@ -26,6 +26,14 @@ describe('franjaOf', () => {
       'night',
       'night',
     ]);
+  });
+});
+
+describe('franjaAt', () => {
+  it('usa la hora local del paciente', () => {
+    // 18:30Z son las 13:30 en Bogotá (UTC-5): tarde; 02:00Z son las 21:00: noche.
+    expect(franjaAt(new Date('2026-11-03T18:30:00Z'), 'America/Bogota')).toBe('afternoon');
+    expect(franjaAt(new Date('2026-11-03T02:00:00Z'), 'America/Bogota')).toBe('night');
   });
 });
 
