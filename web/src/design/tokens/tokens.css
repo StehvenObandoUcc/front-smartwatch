@@ -178,6 +178,16 @@ html[data-theme='dark'] {
   /* Ruido fractal en SVG: el grano de los paneles de la landing y la entrada. */
   --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.05 0 0 0 0 0.05 0 0 0 0 0.05 0 0 0 0.5 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   --grain-size: 160px;
+
+  /*
+   * El reloj de muestra es siempre la esfera petróleo del reloj real, en los dos temas: crema
+   * 11:1 y aguamarina 8:1 sobre la esfera; naranja rojizo de la alarma con crema 4,9:1.
+   */
+  --watch-bg: #083b38;
+  --watch-bg-2: #0e766e;
+  --watch-fg: #f7f2ec;
+  --watch-accent: #7fe0d4;
+  --watch-alarm: #a8391a;
 }
 
 @theme inline {
@@ -213,6 +223,11 @@ html[data-theme='dark'] {
   --color-on-panel-muted: var(--on-panel-muted);
   --color-transparent: transparent;
   --color-current: currentColor;
+  --color-watch-bg: var(--watch-bg);
+  --color-watch-bg-2: var(--watch-bg-2);
+  --color-watch-fg: var(--watch-fg);
+  --color-watch-accent: var(--watch-accent);
+  --color-watch-alarm: var(--watch-alarm);
   --color-morning: var(--morning);
   --color-on-morning: var(--on-morning);
   --color-afternoon: var(--afternoon);
