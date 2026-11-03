@@ -1,440 +1,174 @@
 ---
 name: Recuerda
-description: Señalética amable para recordar cada medicamento a su hora, en el reloj y en el panel web.
+description: El día en franjas de luz, para recordar cada medicamento a su hora, en el reloj y en el panel web.
 colors:
-  on-light: "#f4faf9"
-  bg: "#f5f8f7"
-  surface: "#e6eeed"
-  surface-raised: "#fcfdfd"
-  text: "#11201f"
-  text-muted: "#3e5250"
-  border: "#c9d6d4"
-  border-strong: "#11201f"
-  sign: "#0e5a57"
-  on-sign: "#f4faf9"
-  sign-muted: "#c4e3e0"
-  primary: "#0e5a57"
-  primary-hover: "#0b4744"
-  on-primary: "#f4faf9"
-  danger: "#b3261e"
-  on-danger: "#f4faf9"
-  success: "#2f7d32"
-  warning: "#9a5b00"
-  focus: "#0e5a57"
-  state-taken: "#2f7d32"
-  state-due: "#9a5b00"
-  state-missed: "#b3261e"
-  state-skipped: "#5b6b69"
-  on-state: "#f4faf9"
-  morning: "#f2c14e"
-  on-morning: "#11201f"
-  afternoon: "#f08a4b"
-  on-afternoon: "#11201f"
-  night: "#2b3a67"
-  on-night: "#f4faf9"
-  med-red: "#c62828"
-  med-orange: "#d4661a"
-  med-yellow: "#b08900"
-  med-green: "#2e7d32"
-  med-teal: "#00796b"
-  med-blue: "#1565c0"
-  med-purple: "#6a1b9a"
-  med-pink: "#ad1457"
+  bg: "#fbf6ef"
+  surface: "#f1ebe2"
+  surface-raised: "#fffdfa"
+  text: "#0d0d0c"
+  text-muted: "#63615e"
+  border: "rgba(13,13,12,0.10)"
+  border-strong: "#63615e"
+  accent: "#0f766e"
+  sign: "#e3ece6"
+  on-sign: "#0f766e"
+  primary: "#0d0d0c"
+  on-primary: "#fbf6ef"
+  danger: "#b42318"
+  success: "#1f7a4d"
+  warning: "#c2410c"
+  state-taken: "#1f7a4d"
+  state-due: "#c2410c"
+  state-missed: "#b42318"
+  state-skipped: "#5f5b57"
+  on-state: "#fbf6ef"
+  dark-bg: "#083b38"
+  dark-surface-raised: "#1b4a46"
+  dark-text: "#f7f2ec"
+  dark-text-muted: "#e2d7cc"
+  dark-accent: "#7fe0d4"
+  dark-primary: "#f7f2ec"
+  dark-taken: "#8fe3b0"
+  dark-due: "#ffb08a"
+  dark-missed: "#ff8a70"
+  panel-morning: "#f2ecdf → #f4ebc6, brillo rgb(246,222,104)"
+  panel-afternoon: "#f8dcc7 → #f9cba9, brillo rgb(249,150,84)"
+  panel-night: "#f0e4e6 → #ecd6e2, brillo rgb(222,150,200)"
+  panel-complete: "#e9ebe0 → #dfe9d4, brillo rgb(150,206,150)"
 typography:
+  family: "'Inter Tight' variable (autoalojada, latín), system-ui"
   display-xl:
-    fontFamily: "'Atkinson Hyperlegible Next', 'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif"
-    fontSize: "4.25rem"
-    fontWeight: 800
-    lineHeight: 1.02
-    letterSpacing: "-0.02em"
+    {
+      fontSize: "4.5rem",
+      fontWeight: 500,
+      lineHeight: 0.98,
+      letterSpacing: "-0.03em",
+    }
   display-lg:
-    fontFamily: "'Atkinson Hyperlegible Next', 'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif"
-    fontSize: "3.25rem"
-    fontWeight: 800
-    lineHeight: 1.05
-    letterSpacing: "-0.02em"
+    {
+      fontSize: "3rem",
+      fontWeight: 500,
+      lineHeight: 1.02,
+      letterSpacing: "-0.03em",
+    }
   display:
-    fontFamily: "'Atkinson Hyperlegible Next', 'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif"
-    fontSize: "2.5rem"
-    fontWeight: 800
-    lineHeight: 1.1
-    letterSpacing: "-0.02em"
-    fontFeature: "tnum"
-  headline:
-    fontFamily: "'Atkinson Hyperlegible Next', 'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif"
-    fontSize: "1.75rem"
-    fontWeight: 800
-    lineHeight: 1.25
-    letterSpacing: "-0.025em"
-    fontFeature: "tnum"
-  title:
-    fontFamily: "'Atkinson Hyperlegible Next', 'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif"
-    fontSize: "1.375rem"
-    fontWeight: 700
-    lineHeight: 1.35
-    fontFeature: "tnum"
-  body:
-    fontFamily: "'Atkinson Hyperlegible Next', 'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif"
-    fontSize: "1.125rem"
-    fontWeight: 400
-    lineHeight: 1.55
-    fontFeature: "tnum"
-  label:
-    fontFamily: "'Atkinson Hyperlegible Next', 'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif"
-    fontSize: "1.0625rem"
-    fontWeight: 700
-    lineHeight: 1.4
-    fontFeature: "tnum"
+    {
+      fontSize: "2rem",
+      fontWeight: 500,
+      lineHeight: 1.1,
+      letterSpacing: "-0.03em",
+    }
+  title: { fontSize: "1.5rem", fontWeight: 500, lineHeight: 1.2 }
+  subtitle: { fontSize: "1.25rem", fontWeight: 500, lineHeight: 1.3 }
+  body: { fontSize: "1.0625rem", fontWeight: 400, lineHeight: 1.5 }
+  caption: { fontSize: "0.9375rem", fontWeight: 400, lineHeight: 1.4 }
+  label: { fontSize: "0.875rem", fontWeight: 500, lineHeight: 1.3 }
 rounded:
-  sm: "8px"
-  md: "12px"
-  lg: "16px"
-  full: "9999px"
+  card: "20px"
+  chip: "14px"
+  button: "12px"
 spacing:
-  unit: "4px"
-  touch: "44px"
-  control: "48px"
-  plate-sm: "36px"
-  plate-md: "44px"
-  plate-lg: "56px"
+  scale: "4 / 8 / 12 / 16 / 24 / 32 / 48"
+  touch: "48px"
+  control: "56px"
+  control-sm: "48px"
   sidebar: "256px"
   content: "1152px"
-  measure: "60ch"
-components:
-  button-primary:
-    backgroundColor: "{colors.primary}"
-    textColor: "{colors.on-primary}"
-    typography: "{typography.body}"
-    rounded: "{rounded.md}"
-    padding: "0 20px"
-    height: "{spacing.control}"
-  button-primary-hover:
-    backgroundColor: "{colors.primary-hover}"
-    textColor: "{colors.on-primary}"
-  button-secondary:
-    backgroundColor: "{colors.surface-raised}"
-    textColor: "{colors.text}"
-    typography: "{typography.body}"
-    rounded: "{rounded.md}"
-    padding: "0 20px"
-    height: "{spacing.control}"
-  button-secondary-hover:
-    backgroundColor: "{colors.surface}"
-  button-danger:
-    backgroundColor: "{colors.danger}"
-    textColor: "{colors.on-danger}"
-    rounded: "{rounded.md}"
-    padding: "0 20px"
-    height: "{spacing.control}"
-  button-ghost:
-    textColor: "{colors.primary}"
-    rounded: "{rounded.md}"
-    padding: "0 20px"
-    height: "{spacing.control}"
-  plate-sign:
-    backgroundColor: "{colors.sign}"
-    textColor: "{colors.on-sign}"
-    rounded: "{rounded.md}"
-    size: "{spacing.plate-md}"
-  plate-on-sign:
-    backgroundColor: "{colors.on-sign}"
-    textColor: "{colors.sign}"
-    rounded: "{rounded.md}"
-    size: "{spacing.plate-sm}"
-  state-taken:
-    backgroundColor: "{colors.state-taken}"
-    textColor: "{colors.on-state}"
-    typography: "{typography.label}"
-    rounded: "{rounded.sm}"
-    padding: "4px 10px"
-  state-due:
-    backgroundColor: "{colors.state-due}"
-    textColor: "{colors.on-state}"
-    typography: "{typography.label}"
-    rounded: "{rounded.sm}"
-    padding: "4px 10px"
-  state-missed:
-    backgroundColor: "{colors.state-missed}"
-    textColor: "{colors.on-state}"
-    typography: "{typography.label}"
-    rounded: "{rounded.sm}"
-    padding: "4px 10px"
-  state-skipped:
-    backgroundColor: "{colors.state-skipped}"
-    textColor: "{colors.on-state}"
-    typography: "{typography.label}"
-    rounded: "{rounded.sm}"
-    padding: "4px 10px"
-  state-upcoming:
-    textColor: "{colors.text}"
-    typography: "{typography.label}"
-    rounded: "{rounded.sm}"
-    padding: "4px 10px"
-  signbar-sun:
-    backgroundColor: "{colors.morning}"
-    textColor: "{colors.on-morning}"
-    typography: "{typography.title}"
-    rounded: "{rounded.md}"
-    padding: "10px 16px"
-    height: "{spacing.touch}"
-  signbar-dusk:
-    backgroundColor: "{colors.afternoon}"
-    textColor: "{colors.on-afternoon}"
-    typography: "{typography.title}"
-    rounded: "{rounded.md}"
-    padding: "10px 16px"
-    height: "{spacing.touch}"
-  signbar-night:
-    backgroundColor: "{colors.night}"
-    textColor: "{colors.on-night}"
-    typography: "{typography.title}"
-    rounded: "{rounded.md}"
-    padding: "10px 16px"
-    height: "{spacing.touch}"
-  input:
-    backgroundColor: "{colors.surface-raised}"
-    textColor: "{colors.text}"
-    typography: "{typography.body}"
-    rounded: "{rounded.md}"
-    padding: "0 16px"
-    height: "{spacing.control}"
-  card:
-    backgroundColor: "{colors.surface-raised}"
-    rounded: "{rounded.lg}"
-    padding: "24px"
-  card-raised:
-    backgroundColor: "{colors.surface-raised}"
-    rounded: "{rounded.lg}"
-    padding: "24px"
-  well:
-    backgroundColor: "{colors.surface}"
-    rounded: "{rounded.lg}"
-  header-sign:
-    backgroundColor: "{colors.sign}"
-    textColor: "{colors.on-sign}"
-    typography: "{typography.headline}"
-    padding: "0 16px"
-    height: "64px"
-  nav-rail-active:
-    backgroundColor: "{colors.on-sign}"
-    textColor: "{colors.sign}"
-    rounded: "{rounded.md}"
-    height: "{spacing.touch}"
+  form: "440px"
+  band: "120px"
 ---
 
 # Design System: Recuerda
 
 ## Overview
 
-**Creative North Star: "Señalética amable"**
+**North Star: «El día en franjas de luz».** El panel web se ordena como el día del paciente:
+mañana, tarde y noche, cada una con su luz. La tarjeta principal de Hoy se pinta con el panel de la
+franja en curso (Completo, verde, cuando ya se tomó todo) y responde en 3 segundos cuántas dosis van
+y cuál es la próxima. Todo lo demás es tranquilo: crema cálida, tinta casi negra, tarjetas blancas
+con una sola sombra suave y filetes finos.
 
-Recuerda se lee como un lugar de cuidado bien señalizado, sereno y cercano: cada opción, cada sección y cada estado es una señal. Una señal es una placa de esquina suave con un pictograma grande de trazo grueso y, al lado, una sola palabra. El panel web pone esas señales sobre un blanco roto con tinte petróleo, con la cabecera y el riel de navegación como paneles de señal en verde petróleo profundo y los bloques del panel como tarjetas apenas elevadas; el reloj pone las mismas placas sobre un petróleo profundo y plano, que se lee como color y no como negro. No hay blanco ni negro puros en ningún sitio. La lectura es por bandas: el día se divide en franjas de color (sol, tarde, noche) y cada dosis termina en una placa de estado con su palabra.
+Dos temas con la misma estructura, por `html[data-theme]`: **claro cálido** (por defecto si el
+sistema no pide oscuro) y **oscuro petróleo**, la paleta de la esfera del reloj. El selector
+Sistema / Claro / Oscuro está en la cabecera, en «Más» y en la entrada; la elección se guarda en
+`localStorage` y un script en `index.html` la aplica antes de pintar.
 
-La densidad es de servicio de salud, no de dashboard: texto grande (nada por debajo de 17 px en la web, 14 sp en el reloj), controles de 48 px, mucho aire entre secciones y listas planas separadas por reglas dentro de cada bloque. Cada bloque del panel dice qué pregunta responde. Una sola familia tipográfica humanista, Atkinson Hyperlegible Next, hace todo el trabajo; el peso, el tamaño y un interletrado apretado en los titulares separan los niveles. La profundidad es mínima y amable: un único nivel de sombra suave tintada de petróleo en las tarjetas elevadas, y un degradado tonal de petróleo reservado a tres zonas de marca (banda del hero, banda de CTA y panel del login). Lo demás es color plano, zona tintada y la regla de dos píxeles.
-
-El tono es confiable y amable, nunca infantil ni frío de hospital: se rechazan el saludo de bienvenida, el acento genérico de la categoría, la lista de tarjetas idénticas y las cifras o testimonios inventados.
-
-**Key Characteristics:**
-- Placas de pictograma de esquina suave, siempre con su palabra al lado.
-- Paneles de señal en petróleo profundo para cabecera, riel y acción principal.
-- Blanco roto con tinte petróleo de fondo y tarjetas apenas elevadas; ni blanco ni negro puros.
-- Franjas del día como bandas de color: sol, tarde y noche.
-- Cinco placas de estado con palabra: Tomada, Pendiente, No tomada, Omitida y Más tarde.
-- Un solo nivel de elevación tintada y un degradado tonal de petróleo solo en tres zonas de marca.
-- Una sola letra, Atkinson Hyperlegible Next, con cifras tabulares.
-- La misma paleta de medicamentos, las mismas claves y el mismo vocabulario de pictogramas en web y reloj.
+Los usuarios son mayores y cuidadores que miran desde el móvil: texto base de 17 px, nada por debajo
+de 14 px, controles de 48–56 px, ningún movimiento continuo en el panel.
 
 ## Colors
 
-Neutros con tinte petróleo, un único petróleo profundo como voz de la señal y de la acción, y dos familias de color con significado fijo: los estados de una dosis y las franjas del día. Los valores normativos son los del tema claro de la web (frontmatter); el tema oscuro y el reloj se describen abajo y viven en `.impeccable/design.json`.
+Los valores viven en `web/src/design/tokens/tokens.css`; ningún color literal fuera de ahí.
 
-### Primary
-- **Petróleo de señal** (`sign` / `primary`): el panel de la cabecera, el riel lateral, la placa de sección y la acción principal (Tomada, Guardar). Claro (`on-light`) encima a 7,6:1. Al pulsar baja a **Petróleo hondo** (`primary-hover`), que también ilumina la opción bajo el cursor en el riel. El foco (`focus`) usa el mismo petróleo.
-- **Petróleo velado** (`sign-muted`): la segunda línea de la cabecera (paciente y fecha) sobre el panel de señal.
+| Papel                             | Claro                     | Oscuro                | Contraste                 |
+| --------------------------------- | ------------------------- | --------------------- | ------------------------- |
+| Fondo                             | `#fbf6ef`                 | `#083b38`             | —                         |
+| Tarjeta                           | `#fffdfa`                 | `#1b4a46`             | —                         |
+| Texto                             | `#0d0d0c`                 | `#f7f2ec`             | 18:1 · 11:1               |
+| Texto suave                       | `#63615e` (tinta al 64 %) | `#e2d7cc`             | 5,7:1 · 7:1 sobre tarjeta |
+| Acción principal                  | tinta con crema           | crema con tinta       | 18:1 · 16:1               |
+| Aguamarina (foco, enlaces, ahora) | `#0f766e`                 | `#7fe0d4`             | 5,1:1 · 6,4:1             |
+| Tomada                            | `#1f7a4d`                 | `#8fe3b0`             | 5:1 · 6,5:1               |
+| Pendiente (alarma)                | `#c2410c`                 | `#ffb08a`             | 4,8:1 · 5,6:1             |
+| No tomada / error                 | `#b42318`                 | `#ff8a70` / `#ffa08a` | 6,1:1 · 5:1               |
+| Omitida                           | `#5f5b57`                 | `#c9cfcd`             | 6,3:1 · 6,3:1             |
 
-### Secondary
-Los estados de una dosis. Cada uno es una placa de color plano con texto claro (`on-state`, ≥ 4,8:1) y siempre lleva su palabra y su pictograma.
-- **Verde Tomada** (`state-taken`, igual que `success`): Tomada; también la marca de éxito del reloj.
-- **Ámbar Pendiente** (`state-due`, igual que `warning`): la dosis está en su hora y no tiene registro.
-- **Rojo No tomada** (`state-missed`, igual que `danger`): pasó su ventana sin registro; también el botón destructivo y el error.
-- **Gris Omitida** (`state-skipped`): la persona decidió omitirla.
-- **Más tarde** no tiene color propio: es una placa de contorno de tinta (`border-strong`) con el reloj de arena, para lo que todavía no tiene estado.
+Los chips de estado son un relleno pleno con crema encima (claro) o tinta encima (oscuro).
 
-### Tertiary
-Las franjas del día, placas de color con pictograma y palabra.
-- **Amarillo sol** (`morning`) con tinta (`on-morning`, ≥ 7:1): Mañana, 5:00 a 12:00. En el reloj, el mismo amarillo es el color de los avisos (`accent`).
-- **Naranja tarde** (`afternoon`) con tinta (`on-afternoon`): Tarde, 12:00 a 19:00.
-- **Azul marino noche** (`night`) con claro (`on-night`): Noche, 19:00 a 5:00.
+**Paneles por franja:** degradado vertical y dos brillos radiales de su tono (tabla del
+frontmatter). En oscuro, los mismos brillos con poca opacidad sobre el degradado petróleo. Encima,
+siempre tinta (claro, ≥ 10:1) o crema (oscuro, ≥ 6:1); el texto suave, tinta al 74 % (≥ 5,9:1).
+El grano de ruido y la deriva lenta de los brillos solo en la landing y la entrada; en el panel, el
+degradado está quieto.
 
-### Paleta de medicamentos
-Ocho tonos profundos (`med-red`, `med-orange`, `med-yellow`, `med-green`, `med-teal`, `med-blue`, `med-purple`, `med-pink`) que pintan la placa del medicamento con la cápsula en claro (`on-light`). La API guarda el hex que eligió la persona (a veces un 500 de Tailwind); web (`medicationColorFor`) y reloj (`medicationColor`) lo llevan al tono de la paleta con el **matiz** más cercano, nunca por distancia RGB. Las claves y los hex son idénticos en ambas plataformas.
+**El reloj de muestra** es siempre la esfera petróleo del reloj real (`--watch-*`), en los dos temas.
 
-### Neutral
-- **Claro de sala** (`bg`): blanco roto con tinte petróleo, fondo de la página.
-- **Tarjeta** (`surface-raised`): casi blanco, para tarjetas, campos y bloques elevados.
-- **Claro sobre color** (`on-light`): el texto y los pictogramas sobre la señal, los estados y la noche; sustituye al blanco puro.
-- **Zona tintada** (`surface`): avisos en la página, esqueletos de carga, placas neutras y la superficie del botón secundario al pasar el cursor.
-- **Tinta petróleo** (`text`, `border-strong`): todo el texto, el contorno de campos y del botón secundario. 15,7:1 sobre el fondo.
-- **Tinta suave** (`text-muted`): posología, pistas y opciones inactivas del menú móvil. ≥ 7:1.
-- **Regla** (`border`): las reglas de dos píxeles entre filas, el borde de las tarjetas y del menú móvil.
-
-### Tema oscuro (web)
-Por `prefers-color-scheme: dark` o `data-theme='dark'`. Fondo `#0d1716`, superficies `#15211f` / `#1a2826`, texto `#eef5f4` / `#a9bdba`, regla `#2c3d3b`. El panel de señal baja a `#0b3f3d`, y la acción principal sube a celeste petróleo `#5fc2ba` con texto `#062321`; la noche sube a `#3b4c82`. Estados, franjas claras y paleta de medicamentos no cambian.
-
-### Reloj
-El reloj es un mundo propio de **esferas a sangre** con cuatro colores como máximo. Cada pantalla se pinta entera con el degradado tonal de su papel (mismo matiz, de arriba a abajo): **petróleo** para casi todo (`#083b38` → `#0e766e`), **naranja rojizo** para la alarma (`#3f1408` → `#b8401c`) y **verde** para Tomada y el día completo (`#0d3a1f` → `#2a7a35`). El complemento del petróleo es la **aguamarina** `#7fe0d4`: arcos, la marca de ahora y lo pendiente. Lo demás es neutro: el claro cálido de texto `#f7f2ec`, el suave `#e2d7cc`, la tinta `#1b1613` para lo que va sobre rellenos claros y el vidrio (claro al 16 %) de superficies y botones secundarios.
-
-Los estados usan tonos claros con tinta encima: Tomada `#8fe3b0`, Pendiente y avisos `#ffb08a`, No tomada `#ff8a70`, Omitida `#c9cfcd`. Las franjas no tienen color propio en el reloj: las distinguen su pictograma (sol, atardecer, luna) y su palabra, sobre vidrio. La paleta de medicamentos es la misma que la web, solo en su placa.
-
-| Papel | Web claro | Web oscuro | Reloj |
-| --- | --- | --- | --- |
-| Fondo | `#f5f8f7` | `#0d1716` | degradado del papel (petróleo, naranja rojizo, verde) |
-| Texto | `#11201f` | `#eef5f4` | `#f7f2ec` |
-| Superficie | `#e6eeed` | `#15211f` | vidrio (claro al 16 %) |
-| Acción principal | `#0e5a57` | `#5fc2ba` | relleno claro `#f7f2ec` con tinta |
-| Dato, arcos y pendiente | — | `#5fc2ba` | aguamarina `#7fe0d4` |
-| Estados | colores plenos | iguales | tonos claros con tinta |
-
-### Named Rules
-**The Color Never Alone Rule.** Ningún color lleva información solo: la placa del medicamento va con su nombre, la placa de estado con su palabra y la franja con su nombre y su horario. Si quitas el color, la pantalla se sigue entendiendo.
-
-**The One Petrol Rule.** El petróleo de señal es a la vez el panel y la acción principal; no hay un segundo acento. Una sola acción principal por grupo.
-
-**The No Pure Rule.** Ni `#000000` ni `#ffffff` (ni `black` ni `white`) en ningún estilo, tema o recurso, en web y reloj. El claro es `on-light` (`#f4faf9`, web) o `#eef5f4` (reloj); el oscuro, la tinta petróleo o el fondo tintado.
-
-**The Same Key Rule.** Un color de medicamento se guarda como hex y se pinta siempre con el tono de la paleta de matiz más cercano, el mismo en web y reloj.
+**Paleta de medicamentos:** ocho tonos profundos, los mismos que el reloj; la placa del medicamento
+siempre va con su nombre (The Color Never Alone Rule).
 
 ## Typography
 
-**Display Font:** Atkinson Hyperlegible Next (con Atkinson Hyperlegible, system-ui, Segoe UI, Roboto, sans-serif)
-**Body Font:** la misma
-**Label/Mono Font:** la misma, con cifras tabulares (`tnum`)
-
-**Character:** Una letra humanista diseñada para baja visión, que distingue 0/O y 1/l/I. Se carga en tres pesos (400, 700, 800) en la web; en el reloj va empaquetada como fuente variable (400, 500, 700, 800). Las cifras son tabulares en todo el panel para que horas y porcentajes no bailen.
-
-### Hierarchy (web)
-- **Display XL / LG** (800, 68 / 52 px, 1,02 / 1,05, interletrado −0,02em): solo titulares de la landing; texto de apoyo de 17–18 px en tinta suave, como máximo `measure` (60 caracteres) por línea.
-- **Display** (800, 40 px, 1,1, interletrado −0,02em): el dato que se mira de un vistazo y el título de las pantallas de entrada.
-- **Headline** (800, 28 px, 1,25): la palabra de la cabecera de señal, el resumen «0 de 3 tomadas».
-- **Title** (700–800, 22 px, 1,35): el nombre del medicamento (800) y la palabra de cada franja; subtítulos (700).
-- **Body** (400, 18 px, 1,55): texto corriente, posología, botones (700).
-- **Label** (700, 17 px, 1,4): palabras de las placas de estado, del menú y la segunda línea de la cabecera (400). Es el tamaño mínimo: no existe nada más pequeño.
-
-### Hierarchy (reloj)
-- **Display** (700, 40 sp, tnum): «En 21 min», «86 %», «Tomada»; con autoajuste baja hasta 18 sp si no cabe.
-- **Code** (800, 32 sp, tnum): el código de vinculación.
-- **Title** (800, 18 sp): nombre del medicamento y encabezados; un nombre de una palabra se achica hasta 14 sp antes que partirse.
-- **Body / Label** (400 / 700, 16 sp): texto y botones.
-- **Support** (400, 14 sp): la hora curva, las placas de estado, los detalles. Mínimo del reloj.
-
-### Named Rules
-**The One Voice Rule.** Una sola familia; el peso y el tamaño separan los niveles, nunca otra fuente.
-
-**The Whole Name Rule.** El nombre de un medicamento nunca se parte con guion ni a mitad de palabra («Hidroclorotiazid-a»). En el reloj, un nombre de una palabra va en una línea y se achica hasta caber; uno de varias palabras se parte solo entre palabras. En la web, el nombre parte solo si desborda, sin guion.
+Inter Tight variable, autoalojada en `web/public/fonts` (solo latín, OFL). 500 en titulares, cifras
+y controles; 400 en texto. Cifras tabulares en todo el panel. `font-bold` y `font-extrabold` son
+alias de 500 para que ninguna pantalla pinte más fuerte que el sistema.
 
 ## Layout
 
-Móvil primero, con tres tramos: móvil < 640 px, tablet 640–1024 px (`tablet`, 40rem) y escritorio > 1024 px (`desktop`, 64.0625rem). La escala de espaciado es de 4 px; los ritmos habituales son 12 px dentro de una fila, 16 px de margen de página en el móvil y 24 px desde tablet.
-
-- **Móvil:** cabecera de señal fija arriba (mínimo 64 px) con la placa de la sección, su palabra y una segunda línea (paciente · fecha); navegación inferior fija de placas y palabras de 80 px de alto, con la activa encendida en petróleo; el contenido deja 128 px abajo para no quedar tapado y respeta `safe-area-inset-bottom`.
-- **Tablet:** la navegación pasa a un riel lateral petróleo de 112 px (placa encima de la palabra).
-- **Escritorio:** el riel se ensancha a `sidebar` (256 px) con placa y palabra en línea; el contenido se centra hasta `content` (1152 px).
-- Las listas son filas planas (`rows`) separadas por una regla de 2 px y 12 px de aire vertical; las filas se reacomodan con `flex-wrap`: la hora y la placa de estado bajan de línea antes de recortar nada.
-- **Landing:** secciones separadas por 96–128 px en escritorio y 64 px en móvil; textos de apoyo de 60 caracteres como máximo.
-- **Panel en bento:** los bloques tienen tamaños según su importancia (Hoy el mayor, las franjas a todo el ancho, Adherencia, Reloj y Avisos medianos); nunca cuatro tarjetas iguales. En el móvil, una columna en el orden Hoy, franjas, Avisos, Adherencia, Reloj.
-- **Reloj:** listas que se encogen y desvanecen en el borde (`edgeItem`) para pantallas redondas y cuadradas, páginas horizontales con indicador, espaciado de 4/8/12/16 dp. Con letra del sistema ≥ 1,15× las filas se apilan.
-
-### Named Rules
-**The Block Rule.** Cada bloque del panel lleva (1) pictograma y título de una o dos palabras, (2) una frase con la pregunta que responde («¿Se tomó todo hoy?») y (3) el dato. Un bloque que no responde una pregunta clara sobra.
-
-## Elevation & Depth
-
-Recuerda tiene un único nivel de elevación: una sombra suave, difusa y tintada de petróleo (`--elevation`, utilidad `shadow-raised` / `raised`) en las tarjetas elevadas de la web, como los bloques del panel y las tarjetas de la landing. Todo lo demás es plano: la profundidad se marca con color plano (el panel de señal frente al fondo), con la zona tintada para avisos y esqueletos, y con reglas y contornos de 2 px. El reloj no dibuja sombras. El botón se oscurece al pulsar; no se mueve ni se eleva.
-
-El degradado tonal de petróleo (`--sign-gradient`, de `#0b4744` a `#127a73`, mismo matiz) existe solo en tres zonas de marca: la banda del hero (con franjas verticales sutiles, `--sign-stripes`), la banda final de CTA y el panel del login. Encima solo va texto de 18 px o más (claro a 4,9:1 en el extremo claro) o maquetas del producto.
-
-### Named Rules
-**The One Lift Rule.** Un solo nivel de elevación, siempre tintado de petróleo y difuso; nunca una sombra dura, de color o con desplazamiento grande, y nunca dos niveles apilados.
-
-**The Three Gradients Rule.** En la web, el degradado tonal de petróleo solo vive en la banda del hero, la banda de CTA y el panel del login; nunca en el panel de datos, en botones ni detrás de texto pequeño.
-
-**The Full-Bleed Dial Rule.** En el reloj, cada pantalla es una esfera a sangre con el degradado tonal de su papel (petróleo, alarma o tomada) y, donde hay tiempo que leer, la esfera de 24 horas en el borde: la escala, el arco de ahora a la próxima toma y cada dosis como un punto a su hora. Cuatro colores como máximo; nada de sombras.
-
-## Shapes
-
-Esquinas suaves y regulares: 8 px (`sm`) en las placas de estado y las barras del esqueleto, 12 px (`md`) en placas de pictograma, botones, campos, franjas y opciones de navegación, 16 px (`lg`) en tarjetas, bloques del panel y zonas tintadas. El círculo completo (`full`) queda para el punto de color de medicamento y los anillos. Los bordes son de 2 px: sólidos en campos y botón secundario, discontinuos en el estado vacío. Los pictogramas son Lucide con trazo de 2,25.
-
-En el reloj las placas usan 6 dp y las tarjetas 12 dp; los botones son píldoras (convención de Wear OS para pantallas redondas), las acciones de la alerta son discos (Tomada de 60 dp, Omitir y Posponer de 48 dp), los botones de esquina son discos de vidrio de 36 dp en un área de 48 dp, y la marca de éxito es un disco claro con el visto en tinta.
+- Móvil (< 640): barra superior (título, segunda línea con persona y fecha, tema compacto, salir) y
+  barra inferior de pestañas con indicador en aguamarina suave.
+- Tablet: barra lateral estrecha (pictograma sobre la palabra). Escritorio: barra lateral de 256 px;
+  la opción activa es una tarjeta elevada.
+- **Hoy:** tarjeta principal (8 columnas) con anillo «5 de 8 / dosis de hoy», «Próxima 14:00» y
+  «Marcar tomada»; a su lado el reloj (batería, última conexión y aviso naranja si lleva más de 3 h
+  sin conexión o tiene menos del 20 %) y la semana (porcentaje y un punto por día); debajo, las tres
+  franjas con sus filas y las acciones visibles. En el móvil: principal, reloj, franjas, semana.
+- **Entrada:** dividida en escritorio (panel de franja y formulario de 440 px); en el móvil, banda
+  de 120 px arriba.
 
 ## Components
 
-### Plate (átomo, firma del sistema)
-Cuadrado de esquina suave (12 px) con un pictograma centrado. Tamaños 36 / 44 / 56 px con glifo de 20 / 24 / 32 px. Tonos: `sign` (petróleo con claro), `onSign` (claro con petróleo, sobre la cabecera), `sun` / `dusk` / `night`, `neutral` (zona tintada). Con `hex` se pinta en el tono de medicamento más cercano con la cápsula en claro. Es decorativa salvo que reciba `label`; la palabra va al lado. En el reloj, `BwPlate` (28 / 22 dp, esquina 6 dp) elige tinta o claro según la luminancia de la placa.
+- **Button:** principal 56 px, relleno pleno; secundario 48 px con borde; `quiet` para acciones de
+  cabecera y Deshacer; `danger`. Esquina 12 px.
+- **Badge:** chip de estado de esquina 14 px con pictograma y palabra.
+- **Input / PasswordInput:** 56 px, borde fino, etiqueta visible encima; la contraseña con
+  «Mostrar» / «Ocultar»; el error con icono y texto.
+- **Plate:** placa de pictograma (aguamarina suave, sobre panel, de marca en tinta, franjas).
+- **Ring:** anillo del día; decorativo, la cifra va en palabras.
+- **ThemeSwitch:** grupo de radios nativo Sistema / Claro / Oscuro.
+- **Block:** tarjeta con pictograma, título, la pregunta que responde y el dato.
 
-### Badge: placas de estado (átomo)
-Placa de 32 px mínimo de alto, esquina 8 px, palabra en Label con pictograma de 20 px: Tomada (visto), Pendiente (reloj), No tomada (aspa), Omitida (círculo con menos) y Más tarde (reloj de arena, tinte neutro sin borde). En el reloj, `BwStatePlate` tiene los cuatro primeros con texto Support claro.
+## Reloj
 
-### Buttons (átomo)
-- **Shape:** esquina suave (12 px), alto mínimo 48 px, ancho mínimo 44 px, 20 px de relleno lateral, palabra en Body 700 con pictograma opcional a la izquierda.
-- **Primary:** petróleo con texto claro; al pasar o pulsar, petróleo hondo. Transición de color de 100 ms, anulada con `prefers-reduced-motion`.
-- **Secondary:** tarjeta con contorno de tinta de 2 px; al pasar, zona tintada.
-- **Danger:** rojo con texto claro, 90 % de opacidad al pasar.
-- **Ghost:** texto petróleo sin fondo, subrayado al pasar; para enlaces de acción («Ver historial»).
-- **onSign:** transparente sobre la cabecera, texto y foco claros.
-- **Disabled:** zona tintada, tinta suave, cursor bloqueado. **Loading:** spinner en lugar del pictograma y `aria-busy`.
-- **Reloj:** `BwButton` es una píldora de 52 dp, principal en relleno claro con tinta, secundaria de vidrio con contorno de 1 dp; al pulsar baja al 80 % de opacidad. En la alerta, las acciones son discos con su palabra debajo (Omitir, Tomada, Posponer).
-
-### BwDial (reloj, firma)
-La esfera de 24 horas detrás del contenido: cuartos de hora y horas en el borde, números pares de 14 sp (sin 04 ni 20, que quedan bajo los botones de esquina), el arco aguamarina de ahora a la próxima toma, la marca de ahora y cada dosis como punto a su hora (verde lleno tomada, gris lleno omitida, naranja lleno en su hora, aguamarina hueco pendiente). Es decorativa para TalkBack: la pantalla dice lo mismo en palabras. Hoy la usa sin números.
-
-### Cards / Containers
-- **Card:** tarjeta casi blanca (`surface-raised`), borde de regla de 2 px, esquina 16 px, sin sombra; contiene formularios (24 px de relleno en entrada).
-- **Card raised** (`raised`): la misma tarjeta sin borde y con el único nivel de elevación; los bloques del panel en bento y las tarjetas de la landing.
-- **Well:** zona tintada de esquina 16 px para avisos en la página («Falta verificar tu correo»).
-- **Rows:** la forma preferida de mostrar dosis, medicamentos y resúmenes: filas planas con regla de 2 px, no tarjetas.
-
-### Inputs / Fields
-- **Style:** tarjeta casi blanca, contorno de tinta de 2 px, esquina 12 px, alto 48 px, texto Body.
-- **Focus:** contorno de foco petróleo de 3 px separado 2 px (`:focus-visible` global).
-- **Error / Disabled:** contorno rojo y mensaje en rojo debajo con `role="alert"` y `aria-describedby`; deshabilitado al 50 %. `FormField` pone la etiqueta encima y la pista en tinta suave.
-
-### Navigation (plantilla AppShell)
-- **Cabecera:** panel de señal fijo, placa `onSign` de la sección, palabra en Headline 800 (se recorta con puntos suspensivos, no se parte) y segunda línea en Label `sign-muted`.
-- **Riel (tablet y escritorio):** panel petróleo; cada opción es pictograma de 28 px + palabra, alto mínimo 44 px; la activa se enciende en claro con texto petróleo; al pasar, petróleo hondo.
-- **Menú inferior (móvil):** franja de tarjeta con regla superior; cada opción es una placa pequeña + palabra corta; la activa lleva la placa petróleo y la tinta plena, las demás placa neutra y tinta suave.
-- Enlace «Saltar al contenido» visible al recibir foco.
-
-### SignBar (molécula)
-Encabezado de sección como banda de color: pictograma de 28 px, palabra en Title 800 y un dato a la derecha («5:00 a 12:00»). Alto mínimo 44 px, esquina 12 px, tonos `sign` / `sun` / `dusk` / `night` / `neutral`. En el reloj, `BwSignBar` centra el pictograma y la palabra.
-
-### DoseRow y SummaryRow
-La dosis: placa del medicamento en su color, nombre en Title 800 y posología en tinta suave; a la derecha la hora en Title 800 y la placa de estado; debajo, Tomada (principal) y Omitir (secundario) si falta registrarla. El resumen: placa pequeña de la categoría, su nombre, el dato en la misma línea desde tablet y el enlace a la derecha.
-
-### Estados de carga, vacío y error
-- **Skeleton:** filas con la forma del contenido real (placa + dos barras) en zona tintada, pulso solo con `motion-safe`.
-- **EmptyState:** borde discontinuo de 2 px, placa neutra grande, qué pasa y el siguiente paso; nunca un vacío sin salida.
-- **ErrorRetry:** borde rojo de 2 px, aviso con pictograma y botón secundario Reintentar.
-- **Reloj:** arco celeste que gira (`BwProgress`), disco verde con visto dibujado (`BwSuccessMark`) y estado vacío centrado.
+El reloj (`wear/`) no cambia con este rediseño: esferas a sangre con el degradado tonal de su papel
+(petróleo `#083b38` → `#0e766e`, alarma `#3f1408` → `#b8401c`, tomada `#0d3a1f` → `#2a7a35`),
+aguamarina `#7fe0d4`, claro `#f7f2ec`, tinta `#1b1613`; estados en tonos claros con tinta encima.
+Sus tokens viven en `wear/…/ui/theme/Tokens.kt`.
 
 ## Do's and Don'ts
 
-### Do:
-- **Do** acompañar cada color con su palabra: placa de medicamento + nombre, placa de estado + palabra, franja + nombre y horario.
-- **Do** usar las cinco palabras de estado tal cual: Tomada, Pendiente, No tomada, Omitida y Más tarde.
-- **Do** dar a cada opción y categoría su placa de pictograma del vocabulario común (`icons.ts` en web, los mismos glifos Lucide en el reloj).
-- **Do** mantener el texto en 17 px o más en la web (14 sp en el reloj) y las áreas táctiles en 44 px o más (48 px en botones y campos; 48 dp en el reloj).
-- **Do** cumplir WCAG 2.2 AA: foco visible de 3 px, `aria-*` en placas que se anuncian, el foco nunca tapado por la navegación fija.
-- **Do** resolver cada pantalla con datos en cuatro estados: esqueleto, vacío con salida, error con reintento y éxito.
-- **Do** dar a cada bloque del panel su pictograma, su título, la pregunta que responde y el dato (The Block Rule).
-- **Do** usar movimiento con propósito (entrada suave de secciones, anillo que se dibuja, cifras que cuentan) con `ease-out` y anularlo con `prefers-reduced-motion`.
-- **Do** tomar todo valor visual de los tokens (`tokens.css` en la web, `Tokens.kt` en el reloj).
-
-### Don't:
-- **Don't** partir el nombre de un medicamento con guion ni a mitad de palabra.
-- **Don't** escribir hex, px, rem ni valores arbitrarios de Tailwind (`p-[13px]`, `bg-[#fff]`) fuera de `src/design/tokens`; la regla de ESLint lo bloquea.
-- **Don't** usar `#000000`, `#ffffff`, `black` ni `white` en ningún estilo, tema o recurso (The No Pure Rule).
-- **Don't** usar más de un nivel de sombra, sombras duras o de color, brillos ni desenfoques; ni degradados fuera de la banda del hero, la banda de CTA y el panel del login.
-- **Don't** salirse de la escala de esquinas (8 / 12 / 16 px) ni convertir placas o botones en píldoras en la web.
-- **Don't** poner información solo en el color ni inventar un segundo acento junto al petróleo.
-- **Don't** usar una segunda familia tipográfica ni pesos fuera de los cargados en la web (400, 700, 800).
-- **Don't** volver al estándar de la categoría: saludo de bienvenida («Buenos días, Clara»), cuatro tarjetas iguales o cifras, testimonios y logos inventados; donde haga falta un dato real que no existe, va el marcador [DATO REAL PENDIENTE].
+- **Do** acompañar cada color con su palabra y su pictograma.
+- **Do** usar las palabras de estado del contrato: Tomada, Pendiente, No tomada, Omitida y Más tarde.
+- **Do** resolver cada pantalla con datos en cargando, vacío, error con reintento y éxito.
+- **Don't** escribir colores, tamaños ni fuentes literales fuera de `src/design/tokens` (ESLint).
+- **Don't** mover nada en el panel: el grano y la deriva son de la landing y la entrada.
+- **Don't** inventar datos: ni avisos con contador, ni estados que la API no tiene, ni cifras.
