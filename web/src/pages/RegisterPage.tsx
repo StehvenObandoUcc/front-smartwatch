@@ -6,6 +6,7 @@ import { useRegister } from '../api/generated';
 import { Icon } from '../components/atoms/Icon/Icon';
 import { Button } from '../components/atoms/Button/Button';
 import { Input } from '../components/atoms/Input/Input';
+import { PasswordInput } from '../components/molecules/PasswordInput';
 import { Text } from '../components/atoms/Text/Text';
 import { FormField } from '../components/molecules/FormField';
 import { AuthLayout } from '../components/templates/AuthLayout';
@@ -55,9 +56,7 @@ export function RegisterPage() {
           {(p) => <Input type="email" autoComplete="email" {...p} {...register('email')} />}
         </FormField>
         <FormField label="Contraseña" error={errors.password?.message} hint="Mínimo 10 caracteres">
-          {(p) => (
-            <Input type="password" autoComplete="new-password" {...p} {...register('password')} />
-          )}
+          {(p) => <PasswordInput autoComplete="new-password" {...p} {...register('password')} />}
         </FormField>
         <fieldset className="flex flex-col gap-2">
           <legend className="text-body font-bold">¿Cómo vas a usar la app?</legend>
@@ -75,7 +74,8 @@ export function RegisterPage() {
           ))}
         </fieldset>
         {registerUser.error && (
-          <div role="alert">
+          <div role="alert" className="flex items-start gap-2 text-danger">
+            <Icon name="alert" className="mt-0.5" />
             <Text tone="danger" as="p">
               {errorMessage(registerUser.error)}
             </Text>

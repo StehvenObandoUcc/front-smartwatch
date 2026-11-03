@@ -5,7 +5,9 @@ import { Link, Navigate, useSearchParams } from 'react-router';
 
 import { useLogin } from '../api/generated';
 import { Button } from '../components/atoms/Button/Button';
+import { Icon } from '../components/atoms/Icon/Icon';
 import { Input } from '../components/atoms/Input/Input';
+import { PasswordInput } from '../components/molecules/PasswordInput';
 import { Text } from '../components/atoms/Text/Text';
 import { FormField } from '../components/molecules/FormField';
 import { AuthLayout } from '../components/templates/AuthLayout';
@@ -47,16 +49,12 @@ export function LoginPage() {
         </FormField>
         <FormField label="Contraseña" error={errors.password?.message}>
           {(p) => (
-            <Input
-              type="password"
-              autoComplete="current-password"
-              {...p}
-              {...register('password')}
-            />
+            <PasswordInput autoComplete="current-password" {...p} {...register('password')} />
           )}
         </FormField>
         {login.error && (
-          <div role="alert">
+          <div role="alert" className="flex items-start gap-2 text-danger">
+            <Icon name="alert" className="mt-0.5" />
             <Text tone="danger" as="p">
               {errorMessage(login.error)}
             </Text>
