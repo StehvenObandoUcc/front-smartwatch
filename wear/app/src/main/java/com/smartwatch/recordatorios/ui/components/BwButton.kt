@@ -27,7 +27,8 @@ private const val PRESSED_ALPHA = 0.8f
 
 /**
  * Botón píldora. Principal: petróleo plano con texto blanco (una por pantalla).
- * Secundaria: superficie con contorno fino. Alto mínimo 52 dp; el icono es decorativo.
+ * Secundaria: superficie con contorno fino. Alto mínimo 52 dp (48 dp con [compact], para la acción
+ * de un aviso); el icono es decorativo.
  */
 @Composable
 fun BwButton(
@@ -36,6 +37,7 @@ fun BwButton(
     modifier: Modifier = Modifier,
     primary: Boolean = false,
     @DrawableRes icon: Int? = null,
+    compact: Boolean = false,
 ) {
     val colors = BwTheme.colors
     val interaction = remember { MutableInteractionSource() }
@@ -50,12 +52,12 @@ fun BwButton(
     Row(
         modifier =
             modifier
-                .heightIn(min = Sizes.buttonHeight)
+                .heightIn(min = if (compact) Sizes.touchMin else Sizes.buttonHeight)
                 .alpha(if (pressed) PRESSED_ALPHA else 1f)
                 .clip(BwTheme.shapes.pill)
                 .then(fill)
                 .clickable(interactionSource = interaction, indication = null, role = Role.Button, onClick = onClick)
-                .padding(horizontal = Spacing.lg, vertical = Spacing.sm),
+                .padding(horizontal = if (compact) Spacing.md else Spacing.lg, vertical = Spacing.sm),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(Spacing.sm, Alignment.CenterHorizontally),
     ) {

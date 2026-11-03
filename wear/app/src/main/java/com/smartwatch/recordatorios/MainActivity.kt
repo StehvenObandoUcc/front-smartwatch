@@ -205,6 +205,8 @@ class MainActivity : ComponentActivity() {
                     onAsk = { askByVoice { speechLauncher.launch(it) } },
                     onConfirm = chatViewModel::confirm,
                     onDecline = chatViewModel::reset,
+                    // Sin vincular se explica por qué no está y se ofrece vincular.
+                    onPair = if (paired) null else onPair,
                 )
             Screen.ADD ->
                 AddMedicationScreen(saving = saving) { name, dose, times ->
@@ -227,8 +229,8 @@ class MainActivity : ComponentActivity() {
                                 onRequestExactAlarms = ::openExactAlarmSettings,
                                 onRequestNotifications = requestNotifications,
                                 onOpenDose = ::openDose,
-                                // El asistente necesita el backend: solo vinculado.
-                                onOpenChat = if (paired) ({ screen = Screen.CHAT }) else null,
+                                // Sin vincular abre igual: la pantalla dice que necesita el panel web.
+                                onOpenChat = { screen = Screen.CHAT },
                                 onRetryPlan = syncScheduler::syncNow,
                                 onAddMedication = onAdd,
                                 today = today.orEmpty(),

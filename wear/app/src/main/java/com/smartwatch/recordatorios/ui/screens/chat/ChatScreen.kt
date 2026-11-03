@@ -6,11 +6,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
+import androidx.wear.compose.foundation.lazy.TransformingLazyColumnScope
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
 import com.smartwatch.recordatorios.R
 import com.smartwatch.recordatorios.ui.components.BwActionPill
 import com.smartwatch.recordatorios.ui.components.BwButton
 import com.smartwatch.recordatorios.ui.components.BwCard
+import com.smartwatch.recordatorios.ui.components.BwEmptyState
 import com.smartwatch.recordatorios.ui.components.BwHeader
 import com.smartwatch.recordatorios.ui.components.BwMicButton
 import com.smartwatch.recordatorios.ui.components.BwScreenScaffold
@@ -29,12 +31,17 @@ fun ChatScreen(
     onAsk: () -> Unit,
     onConfirm: () -> Unit = {},
     onDecline: () -> Unit = {},
+    onPair: (() -> Unit)? = null,
 ) {
     val proposal = (state as? ChatState.Reply)?.takeIf { it.pending != null }
     val listState = rememberTransformingLazyColumnState()
     BwScreenScaffold(scrollState = listState) { contentPadding ->
         TransformingLazyColumn(state = listState, contentPadding = contentPadding) {
-            edgeItem { BwHeader(stringResource(R.string.chat_title), icon = R.drawable.ic_mic) }
+            edgeItem { BwHeader(stringResource(R.string.chat_title)) }
+            if (onPair != null) {
+                unpaired(onPair)
+                return@TransformingLazyColumn
+            }
             edgeItem {
                 BwText(
                     text = body(state),
@@ -91,6 +98,7 @@ fun ChatScreen(
                     )
                 }
             }
+            edgeItem { Disclaimer() }
         }
     }
 }
@@ -114,3 +122,36 @@ private fun body(state: ChatState): String =
                 },
             )
     }
+
+/** Sin vincular: no hay backend al que preguntar. Se dice en una frase y se ofrece vincular. */
+private fun TransformingLazyColumnScope.unpaired(onPair: () -> Unit) {
+    edgeItem {
+        BwEmptyState(
+            icon = R.drawable.ic_mic,
+            title = stringResource(R.string.chat_unpaired_title),
+            body = stringResource(R.string.chat_unpaired_body),
+            modifier = Modifier.fillMaxWidth(),
+        )
+    }
+    edgeItem {
+        BwButton(
+            label = stringResource(R.string.chat_pair),
+            onClick = onPair,
+            primary = true,
+            icon = R.drawable.ic_link,
+            modifier = Modifier.fillMaxWidth(),
+        )
+    }
+    edgeItem { Disclaimer() }
+}
+
+@Composable
+private fun Disclaimer() {
+    BwText(
+        text = stringResource(R.string.chat_disclaimer),
+        style = BwTheme.type.support,
+        color = BwTheme.colors.contentSoft,
+        textAlign = TextAlign.Center,
+        modifier = Modifier.fillMaxWidth(),
+    )
+}

@@ -180,7 +180,7 @@ object Sizes {
     val corner = 36.dp
 
     /** Espacio extra arriba cuando la pantalla lleva botones de esquina. */
-    val cornerClearance = 20.dp
+    val cornerClearance = 40.dp
 
     /** Margen lateral del dato central para no pisar los números de la esfera. */
     val dialClearance = 30.dp
