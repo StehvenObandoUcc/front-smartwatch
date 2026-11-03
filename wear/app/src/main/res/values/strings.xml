@@ -22,6 +22,8 @@
     <string name="tile_none">Hoy no hay dosis</string>
     <string name="tile_none_short">Libre</string>
     <string name="tile_next_later">Mañana %1$s</string>
+    <string name="complication_label">Próxima toma</string>
+    <string name="complication_none">Libre</string>
     <string name="tile_next_said">Próxima: %1$s</string>
     <string name="part_morning">Mañana</string>
     <string name="part_afternoon">Tarde</string>
