@@ -62,3 +62,5 @@ Idealmente en un reloj redondo de 192 dp con la fuente del sistema al máximo, y
 16. Nuevo medicamento en el reloj (teclado, −/+ de la hora, Otra hora) y su alarma sin vincular ni internet.
 17. Página Reloj: sin vincular (lista local, Vincular) y vinculado (Desvincular con confirmación).
 18. Vincular por pasos (código arriba y dirección del panel) y el paso guiado de permisos.
+19. Complication «Próxima toma» en una esfera (editar la esfera y elegirla): hora, medicamento, «Libre» sin dosis y que se actualice al marcar «Tomada».
+20. Desvincular el reloj desde la web con el reloj encendido: las alarmas del paciente dejan de sonar y las dosis creadas en el reloj siguen.
