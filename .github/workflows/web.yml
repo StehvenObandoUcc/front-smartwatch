@@ -37,6 +37,8 @@ jobs:
 
       - run: npm test
       - run: npm run build
+      - name: E2E de humo (build de producción con la API simulada)
+        run: npm run test:e2e
       - run: npm run build-storybook -- --quiet
 
       - uses: actions/upload-artifact@v4

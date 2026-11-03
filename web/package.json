@@ -15,7 +15,8 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "test:unit": "vitest run --project unit",
-    "test:storybook": "vitest run --project storybook"
+    "test:storybook": "vitest run --project storybook",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",
@@ -30,6 +31,7 @@
   "devDependencies": {
     "@eslint/js": "^9.39.5",
     "@faker-js/faker": "^10.6.0",
+    "@playwright/test": "1.63.0",
     "@storybook/addon-a11y": "^10.6.1",
     "@storybook/addon-docs": "^10.6.1",
     "@storybook/addon-vitest": "^10.6.1",
