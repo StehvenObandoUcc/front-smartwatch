@@ -103,7 +103,7 @@ fun BwPager(
 }
 
 /**
- * Elemento de lista que se encoge y se desvanece al acercarse al borde superior o inferior, para que
+ * Elemento de lista que se desvanece al acercarse al borde superior o inferior, para que
  * la pantalla redonda no lo corte. Usar en lugar de `item` en toda lista del reloj. Si es el primero
  * o el último, deja el margen que pide Wear: mayor con [container] (tarjetas, avisos, botones), donde
  * las esquinas chocarían con el círculo.
@@ -129,10 +129,8 @@ fun TransformingLazyColumnScope.edgeItem(
                     edgePadding,
                 ).transformedHeight(this, spec)
                 .graphicsLayer {
-                    with(transformation) {
-                        applyContentTransformation()
-                        applyContainerTransformation()
-                    }
+                    // Solo se desvanece el contenido: el contenedor no se curva al llegar al borde.
+                    with(transformation) { applyContentTransformation() }
                 },
         contentAlignment = Alignment.Center,
     ) { content() }
