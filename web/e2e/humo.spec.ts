@@ -5,7 +5,7 @@ import { fakeApi } from './api.ts';
 test('sin sesión, la raíz muestra la landing', async ({ page }) => {
   await fakeApi(page);
   await page.goto('/');
-  await expect(page.getByRole('heading', { level: 1 })).toContainText('¿Se tomó hoy');
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('Su medicamento a su hora');
 });
 
 test('el login valida antes de enviar', async ({ page }) => {
