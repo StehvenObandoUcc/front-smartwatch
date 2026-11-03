@@ -15,7 +15,7 @@ type Props = {
 /** Estado vacío: placa, qué pasa, el siguiente paso y, si hay, el botón para darlo. */
 export function EmptyState({ icon, title, body, action }: Props) {
   return (
-    <div className="flex flex-col items-start gap-3 rounded-lg border-2 border-dashed border-border p-5">
+    <div className="flex flex-col items-start gap-3 rounded-lg border border-dashed border-border-strong p-6">
       <Plate icon={icon} tone="neutral" size="lg" />
       <Text variant="subtitle" as="p">
         {title}

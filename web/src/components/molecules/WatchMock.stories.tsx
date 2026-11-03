@@ -11,3 +11,6 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Normal: Story = {};
+
+/** La alerta de una dosis, como suena en la muñeca. */
+export const Alarma: Story = { args: { screen: 'alarm' } };

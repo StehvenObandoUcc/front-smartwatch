@@ -34,7 +34,7 @@ export function Button({
       aria-busy={loading || undefined}
       className={cn(
         buttonClass(variant),
-        'disabled:cursor-not-allowed disabled:border-border disabled:bg-surface disabled:text-text-muted',
+        'disabled:cursor-not-allowed disabled:border-transparent disabled:bg-surface disabled:text-text-muted',
         fullWidth && 'w-full',
         className,
       )}

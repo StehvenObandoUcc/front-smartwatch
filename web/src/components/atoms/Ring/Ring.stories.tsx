@@ -6,7 +6,7 @@ const meta = {
   title: 'Atoms/Ring',
   component: Ring,
   args: { value: 2, total: 3, children: <strong className="text-2xl">2</strong> },
-  argTypes: { tone: { control: 'inline-radio', options: ['default', 'onSign'] } },
+  argTypes: { tone: { control: 'inline-radio', options: ['default', 'watch'] } },
 } satisfies Meta<typeof Ring>;
 
 export default meta;
@@ -20,11 +20,11 @@ export const Completo: Story = {
 
 export const Vacio: Story = { args: { value: 0, total: 0, children: <span>Libre</span> } };
 
-export const SobreSenal: Story = {
-  args: { tone: 'onSign' },
+export const EnElReloj: Story = {
+  args: { tone: 'watch' },
   decorators: [
     (Story) => (
-      <div className="bg-sign p-4 text-on-sign">
+      <div className="bg-watch-bg p-4 text-watch-fg">
         <Story />
       </div>
     ),

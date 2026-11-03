@@ -71,7 +71,7 @@ export function RootLayout() {
       nav={navItems}
       actions={
         // En el móvil solo el pictograma (la palabra queda para el lector): el título no se corta.
-        <Button variant="onSign" icon="logout" className="px-3" onClick={() => void signOut()}>
+        <Button variant="quiet" icon="logout" className="px-3" onClick={() => void signOut()}>
           <span className="sr-only tablet:not-sr-only">Salir</span>
         </Button>
       }
