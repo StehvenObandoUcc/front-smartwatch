@@ -26,7 +26,7 @@ class ManifestTest {
         val permissions =
             pm.getPackageInfo(context.packageName, PackageManager.GET_PERMISSIONS).requestedPermissions!!.toList()
         assertThat(permissions).containsAtLeast(
-            "android.permission.SCHEDULE_EXACT_ALARM",
+            "android.permission.USE_EXACT_ALARM",
             "android.permission.RECEIVE_BOOT_COMPLETED",
             "android.permission.POST_NOTIFICATIONS",
             "android.permission.USE_FULL_SCREEN_INTENT",
