@@ -14,7 +14,7 @@ export function Icon({ name, label, className }: Props) {
   const Glyph = icons[name];
   return (
     <Glyph
-      strokeWidth={2.25}
+      strokeWidth={2}
       absoluteStrokeWidth={false}
       role={label ? 'img' : undefined}
       aria-label={label}
