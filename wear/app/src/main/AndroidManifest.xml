@@ -85,6 +85,25 @@
                 android:resource="@drawable/tile_preview" />
         </service>
 
+        <!-- Complication «Próxima toma»: hora y medicamento de la siguiente dosis, en la esfera. -->
+        <service
+            android:name=".complication.NextDoseComplicationService"
+            android:exported="true"
+            android:icon="@drawable/ic_launcher"
+            android:label="@string/complication_label"
+            android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER">
+            <intent-filter>
+                <action android:name="android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST" />
+            </intent-filter>
+            <meta-data
+                android:name="android.support.wearable.complications.SUPPORTED_TYPES"
+                android:value="SHORT_TEXT" />
+            <!-- Red de seguridad: la app ya pide actualizar al cambiar las dosis. -->
+            <meta-data
+                android:name="android.support.wearable.complications.UPDATE_PERIOD_SECONDS"
+                android:value="900" />
+        </service>
+
         <receiver
             android:name=".alarm.DoseAlarmReceiver"
             android:exported="false" />
