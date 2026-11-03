@@ -1,0 +1,14 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "design-system-font",
+        "value": "inter tight",
+        "createdAt": "2026-11-03T15:24:23.691Z",
+        "reason": "Brief fijado por el usuario: Inter Tight en todo el panel web; DESIGN.md se reescribe al final del rediseño"
+      }
+    ]
+  }
+}
