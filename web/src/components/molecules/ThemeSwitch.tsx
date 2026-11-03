@@ -14,7 +14,7 @@ const options: { value: ThemeChoice; label: string; icon: IconName }[] = [
 type Props = {
   value: ThemeChoice;
   onChange: (value: ThemeChoice) => void;
-  /** Solo pictogramas (la palabra queda para el lector): cabecera del móvil. */
+  /** Solo pictogramas hasta escritorio (la palabra queda para el lector): la cabecera. */
   compact?: boolean;
   className?: string;
 };
@@ -36,7 +36,7 @@ export function ThemeSwitch({ value, onChange, compact = false, className }: Pro
               'flex min-h-touch min-w-touch cursor-pointer items-center justify-center gap-2 rounded-md px-2 text-caption font-medium text-text-muted transition-colors motion-reduce:transition-none',
               'hover:text-text has-checked:bg-surface-raised has-checked:text-text has-checked:shadow-raised',
               'has-focus-visible:outline-3 has-focus-visible:outline-offset-2 has-focus-visible:outline-focus',
-              !compact && 'px-3',
+              compact ? 'desktop:px-3' : 'px-3',
             )}
           >
             <input
@@ -48,7 +48,7 @@ export function ThemeSwitch({ value, onChange, compact = false, className }: Pro
               className="sr-only"
             />
             <Icon name={option.icon} className="size-5" />
-            <span className={cn(compact && 'sr-only')}>{option.label}</span>
+            <span className={cn(compact && 'sr-only desktop:not-sr-only')}>{option.label}</span>
           </label>
         ))}
       </div>
