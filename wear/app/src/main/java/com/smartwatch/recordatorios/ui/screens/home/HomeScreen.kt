@@ -27,16 +27,13 @@ import com.smartwatch.recordatorios.ui.components.BwBanner
 import com.smartwatch.recordatorios.ui.components.BwButton
 import com.smartwatch.recordatorios.ui.components.BwCornerButton
 import com.smartwatch.recordatorios.ui.components.BwCorners
-import com.smartwatch.recordatorios.ui.components.BwDial
 import com.smartwatch.recordatorios.ui.components.BwEmptyState
 import com.smartwatch.recordatorios.ui.components.BwScreenScaffold
 import com.smartwatch.recordatorios.ui.components.BwSuccessMark
 import com.smartwatch.recordatorios.ui.components.BwText
 import com.smartwatch.recordatorios.ui.components.BwTone
 import com.smartwatch.recordatorios.ui.components.MedicationLabel
-import com.smartwatch.recordatorios.ui.components.dialMarks
 import com.smartwatch.recordatorios.ui.components.edgeItem
-import com.smartwatch.recordatorios.ui.components.hourOfDay
 import com.smartwatch.recordatorios.ui.theme.BwTheme
 import com.smartwatch.recordatorios.ui.theme.RecordatoriosTheme
 import com.smartwatch.recordatorios.ui.theme.Sizes
@@ -67,17 +64,12 @@ fun HomeScreen(
 ) {
     val listState = rememberTransformingLazyColumnState()
     val planStatus = planInfo?.let { planStatusText(it, now) }
-    val marks = dialMarks(today, now)
-    // El arco va de ahora a la próxima toma, si es dentro de las próximas 24 h.
-    val arc = next?.takeIf { it.nextAlarmAt - now in 0..DAY_MILLIS }?.let { hourOfDay(now)..hourOfDay(it.nextAlarmAt) }
     val ask = stringResource(R.string.chat_ask)
     // Ya no queda nada por tomar hoy: la página descansa en verde hasta mañana.
     val allDone = today.isNotEmpty() && today.none { it.status == DoseStatus.SCHEDULED }
     BwScreenScaffold(
         scrollState = listState,
         tone = if (allDone) BwTone.DONE else BwTone.PETROL,
-        // Con el día cerrado, sin números: el mensaje ocupa el centro.
-        backdrop = { BwDial(marks = marks, arc = arc, now = hourOfDay(now), numbers = !allDone) },
         corners = onOpenChat?.let { chat -> BwCorners(start = { BwCornerButton(R.drawable.ic_mic, ask, chat) }) },
     ) { contentPadding ->
         TransformingLazyColumn(
@@ -113,6 +105,7 @@ fun HomeScreen(
                         iconDescription = stringResource(R.string.warning_label),
                         title = stringResource(R.string.plan_offline_title),
                         body = stringResource(R.string.plan_offline_body),
+                        actionLabel = stringResource(R.string.pair_retry),
                         onClick = onRetryPlan,
                         modifier = Modifier.fillMaxWidth(),
                     )
@@ -267,7 +260,6 @@ private fun rememberNow(): Long {
 }
 
 private const val TICK_SECONDS = 30L
-private const val DAY_MILLIS = 24 * 60 * 60 * 1000L
 private val TICK = Duration.ofSeconds(TICK_SECONDS)
 
 /**
@@ -303,6 +295,7 @@ private fun PermissionWarning(
         iconDescription = stringResource(R.string.warning_label),
         title = title,
         body = body,
+        actionLabel = stringResource(R.string.permission_enable),
         onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
     )
