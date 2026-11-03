@@ -1,6 +1,6 @@
 # Rediseño: estado y siguientes pasos
 
-Al 3 de noviembre de 2026. `main` está limpio y no hay PR abiertos. La historia detallada está en los PR #29 a #63; aquí solo lo vigente.
+Al 3 de noviembre de 2026. `main` está limpio y no hay PR abiertos. La historia detallada está en los PR #29 a #69; aquí solo lo vigente.
 
 ## Sistema visual vigente
 
@@ -12,13 +12,17 @@ Al 3 de noviembre de 2026. `main` está limpio y no hay PR abiertos. La historia
 
 - Reloj: alerta con Tomada / Posponer / Omitir, Inicio en 3 páginas (Próxima, Hoy, Adherencia), adherencia del mes e historial de 7 días, Tile «Anillo del día», modo local sin cuenta, vinculación por pasos y desvinculación, deshacer «Tomada» (subida retrasada 10 s), asistente por voz en español, batería informada al backend.
 - Web: landing en `/`, login dividido con `WatchMock`, panel bento (Hoy con anillo, Franjas con «Marcar», Adherencia, Reloj con batería real, Avisos), medicamentos y horarios, agenda, historial, ajustes, deshacer con `DELETE` real.
-- Contrato 0.10.0 integrado en ambos clientes (#61).
+- Contrato 0.10.0 integrado en ambos clientes (#61); la web va con el 0.11.0 (#65).
+- Eliminar la cuenta desde Ajustes (#65), con contraseña, confirmación y aviso en el login.
+- Reloj: limpia plan, alarmas y eventos cuando la sesión se pierde desde fuera (#66) y complication «Próxima toma» (#67).
+- Storybook: todos los átomos, moléculas y plantillas tienen historia (#68).
+- E2E de humo con Playwright en CI, móvil y escritorio, con la API simulada (#69).
 - Backend en Heroku (v21, d0a2fdc): migraciones 0011 y 0012 aplicadas en la fase release; `TRUSTED_PROXY_HOPS=2` puesto. Los pedidos al backend de esta etapa están resueltos.
 
 ## Pendiente
 
 1. **Diseño de la web**: la valoración visual del tema nuevo (#62 y #63) quedó abierta; el usuario la considera floja. Se retoma aparte, con capturas de Hoy, Agenda, Adherencia, Medicamentos y Ajustes en móvil y escritorio.
-2. **Cierre del plan exprés**: Storybook completo, Complications, FCM, Playwright amplio y cobertura alta.
+2. **Cierre del plan exprés**: FCM (necesita un proyecto de Firebase; decisión pendiente), cobertura alta, E2E más amplias, accesibilidad con lector de pantalla, publicación en Play Store y política de privacidad.
 3. **Validación en reloj o emulador**: no se ha hecho; ver `docs/validacion-pendiente.md`.
 4. **Esfera** (watch face): fuera del plan.
 5. **Cuenta de prueba en Heroku** `prueba.critica.20261022@example.com`: decidir si se borra.
