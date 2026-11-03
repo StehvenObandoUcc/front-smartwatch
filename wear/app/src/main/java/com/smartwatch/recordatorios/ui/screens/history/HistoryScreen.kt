@@ -1,32 +1,23 @@
 package com.smartwatch.recordatorios.ui.screens.history
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
 import com.smartwatch.recordatorios.R
 import com.smartwatch.recordatorios.data.local.DoseEntity
 import com.smartwatch.recordatorios.data.local.DoseStatus
+import com.smartwatch.recordatorios.ui.components.BwDoseRow
 import com.smartwatch.recordatorios.ui.components.BwEmptyState
-import com.smartwatch.recordatorios.ui.components.BwIcon
 import com.smartwatch.recordatorios.ui.components.BwScreenScaffold
 import com.smartwatch.recordatorios.ui.components.BwText
-import com.smartwatch.recordatorios.ui.components.MedicationLabel
+import com.smartwatch.recordatorios.ui.components.DoseStateTone
 import com.smartwatch.recordatorios.ui.components.edgeItem
 import com.smartwatch.recordatorios.ui.theme.BwTheme
-import com.smartwatch.recordatorios.ui.theme.Sizes
 import com.smartwatch.recordatorios.ui.theme.Spacing
 import com.smartwatch.recordatorios.ui.theme.timeText
 import java.time.Instant
@@ -130,43 +121,20 @@ fun HistoryScreen(
 
 @Composable
 private fun HistoryRow(entry: HistoryEntry) {
-    val colors = BwTheme.colors
-    val (fill, icon, word) =
+    val (tone, word) =
         when (entry.state) {
-            HistoryState.TAKEN -> Triple(colors.stateTaken, R.drawable.ic_check, R.string.status_taken)
-            HistoryState.SKIPPED -> Triple(colors.stateSkipped, R.drawable.ic_skipped, R.string.status_skipped)
-            HistoryState.MISSED -> Triple(colors.stateMissed, R.drawable.ic_close, R.string.status_missed)
-            HistoryState.DUE -> Triple(colors.stateDue, R.drawable.ic_snooze, R.string.status_scheduled)
+            HistoryState.TAKEN -> DoseStateTone.TAKEN to R.string.status_taken
+            HistoryState.SKIPPED -> DoseStateTone.SKIPPED to R.string.status_skipped
+            HistoryState.MISSED -> DoseStateTone.MISSED to R.string.status_missed
+            HistoryState.DUE -> DoseStateTone.DUE to R.string.status_scheduled
         }
-    val stateWord = stringResource(word)
-    Row(
-        modifier = Modifier.fillMaxWidth().semantics(mergeDescendants = true) {},
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
-    ) {
-        BwText(
-            timeText(entry.dose.scheduledAt),
-            style = BwTheme.type.label.merge(fontFeatureSettings = "tnum"),
-        )
-        MedicationLabel(
-            name = entry.dose.medicationName,
-            colorKey = entry.dose.colorKey,
-            centered = false,
-            maxLines = 1,
-            modifier = Modifier.weight(1f),
-        )
-        Box(
-            modifier = Modifier.size(Sizes.historyIcon).clip(CircleShape).background(fill),
-            contentAlignment = Alignment.Center,
-        ) {
-            BwIcon(
-                icon,
-                contentDescription = stateWord,
-                color = colors.ink,
-                modifier = Modifier.size(Sizes.calendarIcon),
-            )
-        }
-    }
+    BwDoseRow(
+        time = timeText(entry.dose.scheduledAt),
+        name = entry.dose.medicationName,
+        colorKey = entry.dose.colorKey,
+        tone = tone,
+        stateLabel = stringResource(word),
+    )
 }
 
 @Composable
