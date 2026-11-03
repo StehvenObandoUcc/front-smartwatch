@@ -1,35 +1,40 @@
+import { useState } from 'react';
 import { Link } from 'react-router';
 
-import {
-  useGetAdherence,
-  useListMyNotificationChannels,
-  useListPatientDevices,
-} from '../api/generated';
-import { Badge } from '../components/atoms/Badge/Badge';
+import { useListPatientDevices } from '../api/generated';
+import { Icon } from '../components/atoms/Icon/Icon';
 import { Skeleton } from '../components/atoms/Skeleton/Skeleton';
 import { Text } from '../components/atoms/Text/Text';
 import { Block } from '../components/molecules/Block';
 import { ErrorRetry } from '../components/molecules/ErrorRetry';
-import { AdherenceChart } from '../features/doses/AdherenceChart';
-import { FranjasBlock, TodayBlock } from '../features/doses/TodayBlocks';
+import { timeAgo, watchAlert, type WatchAlert } from '../features/devices/watchStatus';
+import { FranjasSection, TodayHero } from '../features/doses/TodayBlocks';
+import { WeekCard } from '../features/doses/WeekCard';
 import { usePatient } from '../features/patients/PatientGate';
-import { countText, percentText } from '../features/reports/ReportView';
-import { formatDay, formatTime } from '../lib/dates';
+import { formatTime } from '../lib/dates';
 import { errorMessage } from '../lib/errors';
-import { useCountUp } from '../lib/useCountUp';
 
 const linkClass =
-  'inline-flex min-h-touch items-center font-bold text-primary underline underline-offset-4';
+  'inline-flex min-h-touch items-center font-medium text-accent underline underline-offset-4';
 
-function WatchBlock({ className }: { className: string }) {
+const alertText: Record<WatchAlert, string> = {
+  never: 'El reloj aún no se ha conectado. Ábrelo con internet para que descargue el plan.',
+  offline: 'Lleva más de 3 horas sin conexión: las tomas no llegan hasta que se conecte.',
+  battery: 'Batería baja: ponlo a cargar para que no deje de avisar.',
+};
+
+function WatchCard({ className }: { className?: string }) {
   const { patientId, timezone } = usePatient();
   const devices = useListPatientDevices(patientId);
+  const [now] = useState(() => Date.now());
   const device = devices.data?.items[0];
+  const alert = device ? watchAlert(device, now) : null;
+  const lowBattery = device?.batteryLevel != null && device.batteryLevel < 20;
   return (
     <Block
       icon="watch"
       title="Reloj"
-      question="¿Está vinculado y al día?"
+      question="¿Está conectado y con batería?"
       className={className}
       action={
         devices.data &&
@@ -40,134 +45,76 @@ function WatchBlock({ className }: { className: string }) {
         )
       }
     >
-      {devices.isPending && <Skeleton label="Cargando" rows={2} />}
+      {devices.isPending && <Skeleton label="Cargando el reloj" rows={1} />}
       {devices.isError && (
         <ErrorRetry message={errorMessage(devices.error)} onRetry={() => void devices.refetch()} />
       )}
       {devices.data && !device && <Text tone="muted">Aún no hay un reloj vinculado.</Text>}
       {device && (
-        <dl className="rows">
-          <div className="flex flex-wrap justify-between gap-x-4">
-            <dt className="text-text-muted">Modelo</dt>
-            <dd className="font-bold">{device.model}</dd>
-          </div>
-          <div className="flex flex-wrap justify-between gap-x-4">
-            <dt className="text-text-muted">Última sincronización</dt>
-            <dd className="font-bold">
-              {device.lastSeenAt
-                ? `${formatDay(device.lastSeenAt, timezone)}, ${formatTime(device.lastSeenAt, timezone)}`
-                : 'Aún sin conexión'}
-            </dd>
-          </div>
-          <div className="flex flex-wrap justify-between gap-x-4">
-            <dt className="text-text-muted">Batería</dt>
-            <dd className="font-bold">
-              {device.batteryLevel === null || !device.batteryReportedAt
-                ? 'Aún sin dato'
-                : `${device.batteryLevel} % · ${formatTime(device.batteryReportedAt, timezone)}`}
-            </dd>
-          </div>
-        </dl>
-      )}
-    </Block>
-  );
-}
-
-function AdherenceBlock({ className }: { className: string }) {
-  const { patientId } = usePatient();
-  const adherence = useGetAdherence(patientId);
-  const percentage = adherence.data?.percentage ?? null;
-  const shown = useCountUp(percentage ?? 0);
-  return (
-    <Block
-      icon="history"
-      title="Adherencia"
-      question="¿Cómo fue la semana?"
-      className={className}
-      action={
-        <Link to="/adherencia" className={linkClass}>
-          Ver historial
-        </Link>
-      }
-    >
-      {adherence.isPending && <Skeleton label="Cargando" rows={1} />}
-      {adherence.isError && (
-        <ErrorRetry
-          message={errorMessage(adherence.error)}
-          onRetry={() => void adherence.refetch()}
-        />
-      )}
-      {adherence.data && (
-        <p className="flex flex-wrap items-baseline gap-x-3">
-          <span className="text-2xl font-extrabold">
-            <span aria-hidden="true">{percentText(percentage === null ? null : shown)}</span>
-            <span className="sr-only">{percentText(percentage)}</span>
-          </span>
-          <span className="text-text-muted">
-            {countText(adherence.data.taken, 'tomada', 'tomadas')} ·{' '}
-            {countText(adherence.data.missed, 'no tomada', 'no tomadas')}
-          </span>
-        </p>
-      )}
-      <AdherenceChart />
-    </Block>
-  );
-}
-
-function NotificationsBlock({ className }: { className: string }) {
-  const channels = useListMyNotificationChannels();
-  const items = channels.data?.items ?? [];
-  const telegram = items.find((c) => c.channel === 'telegram');
-  const email = items.find((c) => c.channel === 'email');
-  return (
-    <Block
-      icon="notifications"
-      title="Avisos"
-      question="¿Por dónde te avisamos si falta una dosis?"
-      className={className}
-      action={
-        channels.data && (
-          <Link to="/avisos" className={linkClass}>
-            {telegram?.linked ? 'Configurar' : 'Conectar Telegram'}
-          </Link>
-        )
-      }
-    >
-      {channels.isPending && <Skeleton label="Cargando" rows={1} />}
-      {channels.isError && (
-        <ErrorRetry
-          message={errorMessage(channels.error)}
-          onRetry={() => void channels.refetch()}
-        />
-      )}
-      {channels.data && (
-        <div className="flex flex-wrap gap-2">
-          <Badge tone={telegram?.linked ? 'success' : 'outline'} icon="telegram">
-            {telegram?.linked ? 'Telegram conectado' : 'Sin Telegram'}
-          </Badge>
-          {email && (
-            <Badge tone={email.verified ? 'success' : 'outline'} icon="email">
-              {email.verified ? 'Correo verificado' : 'Correo sin verificar'}
-            </Badge>
+        <>
+          {alert && (
+            <p
+              role="status"
+              className="flex items-start gap-2 rounded-md border border-warning bg-warning/5 p-3"
+            >
+              <Icon
+                name={alert === 'battery' ? 'batteryLow' : 'offline'}
+                className="text-warning"
+              />
+              {alertText[alert]}
+            </p>
           )}
-        </div>
+          <dl className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col gap-1">
+              <dt className="text-caption text-text-muted">Batería</dt>
+              <dd className="flex items-center gap-2 text-2xl font-medium">
+                <Icon
+                  name={lowBattery ? 'batteryLow' : 'battery'}
+                  className={lowBattery ? 'text-warning' : 'text-text-muted'}
+                />
+                {device.batteryLevel === null ? (
+                  <span className="text-body font-normal text-text-muted">Sin dato</span>
+                ) : (
+                  `${device.batteryLevel} %`
+                )}
+              </dd>
+            </div>
+            <div className="flex flex-col gap-1">
+              <dt className="text-caption text-text-muted">Última conexión</dt>
+              <dd className="flex flex-col">
+                {device.lastSeenAt ? (
+                  <>
+                    <span className="text-lg font-medium first-letter:uppercase">
+                      {timeAgo(device.lastSeenAt, now)}
+                    </span>
+                    <span className="text-caption text-text-muted">
+                      a las {formatTime(device.lastSeenAt, timezone)}
+                    </span>
+                  </>
+                ) : (
+                  <span className="text-text-muted">Nunca</span>
+                )}
+              </dd>
+            </div>
+          </dl>
+          <p className="text-caption text-text-muted">{device.model}</p>
+        </>
       )}
     </Block>
   );
 }
 
 /**
- * Hoy como bento. En el móvil, en orden de uso: Hoy, Franjas, Avisos, Adherencia y Reloj. En
- * escritorio, 12 columnas: Hoy (7) y Adherencia (5); Franjas (12); Reloj (5) y Avisos (7).
+ * Hoy. Móvil: tarjeta principal, reloj, franjas y semana. Escritorio: la tarjeta principal (8
+ * columnas) con el reloj y la semana al lado (4) y las tres franjas debajo, a todo el ancho.
  */
 export function HomePage() {
   return (
-    <div className="grid grid-cols-1 gap-5 tablet:grid-cols-2 desktop:grid-cols-12">
-      <TodayBlock className="tablet:col-span-2 desktop:col-span-7 desktop:row-start-1" />
-      <FranjasBlock className="tablet:col-span-2 desktop:col-span-12 desktop:row-start-2" />
-      <NotificationsBlock className="desktop:col-span-7 desktop:col-start-6 desktop:row-start-3" />
-      <AdherenceBlock className="desktop:col-span-5 desktop:col-start-8 desktop:row-start-1" />
-      <WatchBlock className="tablet:col-span-2 desktop:col-span-5 desktop:col-start-1 desktop:row-start-3" />
+    <div className="grid grid-cols-1 gap-4 tablet:gap-6 desktop:grid-cols-12">
+      <TodayHero className="desktop:col-span-8 desktop:row-span-2" />
+      <WatchCard className="desktop:col-span-4" />
+      <WeekCard className="order-last desktop:order-none desktop:col-span-4" />
+      <FranjasSection className="desktop:col-span-12" />
     </div>
   );
 }
