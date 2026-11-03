@@ -41,7 +41,7 @@ describe('DoseActions', () => {
     );
 
     await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: 'Marcar Losartán como tomada' }));
+      fireEvent.click(screen.getByRole('button', { name: 'Marcar tomada: Losartán' }));
     });
 
     expect(fetchMock).toHaveBeenCalledTimes(1);
