@@ -12,12 +12,18 @@ import { useQueryClient } from '@tanstack/react-query';
 import { getMe, logout as apiLogout, type AuthSession, type User } from '../../api/generated';
 import { refreshSession, setAccessToken, setSessionLostHandler } from '../../lib/http';
 
-type Auth = { status: 'loading' } | { status: 'anon' } | { status: 'authed'; user: User };
+type Auth =
+  | { status: 'loading' }
+  // accountDeleted: la sesión terminó porque la persona eliminó su cuenta (el login lo avisa).
+  | { status: 'anon'; accountDeleted?: boolean }
+  | { status: 'authed'; user: User };
 
 type Value = {
   auth: Auth;
   signIn: (session: AuthSession) => void;
   signOut: () => Promise<void>;
+  /** Cierra la sesión solo en local (sin llamar a /auth/logout): para cuando el backend ya la invalidó. */
+  endSession: (options?: { accountDeleted?: boolean }) => void;
 };
 
 const AuthContext = createContext<Value | null>(null);
@@ -26,14 +32,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [auth, setAuth] = useState<Auth>({ status: 'loading' });
   const queryClient = useQueryClient();
 
-  const clear = useCallback(() => {
-    setAccessToken(null);
-    queryClient.clear();
-    setAuth({ status: 'anon' });
-  }, [queryClient]);
+  const clear = useCallback(
+    (accountDeleted = false) => {
+      setAccessToken(null);
+      queryClient.clear();
+      setAuth(accountDeleted ? { status: 'anon', accountDeleted: true } : { status: 'anon' });
+    },
+    [queryClient],
+  );
 
   useEffect(() => {
-    setSessionLostHandler(clear);
+    setSessionLostHandler(() => clear());
     let active = true;
     void (async () => {
       const ok = await refreshSession();
@@ -56,6 +65,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         await apiLogout().catch(() => undefined);
         clear();
       },
+      endSession: (options) => clear(options?.accountDeleted ?? false),
     }),
     [auth, clear],
   );
