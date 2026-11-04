@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 import { cn } from '../../lib/cn';
 import { Icon } from '../atoms/Icon/Icon';
 import { Ring } from '../atoms/Ring/Ring';
@@ -13,6 +15,7 @@ type Props = {
  * con datos de ejemplo, no datos: quien lo usa la describe en palabras.
  */
 export function WatchMock({ screen = 'today', className }: Props) {
+  const { t } = useTranslation();
   return (
     <div
       aria-hidden="true"
@@ -28,11 +31,11 @@ export function WatchMock({ screen = 'today', className }: Props) {
         <div className="flex flex-col items-center gap-2">
           <Ring value={5} total={8} tone="watch" size="sm">
             <span className="text-2xl leading-none font-medium">5</span>
-            <span className="text-caption">de 8</span>
+            <span className="text-caption">{t('watch.of', { total: 8 })}</span>
           </Ring>
           <span className="inline-flex items-center gap-1 text-caption font-medium">
             <Icon name="due" className="size-4 text-watch-accent" />
-            Próxima 14:00
+            {t('watch.next', { time: '14:00' })}
           </span>
         </div>
       ) : (
@@ -42,7 +45,7 @@ export function WatchMock({ screen = 'today', className }: Props) {
           <p className="text-caption">50 mg · 14:00</p>
           <span className="inline-flex min-h-touch items-center gap-1 rounded-full bg-watch-fg px-5 font-medium text-ink">
             <Icon name="taken" className="size-5" />
-            Tomada
+            {t('watch.taken')}
           </span>
         </div>
       )}
