@@ -6,11 +6,13 @@ import { buttonClass } from '../components/atoms/Button/buttonClass';
 import { Icon, type IconName } from '../components/atoms/Icon/Icon';
 import { Plate } from '../components/atoms/Plate/Plate';
 import { Ring } from '../components/atoms/Ring/Ring';
+import { LanguageSwitch } from '../components/molecules/LanguageSwitch';
 import { SignBar } from '../components/molecules/SignBar';
 import { ThemeSwitch } from '../components/molecules/ThemeSwitch';
 import { WatchMock } from '../components/molecules/WatchMock';
 import { medicationHex } from '../design/tokens';
 import { useCycle } from '../features/landing/useCycle';
+import { useLanguage } from '../i18n';
 import { cn } from '../lib/cn';
 import { useTheme } from '../lib/theme';
 
@@ -150,6 +152,7 @@ function PanelSample() {
 /** Página pública de `/` para quien no ha entrado: el producto se muestra a sí mismo. */
 export function LandingPage() {
   const theme = useTheme();
+  const language = useLanguage();
   const cycle = useCycle(DAY.length, 3500);
   const part = DAY[cycle.index] ?? DAY[0];
   return (
@@ -178,7 +181,8 @@ export function LandingPage() {
             </a>
           ))}
         </nav>
-        <div className="ml-auto flex items-center gap-2">
+        <div className="ml-auto flex flex-wrap items-center justify-end gap-2">
+          <LanguageSwitch compact value={language.language} onChange={language.setLanguage} />
           <ThemeSwitch compact value={theme.choice} onChange={theme.setChoice} />
           <Link to="/login" className={buttonClass('quiet')}>
             Entrar
