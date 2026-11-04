@@ -5,7 +5,8 @@ export default defineConfig({
   testDir: './e2e',
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 1 : 0,
-  use: { baseURL: 'http://127.0.0.1:4173', trace: 'retain-on-failure' },
+  // Español, el idioma por defecto: el navegador de CI dice «en-US».
+  use: { baseURL: 'http://127.0.0.1:4173', locale: 'es-CO', trace: 'retain-on-failure' },
   projects: [
     { name: 'movil', use: { ...devices['Pixel 7'] } },
     { name: 'escritorio', use: { ...devices['Desktop Chrome'] } },
