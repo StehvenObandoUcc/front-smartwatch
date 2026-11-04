@@ -146,10 +146,9 @@ private fun dayLabel(
         today -> stringResource(R.string.history_today)
         today.minusDays(1) -> stringResource(R.string.history_yesterday)
         else ->
-            day.dayOfWeek.getDisplayName(TextStyle.FULL, SPANISH).replaceFirstChar { it.uppercase() } +
+            day.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.getDefault()).replaceFirstChar { it.uppercase() } +
                 " ${day.dayOfMonth}"
     }
 
-private val SPANISH = Locale.forLanguageTag("es")
 private const val HISTORY_DAYS = 7L
 private const val MISSED_AFTER_MILLIS = 60 * 60 * 1000L
