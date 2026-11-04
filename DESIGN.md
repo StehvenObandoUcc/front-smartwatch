@@ -100,6 +100,20 @@ de 14 px, controles de 48–56 px, ningún movimiento continuo en el panel.
 
 Los valores viven en `web/src/design/tokens/tokens.css`; ningún color literal fuera de ahí.
 
+**Tres capas, como en el diseño atómico:**
+
+1. **Primitivos** (`--p-*` en `:root`): la paleta con nombre propio (`--p-petrol-900`, `--p-cream`,
+   `--p-mint`…). Es la única capa con hex. El reloj tiene la misma paleta, con los mismos nombres y
+   valores, en `Palette` (`wear/…/ui/theme/Tokens.kt`).
+2. **Papeles semánticos** (`--bg`, `--text-muted`, `--state-taken`… en cada tema): solo
+   referencian primitivos con `var()`; las transparencias salen del primitivo con `color-mix`.
+   En el reloj son `AppColors` y `BwBackgrounds`.
+3. **Componentes**: solo usan papeles (`bg-surface`, `text-text-muted`, `BwTheme.colors.content`),
+   nunca un primitivo. ESLint lo exige en la web; en el reloj, los componentes solo leen `BwTheme`.
+
+Para cambiar un color se cambia su primitivo una vez. Dos pruebas vigilan las copias que no se
+pueden evitar: los hex de medicamento de `tokens/index.ts` (web) y `res/values/colors.xml` (reloj).
+
 | Papel                             | Claro                     | Oscuro                | Contraste                 |
 | --------------------------------- | ------------------------- | --------------------- | ------------------------- |
 | Fondo                             | `#fbf6ef`                 | `#083b38`             | —                         |
@@ -159,8 +173,9 @@ alias de 500 para que ninguna pantalla pinte más fuerte que el sistema.
 
 ## Reloj
 
-El reloj (`wear/`) no cambia con este rediseño: esferas a sangre con el degradado tonal de su papel
-(petróleo `#083b38` → `#0e766e`, alarma `#3f1408` → `#b8401c`, tomada `#0d3a1f` → `#2a7a35`),
+El reloj (`wear/`) usa la misma paleta: esferas a sangre con el degradado tonal de su papel
+(petróleo `#083b38` → `#0b605a`, alarma `#3f1408` → `#b8401c`, tomada `#0d3a1f` → `#2a7a35`), con el
+brillo de la franja del momento en el borde de Inicio y Hoy,
 aguamarina `#7fe0d4`, claro `#f7f2ec`, tinta `#1b1613`; estados en tonos claros con tinta encima.
 Sus tokens viven en `wear/…/ui/theme/Tokens.kt`.
 
