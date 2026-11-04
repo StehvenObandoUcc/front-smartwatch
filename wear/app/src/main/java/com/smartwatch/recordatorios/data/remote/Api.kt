@@ -18,6 +18,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
 import okhttp3.Route
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -50,6 +51,9 @@ class Api
                 BuildConfig.API_BASE_URL,
                 OkHttpClient
                     .Builder()
+                    // El backend espera a la IA hasta 20 s: con los 10 s por defecto de OkHttp el reloj
+                    // cortaba antes y decía «Sin conexión» mientras la respuesta seguía en camino.
+                    .readTimeout(READ_TIMEOUT_SECONDS, TimeUnit.SECONDS)
                     .addInterceptor(bearer())
                     .authenticator(refresher()),
             )
@@ -107,5 +111,6 @@ class Api
 
         private companion object {
             val UNAUTHORIZED_CODES = setOf(401, 403)
+            const val READ_TIMEOUT_SECONDS = 30L
         }
     }
