@@ -19,6 +19,16 @@ export function detectLanguage(): Language {
   return navigator.language?.toLowerCase().startsWith('en') ? 'en' : 'es';
 }
 
+/** Si en este dispositivo se eligió idioma a mano (si no, manda el de la cuenta al entrar). */
+export function hasSavedLanguage(): boolean {
+  try {
+    const saved = localStorage.getItem(LANGUAGE_KEY);
+    return saved === 'es' || saved === 'en';
+  } catch {
+    return false;
+  }
+}
+
 /** Cambia el idioma, lo guarda y lo pone en <html lang>. */
 export function setLanguage(language: Language) {
   try {
