@@ -162,4 +162,13 @@ class ChatViewModelTest {
             .isEqualTo("Hoy te toca Atorvastatina a las 8:00 p. m. Ya tomaste Losartán. Mañana sigue igual.")
         assertThat(shortReply("Sí.")).isEqualTo("Sí.")
     }
+
+    @Test
+    fun `una respuesta que el reloj no sabe leer no cierra la app`() {
+        api.reply = { throw kotlinx.serialization.SerializationException("tipo de acción desconocido") }
+
+        viewModel.ask("agrega la hora de la metformina")
+
+        assertThat(viewModel.state.value).isEqualTo(ChatState.Failure(ChatFailure.UNAVAILABLE))
+    }
 }
