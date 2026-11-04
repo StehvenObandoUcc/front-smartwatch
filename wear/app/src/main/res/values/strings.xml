@@ -68,7 +68,7 @@
     <string name="pair_title">Vincular reloj</string>
     <string name="pair_loading">Pidiendo código…</string>
     <string name="pair_step_open">Escríbelo en el móvil o el ordenador, en</string>
-    <string name="panel_url">front-smartwatch.vercel.app</string>
+    <string name="panel_url" translatable="false">front-smartwatch.vercel.app</string>
     <string name="pair_step_settings">Ajustes → Vincular reloj</string>
     <string name="pair_waiting">Esperando confirmación…</string>
     <string name="pair_error">No hay conexión con el servidor</string>

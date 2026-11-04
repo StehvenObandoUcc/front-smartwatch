@@ -10,8 +10,8 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 /**
- * `epochMillis` es UTC; se muestra en la zona horaria actual del reloj, siempre en español («8:00 p. m.»,
- * como el resto de la app aunque el reloj esté en otro idioma), en 24 h o 12 h según
+ * `epochMillis` es UTC; se muestra en la zona horaria actual del reloj, en el idioma de la app («8:00 p. m.»
+ * o «8:00 PM»), en 24 h o 12 h según
  * [is24Hour] (el ajuste del sistema, el mismo que usa la hora de arriba de la pantalla).
  */
 fun formatTime(
@@ -19,9 +19,9 @@ fun formatTime(
     is24Hour: Boolean,
     zone: ZoneId = ZoneId.systemDefault(),
 ): String {
-    val pattern = DateFormat.getBestDateTimePattern(SPANISH, if (is24Hour) "Hm" else "hm")
+    val pattern = DateFormat.getBestDateTimePattern(Locale.getDefault(), if (is24Hour) "Hm" else "hm")
     return DateTimeFormatter
-        .ofPattern(pattern, SPANISH)
+        .ofPattern(pattern, Locale.getDefault())
         .withZone(zone)
         .format(Instant.ofEpochMilli(epochMillis))
 }
@@ -32,12 +32,10 @@ fun formatLocalTime(
     is24Hour: Boolean,
 ): String {
     val time = runCatching { LocalTime.parse(hhmm) }.getOrNull() ?: return hhmm
-    val pattern = DateFormat.getBestDateTimePattern(SPANISH, if (is24Hour) "Hm" else "hm")
-    return DateTimeFormatter.ofPattern(pattern, SPANISH).format(time)
+    val pattern = DateFormat.getBestDateTimePattern(Locale.getDefault(), if (is24Hour) "Hm" else "hm")
+    return DateTimeFormatter.ofPattern(pattern, Locale.getDefault()).format(time)
 }
 
 /** [formatTime] con el ajuste de 12/24 h del reloj. */
 @Composable
 fun timeText(epochMillis: Long): String = formatTime(epochMillis, DateFormat.is24HourFormat(LocalContext.current))
-
-private val SPANISH: Locale = Locale.forLanguageTag("es")

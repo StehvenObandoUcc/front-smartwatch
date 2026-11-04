@@ -20,7 +20,7 @@ import org.robolectric.annotation.Config
 import java.time.LocalTime
 
 @RunWith(AndroidJUnit4::class)
-@Config(qualifiers = "w227dp-h227dp-small-notlong-round-watch-xhdpi-keyshidden-nonav")
+@Config(qualifiers = "es-w227dp-h227dp-small-notlong-round-watch-xhdpi-keyshidden-nonav")
 class AddMedicationScreenTest {
     @get:Rule
     val compose = createComposeRule()

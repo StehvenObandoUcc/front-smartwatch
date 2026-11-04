@@ -65,7 +65,7 @@ fun AdherenceScreen(
                     )
                 }
             } else {
-                val month = summary.from.month.getDisplayName(TextStyle.FULL, SPANISH)
+                val month = summary.from.month.getDisplayName(TextStyle.FULL, Locale.getDefault())
                 val caption =
                     if (summary.percentage == null) R.string.adherence_none_month else R.string.adherence_taken_month
                 edgeItem {
@@ -128,7 +128,8 @@ private fun LastWeek(
                 modifier = Modifier.clearAndSetSemantics {},
             ) {
                 BwText(
-                    WEEKDAYS[day.dayOfWeek.value - 1],
+                    // Inicial del día en el idioma de la app: L M X J V S D o M T W T F S S.
+                    day.dayOfWeek.getDisplayName(TextStyle.NARROW, Locale.getDefault()),
                     style = BwTheme.type.support,
                     color = BwTheme.colors.contentSoft,
                 )
@@ -163,8 +164,6 @@ private fun DayDot(
     }
 }
 
-private val SPANISH = Locale.forLanguageTag("es")
-private val WEEKDAYS = listOf("L", "M", "X", "J", "V", "S", "D")
 private const val WEEK = 7
 
 @Suppress("MagicNumber")
