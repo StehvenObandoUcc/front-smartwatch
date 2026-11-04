@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
 
 import {
@@ -17,6 +18,7 @@ import { usePatient } from '../patients/PatientGate';
 
 /** Solo para el particular: invita a un familiar o cuidador con un código de un solo uso. */
 export function CaregiversSection() {
+  const { t } = useTranslation();
   const { patientId, timezone } = usePatient();
   const queryClient = useQueryClient();
   const caregivers = useListPatientCaregivers(patientId);
@@ -28,34 +30,31 @@ export function CaregiversSection() {
   return (
     <section aria-labelledby="care-title" className="flex flex-col gap-3">
       <Text id="care-title" variant="subtitle" as="h2">
-        Cuidadores
+        {t('caregivers.title')}
       </Text>
-      <Text tone="muted">
-        Un cuidador puede ver tus medicamentos, agenda y reportes. Invítalo con un código; él lo
-        escribe al entrar como cuidador.
-      </Text>
-      {caregivers.isPending && <Skeleton label="Cargando cuidadores" />}
+      <Text tone="muted">{t('caregivers.intro')}</Text>
+      {caregivers.isPending && <Skeleton label={t('caregivers.loading')} />}
       {caregivers.isError && (
         <ErrorRetry
           message={errorMessage(caregivers.error)}
           onRetry={() => void caregivers.refetch()}
         />
       )}
-      {caregivers.data?.items.length === 0 && <Text tone="muted">Aún no tienes cuidadores.</Text>}
+      {caregivers.data?.items.length === 0 && <Text tone="muted">{t('caregivers.none')}</Text>}
       <ul className="flex flex-col gap-2">
         {caregivers.data?.items.map((link) => (
           <li key={link.caregiverId} className="flex items-center justify-between gap-2 card p-4">
             <div className="flex items-center gap-2">
               <Text as="p">{link.caregiverDisplayName}</Text>
-              {!link.active && <Badge tone="warning">Revocado</Badge>}
+              {!link.active && <Badge tone="warning">{t('caregivers.revoked')}</Badge>}
             </div>
             {link.active && (
               <Button
                 variant="danger"
-                aria-label={`Quitar a ${link.caregiverDisplayName}`}
+                aria-label={t('caregivers.removeLabel', { name: link.caregiverDisplayName })}
                 onClick={() => revoke.mutate({ patientId, userId: link.caregiverId })}
               >
-                Quitar
+                {t('caregivers.remove')}
               </Button>
             )}
           </li>
@@ -63,13 +62,15 @@ export function CaregiversSection() {
       </ul>
       {invite.data && (
         <div role="status" className="flex flex-col gap-1 rounded-md border-2 border-primary p-4">
-          <Text>Comparte este código con tu cuidador:</Text>
+          <Text>{t('caregivers.share')}</Text>
           <Text variant="display" as="p">
             {invite.data.code}
           </Text>
           <Text tone="muted" variant="caption">
-            Un solo uso. Caduca el {formatDay(invite.data.expiresAt, timezone)} a las{' '}
-            {formatTime(invite.data.expiresAt, timezone)}.
+            {t('caregivers.expires', {
+              day: formatDay(invite.data.expiresAt, timezone),
+              time: formatTime(invite.data.expiresAt, timezone),
+            })}
           </Text>
         </div>
       )}
@@ -82,7 +83,7 @@ export function CaregiversSection() {
           loading={invite.isPending}
           onClick={() => invite.mutate({ patientId })}
         >
-          Invitar cuidador
+          {t('caregivers.invite')}
         </Button>
       </div>
     </section>
