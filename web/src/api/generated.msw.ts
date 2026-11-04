@@ -60,7 +60,15 @@
  *   creados desde el reloj (también por voz con el asistente), desvinculación desde el reloj,
  *   batería del reloj y deshacer una toma registrada.
  *
- * OpenAPI spec version: 0.11.0
+ * Cambios por versión:
+ * - 0.12.0: el asistente del reloj reconoce los medicamentos del paciente y puede proponer
+ *   agregarles un horario (`pendingAction.type: add_schedule`, `actions[].type:
+ *   schedule_added`). `WatchChatRequest.history` acepta `null` (equivale a vacío). Los dos
+ *   valores nuevos de enum en la respuesta son un cambio acordado con el frontend: el reloj
+ *   anterior a 0.12.0 no se cierra al recibirlos (`contracts/oasdiff-ignore.txt`).
+ * - 0.11.0: `DELETE /users/me` (eliminar la cuenta).
+ *
+ * OpenAPI spec version: 0.12.0
  */
 import {
   faker
@@ -231,9 +239,9 @@ export const getDownloadReportPdfResponseMock = (): Blob => (new Blob([new Uint8
 
 export const getSendChatMessageResponseMock = (): string => (faker.word.sample())
 
-export const getSendMyChatMessageResponsePendingActionMock = (overrideResponse: Partial<PendingAction> = {}): PendingAction => ({...{id: faker.string.uuid(), type: faker.helpers.arrayElement(['create_medication'] as const), summary: faker.string.alpha({length: {min: 10, max: 20}})}, ...overrideResponse});
+export const getSendMyChatMessageResponsePendingActionMock = (overrideResponse: Partial<PendingAction> = {}): PendingAction => ({...{id: faker.string.uuid(), type: faker.helpers.arrayElement(['create_medication','add_schedule'] as const), summary: faker.string.alpha({length: {min: 10, max: 20}})}, ...overrideResponse});
 
-export const getSendMyChatMessageResponseMock = (overrideResponse: Partial<Extract<WatchChatReply, object>> = {}): WatchChatReply => ({reply: faker.string.alpha({length: {min: 10, max: 20}}), remainingMessages: faker.number.int({min: 0}), pendingAction: faker.helpers.arrayElement([{...getSendMyChatMessageResponsePendingActionMock()},null,]), actions: faker.helpers.arrayElement([Array.from({ length: faker.number.int({min: 1, max: 10}) }, (_, i) => i + 1).map(() => ({type: faker.helpers.arrayElement(['medication_created'] as const), medicationId: faker.string.uuid(), scheduleId: faker.string.uuid()})), undefined]), ...overrideResponse})
+export const getSendMyChatMessageResponseMock = (overrideResponse: Partial<Extract<WatchChatReply, object>> = {}): WatchChatReply => ({reply: faker.string.alpha({length: {min: 10, max: 20}}), remainingMessages: faker.number.int({min: 0}), pendingAction: faker.helpers.arrayElement([{...getSendMyChatMessageResponsePendingActionMock()},null,]), actions: faker.helpers.arrayElement([Array.from({ length: faker.number.int({min: 1, max: 10}) }, (_, i) => i + 1).map(() => ({type: faker.helpers.arrayElement(['medication_created','schedule_added'] as const), medicationId: faker.string.uuid(), scheduleId: faker.string.uuid()})), undefined]), ...overrideResponse})
 
 
 export const getGetHealthMockHandler = (overrideResponse?: Health | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<Health> | Health), options?: RequestHandlerOptions) => {
