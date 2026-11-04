@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 
@@ -11,6 +12,7 @@ import { invitationCodeSchema } from './invitation';
 
 /** El cuidador entra a la cuenta de un particular con el código que este le dio. */
 export function AcceptInvitationForm({ onJoined }: { onJoined: (patientId: string) => void }) {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [text, setText] = useState('');
   const parsed = invitationCodeSchema.safeParse(text);
@@ -31,12 +33,12 @@ export function AcceptInvitationForm({ onJoined }: { onJoined: (patientId: strin
       }}
     >
       <Text variant="title" as="h2">
-        Tengo un código de invitación
+        {t('caregivers.haveCode')}
       </Text>
-      <Text tone="muted">Si una persona con cuenta te invitó, escribe aquí su código.</Text>
+      <Text tone="muted">{t('caregivers.haveCodeHelp')}</Text>
       <FormField
-        label="Código de invitación"
-        error={text && !parsed.success ? 'El código tiene 10 caracteres' : undefined}
+        label={t('caregivers.code')}
+        error={text && !parsed.success ? t('caregivers.codeInvalid') : undefined}
       >
         {(p) => (
           <Input
@@ -51,7 +53,7 @@ export function AcceptInvitationForm({ onJoined }: { onJoined: (patientId: strin
       {accept.error && <Text tone="danger">{errorMessage(accept.error)}</Text>}
       <div>
         <Button type="submit" disabled={!parsed.success} loading={accept.isPending}>
-          Unirme
+          {t('caregivers.join')}
         </Button>
       </div>
     </form>
