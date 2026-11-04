@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { Link, useSearchParams } from 'react-router';
 
 import { useResetPassword } from '../api/generated';
@@ -12,6 +13,7 @@ import { resetPasswordSchema, type ResetPasswordValues } from '../features/auth/
 import { errorMessage } from '../lib/errors';
 
 export function ResetPasswordPage() {
+  const { t } = useTranslation();
   const token = useSearchParams()[0].get('token');
   const reset = useResetPassword();
   const { register, handleSubmit, formState } = useForm<ResetPasswordValues>({
@@ -21,22 +23,22 @@ export function ResetPasswordPage() {
 
   if (!token) {
     return (
-      <AuthLayout title="Nueva contraseña">
-        <Text tone="danger">El enlace no es válido.</Text>
+      <AuthLayout title={t('auth.reset.title')}>
+        <Text tone="danger">{t('auth.reset.invalidLink')}</Text>
         <Link to="/recuperar" className="underline">
-          Pedir un enlace nuevo
+          {t('auth.reset.newLink')}
         </Link>
       </AuthLayout>
     );
   }
 
   return (
-    <AuthLayout title="Nueva contraseña">
+    <AuthLayout title={t('auth.reset.title')}>
       {reset.isSuccess ? (
         <>
-          <Text tone="success">Contraseña cambiada.</Text>
+          <Text tone="success">{t('auth.reset.done')}</Text>
           <Link to="/login" className="underline">
-            Iniciar sesión
+            {t('auth.signIn')}
           </Link>
         </>
       ) : (
@@ -48,27 +50,27 @@ export function ResetPasswordPage() {
           className="flex flex-col gap-4"
         >
           <FormField
-            label="Contraseña nueva"
+            label={t('auth.reset.newPassword')}
             error={errors.newPassword?.message}
-            hint="Mínimo 10 caracteres"
+            hint={t('forms.passwordMin')}
           >
             {(p) => (
               <PasswordInput autoComplete="new-password" {...p} {...register('newPassword')} />
             )}
           </FormField>
-          <FormField label="Repite la contraseña" error={errors.confirm?.message}>
+          <FormField label={t('auth.reset.repeat')} error={errors.confirm?.message}>
             {(p) => <PasswordInput autoComplete="new-password" {...p} {...register('confirm')} />}
           </FormField>
           {reset.error && (
             <Text tone="danger" as="p">
               {errorMessage(reset.error)}{' '}
               <Link to="/recuperar" className="underline">
-                Pedir otro enlace
+                {t('auth.reset.anotherLink')}
               </Link>
             </Text>
           )}
           <Button type="submit" loading={reset.isPending} fullWidth>
-            Cambiar contraseña
+            {t('auth.reset.submit')}
           </Button>
         </form>
       )}
