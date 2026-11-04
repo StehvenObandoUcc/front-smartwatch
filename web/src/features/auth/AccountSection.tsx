@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 import { useResendVerification } from '../../api/generated';
 import { Badge } from '../../components/atoms/Badge/Badge';
 import { Button } from '../../components/atoms/Button/Button';
@@ -8,29 +10,28 @@ import { useAuth } from './AuthContext';
 /** Correo de la cuenta con su estado de verificación (emailVerified de GET /users/me). */
 export function AccountSection() {
   const { auth } = useAuth();
+  const { t } = useTranslation();
   const resend = useResendVerification();
   if (auth.status !== 'authed') return null;
   const { email, emailVerified } = auth.user;
   return (
     <section aria-labelledby="account-title" className="flex flex-col gap-3">
       <Text id="account-title" variant="subtitle" as="h2">
-        Tu cuenta
+        {t('auth.account.title')}
       </Text>
       <div className="flex flex-wrap items-center gap-2">
         <Text as="p" className="break-all">
           {email}
         </Text>
         <Badge tone={emailVerified ? 'success' : 'warning'}>
-          {emailVerified ? 'Correo verificado' : 'Correo sin verificar'}
+          {emailVerified ? t('auth.account.verified') : t('auth.account.unverified')}
         </Badge>
       </div>
       {!emailVerified && (
         <>
-          <Text tone="muted">
-            Sin verificar no recibirás avisos por correo ni podrás recuperar tu contraseña.
-          </Text>
+          <Text tone="muted">{t('auth.account.unverifiedHelp')}</Text>
           {resend.isSuccess ? (
-            <Text tone="success">Te enviamos un correo nuevo. Revisa tu bandeja.</Text>
+            <Text tone="success">{t('auth.verify.resent')}</Text>
           ) : (
             <div>
               <Button
@@ -38,7 +39,7 @@ export function AccountSection() {
                 loading={resend.isPending}
                 onClick={() => resend.mutate()}
               >
-                Reenviar correo de verificación
+                {t('auth.account.resend')}
               </Button>
             </div>
           )}
