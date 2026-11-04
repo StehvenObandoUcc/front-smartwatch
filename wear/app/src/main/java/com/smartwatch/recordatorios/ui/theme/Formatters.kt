@@ -4,6 +4,7 @@ import android.text.format.DateFormat
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import java.time.Instant
+import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -22,6 +23,16 @@ fun formatTime(
         .ofPattern(pattern)
         .withZone(zone)
         .format(Instant.ofEpochMilli(epochMillis))
+}
+
+/** Una hora del día guardada como «HH:mm» (horarios locales), con el mismo formato que [formatTime]. */
+fun formatLocalTime(
+    hhmm: String,
+    is24Hour: Boolean,
+): String {
+    val time = runCatching { LocalTime.parse(hhmm) }.getOrNull() ?: return hhmm
+    val pattern = DateFormat.getBestDateTimePattern(Locale.getDefault(), if (is24Hour) "Hm" else "hm")
+    return DateTimeFormatter.ofPattern(pattern).format(time)
 }
 
 /** [formatTime] con el ajuste de 12/24 h del reloj. */
