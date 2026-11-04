@@ -1,31 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Vista previa del Tile en el selector: anillo de 2 de 3 tomadas sobre negro. -->
+<!-- Vista previa del Tile en el selector: anillo de 2 de 3 tomadas sobre petróleo, con los colores de la app. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="192dp"
     android:height="192dp"
     android:viewportWidth="192"
     android:viewportHeight="192">
     <path
-        android:fillColor="#0F2B29"
+        android:fillColor="@color/petrol_900"
         android:pathData="M96,0a96,96 0,1 1,0 192a96,96 0,1 1,0 -192z" />
     <path
         android:pathData="M96,8a88,88 0,1 1,0 176a88,88 0,1 1,0 -176z"
         android:strokeWidth="8"
-        android:strokeColor="#24504B" />
+        android:strokeColor="@color/track" />
     <path
         android:pathData="M96,8A88,88 0,0 1,172.2 140A88,88 0,0 1,19.8 140"
         android:strokeWidth="8"
-        android:strokeColor="#2F7D32" />
+        android:strokeColor="@color/mint" />
     <path
-        android:fillColor="#1565C0"
+        android:fillColor="@color/med_blue"
         android:pathData="M60,118h14v14h-14z" />
     <path
-        android:fillColor="#EEF5F4"
+        android:fillColor="@color/cream"
         android:pathData="M80,122h52v6h-52z" />
     <path
-        android:fillColor="#EEF5F4"
+        android:fillColor="@color/cream"
         android:pathData="M62,66h68v26h-68z" />
     <path
-        android:fillColor="#B5CCC9"
+        android:fillColor="@color/sand"
         android:pathData="M70,100h52v6h-52z" />
 </vector>
