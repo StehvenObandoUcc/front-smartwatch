@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link, useSearchParams } from 'react-router';
 
 import { useVerifyEmail } from '../api/generated';
@@ -8,6 +9,7 @@ import { AuthLayout } from '../components/templates/AuthLayout';
 import { errorMessage } from '../lib/errors';
 
 export function VerifyEmailPage() {
+  const { t } = useTranslation();
   const token = useSearchParams()[0].get('token');
   const verify = useVerifyEmail();
   // El token es de un solo uso: StrictMode ejecuta el efecto dos veces en desarrollo.
@@ -21,20 +23,18 @@ export function VerifyEmailPage() {
   }, [token, verify]);
 
   return (
-    <AuthLayout title="Verificar correo">
-      {!token && <Text tone="danger">El enlace no es válido. Pide uno nuevo desde el panel.</Text>}
-      {token && verify.isPending && <Spinner label="Verificando" />}
-      {verify.isSuccess && (
-        <Text tone="success">Correo verificado. Ya puedes seguir usando la app.</Text>
-      )}
+    <AuthLayout title={t('auth.verify.title')}>
+      {!token && <Text tone="danger">{t('auth.verify.invalidLink')}</Text>}
+      {token && verify.isPending && <Spinner label={t('auth.verify.verifying')} />}
+      {verify.isSuccess && <Text tone="success">{t('auth.verify.done')}</Text>}
       {verify.isError && (
         <Text tone="danger" as="p">
-          {errorMessage(verify.error)} Pide un enlace nuevo desde el panel.
+          {errorMessage(verify.error)} {t('auth.verify.askNew')}
         </Text>
       )}
       <Text>
         <Link to="/" className="underline">
-          Ir al panel
+          {t('auth.verify.toPanel')}
         </Link>
       </Text>
     </AuthLayout>
