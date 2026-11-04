@@ -25,7 +25,7 @@ import kotlinx.serialization.Contextual
  * Exactamente uno de `message` o `confirmActionId` (si no, 422).
  *
  * @param message 
- * @param history Turnos anteriores, del más antiguo al más reciente.
+ * @param history Turnos anteriores, del más antiguo al más reciente. `null` equivale a vacío.
  * @param confirmActionId Confirma una `pendingAction` propuesta antes.
  */
 @Serializable
@@ -35,7 +35,7 @@ data class WatchChatRequest (
     @SerialName(value = "message")
     val message: kotlin.String? = null,
 
-    /* Turnos anteriores, del más antiguo al más reciente. */
+    /* Turnos anteriores, del más antiguo al más reciente. `null` equivale a vacío. */
     @SerialName(value = "history")
     val history: kotlin.collections.List<ChatTurn>? = null,
 
