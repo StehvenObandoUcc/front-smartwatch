@@ -47,7 +47,7 @@ carga el tratamiento y ve, dosis por dosis, si se tomó.
 
 ## Capabilities and Constraints
 
-- Idioma: español (zona horaria America/Bogota, Colombia).
+- Idioma: español (por defecto) o inglés, en el reloj y en el panel web; zona horaria America/Bogota (Colombia). El asistente y los mensajes de error propios del backend siguen en español.
 - Datos de salud bajo la Ley 1581 de 2012: consentimiento por finalidad (`health_data`, `ai_chat`,
   `notifications`), cifrado y borrado de cuenta.
 - El backend es la fuente de verdad y su contrato OpenAPI manda; el frontend no lo edita.
