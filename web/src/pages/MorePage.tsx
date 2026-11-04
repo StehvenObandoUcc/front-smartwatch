@@ -8,12 +8,17 @@ import { ThemeSwitch } from '../components/molecules/ThemeSwitch';
 import { useLanguage } from '../i18n';
 import { useTheme } from '../lib/theme';
 
-const entries: { to: string; label: string; help: string; icon: IconName }[] = [
-  { to: '/agenda', label: 'Agenda', help: 'Las dosis de los próximos días', icon: 'agenda' },
-  { to: '/reportes', label: 'Reportes', help: 'Resumen de cada semana, en PDF', icon: 'reports' },
-  { to: '/asistente', label: 'Asistente', help: 'Pregunta por el tratamiento', icon: 'assistant' },
-  { to: '/avisos', label: 'Avisos', help: 'Telegram y correo', icon: 'notifications' },
-  { to: '/ajustes', label: 'Ajustes', help: 'Reloj, cuidadores y cuenta', icon: 'settings' },
+// Cada entrada usa nav.<sección> y nav.<sección>Help.
+const entries: {
+  to: string;
+  key: 'agenda' | 'reports' | 'assistant' | 'notifications' | 'settings';
+  icon: IconName;
+}[] = [
+  { to: '/agenda', key: 'agenda', icon: 'agenda' },
+  { to: '/reportes', key: 'reports', icon: 'reports' },
+  { to: '/asistente', key: 'assistant', icon: 'assistant' },
+  { to: '/avisos', key: 'notifications', icon: 'notifications' },
+  { to: '/ajustes', key: 'settings', icon: 'settings' },
 ];
 
 /** En el móvil, las secciones que no caben en el menú de abajo: una señal por sección. */
@@ -23,7 +28,7 @@ export function MorePage() {
   const language = useLanguage();
   return (
     <div className="flex flex-col gap-8">
-      <nav aria-label="Más secciones">
+      <nav aria-label={t('nav.moreSections')}>
         <ul className="rows border-y border-border">
           {entries.map((entry) => (
             <li key={entry.to}>
@@ -33,8 +38,8 @@ export function MorePage() {
               >
                 <Plate icon={entry.icon} size="lg" />
                 <span className="flex min-w-0 flex-1 flex-col">
-                  <span className="text-lg font-medium">{entry.label}</span>
-                  <span className="text-caption text-text-muted">{entry.help}</span>
+                  <span className="text-lg font-medium">{t(`nav.${entry.key}`)}</span>
+                  <span className="text-caption text-text-muted">{t(`nav.${entry.key}Help`)}</span>
                 </span>
                 <Icon name="forward" className="text-text-muted" />
               </Link>
@@ -44,7 +49,7 @@ export function MorePage() {
       </nav>
       <section aria-labelledby="tema" className="flex flex-col gap-3">
         <h2 id="tema" className="text-lg font-medium">
-          Tema
+          {t('theme.label')}
         </h2>
         <ThemeSwitch value={theme.choice} onChange={theme.setChoice} />
       </section>
