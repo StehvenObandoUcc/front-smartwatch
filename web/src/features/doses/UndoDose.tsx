@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
 
 import { useDeletePatientDoseEvent } from '../../api/generated';
@@ -18,6 +19,7 @@ type Props = {
  * otro evento). El backend responde 204 aunque ya estuviera deshecha.
  */
 export function UndoDose({ patientId, eventId, label }: Props) {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const undo = useDeletePatientDoseEvent({
     mutation: { onSuccess: () => queryClient.invalidateQueries() },
@@ -28,10 +30,10 @@ export function UndoDose({ patientId, eventId, label }: Props) {
         variant="quiet"
         icon="undo"
         loading={undo.isPending}
-        aria-label={`Deshacer ${label}`}
+        aria-label={t('doses.undoLabel', { name: label })}
         onClick={() => undo.mutate({ patientId, eventId })}
       >
-        Deshacer
+        {t('doses.undo')}
       </Button>
       {undo.error && (
         <div role="alert">
