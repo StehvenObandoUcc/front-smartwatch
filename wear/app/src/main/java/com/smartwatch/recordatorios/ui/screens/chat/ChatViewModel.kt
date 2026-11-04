@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.serialization.SerializationException
 import retrofit2.Response
 import java.io.IOException
 import java.util.UUID
@@ -103,6 +104,10 @@ class ChatViewModel
                 toState(api.sendMyChatMessage(request))
             } catch (_: IOException) {
                 ChatState.Failure(ChatFailure.OFFLINE)
+            } catch (_: SerializationException) {
+                // Una respuesta que este reloj no sabe leer (p. ej. un tipo de acción nuevo del
+                // backend antes de actualizar la app) no cierra la app: el asistente no está disponible.
+                ChatState.Failure(ChatFailure.UNAVAILABLE)
             }
 
         private fun toState(response: Response<com.smartwatch.recordatorios.api.models.WatchChatReply>): ChatState {
