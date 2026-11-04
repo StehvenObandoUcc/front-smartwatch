@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 
 import {
@@ -25,14 +26,18 @@ import { errorMessage } from '../lib/errors';
 // Los mismos estados, palabras y pictogramas que en Hoy y en el reloj.
 const statusView: Record<
   DoseStatus,
-  { label: string; tone: 'success' | 'neutral' | 'danger'; icon: 'taken' | 'skipped' | 'missed' }
+  { tone: 'success' | 'neutral' | 'danger'; icon: 'taken' | 'skipped' | 'missed' }
 > = {
-  TAKEN: { label: 'Tomada', tone: 'success', icon: 'taken' },
-  SKIPPED: { label: 'Omitida', tone: 'neutral', icon: 'skipped' },
-  MISSED: { label: 'No tomada', tone: 'danger', icon: 'missed' },
+  TAKEN: { tone: 'success', icon: 'taken' },
+  SKIPPED: { tone: 'neutral', icon: 'skipped' },
+  MISSED: { tone: 'danger', icon: 'missed' },
 };
 
+// La misma palabra que en Hoy (doses.state.*).
+const statusKey = { TAKEN: 'taken', SKIPPED: 'skipped', MISSED: 'missed' } as const;
+
 export function AdherencePage() {
+  const { t } = useTranslation();
   const { patientId, timezone } = usePatient();
   const [days, setDays] = useState(7);
   const range = { from: daysAgo(days - 1, timezone), to: localDate(new Date(), timezone) };
@@ -42,7 +47,7 @@ export function AdherencePage() {
   const medications = useListMedications(patientId);
   const colorOf = new Map(medications.data?.items.map((m) => [m.id, m.color]));
 
-  if (adherence.isPending || history.isPending) return <Skeleton label="Cargando historial" />;
+  if (adherence.isPending || history.isPending) return <Skeleton label={t('history.loading')} />;
   if (adherence.isError || history.isError) {
     return (
       <ErrorRetry
@@ -58,34 +63,32 @@ export function AdherencePage() {
   const { percentage, taken, skipped, missed } = adherence.data;
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex gap-2" role="group" aria-label="Rango">
+      <div className="flex gap-2" role="group" aria-label={t('history.range')}>
         {[7, 30].map((n) => (
           <Button key={n} variant={n === days ? 'primary' : 'secondary'} onClick={() => setDays(n)}>
-            {n} días
+            {t('history.days', { count: n })}
           </Button>
         ))}
       </div>
 
       <section aria-labelledby="adh-title" className="card flex flex-col gap-3 p-4">
-        <SignBar id="adh-title" icon="history" title="Dosis tomadas" />
+        <SignBar id="adh-title" icon="history" title={t('history.takenTitle')} />
         {percentage === null ? (
-          <Text tone="muted">
-            Aún no hay dosis vencidas en este rango. El porcentaje aparece cuando pase la primera.
-          </Text>
+          <Text tone="muted">{t('history.nonePercent')}</Text>
         ) : (
           <>
             <Text variant="display" as="p">
-              {Math.round(percentage)} %
+              {t('common.percent', { value: Math.round(percentage) })}
             </Text>
             <div className="flex flex-wrap gap-2">
               <Badge tone="success" icon="taken">
-                {countText(taken, 'tomada', 'tomadas')}
+                {countText(taken, 'taken')}
               </Badge>
               <Badge tone="neutral" icon="skipped">
-                {countText(skipped, 'omitida', 'omitidas')}
+                {countText(skipped, 'skipped')}
               </Badge>
               <Badge tone="danger" icon="missed">
-                {countText(missed, 'no tomada', 'no tomadas')}
+                {countText(missed, 'missed')}
               </Badge>
             </div>
           </>
@@ -93,19 +96,19 @@ export function AdherencePage() {
       </section>
 
       <section aria-labelledby="chart-title" className="flex flex-col gap-3">
-        <SignBar id="chart-title" icon="history" title="Últimos 7 días, día a día" tone="neutral" />
+        <SignBar id="chart-title" icon="history" title={t('history.chartTitle')} tone="neutral" />
         <AdherenceChart />
       </section>
 
       <section aria-labelledby="hist-title" className="flex flex-col gap-3">
         <Text id="hist-title" variant="subtitle" as="h2">
-          Cada dosis
+          {t('history.each')}
         </Text>
         {history.data.items.length === 0 && (
           <EmptyState
             icon="history"
-            title="Aún no hay dosis en este rango"
-            body="Cada dosis aparece aquí una hora después de su horario, tomada o no."
+            title={t('history.emptyTitle')}
+            body={t('history.emptyBody')}
           />
         )}
         <ul className="rows">
@@ -131,7 +134,7 @@ export function AdherencePage() {
               </div>
               <div className="flex flex-wrap items-center gap-2">
                 <Badge tone={statusView[item.status].tone} icon={statusView[item.status].icon}>
-                  {statusView[item.status].label}
+                  {t(`doses.state.${statusKey[item.status]}`)}
                 </Badge>
                 {/* Se olvidó de marcarla en el reloj: se puede registrar desde aquí. */}
                 {item.status === 'MISSED' && (
