@@ -75,16 +75,6 @@ fun ChatScreen(
                     )
                 }
             }
-            if (state is ChatState.Reply) {
-                edgeItem {
-                    BwText(
-                        text = stringResource(R.string.chat_remaining, state.remaining),
-                        style = BwTheme.type.support,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                }
-            }
             if (state !is ChatState.Thinking && proposal == null) {
                 edgeItem {
                     BwButton(
