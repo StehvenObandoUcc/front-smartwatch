@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 
@@ -27,6 +28,7 @@ import { usePatient } from '../features/patients/PatientGate';
 import { errorMessage } from '../lib/errors';
 
 export function MedicationsPage() {
+  const { t } = useTranslation();
   const { patientId, timezone } = usePatient();
   const queryClient = useQueryClient();
   const [adding, setAdding] = useState(false);
@@ -87,7 +89,9 @@ export function MedicationsPage() {
     return (
       <section className="flex flex-col gap-4" aria-labelledby="form-title">
         <Text id="form-title" variant="subtitle" as="h2">
-          {editing ? `Editar ${editing.medication.name}` : 'Agregar medicamento'}
+          {editing
+            ? t('medications.editTitle', { name: editing.medication.name })
+            : t('medications.add')}
         </Text>
         <MedicationForm
           timezone={timezone}
@@ -108,14 +112,14 @@ export function MedicationsPage() {
     <section className="flex flex-col gap-4" aria-labelledby="meds-title">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <Text id="meds-title" variant="subtitle" as="h2">
-          Medicamentos activos
+          {t('medications.listTitle')}
         </Text>
         <Button icon="add" onClick={() => setAdding(true)}>
-          Agregar medicamento
+          {t('medications.add')}
         </Button>
       </div>
 
-      {medications.isPending && <Skeleton label="Cargando medicamentos" />}
+      {medications.isPending && <Skeleton label={t('medications.loading')} />}
       {medications.isError && (
         <ErrorRetry
           message={errorMessage(medications.error)}
@@ -125,11 +129,11 @@ export function MedicationsPage() {
       {medications.data?.items.length === 0 && (
         <EmptyState
           icon="medications"
-          title="Aún no hay medicamentos"
-          body="Agrega el primero con su horario y sonará en el reloj."
+          title={t('medications.emptyTitle')}
+          body={t('medications.emptyBody')}
           action={
             <Button icon="add" onClick={() => setAdding(true)}>
-              Agregar medicamento
+              {t('medications.add')}
             </Button>
           }
         />
@@ -172,6 +176,7 @@ function MedicationRow({
   onEdit,
   onArchive,
 }: RowProps) {
+  const { t } = useTranslation();
   const [confirming, setConfirming] = useState(false);
   const schedules = useListSchedules(patientId, medication.id);
   const schedule = schedules.data?.items[0];
@@ -191,17 +196,17 @@ function MedicationRow({
       {confirming ? (
         <div
           role="group"
-          aria-label={`Quitar ${medication.name}`}
+          aria-label={t('medications.removeLabel', { name: medication.name })}
           className="flex w-full flex-wrap items-center gap-2"
         >
           <Text className="w-full font-bold">
-            ¿Quitar {medication.name}? Dejará de sonar en el reloj.
+            {t('medications.removeQuestion', { name: medication.name })}
           </Text>
           <Button variant="secondary" icon="back" onClick={() => setConfirming(false)}>
-            No
+            {t('common.no')}
           </Button>
           <Button variant="danger" icon="remove" loading={archiving} onClick={onArchive}>
-            Sí, quitar
+            {t('medications.removeConfirm')}
           </Button>
         </div>
       ) : (
@@ -209,19 +214,19 @@ function MedicationRow({
           <Button
             variant="secondary"
             icon="edit"
-            aria-label={`Editar ${medication.name}`}
+            aria-label={t('medications.editTitle', { name: medication.name })}
             loading={loadingEdit}
             onClick={onEdit}
           >
-            Editar
+            {t('medications.edit')}
           </Button>
           <Button
             variant="ghost"
             icon="remove"
-            aria-label={`Quitar ${medication.name}`}
+            aria-label={t('medications.removeLabel', { name: medication.name })}
             onClick={() => setConfirming(true)}
           >
-            Quitar
+            {t('medications.remove')}
           </Button>
         </div>
       )}

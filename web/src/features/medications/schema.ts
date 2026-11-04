@@ -1,32 +1,37 @@
+import type { ParseKeys } from 'i18next';
 import { z } from 'zod';
 
 import type { Medication, MedicationCreate, Schedule, ScheduleCreate } from '../../api/generated';
+import { i18n } from '../../i18n';
 
-const time = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, 'Hora no válida');
+// El mensaje se traduce al validar, en el idioma activo.
+const msg = (key: ParseKeys) => ({ error: () => i18n.t(key) });
+
+const time = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, msg('medications.errors.timeInvalid'));
 
 export const medicationFormSchema = z
   .object({
-    name: z.string().trim().min(1, 'Escribe el nombre').max(120),
-    dosage: z.string().trim().min(1, 'Escribe la dosis, por ejemplo "1 tableta"').max(80),
+    name: z.string().trim().min(1, msg('medications.errors.nameRequired')).max(120),
+    dosage: z.string().trim().min(1, msg('medications.errors.dosageRequired')).max(80),
     instructions: z.string().trim().max(500),
-    color: z.string().regex(/^#[0-9a-fA-F]{6}$/, 'Color no válido'),
+    color: z.string().regex(/^#[0-9a-fA-F]{6}$/, msg('medications.errors.colorInvalid')),
     times: z
       .array(z.object({ value: time }))
-      .min(1, 'Añade al menos una hora')
+      .min(1, msg('medications.errors.timeRequired'))
       .max(12)
       .refine(
         (items) => new Set(items.map((i) => i.value)).size === items.length,
-        'Hay horas repetidas',
+        msg('medications.errors.timesRepeated'),
       ),
     daysOfWeek: z
       .array(z.enum(['1', '2', '3', '4', '5', '6', '7']))
-      .min(1, 'Elige al menos un día'),
-    startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Elige la fecha de inicio'),
+      .min(1, msg('medications.errors.dayRequired')),
+    startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, msg('medications.errors.startRequired')),
     endDate: z.string(),
   })
   .refine((v) => !v.endDate || v.endDate >= v.startDate, {
     path: ['endDate'],
-    message: 'El fin no puede ser anterior al inicio',
+    ...msg('medications.errors.endBeforeStart'),
   });
 
 export type MedicationFormValues = z.infer<typeof medicationFormSchema>;

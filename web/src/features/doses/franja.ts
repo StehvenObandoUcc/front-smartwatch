@@ -3,11 +3,8 @@ import { localDate } from '../../lib/dates';
 
 export type Franja = 'morning' | 'afternoon' | 'night';
 
-export const FRANJAS: { id: Franja; label: string; range: string }[] = [
-  { id: 'morning', label: 'Mañana', range: '5:00 a 12:00' },
-  { id: 'afternoon', label: 'Tarde', range: '12:00 a 19:00' },
-  { id: 'night', label: 'Noche', range: '19:00 a 5:00' },
-];
+// En orden del día; el nombre y el rango de horas de cada una están en i18n (franja.*).
+export const FRANJAS: Franja[] = ['morning', 'afternoon', 'night'];
 
 /** Franja del día para una hora local (0–23). */
 export function franjaOf(hour: number): Franja {

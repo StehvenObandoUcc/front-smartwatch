@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 
 import { useGetPatientPlan } from '../api/generated';
@@ -14,26 +15,21 @@ import { errorMessage } from '../lib/errors';
 
 /** Los próximos 7 días: una señal por día y sus dosis con estado; las de hoy se pueden marcar. */
 export function AgendaPage() {
+  const { t } = useTranslation();
   const { patientId } = usePatient();
   const plan = useGetPatientPlan(patientId);
   const history = useDoseHistory(patientId);
   // Hora de referencia fija por visita: al volver a la pantalla se recalcula.
   const [now] = useState(() => Date.now());
 
-  if (plan.isPending) return <Skeleton label="Cargando agenda" rows={5} />;
+  if (plan.isPending) return <Skeleton label={t('agenda.loading')} rows={5} />;
   if (plan.isError) {
     return <ErrorRetry message={errorMessage(plan.error)} onRetry={() => void plan.refetch()} />;
   }
 
   const { patientTimezone: tz, doses } = plan.data;
   if (doses.length === 0) {
-    return (
-      <EmptyState
-        icon="agenda"
-        title="No hay tomas en los próximos 7 días"
-        body="Agrega un medicamento con su horario y la semana aparecerá aquí."
-      />
-    );
+    return <EmptyState icon="agenda" title={t('agenda.emptyTitle')} body={t('agenda.emptyBody')} />;
   }
   const today = localDate(new Date(now), tz);
 
@@ -44,8 +40,8 @@ export function AgendaPage() {
           <SignBar
             id={`day-${day}`}
             icon={day === today ? 'today' : 'agenda'}
-            title={day === today ? 'Hoy' : formatDay(dayDoses[0]?.scheduledAt ?? day, tz)}
-            meta={dayDoses.length === 1 ? '1 dosis' : `${dayDoses.length} dosis`}
+            title={day === today ? t('nav.today') : formatDay(dayDoses[0]?.scheduledAt ?? day, tz)}
+            meta={t('agenda.doses', { count: dayDoses.length })}
             tone={day === today ? 'sign' : 'neutral'}
           />
           <ul className="rows">

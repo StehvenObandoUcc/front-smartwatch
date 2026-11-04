@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useId, useState } from 'react';
 
 import { useGetPatientPlan } from '../../api/generated';
@@ -44,7 +45,7 @@ function useToday() {
   // Momento de referencia fijo por visita: al volver a la pantalla se recalcula.
   const [now] = useState(() => new Date());
   const groups = plan.data && groupByFranja(plan.data.doses, localDate(now, timezone), timezone);
-  const doses = groups ? FRANJAS.flatMap((f) => groups[f.id]) : [];
+  const doses = groups ? FRANJAS.flatMap((f) => groups[f]) : [];
   const state = (dose: (typeof doses)[number]) => doseState(dose, history.index, now.getTime());
   const event = (dose: (typeof doses)[number]) => eventOf(dose, history.index);
   return { plan, groups, doses, state, event, patientId, timezone, now };
@@ -56,6 +57,7 @@ function useToday() {
  */
 export function TodayHero({ className }: { className?: string }) {
   const { plan, doses, state, patientId, timezone, now } = useToday();
+  const { t } = useTranslation();
   const titleId = useId();
   const states = doses.map(state);
   const taken = states.filter((s) => s === 'taken').length;
@@ -63,7 +65,6 @@ export function TodayHero({ className }: { className?: string }) {
   const next = nextDose(doses, states);
   const franja = franjaAt(now, timezone);
   const complete = doses.length > 0 && taken === doses.length;
-  const current = FRANJAS.find((f) => f.id === franja);
 
   return (
     <section
@@ -77,37 +78,33 @@ export function TodayHero({ className }: { className?: string }) {
       <header className="flex flex-wrap items-center gap-3">
         <Plate icon={complete ? 'taken' : franjaSign[franja].icon} tone="onSign" size="sm" />
         <h2 id={titleId} className="text-lg font-medium">
-          {complete ? 'Día completo' : current?.label}
+          {complete ? t('today.complete') : t(`franja.${franja}`)}
         </h2>
-        {!complete && <span className="text-on-panel-muted">{current?.range}</span>}
+        {!complete && <span className="text-on-panel-muted">{t(`franja.${franja}Range`)}</span>}
       </header>
 
-      {plan.isPending && <Skeleton label="Cargando tu día" rows={2} />}
+      {plan.isPending && <Skeleton label={t('today.loading')} rows={2} />}
       {plan.isError && (
         <ErrorRetry message={errorMessage(plan.error)} onRetry={() => void plan.refetch()} />
       )}
       {plan.data && doses.length === 0 && (
-        <EmptyState
-          icon="medications"
-          title="Hoy no hay dosis"
-          body="Las dosis aparecen aquí cuando agregas un medicamento con su horario."
-        />
+        <EmptyState icon="medications" title={t('today.emptyTitle')} body={t('today.emptyBody')} />
       )}
       {doses.length > 0 && (
         <div className="flex flex-1 flex-col items-center gap-6 tablet:flex-row tablet:items-center tablet:gap-10">
           <Ring value={taken} total={doses.length}>
             <span className="text-2xl leading-none font-medium">
               <span aria-hidden="true">{shown}</span>
-              <span className="sr-only">{taken}</span> de {doses.length}
+              <span className="sr-only">{taken}</span> {t('common.of', { total: doses.length })}
             </span>
-            <span className="mt-1 text-caption text-on-panel-muted">dosis de hoy</span>
+            <span className="mt-1 text-caption text-on-panel-muted">{t('today.dosesToday')}</span>
           </Ring>
           <div className="flex w-full min-w-0 flex-1 flex-col gap-4">
             {next ? (
               <>
                 <p className="flex flex-wrap items-baseline gap-x-3">
                   <span className="text-lg text-on-panel-muted">
-                    {canRecord(next.state) ? 'Toca ahora' : 'Próxima'}
+                    {canRecord(next.state) ? t('today.dueNow') : t('today.next')}
                   </span>
                   <span className="text-3xl font-medium tracking-display">
                     {formatTime(next.dose.scheduledAt, timezone)}
@@ -132,12 +129,12 @@ export function TodayHero({ className }: { className?: string }) {
                     label={next.dose.medicationName}
                   />
                 ) : (
-                  <p className="text-on-panel-muted">El reloj avisará a esa hora.</p>
+                  <p className="text-on-panel-muted">{t('today.watchWillAlert')}</p>
                 )}
               </>
             ) : (
               <p className="text-xl font-medium">
-                {complete ? 'Todas las dosis de hoy están tomadas.' : 'Ya no quedan dosis hoy.'}
+                {complete ? t('today.allTaken') : t('today.noneLeft')}
               </p>
             )}
           </div>
@@ -150,29 +147,36 @@ export function TodayHero({ className }: { className?: string }) {
 /** Mañana, Tarde y Noche con cada dosis, su estado y sus acciones visibles. */
 export function FranjasSection({ className }: { className?: string }) {
   const { plan, groups, doses, state, event, patientId, timezone } = useToday();
+  const { t } = useTranslation();
   const titleId = useId();
   return (
     <section aria-labelledby={titleId} className={cn('flex min-w-0 flex-col gap-4', className)}>
       <Text variant="title" id={titleId}>
-        Dosis de hoy
+        {t('today.title')}
       </Text>
-      {plan.isPending && <Skeleton label="Cargando franjas" rows={3} />}
+      {plan.isPending && <Skeleton label={t('today.loadingFranjas')} rows={3} />}
       {plan.isError && (
         <ErrorRetry message={errorMessage(plan.error)} onRetry={() => void plan.refetch()} />
       )}
-      {plan.data && doses.length === 0 && <Text tone="muted">Hoy no hay dosis programadas.</Text>}
+      {plan.data && doses.length === 0 && <Text tone="muted">{t('today.noneScheduled')}</Text>}
       {groups && doses.length > 0 && (
         <div className="grid grid-cols-1 gap-4 desktop:grid-cols-3">
-          {FRANJAS.map(({ id, label, range }) => (
+          {FRANJAS.map((id) => (
             <section
               key={id}
               aria-labelledby={`franja-${id}`}
               className="raised flex flex-col gap-2 p-4 tablet:p-5"
             >
-              <SignBar id={`franja-${id}`} as="h3" title={label} meta={range} {...franjaSign[id]} />
+              <SignBar
+                id={`franja-${id}`}
+                as="h3"
+                title={t(`franja.${id}`)}
+                meta={t(`franja.${id}Range`)}
+                {...franjaSign[id]}
+              />
               {groups[id].length === 0 ? (
                 <Text tone="muted" className="py-3">
-                  Nada programado
+                  {t('today.nothing')}
                 </Text>
               ) : (
                 <ul className="rows">

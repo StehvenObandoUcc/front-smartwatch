@@ -11,7 +11,11 @@
     "skipToContent": "Saltar al contenido",
     "show": "Mostrar",
     "hide": "Ocultar",
-    "law": "Datos tratados según la Ley 1581 de 2012."
+    "law": "Datos tratados según la Ley 1581 de 2012.",
+    "percent": "{{value}} %",
+    "noData": "Sin datos",
+    "of": "de {{total}}",
+    "save": "Guardar"
   },
   "theme": {
     "label": "Tema",
@@ -218,5 +222,230 @@
     "faq5A": "Sí. Desde el panel eliges a quién gestionas y cada persona tiene su plan.",
     "ctaTitle": "Empieza hoy: la primera alerta suena a su hora.",
     "footer": "Recuerda · recordatorios de medicamentos en el reloj."
+  },
+  "franja": {
+    "morning": "Mañana",
+    "afternoon": "Tarde",
+    "night": "Noche",
+    "morningRange": "5:00 a 12:00",
+    "afternoonRange": "12:00 a 19:00",
+    "nightRange": "19:00 a 5:00"
+  },
+  "doses": {
+    "state": {
+      "taken": "Tomada",
+      "skipped": "Omitida",
+      "missed": "No tomada",
+      "due": "Pendiente",
+      "upcoming": "Más tarde"
+    },
+    "count": {
+      "taken_one": "{{count}} tomada",
+      "taken_other": "{{count}} tomadas",
+      "skipped_one": "{{count}} omitida",
+      "skipped_other": "{{count}} omitidas",
+      "missed_one": "{{count}} no tomada",
+      "missed_other": "{{count}} no tomadas"
+    },
+    "markedTaken": "Marcada como tomada.",
+    "markedSkipped": "Marcada como omitida.",
+    "alreadyRecorded": "Esta dosis ya estaba registrada.",
+    "notRecorded": "No se pudo registrar esta dosis.",
+    "undo": "Deshacer",
+    "undoLabel": "Deshacer {{name}}",
+    "skipQuestion": "¿Omitir {{name}}?",
+    "skipConfirm": "Sí, omitir",
+    "markTaken": "Marcar tomada",
+    "markTakenLabel": "Marcar tomada: {{name}}",
+    "skip": "Omitir",
+    "skipLabel": "Omitir: {{name}}"
+  },
+  "today": {
+    "complete": "Día completo",
+    "loading": "Cargando tu día",
+    "emptyTitle": "Hoy no hay dosis",
+    "emptyBody": "Las dosis aparecen aquí cuando agregas un medicamento con su horario.",
+    "dosesToday": "dosis de hoy",
+    "dueNow": "Toca ahora",
+    "next": "Próxima",
+    "watchWillAlert": "El reloj avisará a esa hora.",
+    "allTaken": "Todas las dosis de hoy están tomadas.",
+    "noneLeft": "Ya no quedan dosis hoy.",
+    "title": "Dosis de hoy",
+    "loadingFranjas": "Cargando franjas",
+    "noneScheduled": "Hoy no hay dosis programadas.",
+    "nothing": "Nada programado"
+  },
+  "week": {
+    "title": "Semana",
+    "question": "¿Cómo fueron los últimos 7 días?",
+    "viewHistory": "Ver historial",
+    "loading": "Cargando la semana",
+    "taken": "de las dosis, tomadas",
+    "noDoses": "sin dosis",
+    "dayCount": "{{taken}} de {{total}} tomadas",
+    "noneYet": "Aún no hay dosis vencidas en los últimos 7 días."
+  },
+  "chart": {
+    "loading": "Cargando gráfico",
+    "caption": "Porcentaje de dosis tomadas cada día; el detalle de cada uno, en «Ver como tabla».",
+    "noDoses": "Sin dosis",
+    "value": "{{percent}} % ({{taken}} de {{total}})",
+    "table": "Ver como tabla",
+    "day": "Día",
+    "taken": "Tomadas"
+  },
+  "watchCard": {
+    "title": "Reloj",
+    "question": "¿Está conectado y con batería?",
+    "pair": "Vincular reloj",
+    "loading": "Cargando el reloj",
+    "none": "Aún no hay un reloj vinculado.",
+    "never": "El reloj aún no se ha conectado. Ábrelo con internet para que descargue el plan.",
+    "offline": "Lleva más de 3 horas sin conexión: las tomas no llegan hasta que se conecte.",
+    "battery": "Batería baja: ponlo a cargar para que no deje de avisar.",
+    "batteryLabel": "Batería",
+    "noData": "Sin dato",
+    "lastSeen": "Última conexión",
+    "at": "a las {{time}}",
+    "neverSeen": "Nunca",
+    "now": "ahora"
+  },
+  "agenda": {
+    "loading": "Cargando agenda",
+    "emptyTitle": "No hay tomas en los próximos 7 días",
+    "emptyBody": "Agrega un medicamento con su horario y la semana aparecerá aquí.",
+    "doses_one": "{{count}} dosis",
+    "doses_other": "{{count}} dosis"
+  },
+  "history": {
+    "loading": "Cargando historial",
+    "range": "Rango",
+    "days_one": "{{count}} día",
+    "days_other": "{{count}} días",
+    "takenTitle": "Dosis tomadas",
+    "nonePercent": "Aún no hay dosis vencidas en este rango. El porcentaje aparece cuando pase la primera.",
+    "chartTitle": "Últimos 7 días, día a día",
+    "each": "Cada dosis",
+    "emptyTitle": "Aún no hay dosis en este rango",
+    "emptyBody": "Cada dosis aparece aquí una hora después de su horario, tomada o no."
+  },
+  "reports": {
+    "title": "Reportes semanales",
+    "generate": "Generar reporte",
+    "loading": "Cargando reportes",
+    "empty": "Aún no hay reportes. Se genera uno cada lunes, o puedes pedir uno ahora.",
+    "period": "{{start}} al {{end}}",
+    "weekly": "Automático",
+    "manual": "Pedido a mano",
+    "status": {
+      "ready": "Listo",
+      "pending": "Generando",
+      "failed": "Falló"
+    },
+    "byMedication": "Adherencia por medicamento",
+    "medication": "Medicamento",
+    "adherence": "Adherencia",
+    "taken": "Tomadas",
+    "loadingOne": "Cargando reporte",
+    "reportTitle": "Reporte del {{start}} al {{end}}",
+    "generating": "Generando reporte",
+    "generatingText": "Generando el reporte…",
+    "failed": "No se pudo generar el reporte. Vuelve a pedirlo desde Reportes.",
+    "download": "Descargar PDF",
+    "all": "Todos los reportes"
+  },
+  "medications": {
+    "listTitle": "Medicamentos activos",
+    "add": "Agregar medicamento",
+    "editTitle": "Editar {{name}}",
+    "loading": "Cargando medicamentos",
+    "emptyTitle": "Aún no hay medicamentos",
+    "emptyBody": "Agrega el primero con su horario y sonará en el reloj.",
+    "removeLabel": "Quitar {{name}}",
+    "removeQuestion": "¿Quitar {{name}}? Dejará de sonar en el reloj.",
+    "removeConfirm": "Sí, quitar",
+    "edit": "Editar",
+    "remove": "Quitar",
+    "form": {
+      "name": "Medicamento",
+      "dosage": "Dosis por toma",
+      "dosageHint": "Por ejemplo: 1 tableta o 850 mg",
+      "instructions": "Indicaciones (opcional)",
+      "color": "Color",
+      "customColorLabel": "Elegir otro color",
+      "customColor": "Otro color",
+      "times": "Horas",
+      "time": "Hora {{n}}",
+      "removeTime": "Quitar hora {{n}}",
+      "addTime": "Añadir hora",
+      "days": "Días",
+      "from": "Desde",
+      "until": "Hasta (opcional)"
+    },
+    "colors": {
+      "red": "Rojo",
+      "orange": "Naranja",
+      "yellow": "Amarillo",
+      "green": "Verde",
+      "teal": "Turquesa",
+      "blue": "Azul",
+      "purple": "Morado",
+      "pink": "Rosa"
+    },
+    "day": {
+      "1": "Lun",
+      "2": "Mar",
+      "3": "Mié",
+      "4": "Jue",
+      "5": "Vie",
+      "6": "Sáb",
+      "7": "Dom"
+    },
+    "schedule": {
+      "everyDay": "todos los días",
+      "weekdays": "de lunes a viernes",
+      "weekends": "fines de semana",
+      "day": {
+        "1": "lun",
+        "2": "mar",
+        "3": "mié",
+        "4": "jue",
+        "5": "vie",
+        "6": "sáb",
+        "7": "dom"
+      }
+    },
+    "errors": {
+      "timeInvalid": "Hora no válida",
+      "nameRequired": "Escribe el nombre",
+      "dosageRequired": "Escribe la dosis, por ejemplo \"1 tableta\"",
+      "colorInvalid": "Color no válido",
+      "timeRequired": "Añade al menos una hora",
+      "timesRepeated": "Hay horas repetidas",
+      "dayRequired": "Elige al menos un día",
+      "startRequired": "Elige la fecha de inicio",
+      "endBeforeStart": "El fin no puede ser anterior al inicio"
+    }
+  },
+  "chat": {
+    "consentTitle": "Asistente con IA",
+    "consentBody": "El asistente responde preguntas sobre el plan de medicamentos. Para hacerlo envía a un proveedor de IA tu plan (medicamentos, dosis y horarios) sin tu nombre, documento ni datos de contacto. No guardamos el texto de la conversación. No cambia dosis ni diagnostica.",
+    "accept": "Acepto usar el asistente",
+    "title": "Pregunta por tu plan",
+    "example": "Por ejemplo: «¿Qué me toca esta noche?» o «¿Cuándo termina la metformina?»",
+    "conversation": "Conversación",
+    "you": "Tú: ",
+    "assistant": "Asistente: ",
+    "writing": "Escribiendo",
+    "question": "Tu pregunta",
+    "placeholder": "Escribe tu pregunta",
+    "stop": "Detener",
+    "send": "Enviar",
+    "remaining_one": "Te queda {{count}} mensaje hoy.",
+    "remaining_other": "Te quedan {{count}} mensajes hoy.",
+    "limit": "Llegaste al límite de mensajes de hoy. Vuelve mañana.",
+    "unavailable": "El asistente no está disponible ahora. Inténtalo de nuevo.",
+    "connect": "No pudimos conectar con el asistente. Inténtalo de nuevo."
   }
 }
