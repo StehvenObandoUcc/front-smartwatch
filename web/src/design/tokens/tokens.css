@@ -29,149 +29,220 @@
     U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
+/*
+ * Primitivos: la paleta de Recuerda, común a los dos temas. Los mismos nombres y valores que
+ * Palette en el reloj (wear/…/ui/theme/Tokens.kt). Solo los leen los papeles semánticos de los temas
+ * de abajo; ningún componente usa un primitivo directamente.
+ */
+:root {
+  /* Petróleo (la esfera del reloj) y sus variantes oscuras. */
+  --p-petrol-900: #083b38;
+  --p-petrol-850: #0e4f4a;
+  --p-petrol-800: #1b4a46;
+  --p-petrol-750: #0e5a55;
+  --p-petrol-700: #2e5855;
+  --p-petrol-600: #0b605a;
+  --p-moss-700: #35654c;
+  --p-moss-750: #365849;
+  --p-slate-700: #31585d;
+  --p-petrol-shadow: #031816;
+  /* Claros cálidos, tinta y estados del tema oscuro (los del reloj). */
+  --p-cream: #f7f2ec;
+  --p-sand: #e2d7cc;
+  --p-ink: #1b1613;
+  --p-aqua: #7fe0d4;
+  --p-mint: #8fe3b0;
+  --p-coral-light: #ffb08a;
+  --p-coral: #ff8a70;
+  --p-coral-soft: #ffa08a;
+  --p-stone: #c9cfcd;
+  --p-ember-600: #a8391a;
+  /* Papel, tinta y estados del tema claro. */
+  --p-paper: #fbf6ef;
+  --p-paper-raised: #fffdfa;
+  --p-linen: #f1ebe2;
+  --p-ink-deep: #0d0d0c;
+  --p-ink-hover: #2b2926;
+  --p-graphite: #63615e;
+  --p-smoke: #5f5b57;
+  --p-teal-700: #0f766e;
+  --p-sage-100: #e3ece6;
+  --p-green-700: #1f7a4d;
+  --p-orange-700: #c2410c;
+  --p-red-700: #b42318;
+  --p-white: #ffffff;
+  --p-umber: #3c2814;
+  /* Paneles de franja del tema claro. */
+  --p-lemon-50: #f2ecdf;
+  --p-lemon-100: #f4ebc6;
+  --p-peach-50: #f8dcc7;
+  --p-peach-100: #f9cba9;
+  --p-lilac-50: #f0e4e6;
+  --p-lilac-100: #ecd6e2;
+  --p-sage-50: #e9ebe0;
+  --p-sage-150: #dfe9d4;
+  /* Medicamentos (los mismos que medicationHex en index.ts y Palette.med* en el reloj). */
+  --p-med-red: #c62828;
+  --p-med-orange: #d4661a;
+  --p-med-yellow: #b08900;
+  --p-med-green: #2e7d32;
+  --p-med-teal: #00796b;
+  --p-med-blue: #1565c0;
+  --p-med-purple: #6a1b9a;
+  --p-med-pink: #ad1457;
+  /* Brillos de franja, en tripletas RGB para rgb(… / alfa). */
+  --p-glow-morning: 246 222 104;
+  --p-glow-afternoon: 249 150 84;
+  --p-glow-night: 222 150 200;
+  --p-glow-complete: 150 206 150;
+}
+
 :root,
 html[data-theme='light'] {
   color-scheme: light;
 
-  --on-light: #fbf6ef;
-  --ink: #0d0d0c;
+  --on-light: var(--p-paper);
+  --ink: var(--p-ink-deep);
 
   /* Crema de fondo, tarjeta blanca y zona tintada (campos inactivos, esqueletos, placas neutras). */
-  --bg: #fbf6ef;
-  --surface: #f1ebe2;
-  --surface-raised: #fffdfa;
+  --bg: var(--p-paper);
+  --surface: var(--p-linen);
+  --surface-raised: var(--p-paper-raised);
   /* Tarjeta translúcida sobre los paneles de franja: blanca al 70 %. */
-  --surface-veil: rgb(255 255 255 / 0.7);
+  --surface-veil: color-mix(in srgb, var(--p-white) 70%, transparent);
   --text: var(--ink);
   /* Tinta al 64 % sobre crema, ya mezclada: 5,7:1 (al 56 % no llega a 4,5:1). */
-  --text-muted: #63615e;
-  --border: rgb(13 13 12 / 0.1);
+  --text-muted: var(--p-graphite);
+  --border: color-mix(in srgb, var(--p-ink-deep) 10%, transparent);
   /* Contorno de campos y del botón secundario: ≥ 3:1 sobre fondo y tarjeta. */
-  --border-strong: #63615e;
+  --border-strong: var(--p-graphite);
 
   /* Placa de pictograma: aguamarina suave con el glifo aguamarina. */
-  --sign: #e3ece6;
-  --on-sign: #0f766e;
-  --sign-muted: #63615e;
-  --accent: #0f766e;
+  --sign: var(--p-sage-100);
+  --on-sign: var(--p-teal-700);
+  --sign-muted: var(--p-graphite);
+  --accent: var(--p-teal-700);
 
   /* Acción principal: relleno de tinta con crema encima. */
-  --primary: #0d0d0c;
-  --primary-hover: #2b2926;
-  --on-primary: #fbf6ef;
-  --danger: #b42318;
-  --on-danger: #fbf6ef;
-  --success: #1f7a4d;
-  --warning: #c2410c;
-  --focus: #0f766e;
+  --primary: var(--p-ink-deep);
+  --primary-hover: var(--p-ink-hover);
+  --on-primary: var(--p-paper);
+  --danger: var(--p-red-700);
+  --on-danger: var(--p-paper);
+  --success: var(--p-green-700);
+  --warning: var(--p-orange-700);
+  --focus: var(--p-teal-700);
 
   /* Placas de estado: relleno pleno con crema encima (≥ 4,8:1), siempre con su palabra. */
-  --state-taken: #1f7a4d;
-  --state-due: #c2410c;
-  --state-missed: #b42318;
-  --state-skipped: #5f5b57;
-  --on-state: #fbf6ef;
+  --state-taken: var(--p-green-700);
+  --state-due: var(--p-orange-700);
+  --state-missed: var(--p-red-700);
+  --state-skipped: var(--p-smoke);
+  --on-state: var(--p-paper);
 
   /* Franjas del día como placa: el brillo de su panel. */
-  --morning: #f4ebc6;
+  --morning: var(--p-lemon-100);
   --on-morning: var(--ink);
-  --afternoon: #f9cba9;
+  --afternoon: var(--p-peach-100);
   --on-afternoon: var(--ink);
-  --night: #ecd6e2;
+  --night: var(--p-lilac-100);
   --on-night: var(--ink);
 
   /*
    * Paneles por franja: degradado vertical (a → b) y dos brillos radiales del tono de la franja.
    * El texto encima es siempre tinta (o crema en oscuro); el suave, tinta al 74 %.
    */
-  --panel-morning-a: #f2ecdf;
-  --panel-morning-b: #f4ebc6;
-  --panel-morning-glow: 246 222 104;
-  --panel-afternoon-a: #f8dcc7;
-  --panel-afternoon-b: #f9cba9;
-  --panel-afternoon-glow: 249 150 84;
-  --panel-night-a: #f0e4e6;
-  --panel-night-b: #ecd6e2;
-  --panel-night-glow: 222 150 200;
-  --panel-complete-a: #e9ebe0;
-  --panel-complete-b: #dfe9d4;
-  --panel-complete-glow: 150 206 150;
+  --panel-morning-a: var(--p-lemon-50);
+  --panel-morning-b: var(--p-lemon-100);
+  --panel-morning-glow: var(--p-glow-morning);
+  --panel-afternoon-a: var(--p-peach-50);
+  --panel-afternoon-b: var(--p-peach-100);
+  --panel-afternoon-glow: var(--p-glow-afternoon);
+  --panel-night-a: var(--p-lilac-50);
+  --panel-night-b: var(--p-lilac-100);
+  --panel-night-glow: var(--p-glow-night);
+  --panel-complete-a: var(--p-sage-50);
+  --panel-complete-b: var(--p-sage-150);
+  --panel-complete-glow: var(--p-glow-complete);
   --panel-glow-alpha: 0.55;
   --on-panel: var(--ink);
-  --on-panel-muted: rgb(13 13 12 / 0.74);
+  --on-panel-muted: color-mix(in srgb, var(--p-ink-deep) 74%, transparent);
 
   /* Paleta de medicamentos: la misma clave y tono que el reloj; siempre junto al nombre. */
-  --med-red: #c62828;
-  --med-orange: #d4661a;
-  --med-yellow: #b08900;
-  --med-green: #2e7d32;
-  --med-teal: #00796b;
-  --med-blue: #1565c0;
-  --med-purple: #6a1b9a;
-  --med-pink: #ad1457;
+  --med-red: var(--p-med-red);
+  --med-orange: var(--p-med-orange);
+  --med-yellow: var(--p-med-yellow);
+  --med-green: var(--p-med-green);
+  --med-teal: var(--p-med-teal);
+  --med-blue: var(--p-med-blue);
+  --med-purple: var(--p-med-purple);
+  --med-pink: var(--p-med-pink);
 
   /* Un solo nivel de elevación: sombra cálida, suave y difusa. */
-  --elevation: 0 1px 2px rgb(13 13 12 / 0.04), 0 12px 32px -12px rgb(60 40 20 / 0.16);
+  --elevation:
+    0 1px 2px color-mix(in srgb, var(--p-ink-deep) 4%, transparent),
+    0 12px 32px -12px color-mix(in srgb, var(--p-umber) 16%, transparent);
 }
 
 html[data-theme='dark'] {
   color-scheme: dark;
 
-  --on-light: #f7f2ec;
-  --ink: #1b1613;
+  --on-light: var(--p-cream);
+  --ink: var(--p-ink);
 
-  --bg: #083b38;
-  --surface: #2e5855;
-  --surface-raised: #1b4a46;
-  --surface-veil: rgb(247 242 236 / 0.08);
+  --bg: var(--p-petrol-900);
+  --surface: var(--p-petrol-700);
+  --surface-raised: var(--p-petrol-800);
+  --surface-veil: color-mix(in srgb, var(--p-cream) 8%, transparent);
   --text: var(--on-light);
-  --text-muted: #e2d7cc;
-  --border: rgb(247 242 236 / 0.16);
-  --border-strong: #e2d7cc;
+  --text-muted: var(--p-sand);
+  --border: color-mix(in srgb, var(--p-cream) 16%, transparent);
+  --border-strong: var(--p-sand);
 
-  --sign: #0e5a55;
-  --on-sign: #7fe0d4;
-  --sign-muted: #7fe0d4;
-  --accent: #7fe0d4;
+  --sign: var(--p-petrol-750);
+  --on-sign: var(--p-aqua);
+  --sign-muted: var(--p-aqua);
+  --accent: var(--p-aqua);
 
-  --primary: #f7f2ec;
-  --primary-hover: #e2d7cc;
+  --primary: var(--p-cream);
+  --primary-hover: var(--p-sand);
   --on-primary: var(--ink);
-  --danger: #ffa08a;
+  --danger: var(--p-coral-soft);
   --on-danger: var(--ink);
-  --success: #8fe3b0;
-  --warning: #ffb08a;
-  --focus: #7fe0d4;
+  --success: var(--p-mint);
+  --warning: var(--p-coral-light);
+  --focus: var(--p-aqua);
 
-  --state-taken: #8fe3b0;
-  --state-due: #ffb08a;
-  --state-missed: #ff8a70;
-  --state-skipped: #c9cfcd;
+  --state-taken: var(--p-mint);
+  --state-due: var(--p-coral-light);
+  --state-missed: var(--p-coral);
+  --state-skipped: var(--p-stone);
   --on-state: var(--ink);
 
-  --morning: #35654c;
+  --morning: var(--p-moss-700);
   --on-morning: var(--on-light);
-  --afternoon: #365849;
+  --afternoon: var(--p-moss-750);
   --on-afternoon: var(--on-light);
-  --night: #31585d;
+  --night: var(--p-slate-700);
   --on-night: var(--on-light);
 
   /* Mismos brillos, de poco croma, sobre el degradado petróleo de la esfera. */
-  --panel-morning-a: #0e4f4a;
-  --panel-morning-b: #083b38;
-  --panel-afternoon-a: #0e4f4a;
-  --panel-afternoon-b: #083b38;
-  --panel-night-a: #0e4f4a;
-  --panel-night-b: #083b38;
-  --panel-complete-a: #0e4f4a;
-  --panel-complete-b: #083b38;
+  --panel-morning-a: var(--p-petrol-850);
+  --panel-morning-b: var(--p-petrol-900);
+  --panel-afternoon-a: var(--p-petrol-850);
+  --panel-afternoon-b: var(--p-petrol-900);
+  --panel-night-a: var(--p-petrol-850);
+  --panel-night-b: var(--p-petrol-900);
+  --panel-complete-a: var(--p-petrol-850);
+  --panel-complete-b: var(--p-petrol-900);
   --panel-glow-alpha: 0.16;
   --on-panel: var(--on-light);
-  --on-panel-muted: rgb(247 242 236 / 0.86);
+  --on-panel-muted: color-mix(in srgb, var(--p-cream) 86%, transparent);
 
   --elevation:
-    inset 0 1px 0 rgb(247 242 236 / 0.08), 0 1px 2px rgb(3 24 22 / 0.5),
-    0 16px 40px -16px rgb(3 24 22 / 0.8);
+    inset 0 1px 0 color-mix(in srgb, var(--p-cream) 8%, transparent),
+    0 1px 2px color-mix(in srgb, var(--p-petrol-shadow) 50%, transparent),
+    0 16px 40px -16px color-mix(in srgb, var(--p-petrol-shadow) 80%, transparent);
 }
 
 :root {
@@ -183,11 +254,11 @@ html[data-theme='dark'] {
    * El reloj de muestra es siempre la esfera petróleo del reloj real, en los dos temas: crema
    * 11:1 y aguamarina 8:1 sobre la esfera; naranja rojizo de la alarma con crema 4,9:1.
    */
-  --watch-bg: #083b38;
-  --watch-bg-2: #0e766e;
-  --watch-fg: #f7f2ec;
-  --watch-accent: #7fe0d4;
-  --watch-alarm: #a8391a;
+  --watch-bg: var(--p-petrol-900);
+  --watch-bg-2: var(--p-petrol-600);
+  --watch-fg: var(--p-cream);
+  --watch-accent: var(--p-aqua);
+  --watch-alarm: var(--p-ember-600);
 }
 
 @theme inline {
