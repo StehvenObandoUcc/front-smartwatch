@@ -3,16 +3,16 @@ import { useListDoseHistory, type DoseHistoryItem, type PlannedDose } from '../.
 /** Lo que el cuidador necesita saber de cada dosis de un vistazo. */
 export type DoseState = 'taken' | 'skipped' | 'missed' | 'due' | 'upcoming';
 
-/** Texto y tono de cada estado: el color nunca va solo. */
-export const doseStateLabel: Record<
+/** Tono de cada estado; la palabra está en i18n (doses.state.*): el color nunca va solo. */
+export const doseStateTone: Record<
   DoseState,
-  { text: string; tone: 'success' | 'neutral' | 'danger' | 'warning' | 'outline' }
+  'success' | 'neutral' | 'danger' | 'warning' | 'outline'
 > = {
-  taken: { text: 'Tomada', tone: 'success' },
-  skipped: { text: 'Omitida', tone: 'neutral' },
-  missed: { text: 'No tomada', tone: 'danger' },
-  due: { text: 'Pendiente', tone: 'warning' },
-  upcoming: { text: 'Más tarde', tone: 'outline' },
+  taken: 'success',
+  skipped: 'neutral',
+  missed: 'danger',
+  due: 'warning',
+  upcoming: 'outline',
 };
 
 /** Clave común entre el plan y el historial (mismo instante aunque cambie el formato ISO). */
