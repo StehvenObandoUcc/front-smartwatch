@@ -5,6 +5,8 @@ import { cn } from '../../lib/cn';
 import { useTheme } from '../../lib/theme';
 import { Plate } from '../atoms/Plate/Plate';
 import { Text } from '../atoms/Text/Text';
+import { useLanguage } from '../../i18n';
+import { LanguageSwitch } from '../molecules/LanguageSwitch';
 import { ThemeSwitch } from '../molecules/ThemeSwitch';
 import { WatchMock } from '../molecules/WatchMock';
 
@@ -22,6 +24,7 @@ function panelNow() {
  */
 export function AuthLayout({ title, children }: { title: string; children: ReactNode }) {
   const theme = useTheme();
+  const language = useLanguage();
   return (
     <div className="grid min-h-dvh bg-bg desktop:grid-cols-2">
       <aside
@@ -45,7 +48,8 @@ export function AuthLayout({ title, children }: { title: string; children: React
         </p>
       </aside>
       <div className="flex flex-col px-4 py-6 tablet:px-8">
-        <div className="flex justify-end">
+        <div className="flex flex-wrap justify-end gap-2">
+          <LanguageSwitch compact value={language.language} onChange={language.setLanguage} />
           <ThemeSwitch compact value={theme.choice} onChange={theme.setChoice} />
         </div>
         <main className="mx-auto flex w-full max-w-form flex-1 flex-col justify-center gap-6 py-8">

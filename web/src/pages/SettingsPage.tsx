@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
 
 import {
@@ -14,16 +15,20 @@ import { Plate } from '../components/atoms/Plate/Plate';
 import { Text } from '../components/atoms/Text/Text';
 import { ErrorRetry } from '../components/molecules/ErrorRetry';
 import { FormField } from '../components/molecules/FormField';
+import { LanguageSwitch } from '../components/molecules/LanguageSwitch';
 import { AccountSection } from '../features/auth/AccountSection';
 import { useAuth } from '../features/auth/AuthContext';
 import { DeleteAccountSection } from '../features/auth/DeleteAccountSection';
 import { CaregiversSection } from '../features/caregivers/CaregiversSection';
 import { usePatient } from '../features/patients/PatientGate';
+import { useLanguage } from '../i18n';
 import { errorMessage } from '../lib/errors';
 
 const CODE_PATTERN = /^[BCDFGHJKLMNPQRSTVWXZ]{4}-[BCDFGHJKLMNPQRSTVWXZ]{4}$/;
 
 export function SettingsPage() {
+  const { t } = useTranslation();
+  const language = useLanguage();
   const { patientId } = usePatient();
   const { auth } = useAuth();
   const queryClient = useQueryClient();
@@ -46,6 +51,13 @@ export function SettingsPage() {
   return (
     <div className="flex flex-col gap-6">
       <AccountSection />
+
+      <section aria-labelledby="language-title" className="flex flex-col gap-3">
+        <Text id="language-title" variant="subtitle" as="h2">
+          {t('language.label')}
+        </Text>
+        <LanguageSwitch value={language.language} onChange={language.setLanguage} />
+      </section>
 
       <section aria-labelledby="pair-title" className="flex flex-col gap-4">
         <Text id="pair-title" variant="subtitle" as="h2">

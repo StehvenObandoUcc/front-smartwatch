@@ -1,8 +1,11 @@
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 
 import { Icon, type IconName } from '../components/atoms/Icon/Icon';
 import { Plate } from '../components/atoms/Plate/Plate';
+import { LanguageSwitch } from '../components/molecules/LanguageSwitch';
 import { ThemeSwitch } from '../components/molecules/ThemeSwitch';
+import { useLanguage } from '../i18n';
 import { useTheme } from '../lib/theme';
 
 const entries: { to: string; label: string; help: string; icon: IconName }[] = [
@@ -15,7 +18,9 @@ const entries: { to: string; label: string; help: string; icon: IconName }[] = [
 
 /** En el móvil, las secciones que no caben en el menú de abajo: una señal por sección. */
 export function MorePage() {
+  const { t } = useTranslation();
   const theme = useTheme();
+  const language = useLanguage();
   return (
     <div className="flex flex-col gap-8">
       <nav aria-label="Más secciones">
@@ -42,6 +47,12 @@ export function MorePage() {
           Tema
         </h2>
         <ThemeSwitch value={theme.choice} onChange={theme.setChoice} />
+      </section>
+      <section aria-labelledby="idioma" className="flex flex-col gap-3">
+        <h2 id="idioma" className="text-lg font-medium">
+          {t('language.label')}
+        </h2>
+        <LanguageSwitch value={language.language} onChange={language.setLanguage} />
       </section>
     </div>
   );
