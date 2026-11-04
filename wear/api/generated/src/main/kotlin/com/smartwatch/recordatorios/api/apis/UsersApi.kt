@@ -11,12 +11,30 @@ import com.smartwatch.recordatorios.api.models.Consent
 import com.smartwatch.recordatorios.api.models.ConsentList
 import com.smartwatch.recordatorios.api.models.ConsentPurpose
 import com.smartwatch.recordatorios.api.models.ConsentUpdate
+import com.smartwatch.recordatorios.api.models.DeleteAccountRequest
 import com.smartwatch.recordatorios.api.models.Problem
 import com.smartwatch.recordatorios.api.models.User
 import com.smartwatch.recordatorios.api.models.UserUpdate
 import com.smartwatch.recordatorios.api.models.ValidationProblem
 
 interface UsersApi {
+    /**
+     * DELETE users/me
+     * Eliminar la cuenta
+     * Derecho de supresión (Ley 1581 de 2012). Exige la contraseña actual en el cuerpo y es **irreversible**: todo ocurre en una sola transacción. - Se borra la cuenta, sus sesiones, su vinculación de Telegram y sus preferencias. - Si es un paciente con cuenta, se borra su registro de paciente con todo su contenido   (medicamentos, horarios, tomas, reportes, relojes, vínculos y consentimientos). - Si es cuidador, cada paciente gestionado donde es el **único** cuidador activo se borra   con todo su contenido; si hay otros cuidadores activos, el paciente se conserva y solo   desaparece el vínculo de este usuario. - Se borra el uso del chat y los mensajes de notificación aún sin enviar dirigidos a su   correo o a su chat de Telegram. - Los consentimientos que otros conservan (p. ej. los que dio en nombre de un paciente   gestionado que sigue existiendo) se mantienen, con &#x60;grantedBy: null&#x60;. - Los tokens de acceso ya emitidos caducan solos (15 min) y dejan de servir: el usuario   ya no existe (401 &#x60;invalid_token&#x60;). Los refresh tokens y los relojes quedan invalidados. Responde 403 &#x60;invalid_password&#x60; (no 401, para que el cliente web no intente renovar la sesión) si la contraseña no es correcta. Límite de intentos por usuario: 429 con &#x60;Retry-After&#x60;. 
+     * Responses:
+     *  - 204: Cuenta eliminada.
+     *  - 401: Falta el token, es inválido o caducó (o credenciales incorrectas en login).
+     *  - 403: Autenticado pero sin permiso: rol que no permite la acción sobre un recurso accesible, o tipo de token equivocado (`wrong_token_type`). Nunca se usa para pacientes sin vínculo (eso es 404). 
+     *  - 422: La petición no cumple el esquema.
+     *  - 429: Límite de peticiones superado.
+     *
+     * @param deleteAccountRequest 
+     * @return [Unit]
+     */
+    @DELETE("users/me")
+    suspend fun deleteMe(@Body deleteAccountRequest: DeleteAccountRequest): Response<Unit>
+
     /**
      * GET users/me
      * Usuario autenticado

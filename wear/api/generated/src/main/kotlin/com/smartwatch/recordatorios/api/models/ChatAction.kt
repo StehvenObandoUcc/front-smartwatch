@@ -45,11 +45,12 @@ data class ChatAction (
     /**
      * 
      *
-     * Values: medication_created
+     * Values: medication_created,schedule_added
      */
     @Serializable
     enum class Type(val value: kotlin.String) {
-        @SerialName(value = "medication_created") medication_created("medication_created");
+        @SerialName(value = "medication_created") medication_created("medication_created"),
+        @SerialName(value = "schedule_added") schedule_added("schedule_added");
     }
 
 }

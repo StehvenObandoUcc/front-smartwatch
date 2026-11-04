@@ -171,4 +171,25 @@ class ChatViewModelTest {
 
         assertThat(viewModel.state.value).isEqualTo(ChatState.Failure(ChatFailure.UNAVAILABLE))
     }
+
+    @Test
+    fun `agregar un horario a un medicamento existente se confirma y descarga el plan`() {
+        val id = UUID.randomUUID()
+        val summary = "Agregar a Metformina 850 mg las 14:00 todos los días"
+        api.reply = {
+            Response.success(
+                WatchChatReply("¿Lo agrego?", 20, PendingAction(id, PendingAction.Type.add_schedule, summary)),
+            )
+        }
+        viewModel.ask("agrega las 14:00 a la metformina")
+
+        assertThat(viewModel.state.value).isEqualTo(ChatState.Reply("¿Lo agrego?", 20, id, summary))
+
+        val added = ChatAction(ChatAction.Type.schedule_added, UUID.randomUUID(), UUID.randomUUID())
+        api.reply = { Response.success(WatchChatReply("Listo.", 19, actions = listOf(added))) }
+        viewModel.confirm()
+
+        assertThat(api.sent.last()).isEqualTo(WatchChatRequest(confirmActionId = id, history = emptyList()))
+        assertThat(planRefreshes).isEqualTo(1)
+    }
 }

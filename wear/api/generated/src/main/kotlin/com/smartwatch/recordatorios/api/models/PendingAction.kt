@@ -45,11 +45,12 @@ data class PendingAction (
     /**
      * 
      *
-     * Values: create_medication
+     * Values: create_medication,add_schedule
      */
     @Serializable
     enum class Type(val value: kotlin.String) {
-        @SerialName(value = "create_medication") create_medication("create_medication");
+        @SerialName(value = "create_medication") create_medication("create_medication"),
+        @SerialName(value = "add_schedule") add_schedule("add_schedule");
     }
 
 }
