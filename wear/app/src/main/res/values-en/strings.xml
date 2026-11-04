@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Inglés. El español (values/) es el idioma por defecto: cualquier otro idioma del reloj lo usa. -->
+<resources>
+    <string name="app_name">Reminders</string>
+
+    <string name="next_now">Now</string>
+    <string name="next_label">Next dose</string>
+    <string name="next_detail">%1$s · %2$s</string>
+    <plurals name="next_in_minutes">
+        <item quantity="one">In %1$d min</item>
+        <item quantity="other">In %1$d min</item>
+    </plurals>
+    <plurals name="next_in_hours">
+        <item quantity="one">In %1$d h</item>
+        <item quantity="other">In %1$d h</item>
+    </plurals>
+    <string name="home_no_next">No upcoming doses</string>
+    <string name="home_no_next_body">Add your medications in the web panel</string>
+    <string name="today_title">Today</string>
+    <string name="tile_label">Today\'s doses</string>
+    <string name="tile_count">%1$d of %2$d</string>
+    <string name="tile_taken_today">taken today</string>
+    <string name="tile_none">No doses today</string>
+    <string name="tile_none_short">Free</string>
+    <string name="tile_next_later">Tomorrow %1$s</string>
+    <string name="complication_label">Next dose</string>
+    <string name="complication_none">Free</string>
+    <string name="tile_next_said">Next: %1$s</string>
+    <string name="part_morning">Morning</string>
+    <string name="part_afternoon">Afternoon</string>
+    <string name="part_night">Night</string>
+    <string name="today_empty">No doses today</string>
+    <string name="today_empty_body">The ones you add in the web panel will show up here</string>
+    <string name="today_progress">%1$d of %2$d taken</string>
+    <string name="home_today_progress">%1$d of %2$d taken today</string>
+    <string name="open_dose">Open dose</string>
+    <string name="adherence_value">%1$d%%</string>
+    <string name="adherence_empty">No data yet</string>
+    <string name="adherence_empty_body">It downloads when you sync online</string>
+    <string name="loading">Loading</string>
+
+    <string name="plan_never">Plan not downloaded yet</string>
+    <string name="plan_expires">The plan expires at %1$s. Go online to update it</string>
+    <string name="plan_expired">The plan expired. Go online to update it</string>
+    <string name="plan_consent">Accept the use of health data in the web panel</string>
+    <string name="plan_failed">Couldn\'t update the plan</string>
+    <string name="plan_offline_title">Offline</string>
+    <string name="plan_offline_body">Alarms keep ringing.</string>
+
+    <string name="chat_title">Assistant</string>
+    <string name="chat_unpaired_title">Assistant not available</string>
+    <string name="chat_unpaired_body">It works with the watch paired to the web panel.</string>
+    <string name="chat_pair">Pair</string>
+    <string name="chat_disclaimer">Not a substitute for your doctor.</string>
+    <string name="chat_ask">Ask</string>
+    <string name="chat_prompt">Ask about your plan</string>
+    <string name="chat_thinking">Thinking…</string>
+    <string name="chat_again">Ask</string>
+    <string name="chat_error_limit">You reached today\'s message limit. Come back tomorrow.</string>
+    <string name="chat_error_consent">Accept the assistant in the web panel</string>
+    <string name="chat_error_offline">Offline. Try again</string>
+    <string name="chat_error_unavailable">The assistant isn\'t available right now</string>
+    <string name="chat_error_expired">The proposal expired. Ask again</string>
+    <string name="chat_confirm_yes">Yes, add</string>
+    <string name="chat_confirm_no">No</string>
+    <string name="chat_error_no_speech">This watch has no speech recognition</string>
+    <string name="chat_error_not_heard">I didn\'t hear you. Tap to try again</string>
+
+    <string name="pair_title">Pair watch</string>
+    <string name="pair_loading">Getting a code…</string>
+    <string name="pair_step_open">Type it on your phone or computer, at</string>
+    <string name="pair_step_settings">Settings → Pair watch</string>
+    <string name="pair_waiting">Waiting for confirmation…</string>
+    <string name="pair_error">Can\'t reach the server</string>
+    <string name="pair_retry">Retry</string>
+
+    <string name="warning_label">Warning</string>
+
+    <string name="permissions_title">So alarms can ring</string>
+    <string name="permissions_notifications">Notifications</string>
+    <string name="permissions_notifications_on">Notifications on</string>
+    <string name="permissions_exact">On-time alarms</string>
+    <string name="permissions_exact_on">On-time alarms on</string>
+    <string name="permissions_allow_named">Allow: %1$s</string>
+    <string name="permissions_done">Done</string>
+    <string name="permissions_later">Not now</string>
+    <string name="permissions_granted">Allowed</string>
+
+    <string name="welcome_title">How do you want to use it?</string>
+    <string name="welcome_local">Use on this watch</string>
+    <string name="welcome_local_body">Add your medications here; they ring without internet</string>
+    <string name="welcome_pair">Pair with the web panel</string>
+    <string name="welcome_pair_body">A caregiver adds them from a phone or computer</string>
+
+    <string name="add_title">New medication</string>
+    <string name="add_name">Name</string>
+    <string name="add_dose">Dose (e.g. 1 tablet)</string>
+    <string name="add_times">Rings at</string>
+    <string name="add_time">Another time</string>
+    <string name="add_daily">Every day</string>
+    <string name="add_save">Save</string>
+    <string name="add_saving">Saving…</string>
+    <string name="add_earlier">Earlier</string>
+    <string name="add_later">Later</string>
+    <string name="add_remove_time">Remove this time</string>
+
+    <string name="home_add">Add medication</string>
+    <string name="home_no_next_local_body">Add the first one below</string>
+
+    <string name="watch_title">Watch</string>
+    <string name="watch_paired">Paired with the web panel</string>
+    <string name="watch_paired_with">Paired with %1$s</string>
+    <string name="watch_local">Only on this watch</string>
+    <string name="watch_local_meds">Tap one to remove it</string>
+    <string name="watch_pair">Pair with the web panel</string>
+    <string name="watch_remove">Remove</string>
+    <string name="watch_remove_title">Remove %1$s?</string>
+    <string name="watch_remove_body">It stops ringing on this watch</string>
+    <string name="watch_remove_yes">Remove medication</string>
+    <string name="watch_unpair">Unpair</string>
+    <string name="watch_unpair_title">Unpair this watch?</string>
+    <string name="watch_unpair_body">Its doses are deleted and stop ringing. Remove it in the web panel too</string>
+    <string name="watch_unpair_yes">Unpair watch</string>
+    <string name="permission_exact_title">Alarms off</string>
+    <string name="permission_exact_body">They may ring late.</string>
+    <string name="permission_notifications_title">Notifications off</string>
+    <string name="permission_notifications_body">Alarms won\'t ring.</string>
+    <string name="permission_enable">Turn on</string>
+
+    <string name="status_scheduled">Pending</string>
+    <string name="status_missed">Not taken</string>
+    <string name="all_done_today">All taken today</string>
+    <string name="all_done_next">Tomorrow %1$s · %2$s</string>
+    <string name="adherence_none_month">No doses due yet in %1$s</string>
+    <string name="adherence_taken_month">taken in %1$s</string>
+    <string name="adherence_month_summary">Last 7 days: %1$d with all taken, %2$d with some not taken, %3$d without doses</string>
+    <string name="history_title">History</string>
+    <string name="history_empty">No doses yet</string>
+    <string name="history_empty_body">The last 7 days will show up here</string>
+    <string name="history_today">Today</string>
+    <string name="history_yesterday">Yesterday</string>
+    <string name="status_taken">Taken</string>
+    <string name="action_undo">Undo</string>
+    <string name="alert_done">Done</string>
+    <string name="status_skipped">Skipped</string>
+    <string name="snoozed_times">Snoozed %1$d of %2$d</string>
+    <string name="taken_detail">%1$s · %2$s</string>
+    <string name="taken_at">Recorded at %1$s</string>
+    <string name="snoozed_rings_at">Rings at %1$s</string>
+    <plurals name="snoozes_left">
+        <item quantity="one">%1$d snooze left</item>
+        <item quantity="other">%1$d snoozes left</item>
+    </plurals>
+
+    <string name="action_take">Taken</string>
+    <string name="snooze_for">Snooze %1$d min</string>
+    <string name="snooze_short">Snooze</string>
+    <string name="snooze_minutes">%1$d min</string>
+    <string name="snooze_limit">No more snoozes</string>
+    <string name="action_skip">Skip</string>
+    <string name="skip_confirm_title">Skip %1$s?</string>
+    <string name="skip_confirm_body">It will be recorded as not taken</string>
+    <string name="skip_confirm_yes">Skip dose</string>
+    <string name="skip_confirm_no">Back</string>
+
+    <string name="channel_alarm_name">Dose alarms</string>
+    <string name="channel_alarm_description">Rings when it\'s time to take a medication</string>
+    <string name="notification_title">%1$s · %2$s</string>
+    <string name="notification_text">%1$s at %2$s</string>
+
+    <string name="color_red">red</string>
+    <string name="color_orange">orange</string>
+    <string name="color_yellow">yellow</string>
+    <string name="color_green">green</string>
+    <string name="color_teal">teal</string>
+    <string name="color_blue">blue</string>
+    <string name="color_purple">purple</string>
+    <string name="color_pink">pink</string>
+</resources>
