@@ -1,8 +1,10 @@
+import { useTranslation } from 'react-i18next';
 import { useListDoseHistory } from '../../api/generated';
 import { Icon } from '../../components/atoms/Icon/Icon';
 import { Skeleton } from '../../components/atoms/Skeleton/Skeleton';
 import { Text } from '../../components/atoms/Text/Text';
 import { ErrorRetry } from '../../components/molecules/ErrorRetry';
+import { i18n } from '../../i18n';
 import { daysAgo } from '../../lib/dates';
 import { errorMessage } from '../../lib/errors';
 import { usePatient } from '../patients/PatientGate';
@@ -12,7 +14,7 @@ const DAYS = 7;
 
 // El día llega como YYYY-MM-DD local del paciente; a mediodía UTC no cambia de fecha al formatear.
 function weekday(day: string, style: 'short' | 'long') {
-  return new Date(`${day}T12:00:00Z`).toLocaleDateString('es', {
+  return new Date(`${day}T12:00:00Z`).toLocaleDateString(i18n.language, {
     timeZone: 'UTC',
     weekday: style,
     ...(style === 'long' && { day: 'numeric', month: 'long' }),
@@ -21,8 +23,8 @@ function weekday(day: string, style: 'short' | 'long') {
 
 function valueText(d: DayAdherence) {
   return d.percentage === null
-    ? 'Sin dosis'
-    : `${Math.round(d.percentage)} % (${d.taken} de ${d.total})`;
+    ? i18n.t('chart.noDoses')
+    : i18n.t('chart.value', { percent: Math.round(d.percentage), taken: d.taken, total: d.total });
 }
 
 // Cómo terminó cada día, con su icono además del color: todas tomadas, alguna sin tomar o sin dosis.
@@ -34,6 +36,7 @@ function dayMark(d: DayAdherence) {
 
 /** Porcentaje de dosis tomadas por día en los últimos 7 días, a partir de GET …/dose-history. */
 export function AdherenceChart() {
+  const { t } = useTranslation();
   const { patientId, timezone } = usePatient();
   const days = Array.from({ length: DAYS }, (_, i) => daysAgo(DAYS - 1 - i, timezone));
   // ponytail: una sola página de 100 dosis cubre ~14 tomas diarias; si se supera, paginar con nextCursor.
@@ -43,7 +46,7 @@ export function AdherenceChart() {
     limit: 100,
   });
 
-  if (history.isPending) return <Skeleton label="Cargando gráfico" />;
+  if (history.isPending) return <Skeleton label={t('chart.loading')} />;
   if (history.isError) {
     return (
       <ErrorRetry message={errorMessage(history.error)} onRetry={() => void history.refetch()} />
@@ -52,14 +55,12 @@ export function AdherenceChart() {
 
   const data = dailyAdherence(history.data.items, days, timezone);
   if (data.every((d) => d.total === 0)) {
-    return <Text tone="muted">Aún no hay dosis vencidas en los últimos 7 días.</Text>;
+    return <Text tone="muted">{t('week.noneYet')}</Text>;
   }
 
   return (
     <figure className="flex flex-col gap-3">
-      <figcaption className="text-caption text-text-muted">
-        Porcentaje de dosis tomadas cada día; el detalle de cada uno, en «Ver como tabla».
-      </figcaption>
+      <figcaption className="text-caption text-text-muted">{t('chart.caption')}</figcaption>
       {/* Las barras son solo visuales; la tabla de abajo da los mismos datos a lectores de pantalla. */}
       <div aria-hidden="true" className="flex h-48 items-end gap-2">
         {data.map((d) => (
@@ -92,15 +93,15 @@ export function AdherenceChart() {
         ))}
       </div>
       <details>
-        <summary className="min-h-touch cursor-pointer py-2 underline">Ver como tabla</summary>
+        <summary className="min-h-touch cursor-pointer py-2 underline">{t('chart.table')}</summary>
         <table className="w-full text-left">
           <thead>
             <tr>
               <th scope="col" className="py-2">
-                Día
+                {t('chart.day')}
               </th>
               <th scope="col" className="py-2">
-                Tomadas
+                {t('chart.taken')}
               </th>
             </tr>
           </thead>
