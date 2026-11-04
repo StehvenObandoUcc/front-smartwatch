@@ -61,7 +61,7 @@ export function SettingsPage() {
 
       <section aria-labelledby="pair-title" className="flex flex-col gap-4">
         <Text id="pair-title" variant="subtitle" as="h2">
-          Vincular reloj
+          {t('settings.pairTitle')}
         </Text>
         <form
           className="flex flex-col gap-4"
@@ -71,9 +71,9 @@ export function SettingsPage() {
           }}
         >
           <FormField
-            label="Código que muestra el reloj"
-            hint="Formato XXXX-XXXX"
-            error={code && !valid ? 'El código no tiene el formato correcto' : undefined}
+            label={t('settings.code')}
+            hint={t('settings.codeHint')}
+            error={code && !valid ? t('settings.codeInvalid') : undefined}
           >
             {(p) => (
               <Input
@@ -86,10 +86,10 @@ export function SettingsPage() {
             )}
           </FormField>
           {confirm.error && <Text tone="danger">{errorMessage(confirm.error)}</Text>}
-          {confirm.isSuccess && <Text tone="success">Reloj vinculado.</Text>}
+          {confirm.isSuccess && <Text tone="success">{t('settings.paired')}</Text>}
           <div>
             <Button type="submit" disabled={!valid} loading={confirm.isPending}>
-              Vincular
+              {t('settings.pair')}
             </Button>
           </div>
         </form>
@@ -99,9 +99,9 @@ export function SettingsPage() {
 
       <section aria-labelledby="dev-title" className="flex flex-col gap-2">
         <Text id="dev-title" variant="subtitle" as="h2">
-          Relojes vinculados
+          {t('settings.devicesTitle')}
         </Text>
-        {devices.isPending && <Skeleton label="Cargando relojes" />}
+        {devices.isPending && <Skeleton label={t('settings.loadingDevices')} />}
         {devices.isError && (
           <ErrorRetry
             message={errorMessage(devices.error)}
@@ -109,7 +109,7 @@ export function SettingsPage() {
           />
         )}
         {unpair.error && <Text tone="danger">{errorMessage(unpair.error)}</Text>}
-        {devices.data?.items.length === 0 && <Text tone="muted">Ningún reloj vinculado.</Text>}
+        {devices.data?.items.length === 0 && <Text tone="muted">{t('settings.noDevices')}</Text>}
         <ul className="rows border-y-2 border-border">
           {devices.data?.items.map((device) => (
             <DeviceRow
@@ -140,6 +140,7 @@ function DeviceRow({
   unpairing: boolean;
   onUnpair: () => void;
 }) {
+  const { t } = useTranslation();
   const [confirming, setConfirming] = useState(false);
   return (
     <li className="flex flex-wrap items-center justify-between gap-3">
@@ -152,18 +153,16 @@ function DeviceRow({
       {confirming ? (
         <div
           role="group"
-          aria-label={`Desvincular ${model}`}
+          aria-label={t('settings.unpairLabel', { model })}
           className="flex w-full flex-col gap-2"
         >
-          <Text className="font-bold">
-            ¿Desvincular {model}? Dejará de recibir cambios y no subirá las tomas.
-          </Text>
+          <Text className="font-bold">{t('settings.unpairQuestion', { model })}</Text>
           <div className="flex flex-wrap gap-2">
             <Button variant="secondary" icon="back" onClick={() => setConfirming(false)}>
-              No
+              {t('common.no')}
             </Button>
             <Button variant="danger" icon="link" loading={unpairing} onClick={onUnpair}>
-              Sí, desvincular
+              {t('settings.unpairConfirm')}
             </Button>
           </div>
         </div>
@@ -171,10 +170,10 @@ function DeviceRow({
         <Button
           variant="secondary"
           icon="link"
-          aria-label={`Desvincular ${model}`}
+          aria-label={t('settings.unpairLabel', { model })}
           onClick={() => setConfirming(true)}
         >
-          Desvincular
+          {t('settings.unpair')}
         </Button>
       )}
     </li>
