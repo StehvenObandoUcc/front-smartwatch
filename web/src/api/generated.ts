@@ -60,7 +60,15 @@
  *   creados desde el reloj (también por voz con el asistente), desvinculación desde el reloj,
  *   batería del reloj y deshacer una toma registrada.
  *
- * OpenAPI spec version: 0.11.0
+ * Cambios por versión:
+ * - 0.12.0: el asistente del reloj reconoce los medicamentos del paciente y puede proponer
+ *   agregarles un horario (`pendingAction.type: add_schedule`, `actions[].type:
+ *   schedule_added`). `WatchChatRequest.history` acepta `null` (equivale a vacío). Los dos
+ *   valores nuevos de enum en la respuesta son un cambio acordado con el frontend: el reloj
+ *   anterior a 0.12.0 no se cierra al recibirlos (`contracts/oasdiff-ignore.txt`).
+ * - 0.11.0: `DELETE /users/me` (eliminar la cuenta).
+ *
+ * OpenAPI spec version: 0.12.0
  */
 import {
   useMutation,
@@ -955,10 +963,11 @@ export interface WatchChatRequest {
      */
   message?: string;
   /**
-     * Turnos anteriores, del más antiguo al más reciente.
+     * Turnos anteriores, del más antiguo al más reciente. `null` equivale a vacío.
      * @maxItems 10
+     * @nullable
      */
-  history?: ChatTurn[];
+  history?: ChatTurn[] | null;
   /** Confirma una `pendingAction` propuesta antes. */
   confirmActionId?: string;
 }
@@ -968,6 +977,7 @@ export type PendingActionType = typeof PendingActionType[keyof typeof PendingAct
 
 export const PendingActionType = {
   create_medication: 'create_medication',
+  add_schedule: 'add_schedule',
 } as const;
 
 export interface PendingAction {
@@ -981,6 +991,7 @@ export type ChatActionType = typeof ChatActionType[keyof typeof ChatActionType];
 
 export const ChatActionType = {
   medication_created: 'medication_created',
+  schedule_added: 'schedule_added',
 } as const;
 
 export interface ChatAction {
@@ -6442,7 +6453,16 @@ export const useSendChatMessage = <TError = UnauthorizedResponse | ForbiddenResp
  *    el plan al momento. Confirmar no llama al modelo ni gasta el cupo diario; reintentar
  *    la confirmación devuelve el mismo medicamento. Una propuesta caduca a los 10 minutos
  *    o si es de otro reloj: 404 (`code: chat_action_not_found`).
- * El asistente nunca modifica ni borra medicamentos o dosis existentes.
+ *
+ * Agregar un horario a un medicamento que ya existe (0.12.0), igual en dos pasos: si el
+ * usuario nombra uno de sus medicamentos ("agrega las 14:00 a la metformina"), no se piden
+ * nombre ni dosis; la respuesta trae `pendingAction` con `type: add_schedule` y su resumen
+ * ("Agregar a Metformina 850 mg las 14:00 todos los días"). Al confirmar se crea igual que
+ * en `POST /patients/{patientId}/medications/{medicationId}/schedules` (sube la versión del
+ * plan) y la respuesta trae `actions: [{ type: schedule_added, medicationId, scheduleId }]`.
+ * Reintentar la confirmación devuelve el mismo horario.
+ * El asistente nunca borra medicamentos, horarios ni dosis, ni cambia los horarios que ya
+ * existen: solo agrega.
  * @summary Preguntar al asistente desde el reloj (respuesta corta)
  */
 export const sendMyChatMessage = (
