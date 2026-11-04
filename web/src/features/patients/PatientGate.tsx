@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { createContext, use, useState, type ReactNode } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router';
@@ -32,6 +33,7 @@ export function usePatient() {
 }
 
 function ConsentCard({ patientId, name }: { patientId: string; name: string }) {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const setConsent = useSetPatientConsent({
     mutation: { onSuccess: () => queryClient.invalidateQueries() },
@@ -39,12 +41,9 @@ function ConsentCard({ patientId, name }: { patientId: string; name: string }) {
   return (
     <section className="flex flex-col gap-4" aria-labelledby="consent-title">
       <Text id="consent-title" variant="title" as="h2">
-        Datos de salud de {name}
+        {t('patients.consentTitle', { name })}
       </Text>
-      <Text>
-        Para guardar medicamentos y horarios necesitamos permiso para tratar datos de salud. Solo se
-        usan para generar los recordatorios del reloj y los reportes.
-      </Text>
+      <Text>{t('patients.consentBody')}</Text>
       {setConsent.error && <Text tone="danger">{errorMessage(setConsent.error)}</Text>}
       <div>
         <Button
@@ -57,7 +56,7 @@ function ConsentCard({ patientId, name }: { patientId: string; name: string }) {
             })
           }
         >
-          Acepto el tratamiento de datos de salud
+          {t('patients.consentAccept')}
         </Button>
       </div>
     </section>
@@ -73,6 +72,7 @@ function NewPersonForm({
   onCreated: (patient: Patient) => void;
   onCancel?: () => void;
 }) {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [name, setName] = useState('');
   const create = useCreatePatient({
@@ -93,22 +93,20 @@ function NewPersonForm({
       }}
     >
       <Text variant="title" as="h2">
-        {first ? 'Añade a la primera persona a tu cargo' : 'Añadir persona a tu cargo'}
+        {first ? t('patients.firstPerson') : t('patients.addPersonTitle')}
       </Text>
-      <Text tone="muted">
-        Tú cargas sus medicamentos y vinculas su reloj. Ella no necesita cuenta ni contraseña.
-      </Text>
-      <FormField label="Nombre de la persona">
+      <Text tone="muted">{t('patients.newPersonHelp')}</Text>
+      <FormField label={t('patients.personName')}>
         {(p) => <Input value={name} onChange={(e) => setName(e.target.value)} {...p} />}
       </FormField>
       {create.error && <Text tone="danger">{errorMessage(create.error)}</Text>}
       <div className="flex flex-wrap gap-2">
         <Button type="submit" loading={create.isPending}>
-          Crear y vincular su reloj
+          {t('patients.create')}
         </Button>
         {onCancel && (
           <Button variant="ghost" onClick={onCancel}>
-            Cancelar
+            {t('common.cancel')}
           </Button>
         )}
       </div>
@@ -128,10 +126,11 @@ function CaregiverBar({
   onSelect: (id: string) => void;
   onAdd: () => void;
 }) {
+  const { t } = useTranslation();
   return (
     <div className="mb-4 flex flex-wrap items-end gap-2 well p-3">
       <label className="flex min-w-0 flex-1 flex-col gap-1 text-caption font-bold">
-        Gestionando a
+        {t('patients.managing')}
         <select
           value={activeId}
           onChange={(event) => onSelect(event.target.value)}
@@ -145,7 +144,7 @@ function CaregiverBar({
         </select>
       </label>
       <Button variant="secondary" onClick={onAdd}>
-        Añadir persona
+        {t('patients.addPerson')}
       </Button>
     </div>
   );
@@ -156,6 +155,7 @@ function CaregiverBar({
  * Particular: es él mismo. Cuidador: elige entre las personas a su cargo.
  */
 export function PatientGate({ children }: { children: ReactNode }) {
+  const { t } = useTranslation();
   const { auth } = useAuth();
   const navigate = useNavigate();
   const isCaregiver = auth.status === 'authed' && auth.user.role === 'caregiver';
@@ -184,7 +184,7 @@ export function PatientGate({ children }: { children: ReactNode }) {
   if (isCaregiver && list.isError) {
     return <ErrorRetry message={errorMessage(list.error)} onRetry={() => void list.refetch()} />;
   }
-  if (isCaregiver && list.isPending) return <Spinner label="Cargando personas" />;
+  if (isCaregiver && list.isPending) return <Spinner label={t('patients.loadingPeople')} />;
   if (isCaregiver && (patients.length === 0 || adding)) {
     return (
       <div className="flex flex-col gap-8">
@@ -197,7 +197,7 @@ export function PatientGate({ children }: { children: ReactNode }) {
       </div>
     );
   }
-  if (!patientId) return <Spinner label="Cargando datos" />;
+  if (!patientId) return <Spinner label={t('patients.loadingData')} />;
 
   let content: ReactNode;
   if (patient.isError || consents.isError) {
@@ -211,10 +211,13 @@ export function PatientGate({ children }: { children: ReactNode }) {
       />
     );
   } else if (patient.isPending || consents.isPending) {
-    content = <Spinner label="Cargando datos" />;
+    content = <Spinner label={t('patients.loadingData')} />;
   } else if (!consents.data?.items.some((c) => c.purpose === 'health_data' && c.granted)) {
     content = (
-      <ConsentCard patientId={patientId} name={patient.data?.displayName ?? 'la persona'} />
+      <ConsentCard
+        patientId={patientId}
+        name={patient.data?.displayName ?? t('patients.thePerson')}
+      />
     );
   } else {
     content = (
