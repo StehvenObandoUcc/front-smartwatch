@@ -9,6 +9,7 @@ import { ThemeSwitch } from '../components/molecules/ThemeSwitch';
 import { AppShell } from '../components/templates/AppShell/AppShell';
 import { useAuth } from '../features/auth/AuthContext';
 import { PatientGate } from '../features/patients/PatientGate';
+import { useAccountLanguage } from '../features/auth/useAccountLanguage';
 import { VerifyEmailBanner } from '../features/auth/VerifyEmailBanner';
 import { useTheme } from '../lib/theme';
 import { headerFor, navItems } from './navigation';
@@ -22,6 +23,7 @@ export function RootLayout() {
   const { pathname, search } = useLocation();
   const { t, i18n } = useTranslation();
   const { auth, signOut } = useAuth();
+  useAccountLanguage(auth.status === 'authed' ? auth.user : null);
   // El tema se aplica también en la landing (sin sesión).
   const theme = useTheme();
   if (auth.status === 'loading') {

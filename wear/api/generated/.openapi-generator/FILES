@@ -213,4 +213,3 @@ src/main/kotlin/com/smartwatch/recordatorios/api/models/ValidationProblemAllOfLo
 src/main/kotlin/com/smartwatch/recordatorios/api/models/WatchChatReply.kt
 src/main/kotlin/com/smartwatch/recordatorios/api/models/WatchChatRequest.kt
 src/main/kotlin/com/smartwatch/recordatorios/api/models/kotlinx.serialization.json.JsonObject.kt
-src/test/kotlin/com/smartwatch/recordatorios/api/models/DeleteAccountRequestTest.kt

@@ -61,6 +61,10 @@
  *   batería del reloj y deshacer una toma registrada.
  *
  * Cambios por versión:
+ * - 0.13.0: `Locale` admite `en`. El asistente responde en el idioma en que le escriben;
+ *   los textos que arma el servidor (resúmenes y confirmaciones del reloj) y los avisos por
+ *   correo y Telegram siguen el `locale` de la cuenta. El valor nuevo de enum en las
+ *   respuestas es un cambio acordado con el frontend (`contracts/oasdiff-ignore.txt`).
  * - 0.12.0: el asistente del reloj reconoce los medicamentos del paciente y puede proponer
  *   agregarles un horario (`pendingAction.type: add_schedule`, `actions[].type:
  *   schedule_added`). `WatchChatRequest.history` acepta `null` (equivale a vacío). Los dos
@@ -68,7 +72,7 @@
  *   anterior a 0.12.0 no se cierra al recibirlos (`contracts/oasdiff-ignore.txt`).
  * - 0.11.0: `DELETE /users/me` (eliminar la cuenta).
  *
- * OpenAPI spec version: 0.12.0
+ * OpenAPI spec version: 0.13.0
  */
 import {
   useMutation,
@@ -136,6 +140,7 @@ export type Locale = typeof Locale[keyof typeof Locale];
 
 export const Locale = {
   es: 'es',
+  en: 'en',
 } as const;
 
 export type HealthStatus = typeof HealthStatus[keyof typeof HealthStatus];
