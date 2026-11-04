@@ -17,7 +17,7 @@ import androidx.wear.protolayout.LayoutElementBuilders.Row
 import androidx.wear.protolayout.LayoutElementBuilders.Spacer
 import androidx.wear.protolayout.LayoutElementBuilders.Text
 import androidx.wear.protolayout.ModifiersBuilders
-import com.smartwatch.recordatorios.ui.theme.AppColors
+import com.smartwatch.recordatorios.ui.theme.BwTheme
 import com.smartwatch.recordatorios.ui.theme.medicationColor
 
 /**
@@ -30,7 +30,7 @@ fun dayTileLayout(
     texts: DayTileTexts,
     open: ActionBuilders.LaunchAction,
 ): LayoutElementBuilders.LayoutElement {
-    val colors = AppColors
+    val colors = BwTheme.colors
     val content =
         Column
             .Builder()
@@ -113,7 +113,7 @@ private fun nextRow(
         )
         row.addContent(Spacer.Builder().setWidth(dp(GAP_DP)).build())
     }
-    row.addContent(text(label, BODY_SP, AppColors.content.toArgb(), bold = true))
+    row.addContent(text(label, BODY_SP, BwTheme.colors.content.toArgb(), bold = true))
     return row.build()
 }
 
