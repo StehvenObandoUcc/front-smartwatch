@@ -37,4 +37,13 @@ describe('errorMessage', () => {
       'No pudimos conectar con el servidor. Inténtalo de nuevo.',
     );
   });
+
+  it('los errores HTTP genéricos salen en español, no con la frase en inglés del servidor', () => {
+    expect(errorMessage(new ApiError(404, 'not_found', 'Not Found'))).toBe(
+      'No encontramos lo que buscas. Puede que ya no exista.',
+    );
+    expect(errorMessage(new ApiError(405, 'method_not_allowed', 'Method Not Allowed'))).toBe(
+      'Esta acción no está disponible.',
+    );
+  });
 });
