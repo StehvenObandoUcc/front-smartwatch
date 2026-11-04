@@ -1,8 +1,22 @@
 {
   "detector": {
     "ignoreRules": [],
-    "ignoreFiles": [],
+    "ignoreFiles": [
+      ".impeccable/mocks/decision/canon.html",
+      ".impeccable/mocks/decision/challenger-boarding.html",
+      ".impeccable/mocks/decision/challenger-splitflap.html",
+      ".impeccable/mocks/decision/model-pick.html"
+    ],
     "ignoreValues": [
+      {
+        "rule": "cramped-padding",
+        "value": "*",
+        "files": [
+          ".impeccable/mocks/decision/assigned.html"
+        ],
+        "createdAt": "2026-10-22T19:47:53.095Z",
+        "reason": "Claude: boceto descartado de la ronda de dirección (la tirada no elegida), no se publica"
+      },
       {
         "rule": "design-system-font",
         "value": "inter tight",
