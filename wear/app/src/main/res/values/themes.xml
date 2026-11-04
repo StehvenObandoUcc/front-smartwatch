@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!--
-        Fondo de ventana = AppColors.background (Tokens.kt): la pantalla de inicio del sistema
+        Fondo de ventana = AppColors.background (Palette.petrol900, ver colors.xml): la pantalla de inicio del sistema
         y el primer cuadro coinciden con el tema y no hay destello.
     -->
     <style name="Theme.Recordatorios" parent="@android:style/Theme.DeviceDefault">
-        <item name="android:windowBackground">#FF08080C</item>
+        <item name="android:windowBackground">@color/petrol_900</item>
     </style>
 </resources>
