@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useFieldArray, useForm, useWatch } from 'react-hook-form';
 
@@ -12,17 +13,8 @@ import { cn } from '../../lib/cn';
 import { localDate } from '../../lib/dates';
 import { medicationFormSchema, type MedicationFormValues } from './schema';
 
-const dayLabels = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
-const colorNames: Record<(typeof medicationColors)[number], string> = {
-  red: 'Rojo',
-  orange: 'Naranja',
-  yellow: 'Amarillo',
-  green: 'Verde',
-  teal: 'Turquesa',
-  blue: 'Azul',
-  purple: 'Morado',
-  pink: 'Rosa',
-};
+// Lunes a domingo, como en el contrato (1–7); la palabra corta está en medications.day.*.
+const weekdays = [1, 2, 3, 4, 5, 6, 7] as const;
 
 type Props = {
   timezone: string;
@@ -41,6 +33,7 @@ export function MedicationForm({
   onSubmit,
   onCancel,
 }: Props) {
+  const { t } = useTranslation();
   const { register, handleSubmit, control, formState, setValue } = useForm<MedicationFormValues>({
     resolver: zodResolver(medicationFormSchema),
     defaultValues: initial ?? {
@@ -61,22 +54,22 @@ export function MedicationForm({
 
   return (
     <form noValidate onSubmit={handleSubmit(onSubmit)} className="flex max-w-xl flex-col gap-4">
-      <FormField label="Medicamento" error={errors.name?.message}>
+      <FormField label={t('medications.form.name')} error={errors.name?.message}>
         {(p) => <Input {...p} {...register('name')} />}
       </FormField>
       <FormField
-        label="Dosis por toma"
-        hint="Por ejemplo: 1 tableta o 850 mg"
+        label={t('medications.form.dosage')}
+        hint={t('medications.form.dosageHint')}
         error={errors.dosage?.message}
       >
         {(p) => <Input {...p} {...register('dosage')} />}
       </FormField>
-      <FormField label="Indicaciones (opcional)" error={errors.instructions?.message}>
+      <FormField label={t('medications.form.instructions')} error={errors.instructions?.message}>
         {(p) => <Input {...p} {...register('instructions')} />}
       </FormField>
 
       <fieldset className="flex flex-col gap-2">
-        <legend className="text-body font-bold">Color</legend>
+        <legend className="text-body font-bold">{t('medications.form.color')}</legend>
         <div className="flex flex-wrap gap-2">
           {medicationColors.map((color) => (
             <label key={color} className="group choice">
@@ -87,7 +80,7 @@ export function MedicationForm({
                 {...register('color')}
               />
               <ColorDot color={color} />
-              {colorNames[color]}
+              {t(`medications.colors.${color}`)}
               <Icon name="taken" className="hidden size-5 group-has-checked:block" />
             </label>
           ))}
@@ -99,14 +92,14 @@ export function MedicationForm({
           >
             <input
               type="color"
-              aria-label="Elegir otro color"
+              aria-label={t('medications.form.customColorLabel')}
               value={selectedColor}
               onChange={(event) =>
                 setValue('color', event.target.value, { shouldValidate: true, shouldDirty: true })
               }
               className="size-6 cursor-pointer"
             />
-            Otro color
+            {t('medications.form.customColor')}
           </label>
         </div>
         {errors.color?.message && (
@@ -117,22 +110,22 @@ export function MedicationForm({
       </fieldset>
 
       <fieldset className="flex flex-col gap-2">
-        <legend className="text-body font-bold">Horas</legend>
+        <legend className="text-body font-bold">{t('medications.form.times')}</legend>
         {times.fields.map((field, index) => (
           <div key={field.id} className="flex items-center gap-2">
             <Input
               type="time"
-              aria-label={`Hora ${index + 1}`}
+              aria-label={t('medications.form.time', { n: index + 1 })}
               invalid={Boolean(errors.times?.[index])}
               {...register(`times.${index}.value`)}
             />
             {times.fields.length > 1 && (
               <Button
                 variant="ghost"
-                aria-label={`Quitar hora ${index + 1}`}
+                aria-label={t('medications.form.removeTime', { n: index + 1 })}
                 onClick={() => times.remove(index)}
               >
-                Quitar
+                {t('medications.remove')}
               </Button>
             )}
           </div>
@@ -144,23 +137,18 @@ export function MedicationForm({
         )}
         <div>
           <Button variant="secondary" onClick={() => times.append({ value: '12:00' })}>
-            Añadir hora
+            {t('medications.form.addTime')}
           </Button>
         </div>
       </fieldset>
 
       <fieldset className="flex flex-col gap-2">
-        <legend className="text-body font-bold">Días</legend>
+        <legend className="text-body font-bold">{t('medications.form.days')}</legend>
         <div className="flex flex-wrap gap-2">
-          {dayLabels.map((label, index) => (
-            <label key={label} className="choice min-w-touch justify-center">
-              <input
-                type="checkbox"
-                value={index + 1}
-                className="sr-only"
-                {...register('daysOfWeek')}
-              />
-              {label}
+          {weekdays.map((day) => (
+            <label key={day} className="choice min-w-touch justify-center">
+              <input type="checkbox" value={day} className="sr-only" {...register('daysOfWeek')} />
+              {t(`medications.day.${day}`)}
             </label>
           ))}
         </div>
@@ -172,10 +160,10 @@ export function MedicationForm({
       </fieldset>
 
       <div className="flex flex-wrap gap-4">
-        <FormField label="Desde" error={errors.startDate?.message}>
+        <FormField label={t('medications.form.from')} error={errors.startDate?.message}>
           {(p) => <Input type="date" {...p} {...register('startDate')} />}
         </FormField>
-        <FormField label="Hasta (opcional)" error={errors.endDate?.message}>
+        <FormField label={t('medications.form.until')} error={errors.endDate?.message}>
           {(p) => <Input type="date" {...p} {...register('endDate')} />}
         </FormField>
       </div>
@@ -187,10 +175,10 @@ export function MedicationForm({
       )}
       <div className="flex flex-wrap gap-2">
         <Button type="submit" loading={submitting}>
-          Guardar
+          {t('common.save')}
         </Button>
         <Button variant="ghost" onClick={onCancel}>
-          Cancelar
+          {t('common.cancel')}
         </Button>
       </div>
     </form>
