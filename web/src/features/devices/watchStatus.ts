@@ -1,3 +1,4 @@
+import { i18n } from '../../i18n';
 import type { Device } from '../../api/generated';
 
 const OFFLINE_MS = 3 * 60 * 60 * 1000;
@@ -19,8 +20,8 @@ export function watchAlert(device: Device, now: number): WatchAlert | null {
 /** «hace 25 min», «hace 3 horas», «hace 2 días». */
 export function timeAgo(iso: string, now: number): string {
   const minutes = Math.max(0, Math.round((now - new Date(iso).getTime()) / 60_000));
-  const rtf = new Intl.RelativeTimeFormat('es', { numeric: 'auto', style: 'long' });
-  if (minutes < 60) return minutes < 1 ? 'ahora' : rtf.format(-minutes, 'minute');
+  const rtf = new Intl.RelativeTimeFormat(i18n.language, { numeric: 'auto', style: 'long' });
+  if (minutes < 60) return minutes < 1 ? i18n.t('watchCard.now') : rtf.format(-minutes, 'minute');
   const hours = Math.round(minutes / 60);
   if (hours < 24) return rtf.format(-hours, 'hour');
   return rtf.format(-Math.round(hours / 24), 'day');
