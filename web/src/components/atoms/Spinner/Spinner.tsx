@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 import { cn } from '../../../lib/cn';
 
 type Props = {
@@ -7,7 +9,8 @@ type Props = {
   className?: string;
 };
 
-export function Spinner({ label = 'Cargando', size = 'md', className }: Props) {
+export function Spinner({ label, size = 'md', className }: Props) {
+  const { t } = useTranslation();
   return (
     <span role="status" className={cn('inline-flex items-center', className)}>
       <span
@@ -17,7 +20,7 @@ export function Spinner({ label = 'Cargando', size = 'md', className }: Props) {
           size === 'sm' ? 'size-4 border-2' : 'size-6 border-3',
         )}
       />
-      <span className="sr-only">{label}</span>
+      <span className="sr-only">{label ?? t('common.loading')}</span>
     </span>
   );
 }

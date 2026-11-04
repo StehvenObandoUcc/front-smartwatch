@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 
 import { useForgotPassword } from '../api/generated';
@@ -12,22 +13,17 @@ import { forgotPasswordSchema, type ForgotPasswordValues } from '../features/aut
 import { errorMessage } from '../lib/errors';
 
 export function ForgotPasswordPage() {
+  const { t } = useTranslation();
   const forgot = useForgotPassword();
   const { register, handleSubmit, formState } = useForm<ForgotPasswordValues>({
     resolver: zodResolver(forgotPasswordSchema),
   });
   return (
-    <AuthLayout title="Recuperar contraseña">
+    <AuthLayout title={t('auth.forgot.title')}>
       {forgot.isSuccess ? (
         <div role="status" className="flex flex-col gap-2">
-          <Text tone="success">
-            Si el correo existe, te enviamos instrucciones para elegir una contraseña nueva. El
-            enlace caduca en una hora.
-          </Text>
-          <Text tone="muted">
-            Solo llega si la cuenta tiene el correo verificado. Si no te llega, revisa la carpeta de
-            spam o verifica tu correo desde el panel.
-          </Text>
+          <Text tone="success">{t('auth.forgot.sent')}</Text>
+          <Text tone="muted">{t('auth.forgot.sentHelp')}</Text>
         </div>
       ) : (
         <form
@@ -35,22 +31,19 @@ export function ForgotPasswordPage() {
           onSubmit={handleSubmit((data) => forgot.mutate({ data }))}
           className="flex flex-col gap-4"
         >
-          <Text tone="muted">
-            Te enviaremos un enlace para elegir una contraseña nueva. La cuenta debe tener el correo
-            verificado.
-          </Text>
-          <FormField label="Correo de tu cuenta" error={formState.errors.email?.message}>
+          <Text tone="muted">{t('auth.forgot.intro')}</Text>
+          <FormField label={t('auth.forgot.email')} error={formState.errors.email?.message}>
             {(p) => <Input type="email" autoComplete="email" {...p} {...register('email')} />}
           </FormField>
           {forgot.error && <Text tone="danger">{errorMessage(forgot.error)}</Text>}
           <Button type="submit" loading={forgot.isPending} fullWidth>
-            Enviar enlace
+            {t('auth.forgot.submit')}
           </Button>
         </form>
       )}
       <Text>
         <Link to="/login" className="underline">
-          Volver a iniciar sesión
+          {t('auth.forgot.back')}
         </Link>
       </Text>
     </AuthLayout>

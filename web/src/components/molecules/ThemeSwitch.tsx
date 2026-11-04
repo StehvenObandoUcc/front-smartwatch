@@ -1,14 +1,15 @@
 import { useId } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { cn } from '../../lib/cn';
 import { Icon, type IconName } from '../atoms/Icon/Icon';
 
 import type { ThemeChoice } from '../../lib/theme';
 
-const options: { value: ThemeChoice; label: string; icon: IconName }[] = [
-  { value: 'system', label: 'Sistema', icon: 'themeSystem' },
-  { value: 'light', label: 'Claro', icon: 'themeLight' },
-  { value: 'dark', label: 'Oscuro', icon: 'themeDark' },
+const options: { value: ThemeChoice; icon: IconName }[] = [
+  { value: 'system', icon: 'themeSystem' },
+  { value: 'light', icon: 'themeLight' },
+  { value: 'dark', icon: 'themeDark' },
 ];
 
 type Props = {
@@ -24,10 +25,11 @@ type Props = {
  * elegida se rellena. No conoce dónde se guarda la elección.
  */
 export function ThemeSwitch({ value, onChange, compact = false, className }: Props) {
+  const { t } = useTranslation();
   const name = useId();
   return (
     <fieldset className={cn('min-w-0', className)}>
-      <legend className="sr-only">Tema</legend>
+      <legend className="sr-only">{t('theme.label')}</legend>
       <div className="inline-flex rounded-md border border-border bg-surface p-1">
         {options.map((option) => (
           <label
@@ -48,7 +50,9 @@ export function ThemeSwitch({ value, onChange, compact = false, className }: Pro
               className="sr-only"
             />
             <Icon name={option.icon} className="size-5" />
-            <span className={cn(compact && 'sr-only desktop:not-sr-only')}>{option.label}</span>
+            <span className={cn(compact && 'sr-only desktop:not-sr-only')}>
+              {t(`theme.${option.value}`)}
+            </span>
           </label>
         ))}
       </div>

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
+import { i18n } from '../i18n';
 import { errorMessage } from './errors';
 import { ApiError } from './http';
 
@@ -35,6 +36,16 @@ describe('errorMessage', () => {
   it('un error que no es de la API se trata como fallo de conexión', () => {
     expect(errorMessage(new Error('boom'))).toBe(
       'No pudimos conectar con el servidor. Inténtalo de nuevo.',
+    );
+  });
+
+  it('en inglés, los textos propios y la espera también salen en inglés', async () => {
+    await i18n.changeLanguage('en');
+    expect(errorMessage(new ApiError(403, 'invalid_password', 'Forbidden'))).toBe(
+      'The password is not correct.',
+    );
+    expect(errorMessage(new ApiError(429, 'rate_limited', 'x', 120))).toBe(
+      'Too many attempts. Try again in 2 minutes.',
     );
   });
 

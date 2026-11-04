@@ -1,4 +1,5 @@
 import { lazy, Suspense } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Navigate, Outlet, useLocation } from 'react-router';
 
 import { Button } from '../components/atoms/Button/Button';
@@ -19,6 +20,7 @@ const LandingPage = lazy(() =>
 
 export function RootLayout() {
   const { pathname, search } = useLocation();
+  const { t, i18n } = useTranslation();
   const { auth, signOut } = useAuth();
   // El tema se aplica también en la landing (sin sesión).
   const theme = useTheme();
@@ -26,10 +28,10 @@ export function RootLayout() {
     // El backend puede tardar en despertar: se dice qué pasa, centrado, en lugar de un spinner suelto.
     return (
       <div className="flex min-h-dvh flex-col items-center justify-center gap-3">
-        <Spinner label="Abriendo tu sesión" />
+        <Spinner label={t('shell.openingSession')} />
         {/* El lector de pantalla ya lo oye por el Spinner (role=status). */}
         <span aria-hidden="true">
-          <Text tone="muted">Abriendo tu sesión…</Text>
+          <Text tone="muted">{t('shell.openingSession')}…</Text>
         </span>
       </div>
     );
@@ -48,10 +50,14 @@ export function RootLayout() {
     const next = pathname === '/' ? '' : `?next=${encodeURIComponent(pathname + search)}`;
     return <Navigate to={`/login${next}`} replace />;
   }
-  const header = headerFor(pathname);
+  const header = headerFor(pathname, t);
   const now = new Date();
-  const longDay = now.toLocaleDateString('es', { weekday: 'long', day: 'numeric', month: 'long' });
-  const shortDay = now.toLocaleDateString('es', {
+  const longDay = now.toLocaleDateString(i18n.language, {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+  });
+  const shortDay = now.toLocaleDateString(i18n.language, {
     weekday: 'short',
     day: 'numeric',
     month: 'short',
@@ -64,20 +70,20 @@ export function RootLayout() {
         // En el móvil, quién y el día corto; desde tablet, también el papel y el día largo.
         <>
           <span className="hidden tablet:inline">
-            {auth.user.role === 'caregiver' ? 'Cuidador' : 'Paciente'} ·{' '}
+            {auth.user.role === 'caregiver' ? t('shell.caregiver') : t('shell.patient')} ·{' '}
           </span>
           {auth.user.displayName} ·{' '}
           <span className="whitespace-nowrap tablet:hidden">{shortDay}</span>
           <span className="hidden whitespace-nowrap tablet:inline">{longDay}</span>
         </>
       }
-      nav={navItems}
+      nav={navItems(t)}
       actions={
         // En el móvil, el tema compacto y solo el pictograma de salir: el título no se corta.
         <>
           <ThemeSwitch compact value={theme.choice} onChange={theme.setChoice} />
           <Button variant="quiet" icon="logout" className="px-3" onClick={() => void signOut()}>
-            <span className="sr-only tablet:not-sr-only">Salir</span>
+            <span className="sr-only tablet:not-sr-only">{t('shell.signOut')}</span>
           </Button>
         </>
       }

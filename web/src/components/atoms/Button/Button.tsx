@@ -1,4 +1,5 @@
 import type { ComponentProps, ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { cn } from '../../../lib/cn';
 import { buttonClass, type Variant } from './buttonClass';
@@ -25,6 +26,7 @@ export function Button({
   children,
   ...rest
 }: Props) {
+  const { t } = useTranslation();
   const inactive = disabled || loading;
   const glyph = typeof icon === 'string' ? <Icon name={icon as IconName} /> : icon;
   return (
@@ -40,7 +42,7 @@ export function Button({
       )}
       {...rest}
     >
-      {loading ? <Spinner size="sm" label="Procesando" /> : glyph}
+      {loading ? <Spinner size="sm" label={t('common.processing')} /> : glyph}
       {children}
     </button>
   );

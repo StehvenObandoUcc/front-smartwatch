@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
+import { i18n } from '../../i18n';
 import { deleteAccountSchema, registerSchema, resetPasswordSchema } from './forms';
 
 describe('resetPasswordSchema', () => {
@@ -48,6 +49,12 @@ describe('deleteAccountSchema', () => {
     expect(result.error?.issues[0]?.message).toBe(
       'Confirma que entiendes que no se puede deshacer',
     );
+  });
+
+  it('el mensaje sale en el idioma activo', async () => {
+    await i18n.changeLanguage('en');
+    const result = deleteAccountSchema.safeParse({ password: '', confirm: true });
+    expect(result.error?.issues[0]?.message).toBe('Enter your password');
   });
 
   it('acepta contraseña y confirmación', () => {

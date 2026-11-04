@@ -1,4 +1,5 @@
 import { useState, type ComponentProps } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { cn } from '../../lib/cn';
 import { Icon } from '../atoms/Icon/Icon';
@@ -12,6 +13,7 @@ type Props = Omit<ComponentProps<typeof Input>, 'type'>;
  * competir con la etiqueta del campo.
  */
 export function PasswordInput({ className, ...rest }: Props) {
+  const { t } = useTranslation();
   const [visible, setVisible] = useState(false);
   return (
     <div className="relative">
@@ -24,7 +26,7 @@ export function PasswordInput({ className, ...rest }: Props) {
         className="absolute inset-y-1 right-1 inline-flex min-w-touch items-center gap-2 rounded-md px-3 text-caption font-medium text-text-muted hover:bg-surface hover:text-text"
       >
         <Icon name={visible ? 'hide' : 'show'} className="size-5" />
-        {visible ? 'Ocultar' : 'Mostrar'}
+        {visible ? t('common.hide') : t('common.show')}
       </button>
     </div>
   );

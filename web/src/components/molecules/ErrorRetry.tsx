@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 import { Button } from '../atoms/Button/Button';
 import { Icon } from '../atoms/Icon/Icon';
 import { Text } from '../atoms/Text/Text';
@@ -6,6 +8,7 @@ type Props = { message: string; onRetry: () => void };
 
 /** Error de carga: aviso con pictograma, qué pasó y el botón para reintentar. */
 export function ErrorRetry({ message, onRetry }: Props) {
+  const { t } = useTranslation();
   return (
     <div
       role="alert"
@@ -16,7 +19,7 @@ export function ErrorRetry({ message, onRetry }: Props) {
         <Text tone="danger">{message}</Text>
       </div>
       <Button variant="secondary" icon="undo" onClick={onRetry}>
-        Reintentar
+        {t('common.retry')}
       </Button>
     </div>
   );

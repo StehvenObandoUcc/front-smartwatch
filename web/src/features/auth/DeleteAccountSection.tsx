@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 
 import { useDeleteMe, type User } from '../../api/generated';
@@ -11,13 +12,6 @@ import { FormField } from '../../components/molecules/FormField';
 import { errorMessage } from '../../lib/errors';
 import { useAuth } from './AuthContext';
 import { deleteAccountSchema, type DeleteAccountValues } from './forms';
-
-const consequences: Record<User['role'], string> = {
-  patient:
-    'Se borrarán tu cuenta y todos tus datos de salud: medicamentos, horarios, tomas, reportes y consentimientos. Tu reloj quedará desvinculado.',
-  caregiver:
-    'Se borrará tu cuenta. Los pacientes que gestionas y no tienen otro cuidador activo se borrarán con todos sus datos; los que tienen otros cuidadores se conservan para ellos.',
-};
 
 type PanelProps = {
   userRole: User['role'];
@@ -42,6 +36,7 @@ export function DeleteAccountPanel({
   onCancel,
   initialOpen = false,
 }: PanelProps) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(initialOpen);
   const openerRef = useRef<HTMLDivElement>(null);
   const restoreFocus = useRef(false);
@@ -71,14 +66,11 @@ export function DeleteAccountPanel({
   return (
     <section aria-labelledby="delete-title" className="flex flex-col gap-2">
       <Text id="delete-title" variant="subtitle" as="h2">
-        Eliminar cuenta
+        {t('auth.delete.title')}
       </Text>
       {!open ? (
         <>
-          <Text tone="muted">
-            Si eliminas tu cuenta se borran tus datos de forma permanente. Antes de continuar te
-            mostraremos qué se borrará.
-          </Text>
+          <Text tone="muted">{t('auth.delete.intro')}</Text>
           <div ref={openerRef}>
             <Button
               variant="danger"
@@ -87,22 +79,22 @@ export function DeleteAccountPanel({
                 setOpen(true);
               }}
             >
-              Eliminar mi cuenta
+              {t('auth.delete.open')}
             </Button>
           </div>
         </>
       ) : (
         <form
           noValidate
-          aria-label="Eliminar mi cuenta"
+          aria-label={t('auth.delete.open')}
           onSubmit={handleSubmit((values) => onConfirm(values.password))}
           className="flex flex-col gap-4"
         >
-          <Text as="p">{consequences[userRole]}</Text>
+          <Text as="p">{t(`auth.delete.${userRole}`)}</Text>
           <Text as="p" className="font-semibold">
-            Esta acción no se puede deshacer.
+            {t('auth.delete.irreversible')}
           </Text>
-          <FormField label="Tu contraseña actual" error={errors.password?.message}>
+          <FormField label={t('auth.delete.password')} error={errors.password?.message}>
             {(p) => (
               <Input
                 type="password"
@@ -123,7 +115,7 @@ export function DeleteAccountPanel({
                 aria-describedby={errors.confirm ? 'delete-confirm-error' : undefined}
                 {...register('confirm')}
               />
-              <span className="text-body">Entiendo que no se puede deshacer</span>
+              <span className="text-body">{t('auth.delete.understand')}</span>
             </label>
             {errors.confirm && (
               <p id="delete-confirm-error" role="alert" className="text-caption text-danger">
@@ -140,10 +132,10 @@ export function DeleteAccountPanel({
           )}
           <div className="flex flex-wrap gap-3">
             <Button variant="secondary" onClick={cancel} disabled={pending}>
-              Cancelar
+              {t('common.cancel')}
             </Button>
             <Button variant="danger" type="submit" loading={pending}>
-              Eliminar definitivamente
+              {t('auth.delete.submit')}
             </Button>
           </div>
         </form>

@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 
 import { cn } from '../../lib/cn';
@@ -23,6 +24,7 @@ function panelNow() {
  * y deriva lenta) y el formulario de 440 px como máximo. Móvil: una banda de 120 px arriba.
  */
 export function AuthLayout({ title, children }: { title: string; children: ReactNode }) {
+  const { t } = useTranslation();
   const theme = useTheme();
   const language = useLanguage();
   return (
@@ -39,13 +41,9 @@ export function AuthLayout({ title, children }: { title: string; children: React
         </Link>
         <div className="hidden w-full flex-col items-center gap-10 desktop:flex">
           <WatchMock className="w-72" />
-          <p className="max-w-sm text-center text-xl text-balance">
-            El reloj avisa a su hora y aquí ves de un vistazo si se tomó.
-          </p>
+          <p className="max-w-sm text-center text-xl text-balance">{t('auth.tagline')}</p>
         </div>
-        <p className="hidden text-on-panel-muted desktop:block">
-          Datos tratados según la Ley 1581 de 2012.
-        </p>
+        <p className="hidden text-on-panel-muted desktop:block">{t('common.law')}</p>
       </aside>
       <div className="flex flex-col px-4 py-6 tablet:px-8">
         <div className="flex flex-wrap justify-end gap-2">

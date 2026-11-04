@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import { NavLink } from 'react-router';
 
 import { cn } from '../../../lib/cn';
@@ -49,17 +50,18 @@ function Brand({ appName, wordClass }: { appName: string; wordClass?: string }) 
  * palabra en línea. La opción activa es una tarjeta elevada, no solo un color.
  */
 export function AppShell({ appName, title, subtitle, nav, actions, footer, children }: Props) {
+  const { t } = useTranslation();
   return (
     <div className="min-h-dvh bg-bg text-text tablet:flex">
       <a
         href={`#${MAIN_ID}`}
         className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:rounded-md focus:bg-primary focus:p-3 focus:text-on-primary"
       >
-        Saltar al contenido
+        {t('common.skipToContent')}
       </a>
 
       <nav
-        aria-label="Principal"
+        aria-label={t('nav.main')}
         className="hidden border-r border-border tablet:sticky tablet:top-0 tablet:flex tablet:h-dvh tablet:w-28 tablet:shrink-0 tablet:flex-col tablet:gap-1 tablet:overflow-y-auto tablet:p-3 desktop:w-sidebar desktop:p-4"
       >
         <p className="flex justify-center px-2 pt-1 pb-6 desktop:justify-start">
@@ -107,7 +109,7 @@ export function AppShell({ appName, title, subtitle, nav, actions, footer, child
       </div>
 
       <nav
-        aria-label="Principal móvil"
+        aria-label={t('nav.mainMobile')}
         className="glass fixed inset-x-0 bottom-0 z-10 flex border-t pb-safe-bottom tablet:hidden"
       >
         {nav
