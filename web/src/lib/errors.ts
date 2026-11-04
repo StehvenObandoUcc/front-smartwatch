@@ -5,6 +5,16 @@ const friendly: Record<string, string> = {
   telegram_not_configured: 'Telegram aún no está disponible en este servidor.',
   chat_unavailable: 'El asistente no está disponible ahora. Inténtalo más tarde.',
   invalid_password: 'La contraseña no es correcta.',
+  // Errores HTTP genéricos: el backend manda la frase en inglés («Not Found»); nunca se muestra.
+  not_found: 'No encontramos lo que buscas. Puede que ya no exista.',
+  method_not_allowed: 'Esta acción no está disponible.',
+  forbidden: 'No tienes permiso para hacer esto.',
+  conflict: 'Alguien cambió esto a la vez. Recarga e inténtalo de nuevo.',
+  content_too_large: 'Lo que enviaste es demasiado grande.',
+  unsupported_media_type: 'No pudimos leer lo que enviaste.',
+  bad_gateway: 'El servidor no responde ahora. Inténtalo en un momento.',
+  service_unavailable: 'El servidor no responde ahora. Inténtalo en un momento.',
+  gateway_timeout: 'El servidor tardó demasiado. Inténtalo en un momento.',
 };
 
 function rateLimitedMessage(retryAfter: number | undefined): string {
