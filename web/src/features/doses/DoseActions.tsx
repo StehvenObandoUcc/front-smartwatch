@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 
@@ -22,6 +23,7 @@ type Props = {
  * momento; si fue un error, la fila de la dosis ofrece «Deshacer».
  */
 export function DoseActions({ patientId, scheduleId, scheduledAt, label, compact = false }: Props) {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   // Un solo eventId por dosis: si se reintenta tras un fallo de red, el backend no la duplica.
   const [eventId] = useState(() => crypto.randomUUID());
@@ -54,9 +56,9 @@ export function DoseActions({ patientId, scheduleId, scheduledAt, label, compact
     <div className="flex flex-wrap items-center gap-2">
       {confirmingSkip ? (
         <>
-          <Text>¿Omitir {label}?</Text>
+          <Text>{t('doses.skipQuestion', { name: label })}</Text>
           <Button variant="secondary" icon="back" onClick={() => setConfirmingSkip(false)}>
-            No
+            {t('common.no')}
           </Button>
           <Button
             variant="danger"
@@ -64,7 +66,7 @@ export function DoseActions({ patientId, scheduleId, scheduledAt, label, compact
             loading={record.isPending}
             onClick={() => send('SKIPPED')}
           >
-            Sí, omitir
+            {t('doses.skipConfirm')}
           </Button>
         </>
       ) : (
@@ -73,19 +75,19 @@ export function DoseActions({ patientId, scheduleId, scheduledAt, label, compact
             icon="taken"
             loading={record.isPending}
             variant={compact ? 'secondary' : 'primary'}
-            aria-label={`Marcar tomada: ${label}`}
+            aria-label={t('doses.markTakenLabel', { name: label })}
             onClick={() => send('TAKEN')}
           >
-            Marcar tomada
+            {t('doses.markTaken')}
           </Button>
           <Button
             variant={compact ? 'quiet' : 'secondary'}
             icon="skipped"
             disabled={record.isPending}
-            aria-label={`Omitir: ${label}`}
+            aria-label={t('doses.skipLabel', { name: label })}
             onClick={() => setConfirmingSkip(true)}
           >
-            Omitir
+            {t('doses.skip')}
           </Button>
         </>
       )}
