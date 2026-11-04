@@ -1,223 +1,283 @@
 <div align="center">
 
-<img src="docs/assets/logo.svg" alt="Logo de front-smartwatch" width="120" />
+<img src="docs/assets/logo.svg" alt="Logo de Recuerda" width="120" />
 
-# front-smartwatch
+# Recuerda · front-smartwatch
 
-**Reloj Wear OS y panel web para gestionar recordatorios de medicamentos.**
+**Un reloj Wear OS que avisa a la hora de cada medicamento, y un panel web para que quien cuida
+sepa si se tomó.**
 
 ![Kotlin](https://img.shields.io/badge/Kotlin-2.4-7F52FF?logo=kotlin&logoColor=white)
-![Wear OS](https://img.shields.io/badge/Wear_OS-Compose_Material_3-4285F4?logo=wearos&logoColor=white)
+![Wear OS](https://img.shields.io/badge/Wear_OS-Compose-4285F4?logo=wearos&logoColor=white)
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
 ![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)
-![Vite](https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=white)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?logo=tailwindcss&logoColor=white)
-![Storybook](https://img.shields.io/badge/Storybook-10-FF4785?logo=storybook&logoColor=white)
 
 </div>
 
-## Tabla de contenido
+## Contenido
 
-1. [Acerca del proyecto](#acerca-del-proyecto)
-2. [Características principales](#características-principales)
-3. [Stack tecnológico](#stack-tecnológico)
-4. [Arquitectura y cómo funciona](#arquitectura-y-cómo-funciona)
-5. [Relación con el backend](#relación-con-el-backend)
-6. [Instalación y ejecución](#instalación-y-ejecución)
-7. [Estructura de carpetas](#estructura-de-carpetas)
-8. [Cómo contribuir](#cómo-contribuir)
-9. [Licencia](#licencia)
+1. [Qué es](#qué-es)
+2. [Cómo funciona](#cómo-funciona)
+3. [El reloj](#el-reloj-wear)
+4. [El panel web](#el-panel-web-web)
+5. [Tecnologías](#tecnologías)
+6. [Diseño](#diseño)
+7. [La API y el contrato](#la-api-y-el-contrato)
+8. [Puesta en marcha](#puesta-en-marcha)
+9. [Pruebas y CI](#pruebas-y-ci)
+10. [Despliegue](#despliegue)
+11. [Estructura](#estructura)
 
-## Acerca del proyecto
+## Qué es
 
-`front-smartwatch` agrupa los dos clientes de un sistema de recordatorios de medicamentos pensado para personas que deben tomar medicación a sus horas y para los cuidadores que las acompañan. **No existe app de teléfono**:
+Recuerda es un sistema de recordatorios de medicamentos para personas que deben tomar medicación a
+sus horas y para quien las cuida. Tiene dos clientes en este repositorio y **no hay app de
+teléfono**:
 
-- **`wear/`**: app **Wear OS independiente** (standalone), el producto principal. Alarma a cada hora de toma, permite marcar la dosis como tomada, pospuesta u omitida y funciona sin conexión.
-- **`web/`**: **panel web** responsive donde el paciente o su cuidador carga medicamentos y horarios, consulta la adherencia, revisa reportes, configura notificaciones y vincula el reloj.
+- **`wear/`**: app **Wear OS independiente**, el producto principal. Suena a la hora de cada dosis,
+  deja marcarla como tomada, posponerla u omitirla y **funciona sin internet**.
+- **`web/`**: **panel web** responsive donde el paciente o su cuidador carga medicamentos y
+  horarios, ve dosis por dosis si se tomaron, revisa la adherencia y los reportes, y vincula el
+  reloj.
 
-Ambos consumen la API del repositorio [`back-smartwatch`](https://github.com/StehvenObandoUcc/back-smartwatch).
+Los dos hablan con la API de [`back-smartwatch`](https://github.com/StehvenObandoUcc/back-smartwatch)
+(FastAPI, en otro repositorio). Están en **español o inglés**.
 
-## Características principales
-
-### Reloj (`wear/`)
-
-- Alarmas locales con `AlarmManager.setAlarmClock()`, que se reprograman tras reiniciar el reloj.
-- Alerta de dosis con acciones **Tomada**, **Posponer 10 min** (máximo 3 veces) y **Omitir** con confirmación.
-- **Funciona sin conexión**: el plan de 7 días y los eventos viven en Room; la red solo se usa para descargar el plan y subir eventos.
-- Eventos con `eventId` UUID, subida en lote e idempotente mediante WorkManager con reintentos.
-- Sincronización del plan con `ETag` y vinculación sin teclado mediante un código corto.
-- Chat con asistente por voz: reconocimiento de voz, respuesta corta en pantalla y lectura con `TextToSpeech`.
-
-### Panel web (`web/`)
-
-- Registro, inicio de sesión, verificación de correo y recuperación de contraseña.
-- Gestión de medicamentos y horarios, agenda y adherencia.
-- Cuidadores e invitaciones, ajustes, notificaciones y reportes con descarga.
-- Asistente de IA con respuesta en streaming (SSE).
-- Sistema de diseño atómico con tokens propios, documentado en Storybook y con revisión de accesibilidad (axe).
-
-## Stack tecnológico
-
-| Cliente | Capa | Tecnología | Versión |
-| --- | --- | --- | --- |
-| Reloj | Lenguaje | Kotlin | 2.4.20 |
-| Reloj | UI | Compose for Wear OS Material 3 | 1.7.0 |
-| Reloj | Persistencia | Room | 2.8.5 |
-| Reloj | Inyección de dependencias | Hilt | 2.60.1 |
-| Reloj | Red | Retrofit + OkHttp + kotlinx.serialization | 3.0.0 / 5.5.0 / 1.11.0 |
-| Reloj | Tareas en segundo plano | WorkManager | 2.12.0 |
-| Reloj | Build | Android Gradle Plugin | 9.4.1 |
-| Reloj | Plataforma | minSdk 33 · targetSdk 37 | — |
-| Reloj | Calidad | ktlint, detekt, JUnit, Robolectric | 14.2.0 / 1.23.8 / 4.13.2 / 4.17 |
-| Web | Framework | React | 19.2 |
-| Web | Lenguaje y build | TypeScript (strict) + Vite | 6.0 / 8.3 |
-| Web | Estilos | Tailwind CSS | 4.3 |
-| Web | Enrutado | React Router | 8.4 |
-| Web | Datos | TanStack Query | 5.104 |
-| Web | Formularios | React Hook Form + Zod | 7.89 / 4.6 |
-| Web | Cliente de API | Orval + mocks MSW | 8.39 / 2.15 |
-| Web | Pruebas y documentación | Vitest, Testing Library, Playwright, Storybook | 5.0 / 16.3 / 1.63 / 10.6 |
-| Web | Calidad | ESLint, Prettier | 9.39 / 3.9 |
-| CI | GitHub Actions (`wear.yml`, `web.yml`) | — | — |
-
-## Arquitectura y cómo funciona
-
-Los clientes de API **se generan desde el contrato OpenAPI** del backend (openapi-generator para el reloj, Orval para la web), por lo que no se escriben a mano llamadas ni tipos que dupliquen el contrato.
+## Cómo funciona
 
 ```mermaid
 flowchart LR
     subgraph Reloj["wear/ (Wear OS)"]
         UI["Compose UI"] --> Repo["Repositorios"]
-        Repo --> Room[("Room")]
-        Alarm["AlarmManager"] --> UI
+        Repo --> Room[("Room: plan de 7 días<br/>y eventos")]
+        Alarm["AlarmManager<br/>alarmas exactas"] --> UI
         Sync["WorkManager<br/>plan y subida de eventos"] --> Repo
     end
     subgraph Web["web/ (React)"]
-        Pages["Páginas y features"] --> Query["TanStack Query<br/>cliente Orval"]
+        Pages["Páginas"] --> Query["TanStack Query<br/>cliente Orval"]
     end
-    Sync -->|REST + token de dispositivo| API
-    Query -->|REST + JWT, cookie httpOnly| API["back-smartwatch"]
+    Sync -->|REST + token del reloj| API["back-smartwatch"]
+    Query -->|REST + JWT, refresh en cookie httpOnly| API
 ```
 
-### Flujo de punta a punta: una dosis
+Una dosis de punta a punta:
 
-1. En el panel web se carga un medicamento con su horario y se vincula el reloj confirmando el código que este muestra.
-2. `PlanSyncWorker` en el reloj descarga el plan con `GET /devices/me/plan` (usa `ETag`) y guarda las dosis en Room; `DoseAlarmScheduler` programa las alarmas locales.
-3. A la hora de la dosis salta la alerta; la acción del usuario se guarda en Room como evento `PENDING` con un `eventId` UUID.
-4. `EventUploader` envía los eventos en lote a `POST /devices/me/dose-events` y, cuando el backend los acepta, los marca como confirmados. Reenviar es seguro porque el backend es idempotente.
-5. En el panel web, las páginas de adherencia y agenda muestran el historial y el porcentaje de adherencia calculados por el backend.
+1. En el panel web se carga un medicamento con su horario y se vincula el reloj escribiendo el
+   código corto que el reloj muestra (sin teclado en el reloj).
+2. El reloj descarga el plan de 7 días (`GET /devices/me/plan`, con `ETag`) cada 15 minutos y al
+   abrirse, lo guarda en Room y programa una **alarma exacta** por dosis.
+3. A la hora suena la alerta a pantalla completa: **Tomada**, **Posponer** (10 min, hasta 3 veces)
+   u **Omitir** (con confirmación). La acción se guarda al momento en Room con un `eventId` único.
+4. Con conexión, WorkManager sube los eventos en lote (`POST /devices/me/dose-events`); el backend
+   es idempotente, así que reintentar es seguro.
+5. En el panel, Hoy y el historial muestran cada dosis y el porcentaje de adherencia; si una dosis
+   no se registra, el backend avisa por Telegram o correo.
 
-## Relación con el backend
+Sin internet el reloj sigue sonando: el plan y las alarmas son locales.
 
-Este repositorio es el cliente de [**back-smartwatch**](https://github.com/StehvenObandoUcc/back-smartwatch).
+## El reloj (`wear/`)
 
-| Aspecto | Detalle |
-| --- | --- |
-| Protocolo | REST sobre HTTP con JSON en `camelCase`; SSE para el chat de la web |
-| Contrato | `contracts/openapi.yaml` del backend. Aquí se fija un commit en [`contract.lock`](contract.lock) y [`scripts/sync-contract.sh`](scripts/sync-contract.sh) lo descarga a `.contract/` |
-| Web | JWT de acceso en `Authorization: Bearer` (solo en memoria); refresh token en cookie `httpOnly` y renovación por `/auth/refresh` |
-| Reloj | Vinculación por código (`/devices/pairing-codes`, `/devices/token`); renueva el token al recibir `401`; tokens en el almacén seguro del dispositivo |
-| Errores | `application/problem+json` (RFC 9457) |
-| URL de la API | Web: configurable en tiempo de compilación; reloj: `API_BASE_URL`, sobrescribible con `-PapiBaseUrl=<URL>` |
+- **Alarmas exactas** con `setAlarmClock()` y el permiso `USE_EXACT_ALARM` (se concede al
+  instalar). Se reprograman tras reiniciar el reloj o actualizar la app.
+- **Inicio**: la próxima dosis en grande («En 1 h») y el anillo del día por el borde (un tramo por
+  dosis, verde si se tomó). El fondo toma el brillo de la franja del momento: mañana, tarde o
+  noche.
+- **Páginas** que se deslizan: Inicio, Hoy (dosis por franja), Mes (porcentaje y últimos 7 días),
+  Historial, Asistente y Reloj (vinculación, medicamentos creados en el reloj).
+- **Modo sin cuenta**: se pueden crear medicamentos en el propio reloj y suenan sin internet.
+- **Asistente por voz**: se pregunta hablando; responde corto en pantalla y en voz alta. Puede
+  proponer un medicamento nuevo o una hora nueva para uno existente, y solo se crea al confirmar.
+  No sustituye al médico.
+- **Tile** «Anillo del día» y **complication** «Próxima toma» para la esfera.
+- **Idioma**: español por defecto o inglés; se elige solo para la app en *Ajustes → Apps →
+  Recordatorios → Idioma*.
 
-Endpoints que consume cada cliente:
+## El panel web (`web/`)
 
-| Cliente | Endpoints principales |
-| --- | --- |
-| Reloj | `POST /devices/pairing-codes`, `POST /devices/token`, `GET /devices/me/plan`, `POST /devices/me/dose-events`, `POST /devices/me/chat/messages` |
-| Web | `/auth/*`, `/users/me/*`, `/patients`, `/patients/{patientId}/medications`, `/dose-history`, `/adherence`, `/reports`, `/chat/messages`, `POST /devices/pairing-codes/{code}/confirm` |
+- Landing pública, registro, inicio de sesión, verificación de correo y recuperación de
+  contraseña.
+- **Hoy**: anillo de dosis tomadas, la próxima con «Marcar tomada», estado del reloj (batería y
+  última conexión) y franjas con Marcar tomada, Omitir y Deshacer.
+- Medicamentos y horarios, agenda, historial con adherencia, reportes descargables y asistente con
+  respuesta en streaming.
+- Ajustes: vincular y desvincular el reloj, cuidadores e invitaciones, avisos por Telegram y
+  correo, consentimientos y eliminar la cuenta.
+- **Temas** claro y oscuro (o el del sistema) e **idioma** español o inglés. Se recuerda en el
+  navegador y el idioma se guarda en la cuenta, para que los correos y avisos lleguen en ese idioma.
 
-## Instalación y ejecución
+## Tecnologías
+
+| Cliente | Para qué | Tecnología |
+| --- | --- | --- |
+| Reloj | Lenguaje y UI | Kotlin 2.4, Jetpack Compose for Wear OS 1.7 |
+| Reloj | Datos locales | Room 2.8 (plan, eventos, medicamentos locales) |
+| Reloj | Segundo plano | WorkManager 2.12, AlarmManager |
+| Reloj | Red | Retrofit 3 + OkHttp 5 + kotlinx.serialization (cliente generado) |
+| Reloj | Inyección | Hilt 2.60 |
+| Reloj | Esfera | Tiles 1.6, Complications 1.3 |
+| Reloj | Plataforma | minSdk 33 (Wear OS 4), targetSdk 37, AGP 9.4 |
+| Reloj | Calidad | ktlint, detekt, JUnit, Robolectric 4.17, Truth |
+| Web | Base | React 19, TypeScript 6 (strict), Vite 8 |
+| Web | Estilos | Tailwind CSS 4 con tokens propios, fuente Inter Tight |
+| Web | Datos | TanStack Query 5 con cliente y mocks MSW generados por Orval 8 |
+| Web | Formularios | React Hook Form 7 + Zod 4 |
+| Web | Rutas e idiomas | React Router 8, i18next 26 + react-i18next 17 |
+| Web | Calidad | Vitest 5, Testing Library, Playwright 1.63, Storybook 10 (con axe), ESLint 9, Prettier 3 |
+| CI | Integración | GitHub Actions: `.github/workflows/wear.yml` y `web.yml` |
+
+## Diseño
+
+- Paleta común a las dos apps: petróleo, crema, aguamarina, verde para «Tomada» y naranja para la
+  alarma.
+- Los colores van en **tres capas**:
+  1. primitivos con nombre: `--p-*` en `web/src/design/tokens/tokens.css` y `Palette` en
+     `wear/…/ui/theme/Tokens.kt`;
+  2. papeles semánticos (`--bg`, `--state-taken`; `AppColors`, `BwBackgrounds`);
+  3. componentes, que solo usan los papeles.
+- Ningún componente lleva un color fijo: en la web lo exige ESLint. Dos pruebas vigilan las copias
+  inevitables (`colors.xml` del reloj y los colores de medicamento de la web).
+- Accesibilidad: WCAG 2.2 AA, texto base de 17 px en la web y 14 sp o más en el reloj, áreas
+  táctiles de 48 px o más y estados con icono y texto, nunca solo color.
+
+## La API y el contrato
+
+- Los clientes **se generan** desde el contrato OpenAPI del backend: openapi-generator para el
+  reloj (`wear/api/generated`) y Orval para la web (`web/src/api/generated*`). No se escriben a
+  mano llamadas ni tipos de la API.
+- `contract.lock` fija el commit del backend que se usa (hoy, el contrato **0.13.0**), y
+  `scripts/sync-contract.sh` lo descarga a `.contract/openapi.yaml`.
+- Para actualizar el contrato:
+  1. Cambiar `contract.lock` al nuevo commit del backend.
+  2. Ejecutar `bash scripts/sync-contract.sh`.
+  3. Regenerar los clientes: `npx orval` en `web/` y `./gradlew :api:generateApi` en `wear/`.
+- Autenticación:
+  - **web**: JWT de acceso solo en memoria y refresh token en cookie `httpOnly` (Vercel reenvía
+    `/auth/*` al backend para que sea de primera parte);
+  - **reloj**: token del dispositivo, cifrado con el Android Keystore.
+- Los errores llegan como `application/problem+json`; cada app traduce los códigos que conoce.
+
+## Puesta en marcha
 
 ### Requisitos
 
-- Node.js 24 y npm (panel web).
-- JDK 17 o superior y Android SDK (API 37) para el reloj; un AVD de Wear OS o un reloj físico. Crea `local.properties` con `sdk.dir=...` (no se versiona).
-- [GitHub CLI](https://cli.github.com/) autenticado, para descargar el contrato con `scripts/sync-contract.sh`.
-- El backend en ejecución. Mira las instrucciones en [`back-smartwatch`](https://github.com/StehvenObandoUcc/back-smartwatch).
-
-### Contrato de la API
+- Node.js 24 y npm.
+- JDK 17 o superior (sirve el de Android Studio) y Android SDK 37. El reloj necesita un
+  `wear/local.properties` con `sdk.dir=...`, que no se versiona.
+- [GitHub CLI](https://cli.github.com/) autenticado, para descargar el contrato.
 
 ```sh
 git clone https://github.com/StehvenObandoUcc/front-smartwatch.git
 cd front-smartwatch
-bash scripts/sync-contract.sh   # descarga el contrato fijado en contract.lock a .contract/openapi.yaml
+bash scripts/sync-contract.sh
 ```
 
 ### Panel web
 
-Si necesitas apuntar a una API distinta de la local, crea tu propio archivo de entorno en `web/`; este README no documenta sus variables.
-
 ```sh
 cd web
 npm ci
-npm run dev
+npm run dev        # http://localhost:5173, contra la API desplegada
 ```
+
+Por defecto usa la API de Heroku. Para una API local, crea `web/.env.local` con
+`VITE_API_URL=http://localhost:8000`.
 
 | Comando | Qué hace |
 | --- | --- |
 | `npm run dev` | Servidor de desarrollo |
-| `npm run build` | Typecheck y build de producción |
-| `npm run lint` / `npm run typecheck` | ESLint y `tsc -b` |
-| `npm run format` / `npm run format:check` | Prettier |
-| `npm test` | Vitest: pruebas unitarias y cada historia en Chromium con revisión axe |
+| `npm run build` | Comprobación de tipos y build de producción |
+| `npm run lint` · `npm run typecheck` · `npm run format:check` | ESLint, `tsc -b`, Prettier |
+| `npm run test:unit` | Pruebas unitarias (Vitest + jsdom) |
+| `npm test` | Unitarias más cada historia de Storybook en Chromium con axe |
+| `npm run test:e2e` | E2E con Playwright sobre el build, con la API simulada |
 | `npm run storybook` | Storybook en `http://localhost:6006` |
 
-La primera vez, para las pruebas de historias: `npx playwright install chromium`.
+La primera vez, para las historias y las E2E: `npx playwright install chromium`.
 
-### Reloj Wear OS
+### Reloj
 
 ```sh
 cd wear
-./gradlew ktlintCheck detekt test   # comprobaciones previas a cada push
-./gradlew assembleDebug             # APK en app/build/outputs/apk/debug/
-./gradlew installDebug              # instala en el emulador o reloj conectado
+./gradlew ktlintCheck detekt testDebugUnitTest   # comprobaciones
+./gradlew assembleRelease                        # APK optimizado en app/build/outputs/apk/release/
 ```
 
-Desde el emulador, el equipo anfitrión es `10.0.2.2`. Para otra URL: `./gradlew installDebug -PapiBaseUrl=<URL>`.
+- **URL de la API**: la app apunta al backend desplegado (`apiBaseUrl` en
+  `wear/gradle.properties`). Para el backend local en el emulador:
+  `-PapiBaseUrl=http://10.0.2.2:8000/`.
+- **Firma**: la release se firma con la clave de depuración, así que se instala encima de la
+  versión anterior sin perder datos.
 
-Para probar la alarma con el reloj en reposo en el emulador: concede notificaciones y alarmas exactas desde Inicio, `adb shell input keyevent KEYCODE_SLEEP` y, si quieres forzar Doze, `adb shell dumpsys deviceidle force-idle`.
+**Instalar en un reloj real por ADB inalámbrico:**
 
-## Estructura de carpetas
+1. En el reloj, activa *Opciones de desarrollador → Depuración inalámbrica* y vincúlalo con
+   `adb pair`.
+2. Comprueba que aparece con `adb devices`.
+3. Instala:
+   ```sh
+   adb push app/build/outputs/apk/release/app-release.apk /data/local/tmp/app.apk
+   adb shell pm install -r /data/local/tmp/app.apk
+   ```
+   La instalación directa (`adb install`) a veces se queda colgada por wifi.
+
+Comprobaciones útiles:
+- `adb shell dumpsys alarm | grep recordatorios`: las alarmas programadas.
+- `adb shell dumpsys package com.smartwatch.recordatorios | grep EXACT`: el permiso de alarma
+  exacta.
+
+Usa la versión **release** para probar: la de depuración pesa unos 50 MB y va mucho más lenta.
+
+## Pruebas y CI
+
+- **Reloj**: pruebas unitarias y de pantalla con Robolectric de alarmas, sincronización del plan,
+  cola de eventos, desvinculación, asistente, formato de hora, idiomas y colores. Las pruebas de
+  pantalla corren en español (`app/src/test/resources/robolectric.properties`).
+- **Web**: pruebas unitarias de formularios, errores, idioma y estado de las dosis; historias de
+  Storybook con axe; y E2E de humo (landing, login, panel, eliminar la cuenta y cambio a inglés).
+- **CI** en cada PR:
+  - `wear.yml`: ktlint, detekt, pruebas y build;
+  - `web.yml`: lint, formato, tipos, pruebas, build, E2E y Storybook.
+
+  Los cambios entran a `main` por PR con la CI en verde.
+
+## Despliegue
+
+- **Web**: Vercel, desde `main`. `web/vercel.json` reenvía `/auth/*` al backend, para que la cookie
+  de sesión sea de primera parte. El resto de la API se llama directamente en Heroku.
+- **Backend**: Heroku, desde su propio repositorio.
+- **Reloj**: no se publica en Play Store; se instala como se explica arriba.
+
+## Estructura
 
 ```
 front-smartwatch/
-├── wear/                          App Wear OS (Kotlin)
+├── wear/                               App Wear OS
 │   ├── app/src/main/java/com/smartwatch/recordatorios/
-│   │   ├── alarm/                     Programación de alarmas, notificaciones y acciones de dosis
-│   │   ├── data/                      local/ (Room), remote/ (API, tokens, plan, eventos), repository/
-│   │   ├── di/                        Módulos de Hilt
-│   │   ├── sync/                      WorkManager: sincronización del plan y subida de eventos
-│   │   └── ui/                        theme/, components/ y screens/ (home, pairing, today, alert, chat)
-│   ├── api/                       Cliente de la API; api/generated se genera desde el contrato
-│   └── config/detekt/             Reglas de detekt
-├── web/                           Panel web (React + Vite)
+│   │   ├── alarm/        Alarmas exactas, notificación de dosis, acciones y arranque
+│   │   ├── complication/ Complication «Próxima toma»
+│   │   ├── data/         local/ (Room) · remote/ (API, tokens, plan, eventos) · repository/
+│   │   ├── di/           Módulos de Hilt
+│   │   ├── sync/         WorkManager: plan y subida de eventos
+│   │   ├── tile/         Tile «Anillo del día»
+│   │   └── ui/           theme/ (tokens) · components/ · screens/
+│   ├── app/src/main/res/ Textos (values/ en español, values-en/ en inglés), colores, fuente
+│   └── api/generated/    Cliente generado desde el contrato
+├── web/                                Panel web
 │   ├── src/
-│   │   ├── api/                       Cliente y mocks MSW generados con Orval
-│   │   ├── app/                       Router, layout raíz y navegación
-│   │   ├── components/                atoms/, molecules/ y templates/ (diseño atómico)
-│   │   ├── design/tokens/             Tokens de diseño (CSS y TypeScript)
-│   │   ├── features/                  Lógica por dominio: auth, caregivers, chat, medications, patients, plan, reports
-│   │   ├── lib/                       Utilidades (cliente HTTP, fechas, errores)
-│   │   ├── mocks/                     Mock Service Worker
-│   │   └── pages/                     Pantallas
-│   └── .storybook/                Configuración de Storybook
-├── scripts/                       sync-contract.sh
-├── docs/                          Plan de desarrollo
-├── contract.lock                  Commit del contrato del backend que se consume
-└── .github/workflows/             CI del reloj y de la web
+│   │   ├── api/          Cliente y mocks MSW generados con Orval
+│   │   ├── app/          Rutas, layout raíz y navegación
+│   │   ├── components/   atoms/ · molecules/ · templates/
+│   │   ├── design/tokens Tokens (primitivos y papeles)
+│   │   ├── features/     Lógica por dominio (auth, doses, medications, patients, reports…)
+│   │   ├── i18n/         Textos en es.json y en.json
+│   │   ├── lib/          Cliente HTTP, fechas, errores, tema
+│   │   └── pages/        Pantallas
+│   ├── e2e/              Pruebas E2E con Playwright
+│   └── .storybook/       Storybook
+├── scripts/sync-contract.sh            Descarga el contrato fijado
+├── contract.lock                       Commit del contrato del backend
+└── .github/workflows/                  CI del reloj y de la web
 ```
 
-## Cómo contribuir
-
-1. Crea una rama desde `main` (`feat/<tema>`, `fix/<tema>`, `docs/<tema>`).
-2. No escribas llamadas ni tipos de API a mano: si necesitas un cambio en la API, pídelo en el repositorio del backend y actualiza `contract.lock`.
-3. En `web/`, respeta el diseño atómico (un átomo no conoce el dominio) y usa los tokens de `src/design/tokens`; el lint rechaza valores visuales literales fuera de ahí.
-4. Antes de abrir el PR ejecuta las comprobaciones: `npm run lint`, `npm run format:check`, `npm run typecheck` y `npm test` en `web/`; `./gradlew ktlintCheck detekt test` en `wear/`.
-5. Usa commits convencionales (`feat:`, `fix:`, `docs:`...) y abre un Pull Request pequeño que explique qué cambia y cómo se probó.
-
-No incluyas secretos, tokens ni datos de salud en el código ni en los PR.
-
-## Licencia
-
-Por confirmar. El repositorio no incluye un archivo de licencia.
+No hay archivo de licencia.
