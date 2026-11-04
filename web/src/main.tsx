@@ -5,6 +5,7 @@ import { RouterProvider } from 'react-router';
 
 import { router } from './app/router';
 import { AuthProvider } from './features/auth/AuthContext';
+import './i18n';
 import { ApiError } from './lib/http';
 import './index.css';
 
