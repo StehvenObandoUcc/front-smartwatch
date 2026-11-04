@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import type { ChatRequest, ChatTurn } from '../../api/generated';
+import { i18n } from '../../i18n';
 import { ApiError, httpStream } from '../../lib/http';
 import { parseSse } from './sse';
 
@@ -11,10 +12,10 @@ export type ChatStatus = 'idle' | 'streaming';
 
 function failureText(error: unknown): string {
   if (error instanceof ApiError && error.code === 'chat_limit_reached') {
-    return 'Llegaste al límite de mensajes de hoy. Vuelve mañana.';
+    return i18n.t('chat.limit');
   }
   if (error instanceof ApiError) return error.message;
-  return 'No pudimos conectar con el asistente. Inténtalo de nuevo.';
+  return i18n.t('chat.connect');
 }
 
 export function useChat(patientId: string) {
@@ -70,7 +71,7 @@ export function useChat(patientId: string) {
           } else if (event.event === 'done') {
             setRemaining(payload.remainingMessages);
           } else if (event.event === 'error') {
-            setError('El asistente no está disponible ahora. Inténtalo de nuevo.');
+            setError(i18n.t('chat.unavailable'));
           }
         }
       } catch (caught) {
