@@ -1,5 +1,6 @@
 package com.smartwatch.recordatorios.ui.screens.watch
 
+import android.text.format.DateFormat
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
@@ -9,6 +10,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
@@ -27,6 +29,7 @@ import com.smartwatch.recordatorios.ui.components.MedicationLabel
 import com.smartwatch.recordatorios.ui.components.edgeItem
 import com.smartwatch.recordatorios.ui.theme.BwTheme
 import com.smartwatch.recordatorios.ui.theme.Spacing
+import com.smartwatch.recordatorios.ui.theme.formatLocalTime
 
 /** Textos de una confirmación; [name] rellena el título («¿Quitar Losartán?»). */
 private data class Confirm(
@@ -106,20 +109,7 @@ private fun TransformingLazyColumnScope.overview(
     if (medications.isNotEmpty()) {
         edgeItem { Soft(stringResource(R.string.watch_local_meds)) }
         medications.forEach { medication ->
-            edgeItem(key = medication.id, container = true) {
-                BwCard(
-                    onClick = { onAsk(medication.id) },
-                    onClickLabel = stringResource(R.string.watch_remove),
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    MedicationLabel(name = medication.name, colorKey = medication.colorKey)
-                    BwText(
-                        text = "${medication.doseLabel} · ${medication.times.replace(",", " · ")}",
-                        style = BwTheme.type.support,
-                        color = BwTheme.colors.contentSoft,
-                    )
-                }
-            }
+            edgeItem(key = medication.id, container = true) { LocalMedicationRow(medication) { onAsk(medication.id) } }
         }
     }
     actions.onAdd?.let { add ->
@@ -196,3 +186,25 @@ private fun Soft(text: String) {
 }
 
 private const val UNPAIR = "unpair"
+
+/** Un medicamento creado en el reloj: nombre con su color y «1 tableta · 8:00 a. m.» (12/24 h del reloj). */
+@Composable
+private fun LocalMedicationRow(
+    medication: LocalMedicationEntity,
+    onClick: () -> Unit,
+) {
+    BwCard(
+        onClick = onClick,
+        onClickLabel = stringResource(R.string.watch_remove),
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        MedicationLabel(name = medication.name, colorKey = medication.colorKey)
+        val is24 = DateFormat.is24HourFormat(LocalContext.current)
+        val times = medication.times.split(",").joinToString(" · ") { formatLocalTime(it, is24) }
+        BwText(
+            text = "${medication.doseLabel} · $times",
+            style = BwTheme.type.support,
+            color = BwTheme.colors.contentSoft,
+        )
+    }
+}
