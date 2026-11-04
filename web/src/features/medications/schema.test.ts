@@ -1,6 +1,7 @@
 import { medicationHex } from '../../design/tokens';
 import { describe, expect, it } from 'vitest';
 
+import { i18n } from '../../i18n';
 import { medicationFormSchema, toFormValues, toPayload, type MedicationFormValues } from './schema';
 
 const valid: MedicationFormValues = {
@@ -25,6 +26,15 @@ describe('medicationFormSchema', () => {
       times: [{ value: '08:00' }, { value: '08:00' }],
     });
     expect(result.success).toBe(false);
+  });
+
+  it('explica el error en el idioma activo', async () => {
+    const empty = { ...valid, name: ' ' };
+    expect(medicationFormSchema.safeParse(empty).error?.issues[0]?.message).toBe(
+      'Escribe el nombre',
+    );
+    await i18n.changeLanguage('en');
+    expect(medicationFormSchema.safeParse(empty).error?.issues[0]?.message).toBe('Enter the name');
   });
 
   it('acepta cualquier color hexadecimal y rechaza otros formatos', () => {
