@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 import { cn } from '../../../lib/cn';
 
 type Props = {
@@ -13,7 +15,8 @@ type Props = {
  * indicador suelto: así la página no salta al llegar los datos. Sin animación si se pidió menos
  * movimiento.
  */
-export function Skeleton({ label = 'Cargando', rows = 3, className }: Props) {
+export function Skeleton({ label, rows = 3, className }: Props) {
+  const { t } = useTranslation();
   return (
     <div role="status" className={cn('flex flex-col gap-3', className)}>
       {Array.from({ length: rows }, (_, i) => (
@@ -29,7 +32,7 @@ export function Skeleton({ label = 'Cargando', rows = 3, className }: Props) {
           </span>
         </div>
       ))}
-      <span className="sr-only">{label}</span>
+      <span className="sr-only">{label ?? t('common.loading')}</span>
     </div>
   );
 }
