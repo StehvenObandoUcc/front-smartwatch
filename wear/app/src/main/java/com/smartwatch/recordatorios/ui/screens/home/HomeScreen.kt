@@ -25,17 +25,19 @@ import com.smartwatch.recordatorios.data.remote.PlanInfo
 import com.smartwatch.recordatorios.data.remote.PlanStatus
 import com.smartwatch.recordatorios.ui.components.BwBanner
 import com.smartwatch.recordatorios.ui.components.BwButton
+import com.smartwatch.recordatorios.ui.components.BwDayRing
 import com.smartwatch.recordatorios.ui.components.BwEmptyState
 import com.smartwatch.recordatorios.ui.components.BwScreenScaffold
 import com.smartwatch.recordatorios.ui.components.BwSuccessMark
 import com.smartwatch.recordatorios.ui.components.BwText
-import com.smartwatch.recordatorios.ui.components.BwTone
 import com.smartwatch.recordatorios.ui.components.MedicationLabel
 import com.smartwatch.recordatorios.ui.components.edgeItem
 import com.smartwatch.recordatorios.ui.theme.BwTheme
+import com.smartwatch.recordatorios.ui.theme.BwTone
 import com.smartwatch.recordatorios.ui.theme.RecordatoriosTheme
 import com.smartwatch.recordatorios.ui.theme.Sizes
 import com.smartwatch.recordatorios.ui.theme.Spacing
+import com.smartwatch.recordatorios.ui.theme.bandTone
 import com.smartwatch.recordatorios.ui.theme.timeText
 import kotlinx.coroutines.delay
 import java.time.Duration
@@ -65,7 +67,16 @@ fun HomeScreen(
     val allDone = today.isNotEmpty() && today.none { it.status == DoseStatus.SCHEDULED }
     BwScreenScaffold(
         scrollState = listState,
-        tone = if (allDone) BwTone.DONE else BwTone.PETROL,
+        // El fondo sigue la franja del momento; con todo tomado, salvia (Completo).
+        tone = if (allDone) BwTone.COMPLETE else bandTone(now),
+        backdrop = {
+            val taken = today.count { it.status == DoseStatus.TAKEN }
+            BwDayRing(
+                taken = taken,
+                total = today.size,
+                description = stringResource(R.string.home_today_progress, taken, today.size),
+            )
+        },
     ) { contentPadding ->
         TransformingLazyColumn(
             state = listState,
@@ -107,7 +118,15 @@ fun HomeScreen(
                 }
             }
 
-            edgeItem { HomeHero(allDone, next, now, localMode = onAddMedication != null, onOpenDose = onOpenDose) }
+            edgeItem {
+                HomeHero(
+                    allDone = allDone,
+                    next = next,
+                    now = now,
+                    localMode = onAddMedication != null,
+                    onOpenDose = onOpenDose,
+                )
+            }
 
             onAddMedication?.let { add ->
                 edgeItem(container = true) {

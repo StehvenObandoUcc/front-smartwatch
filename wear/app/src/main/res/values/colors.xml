@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Primitivos que necesita el XML (fondo de ventana, vista previa del Tile). Son los mismos valores
+    que Palette en ui/theme/Tokens.kt; PaletteXmlTest falla si dejan de coincidir.
+-->
+<resources>
+    <color name="petrol_900">#FF083B38</color>
+    <color name="cream">#FFF7F2EC</color>
+    <color name="sand">#FFE2D7CC</color>
+    <color name="mint">#FF8FE3B0</color>
+    <!-- Vía de anillos y barras: crema al 28 % (TRACK_ALPHA). -->
+    <color name="track">#47F7F2EC</color>
+    <color name="med_blue">#FF1565C0</color>
+</resources>

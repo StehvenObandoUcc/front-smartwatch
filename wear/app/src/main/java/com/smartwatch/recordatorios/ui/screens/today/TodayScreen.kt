@@ -23,6 +23,7 @@ import com.smartwatch.recordatorios.ui.components.doseStatusLabel
 import com.smartwatch.recordatorios.ui.components.edgeItem
 import com.smartwatch.recordatorios.ui.theme.BwTheme
 import com.smartwatch.recordatorios.ui.theme.Spacing
+import com.smartwatch.recordatorios.ui.theme.bandTone
 import com.smartwatch.recordatorios.ui.theme.timeText
 import java.time.Instant
 import java.time.ZoneId
@@ -38,7 +39,7 @@ fun TodayScreen(
     now: Long = System.currentTimeMillis(),
 ) {
     val listState = rememberTransformingLazyColumnState()
-    BwScreenScaffold(scrollState = listState) { contentPadding ->
+    BwScreenScaffold(scrollState = listState, tone = bandTone(now)) { contentPadding ->
         TransformingLazyColumn(
             state = listState,
             contentPadding = contentPadding,

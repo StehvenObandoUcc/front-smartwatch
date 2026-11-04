@@ -11,6 +11,7 @@ import com.smartwatch.recordatorios.api.models.WatchChatRequest
 import com.smartwatch.recordatorios.ui.screens.chat.ChatFailure
 import com.smartwatch.recordatorios.ui.screens.chat.ChatState
 import com.smartwatch.recordatorios.ui.screens.chat.ChatViewModel
+import com.smartwatch.recordatorios.ui.screens.chat.shortReply
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -152,5 +153,13 @@ class ChatViewModelTest {
 
         assertThat(api.sent).isEmpty()
         assertThat(viewModel.state.value).isEqualTo(ChatState.Failure(ChatFailure.NOT_HEARD))
+    }
+
+    @Test
+    fun `la respuesta se queda en tres frases sin partir la hora`() {
+        val reply = "Hoy te toca Atorvastatina a las 8:00 p. m. Ya tomaste Losartán. Mañana sigue igual. Cuídate."
+        assertThat(shortReply(reply))
+            .isEqualTo("Hoy te toca Atorvastatina a las 8:00 p. m. Ya tomaste Losartán. Mañana sigue igual.")
+        assertThat(shortReply("Sí.")).isEqualTo("Sí.")
     }
 }

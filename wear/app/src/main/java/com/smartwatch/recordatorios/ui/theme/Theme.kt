@@ -10,11 +10,14 @@ import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.Hyphens
 import androidx.compose.ui.text.style.LineBreak
+import androidx.compose.ui.unit.em
 import com.smartwatch.recordatorios.R
 
 /** Tema propio (sin Material): colores, tipografía y formas en un solo lugar. Un único modo oscuro. */
 object BwTheme {
     val colors = AppColors
+
+    val backgrounds = BwBackgrounds
 
     val type = BwTypography
 
@@ -22,34 +25,43 @@ object BwTheme {
 }
 
 /**
- * La misma letra que el panel web: Atkinson Hyperlegible Next, diseñada para baja visión (distingue
- * 0/O, 1/l/I). Fuente variable empaquetada (OFL, en assets); cada peso fija su eje `wght`.
+ * La misma letra que el panel web: Inter Tight, grotesca apretada para cifras grandes y titulares
+ * cortos. Fuente variable empaquetada (OFL, licencia en assets); cada peso fija su eje `wght`.
  */
-private fun next(weight: Int) =
+private fun interTight(weight: Int) =
     Font(
-        R.font.atkinson_hyperlegible_next,
+        R.font.inter_tight,
         FontWeight(weight),
         variationSettings = FontVariation.Settings(FontVariation.weight(weight)),
     )
 
-val AtkinsonNext = FontFamily(next(REGULAR), next(MEDIUM), next(BOLD), next(EXTRA_BOLD))
+val AppFont = FontFamily(interTight(REGULAR), interTight(MEDIUM), interTight(SEMI_BOLD), interTight(BOLD))
 
 private const val REGULAR = 400
 private const val MEDIUM = 500
 private const val BOLD = 700
-private const val EXTRA_BOLD = 800
+private const val SEMI_BOLD = 600
 
-/** Español con palabras largas («Hidroclorotiazida»): partir con guion, nunca a mitad sin aviso. */
-private val Base = TextStyle(fontFamily = AtkinsonNext, hyphens = Hyphens.None, lineBreak = LineBreak.Paragraph)
+/** Sin guiones: una palabra larga baja de línea entera. */
+private val Base = TextStyle(fontFamily = AppFont, hyphens = Hyphens.None, lineBreak = LineBreak.Paragraph)
 
 object BwTypography {
-    val title = Base.copy(fontSize = TypeScale.title, fontWeight = FontWeight.ExtraBold)
+    /** Titulares cortos y apretados, como en el panel web. */
+    val title = Base.copy(fontSize = TypeScale.title, fontWeight = FontWeight.SemiBold, letterSpacing = TIGHT.em)
     val body = Base.copy(fontSize = TypeScale.body)
-    val label = Base.copy(fontSize = TypeScale.body, fontWeight = FontWeight.Bold)
+    val label = Base.copy(fontSize = TypeScale.body, fontWeight = FontWeight.SemiBold)
     val support = Base.copy(fontSize = TypeScale.support)
-    val display = Base.copy(fontSize = TypeScale.hero, fontWeight = FontWeight.Bold, fontFeatureSettings = "tnum")
 
-    /** Para [display] con autoSize: de 40 sp hasta el tamaño de título si no cabe. */
+    /** La cifra que se mira de un vistazo: grande, en peso medio y muy apretada. */
+    val display =
+        Base.copy(
+            fontSize = TypeScale.hero,
+            fontWeight = FontWeight.Medium,
+            letterSpacing = DISPLAY_TIGHT.em,
+            fontFeatureSettings = "tnum",
+        )
+
+    /** Para [display] con autoSize: de 44 sp hasta el tamaño de título si no cabe. */
     val displayFit = TextAutoSize.StepBased(minFontSize = TypeScale.title, maxFontSize = TypeScale.hero)
 
     /** Para [title] con autoSize: un nombre de una sola palabra baja hasta 14 sp antes de partirse. */
@@ -57,7 +69,7 @@ object BwTypography {
 
     /** Para una dirección web en una sola línea: de 16 sp hasta 12 sp antes de cortarse. */
     val urlFit = TextAutoSize.StepBased(minFontSize = TypeScale.url, maxFontSize = TypeScale.body)
-    val code = Base.copy(fontSize = TypeScale.code, fontWeight = FontWeight.ExtraBold, fontFeatureSettings = "tnum")
+    val code = Base.copy(fontSize = TypeScale.code, fontWeight = FontWeight.SemiBold, fontFeatureSettings = "tnum")
 }
 
 object BwShapes {
@@ -72,3 +84,6 @@ object BwShapes {
 fun RecordatoriosTheme(content: @Composable () -> Unit) {
     content()
 }
+
+private const val TIGHT = -0.02f
+private const val DISPLAY_TIGHT = -0.035f

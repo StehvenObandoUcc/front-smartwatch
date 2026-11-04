@@ -14,6 +14,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -178,6 +179,7 @@ class MainActivity : ComponentActivity() {
         val pages = if (paired) PAIRED_PAGES else LOCAL_PAGES
         // Fuera del when: al volver de agregar se sigue en la misma página.
         val pagerState = rememberPagerState(pageCount = { pages.size })
+        ResetChatOffPage(onAssistant = pages.getOrNull(pagerState.currentPage) == Page.ASSISTANT)
         val localMedications by localPlan.medications.collectAsStateWithLifecycle(emptyList())
         val patientName by deviceSession.patientName.collectAsStateWithLifecycle()
         // Crear en el reloj solo sin vincular: vinculado, los medicamentos los carga el panel web.
@@ -254,6 +256,12 @@ class MainActivity : ComponentActivity() {
                     }
                 }
         }
+    }
+
+    /** Al salir de la página del asistente, la próxima visita empieza limpia. */
+    @Composable
+    private fun ResetChatOffPage(onAssistant: Boolean) {
+        LaunchedEffect(onAssistant) { if (!onAssistant) chatViewModel.reset() }
     }
 
     private fun askByVoice(launch: (Intent) -> Unit) {

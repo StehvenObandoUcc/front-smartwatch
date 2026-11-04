@@ -7,6 +7,7 @@ import com.smartwatch.recordatorios.api.models.WatchChatRequest
 import com.smartwatch.recordatorios.data.remote.problemCode
 import com.smartwatch.recordatorios.sync.PlanRefresher
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -54,6 +55,7 @@ class ChatViewModel
     ) : ViewModel() {
         private val _state = MutableStateFlow<ChatState>(ChatState.Idle)
         val state: StateFlow<ChatState> = _state.asStateFlow()
+        private var job: Job? = null
 
         /**
          * El reloj no guarda la conversación: cada pregunta va sola (`history` vacío, nunca null: el
@@ -67,27 +69,32 @@ class ChatViewModel
                 return
             }
             _state.value = ChatState.Thinking
-            viewModelScope.launch {
-                _state.value = send(WatchChatRequest(message = message.trim().take(MAX_CHARS), history = emptyList()))
-                (_state.value as? ChatState.Reply)?.let { speaker.speak(it.text) }
-            }
+            job =
+                viewModelScope.launch {
+                    _state.value =
+                        send(WatchChatRequest(message = message.trim().take(MAX_CHARS), history = emptyList()))
+                    (_state.value as? ChatState.Reply)?.let { speaker.speak(it.text) }
+                }
         }
 
         /** Sí a la propuesta: el backend crea el medicamento y el plan se descarga ya. */
         fun confirm() {
             val id = (_state.value as? ChatState.Reply)?.pending ?: return
             _state.value = ChatState.Thinking
-            viewModelScope.launch {
-                _state.value = send(WatchChatRequest(confirmActionId = id, history = emptyList()))
-                (_state.value as? ChatState.Reply)?.let { speaker.speak(it.text) }
-            }
+            job =
+                viewModelScope.launch {
+                    _state.value = send(WatchChatRequest(confirmActionId = id, history = emptyList()))
+                    (_state.value as? ChatState.Reply)?.let { speaker.speak(it.text) }
+                }
         }
 
         fun speechUnavailable() {
             _state.value = ChatState.Failure(ChatFailure.NO_SPEECH)
         }
 
+        /** Vuelve al inicio; una pregunta en curso se cancela para que no hable fuera de la página. */
         fun reset() {
+            job?.cancel()
             _state.value = ChatState.Idle
         }
 
@@ -104,7 +111,7 @@ class ChatViewModel
                 body != null -> {
                     if (!body.actions.isNullOrEmpty()) plan.refresh()
                     ChatState.Reply(
-                        body.reply,
+                        shortReply(body.reply),
                         body.remainingMessages,
                         body.pendingAction?.id,
                         body.pendingAction?.summary,
@@ -130,3 +137,21 @@ class ChatViewModel
             const val CONSENT_REQUIRED = "consent_required"
         }
     }
+
+/**
+ * Como mucho [maxSentences] frases, el mismo tope que pide el backend, por si el modelo lo ignora:
+ * en el reloj la respuesta se lee en voz alta en una pantalla de 198 dp. Solo corta tras «.», «!» o
+ * «?» seguidos de mayúscula, así que «8:00 p. m. Ya…» no se parte
+ * en la hora.
+ */
+fun shortReply(
+    text: String,
+    maxSentences: Int = 3,
+): String =
+    text
+        .trim()
+        .split(SENTENCE_END)
+        .take(maxSentences)
+        .joinToString(" ")
+
+private val SENTENCE_END = Regex("""(?<=[.!?])\s+(?=[A-ZÁÉÍÓÚÑ¿¡])""")

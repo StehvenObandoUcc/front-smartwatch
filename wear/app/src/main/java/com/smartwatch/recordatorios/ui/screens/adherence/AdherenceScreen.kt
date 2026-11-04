@@ -6,8 +6,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
@@ -39,9 +39,9 @@ import java.time.format.TextStyle
 import java.util.Locale
 
 /**
- * Adherencia del mes como calendario: el mes y el porcentaje arriba y una casilla por día con el
- * icono de su resultado (visto, aspa o raya), nunca solo color. Sin números de día: a 14 sp no caben
- * siete por fila. TalkBack lee un resumen en palabras en lugar de cada casilla.
+ * El mes de un vistazo: el porcentaje en grande («14 %», «tomadas en noviembre») y
+ * debajo los últimos 7 días, un punto por día con su letra y el icono de su resultado (visto, aspa o
+ * raya), nunca solo color; hoy lleva aro. TalkBack lee un resumen en palabras.
  */
 @Composable
 fun AdherenceScreen(
@@ -50,7 +50,11 @@ fun AdherenceScreen(
 ) {
     val listState = rememberTransformingLazyColumnState()
     BwScreenScaffold(scrollState = listState) { contentPadding ->
-        TransformingLazyColumn(state = listState, contentPadding = contentPadding) {
+        TransformingLazyColumn(
+            state = listState,
+            contentPadding = contentPadding,
+            verticalArrangement = Arrangement.spacedBy(Spacing.xs),
+        ) {
             if (summary == null) {
                 edgeItem {
                     BwEmptyState(
@@ -61,44 +65,48 @@ fun AdherenceScreen(
                     )
                 }
             } else {
-                val month =
-                    summary.from.month
-                        .getDisplayName(
-                            TextStyle.FULL,
-                            SPANISH,
-                        ).replaceFirstChar { it.uppercase() }
+                val month = summary.from.month.getDisplayName(TextStyle.FULL, SPANISH)
+                val caption =
+                    if (summary.percentage == null) R.string.adherence_none_month else R.string.adherence_taken_month
                 edgeItem {
-                    val percent = summary.percentage?.let { stringResource(R.string.adherence_value, it) } ?: "—"
                     BwText(
-                        stringResource(R.string.adherence_month, month, percent),
-                        style = BwTheme.type.title,
+                        summary.percentage?.let { stringResource(R.string.adherence_value, it) } ?: "—",
+                        style = BwTheme.type.display,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxWidth(),
                     )
                 }
-                edgeItem { MonthGrid(summary, today) }
-                if (summary.percentage == null) {
-                    edgeItem {
-                        BwText(
-                            stringResource(R.string.adherence_none_month),
-                            style = BwTheme.type.support,
-                            color = BwTheme.colors.contentSoft,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.fillMaxWidth(),
-                        )
-                    }
+                edgeItem {
+                    BwText(
+                        stringResource(caption, month),
+                        style = BwTheme.type.support,
+                        color = BwTheme.colors.contentSoft,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
                 }
+                edgeItem { LastWeek(summary, today) }
             }
         }
     }
 }
 
+/** Los últimos 7 días hasta hoy; los que caen antes del mes van sin resultado. */
 @Composable
-private fun MonthGrid(
+private fun LastWeek(
     summary: AdherenceSummary,
     today: LocalDate,
 ) {
-    val results = summary.days.map(::dayResult)
+    val week =
+        (WEEK - 1 downTo 0).map { back ->
+            val day = today.minusDays(back.toLong())
+            val index =
+                java.time.temporal.ChronoUnit.DAYS
+                    .between(summary.from, day)
+                    .toInt()
+            day to summary.days.getOrNull(index)?.let(::dayResult)
+        }
+    val results = week.mapNotNull { it.second }
     val description =
         stringResource(
             R.string.adherence_month_summary,
@@ -106,42 +114,33 @@ private fun MonthGrid(
             results.count { it == DayResult.SOME_MISSED },
             results.count { it == DayResult.NO_DOSES },
         )
-    // Lunes primero: las casillas vacías antes del día 1 lo alinean con su columna.
-    val lead = summary.from.dayOfWeek.value - 1
-    val cells: List<Int?> = List(lead) { null } + summary.days.indices.toList()
-    Column(
-        modifier = Modifier.semantics(mergeDescendants = true) { contentDescription = description },
-        verticalArrangement = Arrangement.spacedBy(Spacing.xs),
-        horizontalAlignment = Alignment.CenterHorizontally,
+    Row(
+        modifier =
+            Modifier
+                .padding(top = Spacing.sm)
+                .semantics(mergeDescendants = true) { contentDescription = description },
+        horizontalArrangement = Arrangement.spacedBy(Spacing.xs, Alignment.CenterHorizontally),
     ) {
-        Row(horizontalArrangement = Arrangement.spacedBy(Spacing.xs), modifier = Modifier.clearAndSetSemantics {}) {
-            WEEKDAYS.forEach {
+        week.forEach { (day, result) ->
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(Spacing.xs),
+                modifier = Modifier.clearAndSetSemantics {},
+            ) {
                 BwText(
-                    it,
+                    WEEKDAYS[day.dayOfWeek.value - 1],
                     style = BwTheme.type.support,
                     color = BwTheme.colors.contentSoft,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.size(Sizes.calendarCell),
                 )
-            }
-        }
-        cells.chunked(DAYS_PER_WEEK).forEach { week ->
-            Row(horizontalArrangement = Arrangement.spacedBy(Spacing.xs), modifier = Modifier.clearAndSetSemantics {}) {
-                week.forEach { index ->
-                    if (index == null) {
-                        Spacer(Modifier.size(Sizes.calendarCell))
-                    } else {
-                        DayCell(results[index], isToday = summary.from.plusDays(index.toLong()) == today)
-                    }
-                }
+                DayDot(result, isToday = day == today)
             }
         }
     }
 }
 
 @Composable
-private fun DayCell(
-    result: DayResult,
+private fun DayDot(
+    result: DayResult?,
     isToday: Boolean,
 ) {
     val colors = BwTheme.colors
@@ -149,24 +148,24 @@ private fun DayCell(
         when (result) {
             DayResult.ALL_TAKEN -> Triple(colors.stateTaken, R.drawable.ic_check, colors.ink)
             DayResult.SOME_MISSED -> Triple(colors.stateMissed, R.drawable.ic_close, colors.ink)
-            DayResult.NO_DOSES -> Triple(colors.surface, R.drawable.ic_skipped, colors.content)
+            DayResult.NO_DOSES, null -> Triple(colors.surface, null, colors.content)
         }
     Box(
         modifier =
             Modifier
-                .size(Sizes.calendarCell)
+                .size(Sizes.weekDot)
                 .clip(CircleShape)
                 .background(fill)
                 .then(if (isToday) Modifier.border(Sizes.todayRing, colors.content, CircleShape) else Modifier),
         contentAlignment = Alignment.Center,
     ) {
-        BwIcon(icon, contentDescription = null, color = tint, modifier = Modifier.size(Sizes.calendarIcon))
+        icon?.let { BwIcon(it, contentDescription = null, color = tint, modifier = Modifier.size(Sizes.weekIcon)) }
     }
 }
 
 private val SPANISH = Locale.forLanguageTag("es")
 private val WEEKDAYS = listOf("L", "M", "X", "J", "V", "S", "D")
-private const val DAYS_PER_WEEK = 7
+private const val WEEK = 7
 
 @Suppress("MagicNumber")
 @WearPreviewDevices

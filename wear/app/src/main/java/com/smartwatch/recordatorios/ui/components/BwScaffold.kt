@@ -12,8 +12,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -36,9 +39,9 @@ import androidx.wear.compose.material3.SurfaceTransformation
 import androidx.wear.compose.material3.TimeText
 import androidx.wear.compose.material3.lazy.rememberTransformationSpec
 import androidx.wear.compose.material3.lazy.transformedHeight
-import com.smartwatch.recordatorios.ui.theme.AtkinsonNext
+import com.smartwatch.recordatorios.ui.theme.AppFont
 import com.smartwatch.recordatorios.ui.theme.BwTheme
-import com.smartwatch.recordatorios.ui.theme.BwTones
+import com.smartwatch.recordatorios.ui.theme.BwTone
 import com.smartwatch.recordatorios.ui.theme.TypeScale
 
 /**
@@ -56,7 +59,7 @@ fun BwAppScaffold(content: @Composable BoxScope.() -> Unit) {
                         CurvedTextStyle(
                             color = colors.content,
                             fontSize = TypeScale.support,
-                            fontFamily = AtkinsonNext,
+                            fontFamily = AppFont,
                         )
                     },
                 )
@@ -128,9 +131,6 @@ fun TransformingLazyColumnScope.edgeItem(
     ) { content() }
 }
 
-/** Papel de la pantalla: decide su degradado de fondo (ver [BwTones]). */
-enum class BwTone { PETROL, ALERT, DONE }
-
 /**
  * ScreenScaffold de Wear (indicador de scroll, rotary) sobre una esfera a sangre: el degradado tonal
  * de su [tone] y un [backdrop] opcional fijo detrás de la lista.
@@ -145,13 +145,14 @@ fun BwScreenScaffold(
 ) {
     val colors = BwTheme.colors
     val side = (LocalConfiguration.current.screenWidthDp * EDGE_MARGIN).dp
-    val stops =
-        when (tone) {
-            BwTone.PETROL -> BwTones.petrol
-            BwTone.ALERT -> BwTones.alert
-            BwTone.DONE -> BwTones.done
-        }
-    Box(Modifier.fillMaxSize().background(Brush.verticalGradient(stops))) {
+    val background = BwTheme.backgrounds.of(tone)
+    val glow = background.glow
+    Box(
+        Modifier
+            .fillMaxSize()
+            .background(Brush.verticalGradient(background.gradient))
+            .then(if (glow != null) Modifier.drawBehind { bandGlow(glow) } else Modifier),
+    ) {
         backdrop?.invoke(this)
         ScreenContent(scrollState, side, content)
     }
@@ -186,3 +187,35 @@ private fun ScreenContent(
 }
 
 private const val EDGE_MARGIN = 0.052f
+
+/**
+ * Dos brillos radiales en el borde inferior (derecha e izquierda), la receta de los paneles web
+ * llevada al círculo: brillan el bisel y las esquinas, no la zona de texto. Medido: el texto suave
+ * queda en 4,69:1 o más en las cuatro franjas.
+ */
+private fun DrawScope.bandGlow(color: Color) {
+    val w = size.width
+    val h = size.height
+    drawRect(
+        Brush.radialGradient(
+            listOf(color.copy(alpha = GLOW_STRONG), Color.Transparent),
+            center = Offset(w * GLOW_RIGHT_X, h * GLOW_RIGHT_Y),
+            radius = w * GLOW_RADIUS,
+        ),
+    )
+    drawRect(
+        Brush.radialGradient(
+            listOf(color.copy(alpha = GLOW_SOFT), Color.Transparent),
+            center = Offset(w * GLOW_LEFT_X, h * GLOW_LEFT_Y),
+            radius = w * GLOW_RADIUS,
+        ),
+    )
+}
+
+private const val GLOW_STRONG = 0.3f
+private const val GLOW_SOFT = 0.225f
+private const val GLOW_RADIUS = 0.5f
+private const val GLOW_RIGHT_X = 1f
+private const val GLOW_RIGHT_Y = 1f
+private const val GLOW_LEFT_X = 0.1f
+private const val GLOW_LEFT_Y = 1.15f
