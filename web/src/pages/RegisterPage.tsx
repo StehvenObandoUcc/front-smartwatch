@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { Link, Navigate } from 'react-router';
 
 import { useRegister } from '../api/generated';
@@ -14,20 +15,11 @@ import { useAuth } from '../features/auth/AuthContext';
 import { registerSchema, type RegisterValues } from '../features/auth/forms';
 import { errorMessage } from '../lib/errors';
 
-const roles = [
-  {
-    value: 'patient',
-    title: 'Para mí (particular)',
-    help: 'Tomo mis propios medicamentos y uso mi reloj.',
-  },
-  {
-    value: 'caregiver',
-    title: 'Cuido a otras personas (cuidador)',
-    help: 'Cargo los medicamentos y vinculo el reloj de cada persona a mi cargo.',
-  },
-] as const;
+// Textos en auth.register.<rol>Title y <rol>Help.
+const roles = ['patient', 'caregiver'] as const;
 
 export function RegisterPage() {
+  const { t } = useTranslation();
   const { auth, signIn } = useAuth();
   const registerUser = useRegister();
   const { register, handleSubmit, formState } = useForm<RegisterValues>({
@@ -38,7 +30,7 @@ export function RegisterPage() {
   const { errors } = formState;
   const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   return (
-    <AuthLayout title="Crear cuenta">
+    <AuthLayout title={t('auth.createAccount')}>
       <form
         noValidate
         onSubmit={handleSubmit((values) =>
@@ -49,26 +41,30 @@ export function RegisterPage() {
         )}
         className="flex flex-col gap-4"
       >
-        <FormField label="Nombre" error={errors.displayName?.message}>
+        <FormField label={t('auth.register.name')} error={errors.displayName?.message}>
           {(p) => <Input autoComplete="name" {...p} {...register('displayName')} />}
         </FormField>
-        <FormField label="Correo" error={errors.email?.message}>
+        <FormField label={t('auth.email')} error={errors.email?.message}>
           {(p) => <Input type="email" autoComplete="email" {...p} {...register('email')} />}
         </FormField>
-        <FormField label="Contraseña" error={errors.password?.message} hint="Mínimo 10 caracteres">
+        <FormField
+          label={t('auth.password')}
+          error={errors.password?.message}
+          hint={t('forms.passwordMin')}
+        >
           {(p) => <PasswordInput autoComplete="new-password" {...p} {...register('password')} />}
         </FormField>
         <fieldset className="flex flex-col gap-2">
-          <legend className="text-body font-bold">¿Cómo vas a usar la app?</legend>
-          {roles.map((option) => (
-            <label key={option.value} className="group choice flex-col items-start py-3">
-              <input type="radio" value={option.value} className="sr-only" {...register('role')} />
+          <legend className="text-body font-bold">{t('auth.register.roleQuestion')}</legend>
+          {roles.map((role) => (
+            <label key={role} className="group choice flex-col items-start py-3">
+              <input type="radio" value={role} className="sr-only" {...register('role')} />
               <span className="flex items-center gap-2 text-body font-bold">
                 <Icon name="taken" className="hidden size-5 group-has-checked:block" />
-                {option.title}
+                {t(`auth.register.${role}Title`)}
               </span>
               <span className="text-caption text-text-muted group-has-checked:text-on-primary">
-                {option.help}
+                {t(`auth.register.${role}Help`)}
               </span>
             </label>
           ))}
@@ -82,13 +78,13 @@ export function RegisterPage() {
           </div>
         )}
         <Button type="submit" loading={registerUser.isPending} fullWidth>
-          Crear cuenta
+          {t('auth.createAccount')}
         </Button>
       </form>
       <Text tone="muted">
-        ¿Ya tienes cuenta?{' '}
+        {t('auth.register.haveAccount')}{' '}
         <Link to="/login" className="underline">
-          Iniciar sesión
+          {t('auth.signIn')}
         </Link>
       </Text>
     </AuthLayout>
