@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
@@ -34,6 +35,7 @@ function startCommand(url: string): string | undefined {
 }
 
 function TelegramCard() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [waiting, setWaiting] = useState(false);
   const [expiresAt, setExpiresAt] = useState<number>();
@@ -85,14 +87,14 @@ function TelegramCard() {
   return (
     <section aria-labelledby="channels-title" className="flex flex-col gap-3">
       <Text id="channels-title" variant="subtitle" as="h2">
-        Canales
+        {t('notifications.channels')}
       </Text>
-      {channels.isPending && <Skeleton label="Cargando canales" />}
+      {channels.isPending && <Skeleton label={t('notifications.loadingChannels')} />}
       {channels.isError && (
         <div role="alert" className="flex flex-col items-start gap-2">
           <Text tone="danger">{errorMessage(channels.error)}</Text>
           <Button variant="secondary" onClick={() => void channels.refetch()}>
-            Reintentar
+            {t('common.retry')}
           </Button>
         </div>
       )}
@@ -100,14 +102,14 @@ function TelegramCard() {
         <div className="flex flex-wrap items-center justify-between gap-2 border-t-2 border-border py-3">
           <div>
             <Text as="p" className="font-bold">
-              Correo
+              {t('notifications.email')}
             </Text>
             <Text tone="muted" variant="caption">
               {email.label}
             </Text>
           </div>
           <Badge tone={email.verified ? 'success' : 'warning'}>
-            {email.verified ? 'Verificado' : 'Sin verificar'}
+            {email.verified ? t('notifications.verified') : t('notifications.unverified')}
           </Badge>
         </div>
       )}
@@ -118,7 +120,7 @@ function TelegramCard() {
               Telegram
             </Text>
             <Badge tone={linked ? 'success' : 'neutral'}>
-              {linked ? 'Conectado' : 'No conectado'}
+              {linked ? t('notifications.connected') : t('notifications.notConnected')}
             </Badge>
           </div>
           {linked ? (
@@ -128,35 +130,32 @@ function TelegramCard() {
                 loading={unlink.isPending}
                 onClick={() => unlink.mutate()}
               >
-                Desconectar Telegram
+                {t('notifications.disconnect')}
               </Button>
             </div>
           ) : (
             <>
               {link.data && waiting ? (
                 <div className="flex flex-col gap-3" role="status">
-                  <Text>Esperando la conexión con Telegram…</Text>
+                  <Text>{t('notifications.waiting')}</Text>
                   <ol className="flex list-decimal flex-col gap-3 pl-6">
                     <li className="flex flex-col items-start gap-2">
-                      <Text>Abre Telegram y pulsa «Iniciar» en el chat del bot.</Text>
+                      <Text>{t('notifications.openStep')}</Text>
                       <a
                         href={link.data.url}
                         target="_blank"
                         rel="noreferrer"
                         className="inline-flex min-h-touch items-center rounded-md bg-primary px-5 font-bold text-on-primary"
                       >
-                        Abrir Telegram
+                        {t('notifications.open')}
                       </a>
                     </li>
                     {command && (
                       <li className="flex flex-col items-start gap-2">
-                        <Text>
-                          Si el bot te pide la clave (pasa en Telegram para navegador), pégale este
-                          mensaje:
-                        </Text>
+                        <Text>{t('notifications.pasteStep')}</Text>
                         <code className="well px-3 py-2 break-all">{command}</code>
                         <Button variant="secondary" onClick={() => void copy(command)}>
-                          {copied ? 'Copiado' : 'Copiar mensaje'}
+                          {copied ? t('notifications.copied') : t('notifications.copy')}
                         </Button>
                       </li>
                     )}
@@ -164,12 +163,10 @@ function TelegramCard() {
                 </div>
               ) : (
                 <>
-                  {link.data && !waiting && (
-                    <Text tone="danger">El enlace caducó. Pide uno nuevo.</Text>
-                  )}
+                  {link.data && !waiting && <Text tone="danger">{t('notifications.expired')}</Text>}
                   <div>
                     <Button loading={link.isPending} onClick={() => link.mutate()}>
-                      Conectar Telegram
+                      {t('notifications.connect')}
                     </Button>
                   </div>
                 </>
@@ -183,12 +180,11 @@ function TelegramCard() {
   );
 }
 
-const rows = [
-  { key: 'missedDose', label: 'Dosis no tomada' },
-  { key: 'weeklyReport', label: 'Reporte semanal' },
-] as const;
+// Cada fila usa su clave también como texto: notifications.missedDose / weeklyReport.
+const rows = ['missedDose', 'weeklyReport'] as const;
 
 function PreferencesForm({ initial }: { initial: NotificationPreferences }) {
+  const { t } = useTranslation();
   const save = useSetMyNotificationPreferences();
   const { register, handleSubmit } = useForm<NotificationPreferences>({ defaultValues: initial });
   return (
@@ -198,16 +194,16 @@ function PreferencesForm({ initial }: { initial: NotificationPreferences }) {
       aria-labelledby="prefs-title"
     >
       <Text id="prefs-title" variant="subtitle" as="h2">
-        Qué avisos recibir
+        {t('notifications.prefsTitle')}
       </Text>
       <table className="w-full text-left">
         <thead>
           <tr>
             <th scope="col" className="py-2">
-              Aviso
+              {t('notifications.alert')}
             </th>
             <th scope="col" className="py-2">
-              Correo
+              {t('notifications.email')}
             </th>
             <th scope="col" className="py-2">
               Telegram
@@ -216,9 +212,9 @@ function PreferencesForm({ initial }: { initial: NotificationPreferences }) {
         </thead>
         <tbody>
           {rows.map((row) => (
-            <tr key={row.key} className="border-t-2 border-border">
+            <tr key={row} className="border-t-2 border-border">
               <th scope="row" className="py-3 font-normal">
-                {row.label}
+                {t(`notifications.${row}`)}
               </th>
               {(['email', 'telegram'] as const).map((channel) => (
                 <td key={channel} className="py-1">
@@ -227,8 +223,11 @@ function PreferencesForm({ initial }: { initial: NotificationPreferences }) {
                     <input
                       type="checkbox"
                       className="size-6 cursor-pointer accent-primary"
-                      aria-label={`${row.label} por ${channel === 'email' ? 'correo' : 'Telegram'}`}
-                      {...register(`${row.key}.${channel}`)}
+                      aria-label={t(
+                        channel === 'email' ? 'notifications.byEmail' : 'notifications.byTelegram',
+                        { alert: t(`notifications.${row}`) },
+                      )}
+                      {...register(`${row}.${channel}`)}
                     />
                   </label>
                 </td>
@@ -238,10 +237,10 @@ function PreferencesForm({ initial }: { initial: NotificationPreferences }) {
         </tbody>
       </table>
       {save.error && <Text tone="danger">{errorMessage(save.error)}</Text>}
-      {save.isSuccess && <Text tone="success">Preferencias guardadas.</Text>}
+      {save.isSuccess && <Text tone="success">{t('notifications.saved')}</Text>}
       <div>
         <Button type="submit" loading={save.isPending}>
-          Guardar preferencias
+          {t('notifications.save')}
         </Button>
       </div>
     </form>
@@ -249,6 +248,7 @@ function PreferencesForm({ initial }: { initial: NotificationPreferences }) {
 }
 
 function ConsentToggle() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const consents = useListMyConsents();
   const setConsent = useSetMyConsent({
@@ -258,7 +258,7 @@ function ConsentToggle() {
   if (consents.isPending || granted) return null;
   return (
     <div className="flex flex-col gap-2 rounded-md border-2 border-warning p-4" role="status">
-      <Text>Para enviarte avisos necesitamos tu permiso.</Text>
+      <Text>{t('notifications.consent')}</Text>
       <div>
         <Button
           loading={setConsent.isPending}
@@ -269,7 +269,7 @@ function ConsentToggle() {
             })
           }
         >
-          Permitir avisos
+          {t('notifications.allow')}
         </Button>
       </div>
     </div>
@@ -277,12 +277,13 @@ function ConsentToggle() {
 }
 
 export function NotificationsPage() {
+  const { t } = useTranslation();
   const preferences = useGetMyNotificationPreferences();
   return (
     <div className="flex flex-col gap-6">
       <ConsentToggle />
       <TelegramCard />
-      {preferences.isPending && <Skeleton label="Cargando preferencias" />}
+      {preferences.isPending && <Skeleton label={t('notifications.loadingPrefs')} />}
       {preferences.isError && (
         <ErrorRetry
           message={errorMessage(preferences.error)}
