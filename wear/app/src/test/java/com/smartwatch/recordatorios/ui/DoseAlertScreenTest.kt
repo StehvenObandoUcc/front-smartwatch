@@ -27,7 +27,7 @@ import org.robolectric.annotation.GraphicsMode
  */
 @RunWith(AndroidJUnit4::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
-@Config(qualifiers = "w192dp-h192dp-small-notlong-round-watch-xhdpi-keyshidden-nonav", fontScale = 1.3f)
+@Config(qualifiers = "es-w192dp-h192dp-small-notlong-round-watch-xhdpi-keyshidden-nonav", fontScale = 1.3f)
 class DoseAlertScreenTest {
     @get:Rule
     val compose = createComposeRule()
