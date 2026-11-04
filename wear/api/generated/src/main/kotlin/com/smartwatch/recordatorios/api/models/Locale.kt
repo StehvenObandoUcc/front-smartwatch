@@ -22,13 +22,16 @@ import kotlinx.serialization.Serializable
 /**
  * 
  *
- * Values: es
+ * Values: es,en
  */
 @Serializable
 enum class Locale(val value: kotlin.String) {
 
     @SerialName(value = "es")
-    es("es");
+    es("es"),
+
+    @SerialName(value = "en")
+    en("en");
 
     /**
      * Override [toString()] to avoid using the enum variable name as the value, and instead use
