@@ -1,5 +1,6 @@
 package com.smartwatch.recordatorios.ui.screens.alert
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -7,6 +8,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.lifecycleScope
+import com.smartwatch.recordatorios.MainActivity
 import com.smartwatch.recordatorios.alarm.DoseActionHandler
 import com.smartwatch.recordatorios.alarm.DoseIntents
 import com.smartwatch.recordatorios.data.local.DoseAction
@@ -54,6 +56,7 @@ class DoseAlertActivity : ComponentActivity() {
                             onSnooze = { act(current.id, DoseAction.SNOOZED, closeAfterMillis = SUCCESS_MILLIS) },
                             onSkip = { act(current.id, DoseAction.SKIPPED) },
                             onUndo = { undo(current.id) },
+                            onDone = ::closeNow,
                             lastOfDay = lastOfDay,
                         )
                     }
@@ -97,8 +100,32 @@ class DoseAlertActivity : ComponentActivity() {
                 // El registro no se corta aunque «Deshacer» cancele la espera para cerrar.
                 withContext(NonCancellable) { handler.handle(doseId, action) }
                 delay(closeAfterMillis)
-                finish()
+                goHome()
             }
+    }
+
+    /** «Listo»: no espera los segundos de «Deshacer»; el registro ya va (o termina) igual. */
+    private fun closeNow() {
+        val pending = closing
+        pending?.cancel()
+        lifecycleScope.launch {
+            pending?.join()
+            goHome()
+        }
+    }
+
+    /**
+     * Vuelve al inicio de la app (con el anillo ya al día), no a lo que hubiera detrás: si la alarma
+     * saltó con la pantalla apagada, detrás estaba la esfera.
+     */
+    private fun goHome() {
+        startActivity(
+            Intent(this, MainActivity::class.java)
+                .addFlags(
+                    Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP,
+                ),
+        )
+        finish()
     }
 
     /** «Deshacer»: no se cierra; la dosis vuelve a pendiente y la alerta muestra otra vez sus acciones. */
@@ -116,6 +143,6 @@ class DoseAlertActivity : ComponentActivity() {
 
     private companion object {
         const val SUCCESS_MILLIS = 1_500L
-        const val UNDO_MILLIS = 5_000L
+        const val UNDO_MILLIS = 4_000L
     }
 }
