@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { Link, Navigate, useSearchParams } from 'react-router';
 
 import { useLogin } from '../api/generated';
@@ -16,6 +17,7 @@ import { loginSchema, type LoginValues } from '../features/auth/forms';
 import { errorMessage } from '../lib/errors';
 
 export function LoginPage() {
+  const { t } = useTranslation();
   const { auth, signIn } = useAuth();
   const params = useSearchParams()[0];
   const requested = params.get('next');
@@ -31,11 +33,11 @@ export function LoginPage() {
   if (auth.status === 'authed') return <Navigate to={target} replace />;
   const { errors } = formState;
   return (
-    <AuthLayout title="Iniciar sesión">
+    <AuthLayout title={t('auth.signIn')}>
       {accountDeleted && (
         <div role="status">
           <Text tone="success" as="p">
-            Tu cuenta se eliminó correctamente.
+            {t('auth.login.accountDeleted')}
           </Text>
         </div>
       )}
@@ -44,10 +46,10 @@ export function LoginPage() {
         onSubmit={handleSubmit((data) => login.mutate({ data }, { onSuccess: signIn }))}
         className="flex flex-col gap-4"
       >
-        <FormField label="Correo" error={errors.email?.message}>
+        <FormField label={t('auth.email')} error={errors.email?.message}>
           {(p) => <Input type="email" autoComplete="email" {...p} {...register('email')} />}
         </FormField>
-        <FormField label="Contraseña" error={errors.password?.message}>
+        <FormField label={t('auth.password')} error={errors.password?.message}>
           {(p) => (
             <PasswordInput autoComplete="current-password" {...p} {...register('password')} />
           )}
@@ -66,7 +68,7 @@ export function LoginPage() {
           fullWidth
           onClick={() => setTarget(next)}
         >
-          Entrar
+          {t('auth.login.submit')}
         </Button>
         <Button
           type="submit"
@@ -76,18 +78,18 @@ export function LoginPage() {
           fullWidth
           onClick={() => setTarget('/ajustes')}
         >
-          Vincular un reloj
+          {t('auth.login.pairWatch')}
         </Button>
       </form>
       <Text tone="muted">
         <Link to="/recuperar" className="underline">
-          ¿Olvidaste tu contraseña?
+          {t('auth.login.forgot')}
         </Link>
       </Text>
       <Text tone="muted">
-        ¿Sin cuenta?{' '}
+        {t('auth.login.noAccount')}{' '}
         <Link to="/registro" className="underline">
-          Crear cuenta
+          {t('auth.createAccount')}
         </Link>
       </Text>
     </AuthLayout>
