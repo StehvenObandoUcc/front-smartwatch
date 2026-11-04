@@ -42,11 +42,11 @@ import com.smartwatch.recordatorios.ui.components.BwScreenScaffold
 import com.smartwatch.recordatorios.ui.components.BwSnoozeMark
 import com.smartwatch.recordatorios.ui.components.BwSuccessMark
 import com.smartwatch.recordatorios.ui.components.BwText
-import com.smartwatch.recordatorios.ui.components.BwTone
 import com.smartwatch.recordatorios.ui.components.MedicationLabel
 import com.smartwatch.recordatorios.ui.components.doseStatusText
 import com.smartwatch.recordatorios.ui.components.edgeItem
 import com.smartwatch.recordatorios.ui.theme.BwTheme
+import com.smartwatch.recordatorios.ui.theme.BwTone
 import com.smartwatch.recordatorios.ui.theme.RecordatoriosTheme
 import com.smartwatch.recordatorios.ui.theme.Sizes
 import com.smartwatch.recordatorios.ui.theme.Spacing
@@ -66,6 +66,7 @@ fun DoseAlertScreen(
     onSkip: () -> Unit,
     onUndo: (() -> Unit)? = null,
     lastOfDay: Boolean = false,
+    onDone: (() -> Unit)? = null,
 ) {
     var confirmingSkip by rememberSaveable { mutableStateOf(false) }
     var takenAt by rememberSaveable { mutableStateOf<Long?>(null) }
@@ -95,6 +96,18 @@ fun DoseAlertScreen(
                                 ),
                             modifier = Modifier.fillMaxWidth(),
                         )
+                    }
+                    // Listo vuelve al inicio ya; si no se toca, vuelve solo a los pocos segundos.
+                    onDone?.let { done ->
+                        edgeItem(container = true) {
+                            BwButton(
+                                label = stringResource(R.string.alert_done),
+                                onClick = done,
+                                primary = true,
+                                icon = R.drawable.ic_check,
+                                modifier = Modifier.fillMaxWidth(),
+                            )
+                        }
                     }
                     // Un toque equivocado en la muñeca se corrige aquí, unos segundos.
                     onUndo?.let { undo ->
