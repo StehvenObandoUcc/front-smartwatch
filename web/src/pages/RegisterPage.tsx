@@ -13,6 +13,7 @@ import { FormField } from '../components/molecules/FormField';
 import { AuthLayout } from '../components/templates/AuthLayout';
 import { useAuth } from '../features/auth/AuthContext';
 import { registerSchema, type RegisterValues } from '../features/auth/forms';
+import { useLanguage } from '../i18n';
 import { errorMessage } from '../lib/errors';
 
 // Textos en auth.register.<rol>Title y <rol>Help.
@@ -20,6 +21,7 @@ const roles = ['patient', 'caregiver'] as const;
 
 export function RegisterPage() {
   const { t } = useTranslation();
+  const { language } = useLanguage();
   const { auth, signIn } = useAuth();
   const registerUser = useRegister();
   const { register, handleSubmit, formState } = useForm<RegisterValues>({
@@ -35,7 +37,8 @@ export function RegisterPage() {
         noValidate
         onSubmit={handleSubmit((values) =>
           registerUser.mutate(
-            { data: { ...values, timezone, locale: 'es' } },
+            // La cuenta nace en el idioma del panel: así llegan sus correos y avisos.
+            { data: { ...values, timezone, locale: language } },
             { onSuccess: signIn },
           ),
         )}
