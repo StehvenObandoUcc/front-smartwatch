@@ -78,33 +78,228 @@ Sin internet el reloj sigue sonando: el plan y las alarmas son locales.
 
 ## El reloj (`wear/`)
 
-- **Alarmas exactas** con `setAlarmClock()` y el permiso `USE_EXACT_ALARM` (se concede al
-  instalar). Se reprograman tras reiniciar el reloj o actualizar la app.
-- **Inicio**: la próxima dosis en grande («En 1 h») y el anillo del día por el borde (un tramo por
-  dosis, verde si se tomó). El fondo toma el brillo de la franja del momento: mañana, tarde o
-  noche.
-- **Páginas** que se deslizan: Inicio, Hoy (dosis por franja), Mes (porcentaje y últimos 7 días),
-  Historial, Asistente y Reloj (vinculación, medicamentos creados en el reloj).
-- **Modo sin cuenta**: se pueden crear medicamentos en el propio reloj y suenan sin internet.
-- **Asistente por voz**: se pregunta hablando; responde corto en pantalla y en voz alta. Puede
-  proponer un medicamento nuevo o una hora nueva para uno existente, y solo se crea al confirmar.
-  No sustituye al médico.
-- **Tile** «Anillo del día» y **complication** «Próxima toma» para la esfera.
-- **Idioma**: español por defecto o inglés; se elige solo para la app en *Ajustes → Apps →
+Capturas reales tomadas en un Galaxy Watch4 con `adb exec-out screencap`.
+
+**Inicio.** Muestra en grande la próxima dosis («En 3 min», «En 1 h») y, por el borde, el anillo del
+día: un tramo por dosis, verde si se tomó, con un hueco arriba para la hora. El fondo toma el
+brillo de la franja del momento: mañana, tarde o noche. Las páginas se pasan deslizando hacia los
+lados.
+
+<p align="center"><img src="docs/assets/capturas/reloj/es-inicio.webp" width="200" alt="Inicio con la próxima dosis" /></p>
+
+**Alerta de dosis.** A la hora exacta suena a pantalla completa, aunque no haya internet. Tiene
+tres acciones: **Tomada**, **Posponer** 10 minutos (hasta 3 veces) y **Omitir** (con
+confirmación). Usa alarmas exactas (`setAlarmClock()` con el permiso `USE_EXACT_ALARM`, que se
+concede al instalar) y se reprograman tras reiniciar el reloj o actualizar la app.
+
+<p align="center"><img src="docs/assets/capturas/reloj/es-alerta.webp" width="200" alt="Alerta de dosis" /> <img src="docs/assets/capturas/reloj/en-alerta.webp" width="200" alt="Dose alert" /> <img src="docs/assets/capturas/reloj/en-tomada.webp" width="200" alt="Dose recorded as taken" /></p>
+
+**Hoy.** Las dosis del día agrupadas por franja, cada una con su estado: pendiente, tomada, omitida
+o más tarde.
+
+<p align="center"><img src="docs/assets/capturas/reloj/es-hoy.webp" width="200" alt="Hoy" /> <img src="docs/assets/capturas/reloj/es-hoy-2.webp" width="200" alt="Hoy, más abajo" /></p>
+
+**Mes.** El porcentaje de dosis tomadas en el mes, en grande, y los últimos 7 días. Solo aparece
+con el reloj vinculado, porque ese dato lo calcula el backend.
+
+<p align="center"><img src="docs/assets/capturas/reloj/es-mes.webp" width="200" alt="Mes" /></p>
+
+**Historial.** Las últimas dosis registradas, día por día.
+
+<p align="center"><img src="docs/assets/capturas/reloj/es-historial.webp" width="200" alt="Historial" /></p>
+
+**Asistente.** Se le pregunta hablando o escribiendo, y responde en pantalla y en voz alta con
+3 frases como mucho. Puede proponer un medicamento nuevo o una hora nueva para uno que ya existe,
+pero solo los crea si se confirma. No sustituye al médico.
+
+<p align="center"><img src="docs/assets/capturas/reloj/es-asistente.webp" width="200" alt="Asistente" /> <img src="docs/assets/capturas/reloj/es-asistente-respuesta.webp" width="200" alt="Respuesta del asistente" /></p>
+
+**Reloj.** Muestra el estado de la vinculación y permite desvincular, con confirmación. Si el
+reloj no está vinculado, aquí se ven y se crean los medicamentos guardados en él.
+
+<p align="center"><img src="docs/assets/capturas/reloj/es-reloj.webp" width="200" alt="Página Reloj" /> <img src="docs/assets/capturas/reloj/es-desvincular.webp" width="200" alt="Confirmar desvinculación" /></p>
+
+**Bienvenida y vinculación.** El reloj se puede usar de dos maneras:
+
+- solo, con los medicamentos creados en el propio reloj, que suenan sin cuenta ni internet;
+- vinculado al panel web, escribiendo en el panel (*Ajustes → Vincular reloj*) el código corto que
+  muestra el reloj.
+
+<p align="center"><img src="docs/assets/capturas/reloj/es-bienvenida.webp" width="200" alt="Bienvenida" /> <img src="docs/assets/capturas/reloj/es-bienvenida-2.webp" width="200" alt="Bienvenida, segunda opción" /> <img src="docs/assets/capturas/reloj/es-vincular.webp" width="200" alt="Código para vincular" /></p>
+
+**Además:**
+
+- un Tile «Anillo del día» y una complication «Próxima toma» para la esfera;
+- **idioma** español (por defecto) o inglés, que se elige solo para la app en *Ajustes → Apps →
   Recordatorios → Idioma*.
+
+<p align="center"><img src="docs/assets/capturas/reloj/en-inicio.webp" width="200" alt="Home" /> <img src="docs/assets/capturas/reloj/en-hoy.webp" width="200" alt="Today" /> <img src="docs/assets/capturas/reloj/en-mes.webp" width="200" alt="Month" /> <img src="docs/assets/capturas/reloj/en-historial.webp" width="200" alt="History" /></p>
+<p align="center"><img src="docs/assets/capturas/reloj/en-asistente.webp" width="200" alt="Assistant" /> <img src="docs/assets/capturas/reloj/en-reloj.webp" width="200" alt="Watch" /></p>
 
 ## El panel web (`web/`)
 
-- Landing pública, registro, inicio de sesión, verificación de correo y recuperación de
-  contraseña.
-- **Hoy**: anillo de dosis tomadas, la próxima con «Marcar tomada», estado del reloj (batería y
-  última conexión) y franjas con Marcar tomada, Omitir y Deshacer.
-- Medicamentos y horarios, agenda, historial con adherencia, reportes descargables y asistente con
-  respuesta en streaming.
-- Ajustes: vincular y desvincular el reloj, cuidadores e invitaciones, avisos por Telegram y
-  correo, consentimientos y eliminar la cuenta.
-- **Temas** claro y oscuro (o el del sistema) e **idioma** español o inglés. Se recuerda en el
-  navegador y el idioma se guarda en la cuenta, para que los correos y avisos lleguen en ese idioma.
+Capturas reales de la web desplegada (<https://front-smartwatch.vercel.app>), tomadas con
+Playwright y una cuenta de demostración. Cada pantalla aparece en escritorio (1440 px) y en móvil
+(390 px). Al final de la sección están las versiones en tema oscuro y en inglés.
+
+**Landing.** Explica qué es Recuerda. El titular cambia de palabra (se puede pausar) y hay una
+vista del reloj. Desde aquí se elige el idioma y el tema.
+
+<p align="center"><img src="docs/assets/capturas/web/landing-escritorio-light-es.webp" width="600" alt="Landing en escritorio" /> <img src="docs/assets/capturas/web/landing-movil-light-es.webp" width="210" alt="Landing en el móvil" /></p>
+
+**Entrar y crear cuenta.** La cuenta puede ser para uno mismo o de cuidador. El correo se verifica
+con un enlace y, mientras tanto, un aviso lo recuerda. La contraseña se recupera por correo.
+
+<p align="center"><img src="docs/assets/capturas/web/login-escritorio-light-es.webp" width="600" alt="Iniciar sesión en escritorio" /> <img src="docs/assets/capturas/web/login-movil-light-es.webp" width="210" alt="Iniciar sesión en el móvil" /></p>
+<p align="center"><img src="docs/assets/capturas/web/registro-escritorio-light-es.webp" width="600" alt="Crear cuenta en escritorio" /> <img src="docs/assets/capturas/web/registro-movil-light-es.webp" width="210" alt="Crear cuenta en el móvil" /></p>
+
+**Hoy.** Muestra:
+
+- el anillo de dosis tomadas;
+- la dosis que toca ahora, con «Marcar tomada» y «Omitir»;
+- el estado del reloj (batería y última conexión);
+- la semana, día por día;
+- las dosis del día por franja, con la opción de deshacer.
+
+<p align="center"><img src="docs/assets/capturas/web/hoy-escritorio-light-es.webp" width="600" alt="Hoy en escritorio" /> <img src="docs/assets/capturas/web/hoy-movil-light-es.webp" width="210" alt="Hoy en el móvil" /></p>
+
+**Medicinas.** Los medicamentos activos, cada uno con su dosis, sus horas, sus días y un color para
+reconocerlo. Aquí se agregan, se editan y se quitan.
+
+<p align="center"><img src="docs/assets/capturas/web/medicamentos-escritorio-light-es.webp" width="600" alt="Medicinas en escritorio" /> <img src="docs/assets/capturas/web/medicamentos-movil-light-es.webp" width="210" alt="Medicinas en el móvil" /></p>
+
+**Agenda.** Las dosis de los próximos días. Cada una se puede marcar como tomada u omitida, o
+deshacer lo marcado.
+
+<p align="center"><img src="docs/assets/capturas/web/agenda-escritorio-light-es.webp" width="600" alt="Agenda en escritorio" /> <img src="docs/assets/capturas/web/agenda-movil-light-es.webp" width="210" alt="Agenda en el móvil" /></p>
+
+**Historial.** La adherencia de los últimos 7 o 30 días: el porcentaje, las dosis tomadas,
+omitidas y no tomadas, y una gráfica día a día con su tabla equivalente.
+
+<p align="center"><img src="docs/assets/capturas/web/adherencia-escritorio-light-es.webp" width="600" alt="Historial en escritorio" /> <img src="docs/assets/capturas/web/adherencia-movil-light-es.webp" width="210" alt="Historial en el móvil" /></p>
+
+**Reportes.** Cada lunes se genera un resumen semanal, y también se puede pedir uno en cualquier
+momento. Cada reporte trae la adherencia por medicamento y se descarga en PDF.
+
+<p align="center"><img src="docs/assets/capturas/web/reportes-escritorio-light-es.webp" width="600" alt="Reportes en escritorio" /> <img src="docs/assets/capturas/web/reportes-movil-light-es.webp" width="210" alt="Reportes en el móvil" /></p>
+<p align="center"><img src="docs/assets/capturas/web/reporte-escritorio-light-es.webp" width="600" alt="Detalle de un reporte en escritorio" /> <img src="docs/assets/capturas/web/reporte-movil-light-es.webp" width="210" alt="Detalle de un reporte en el móvil" /></p>
+
+**Asistente.** Responde preguntas sobre el plan de medicamentos, escribiendo la respuesta a medida
+que llega. Pide un consentimiento aparte, tiene un límite diario de mensajes y no guarda la
+conversación.
+
+<p align="center"><img src="docs/assets/capturas/web/asistente-escritorio-light-es.webp" width="600" alt="Asistente en escritorio" /> <img src="docs/assets/capturas/web/asistente-movil-light-es.webp" width="210" alt="Asistente en el móvil" /></p>
+
+**Avisos.** Aquí se eligen el canal (correo o Telegram) y los avisos que se quieren recibir, como
+una dosis no tomada o el reporte semanal.
+
+<p align="center"><img src="docs/assets/capturas/web/avisos-escritorio-light-es.webp" width="600" alt="Avisos en escritorio" /> <img src="docs/assets/capturas/web/avisos-movil-light-es.webp" width="210" alt="Avisos en el móvil" /></p>
+
+**Ajustes.** Reúne:
+
+- la cuenta;
+- el idioma, que se guarda en la cuenta para que los correos y avisos lleguen en ese idioma;
+- la vinculación del reloj, con el código que muestra;
+- los cuidadores y sus invitaciones;
+- los consentimientos;
+- eliminar la cuenta.
+
+<p align="center"><img src="docs/assets/capturas/web/ajustes-escritorio-light-es.webp" width="600" alt="Ajustes en escritorio" /> <img src="docs/assets/capturas/web/ajustes-movil-light-es.webp" width="210" alt="Ajustes en el móvil" /></p>
+
+**Más (móvil).** En el móvil, la barra inferior lleva a Hoy, Medicinas, Historial y Más. Desde Más
+se llega al resto de las pantallas y al tema.
+
+<p align="center"><img src="docs/assets/capturas/web/mas-movil-light-es.webp" width="210" alt="Más en el móvil" /> <img src="docs/assets/capturas/web/mas-movil-dark-es.webp" width="210" alt="Más en el móvil, tema oscuro" /></p>
+
+El tema, claro u oscuro, sigue al del sistema o se elige a mano. Ese tema y el idioma (español o
+inglés) se recuerdan en el navegador.
+
+<details>
+<summary><b>Tema oscuro</b></summary>
+
+<p align="center"><img src="docs/assets/capturas/web/landing-escritorio-dark-es.webp" width="600" alt="Landing" /> <img src="docs/assets/capturas/web/landing-movil-dark-es.webp" width="210" alt="Landing" /></p>
+
+<p align="center"><img src="docs/assets/capturas/web/login-escritorio-dark-es.webp" width="600" alt="Iniciar sesión" /> <img src="docs/assets/capturas/web/login-movil-dark-es.webp" width="210" alt="Iniciar sesión" /></p>
+
+<p align="center"><img src="docs/assets/capturas/web/registro-escritorio-dark-es.webp" width="600" alt="Crear cuenta" /> <img src="docs/assets/capturas/web/registro-movil-dark-es.webp" width="210" alt="Crear cuenta" /></p>
+
+<p align="center"><img src="docs/assets/capturas/web/hoy-escritorio-dark-es.webp" width="600" alt="Hoy" /> <img src="docs/assets/capturas/web/hoy-movil-dark-es.webp" width="210" alt="Hoy" /></p>
+
+<p align="center"><img src="docs/assets/capturas/web/medicamentos-escritorio-dark-es.webp" width="600" alt="Medicinas" /> <img src="docs/assets/capturas/web/medicamentos-movil-dark-es.webp" width="210" alt="Medicinas" /></p>
+
+<p align="center"><img src="docs/assets/capturas/web/agenda-escritorio-dark-es.webp" width="600" alt="Agenda" /> <img src="docs/assets/capturas/web/agenda-movil-dark-es.webp" width="210" alt="Agenda" /></p>
+
+<p align="center"><img src="docs/assets/capturas/web/adherencia-escritorio-dark-es.webp" width="600" alt="Historial" /> <img src="docs/assets/capturas/web/adherencia-movil-dark-es.webp" width="210" alt="Historial" /></p>
+
+<p align="center"><img src="docs/assets/capturas/web/reportes-escritorio-dark-es.webp" width="600" alt="Reportes" /> <img src="docs/assets/capturas/web/reportes-movil-dark-es.webp" width="210" alt="Reportes" /></p>
+
+<p align="center"><img src="docs/assets/capturas/web/reporte-escritorio-dark-es.webp" width="600" alt="Reporte" /> <img src="docs/assets/capturas/web/reporte-movil-dark-es.webp" width="210" alt="Reporte" /></p>
+
+<p align="center"><img src="docs/assets/capturas/web/asistente-escritorio-dark-es.webp" width="600" alt="Asistente" /> <img src="docs/assets/capturas/web/asistente-movil-dark-es.webp" width="210" alt="Asistente" /></p>
+
+<p align="center"><img src="docs/assets/capturas/web/avisos-escritorio-dark-es.webp" width="600" alt="Avisos" /> <img src="docs/assets/capturas/web/avisos-movil-dark-es.webp" width="210" alt="Avisos" /></p>
+
+<p align="center"><img src="docs/assets/capturas/web/ajustes-escritorio-dark-es.webp" width="600" alt="Ajustes" /> <img src="docs/assets/capturas/web/ajustes-movil-dark-es.webp" width="210" alt="Ajustes" /></p>
+
+</details>
+
+<details>
+<summary><b>In English · light</b></summary>
+
+<p align="center"><img src="docs/assets/capturas/web/landing-escritorio-light-en.webp" width="600" alt="Landing" /> <img src="docs/assets/capturas/web/landing-movil-light-en.webp" width="210" alt="Landing" /></p>
+
+<p align="center"><img src="docs/assets/capturas/web/login-escritorio-light-en.webp" width="600" alt="Iniciar sesión" /> <img src="docs/assets/capturas/web/login-movil-light-en.webp" width="210" alt="Iniciar sesión" /></p>
+
+<p align="center"><img src="docs/assets/capturas/web/registro-escritorio-light-en.webp" width="600" alt="Crear cuenta" /> <img src="docs/assets/capturas/web/registro-movil-light-en.webp" width="210" alt="Crear cuenta" /></p>
+
+<p align="center"><img src="docs/assets/capturas/web/hoy-escritorio-light-en.webp" width="600" alt="Hoy" /> <img src="docs/assets/capturas/web/hoy-movil-light-en.webp" width="210" alt="Hoy" /></p>
+
+<p align="center"><img src="docs/assets/capturas/web/medicamentos-escritorio-light-en.webp" width="600" alt="Medicinas" /> <img src="docs/assets/capturas/web/medicamentos-movil-light-en.webp" width="210" alt="Medicinas" /></p>
+
+<p align="center"><img src="docs/assets/capturas/web/agenda-escritorio-light-en.webp" width="600" alt="Agenda" /> <img src="docs/assets/capturas/web/agenda-movil-light-en.webp" width="210" alt="Agenda" /></p>
+
+<p align="center"><img src="docs/assets/capturas/web/adherencia-escritorio-light-en.webp" width="600" alt="Historial" /> <img src="docs/assets/capturas/web/adherencia-movil-light-en.webp" width="210" alt="Historial" /></p>
+
+<p align="center"><img src="docs/assets/capturas/web/reportes-escritorio-light-en.webp" width="600" alt="Reportes" /> <img src="docs/assets/capturas/web/reportes-movil-light-en.webp" width="210" alt="Reportes" /></p>
+
+<p align="center"><img src="docs/assets/capturas/web/reporte-escritorio-light-en.webp" width="600" alt="Reporte" /> <img src="docs/assets/capturas/web/reporte-movil-light-en.webp" width="210" alt="Reporte" /></p>
+
+<p align="center"><img src="docs/assets/capturas/web/asistente-escritorio-light-en.webp" width="600" alt="Asistente" /> <img src="docs/assets/capturas/web/asistente-movil-light-en.webp" width="210" alt="Asistente" /></p>
+
+<p align="center"><img src="docs/assets/capturas/web/avisos-escritorio-light-en.webp" width="600" alt="Avisos" /> <img src="docs/assets/capturas/web/avisos-movil-light-en.webp" width="210" alt="Avisos" /></p>
+
+<p align="center"><img src="docs/assets/capturas/web/ajustes-escritorio-light-en.webp" width="600" alt="Ajustes" /> <img src="docs/assets/capturas/web/ajustes-movil-light-en.webp" width="210" alt="Ajustes" /></p>
+
+</details>
+
+<details>
+<summary><b>In English · dark</b></summary>
+
+<p align="center"><img src="docs/assets/capturas/web/landing-escritorio-dark-en.webp" width="600" alt="Landing" /> <img src="docs/assets/capturas/web/landing-movil-dark-en.webp" width="210" alt="Landing" /></p>
+
+<p align="center"><img src="docs/assets/capturas/web/login-escritorio-dark-en.webp" width="600" alt="Iniciar sesión" /> <img src="docs/assets/capturas/web/login-movil-dark-en.webp" width="210" alt="Iniciar sesión" /></p>
+
+<p align="center"><img src="docs/assets/capturas/web/registro-escritorio-dark-en.webp" width="600" alt="Crear cuenta" /> <img src="docs/assets/capturas/web/registro-movil-dark-en.webp" width="210" alt="Crear cuenta" /></p>
+
+<p align="center"><img src="docs/assets/capturas/web/hoy-escritorio-dark-en.webp" width="600" alt="Hoy" /> <img src="docs/assets/capturas/web/hoy-movil-dark-en.webp" width="210" alt="Hoy" /></p>
+
+<p align="center"><img src="docs/assets/capturas/web/medicamentos-escritorio-dark-en.webp" width="600" alt="Medicinas" /> <img src="docs/assets/capturas/web/medicamentos-movil-dark-en.webp" width="210" alt="Medicinas" /></p>
+
+<p align="center"><img src="docs/assets/capturas/web/agenda-escritorio-dark-en.webp" width="600" alt="Agenda" /> <img src="docs/assets/capturas/web/agenda-movil-dark-en.webp" width="210" alt="Agenda" /></p>
+
+<p align="center"><img src="docs/assets/capturas/web/adherencia-escritorio-dark-en.webp" width="600" alt="Historial" /> <img src="docs/assets/capturas/web/adherencia-movil-dark-en.webp" width="210" alt="Historial" /></p>
+
+<p align="center"><img src="docs/assets/capturas/web/reportes-escritorio-dark-en.webp" width="600" alt="Reportes" /> <img src="docs/assets/capturas/web/reportes-movil-dark-en.webp" width="210" alt="Reportes" /></p>
+
+<p align="center"><img src="docs/assets/capturas/web/reporte-escritorio-dark-en.webp" width="600" alt="Reporte" /> <img src="docs/assets/capturas/web/reporte-movil-dark-en.webp" width="210" alt="Reporte" /></p>
+
+<p align="center"><img src="docs/assets/capturas/web/asistente-escritorio-dark-en.webp" width="600" alt="Asistente" /> <img src="docs/assets/capturas/web/asistente-movil-dark-en.webp" width="210" alt="Asistente" /></p>
+
+<p align="center"><img src="docs/assets/capturas/web/avisos-escritorio-dark-en.webp" width="600" alt="Avisos" /> <img src="docs/assets/capturas/web/avisos-movil-dark-en.webp" width="210" alt="Avisos" /></p>
+
+<p align="center"><img src="docs/assets/capturas/web/ajustes-escritorio-dark-en.webp" width="600" alt="Ajustes" /> <img src="docs/assets/capturas/web/ajustes-movil-dark-en.webp" width="210" alt="Ajustes" /></p>
+
+</details>
 
 ## Tecnologías
 
@@ -275,6 +470,7 @@ front-smartwatch/
 │   │   └── pages/        Pantallas
 │   ├── e2e/              Pruebas E2E con Playwright
 │   └── .storybook/       Storybook
+├── docs/assets/                         Logo y capturas/ (reloj/ y web/) que usa este README
 ├── scripts/sync-contract.sh            Descarga el contrato fijado
 ├── contract.lock                       Commit del contrato del backend
 └── .github/workflows/                  CI del reloj y de la web
