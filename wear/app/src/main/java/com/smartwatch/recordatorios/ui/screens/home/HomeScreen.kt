@@ -229,8 +229,8 @@ private fun NextDose(
             textAlign = TextAlign.Center,
             maxLines = 1,
             autoSize = BwTheme.type.displayFit,
-            // Margen: la cifra ocupa todo el ancho y en la parte alta el círculo es más estrecho.
-            // y la escala de la esfera ocupa los lados: la cifra se achica antes que pisarla.
+            // En lo alto el círculo es más estrecho y la escala de la esfera ocupa los lados: la
+            // cifra se achica antes que pisarlos.
             modifier = Modifier.fillMaxWidth().padding(horizontal = Sizes.dialClearance),
         )
         MedicationLabel(name = dose.medicationName, colorKey = dose.colorKey)

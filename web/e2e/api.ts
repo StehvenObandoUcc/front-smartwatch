@@ -31,7 +31,7 @@ const json = (route: Route, body: unknown, status = 200) =>
 
 /**
  * Simula el backend: con `signedIn` hay sesión (refresh 200) y datos mínimos de un paciente; sin
- * ella, el refresh responde 401. `onDeleteMe` decide la respuesta de DELETE /users/me.
+ * ella, el refresh responde 401. `deleteMeStatus` decide la respuesta de DELETE /users/me.
  */
 export async function fakeApi(
   page: Page,

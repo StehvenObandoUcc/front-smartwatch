@@ -136,7 +136,7 @@ data class BwBackground(
 
 /**
  * Papeles de fondo: el componente pide un [BwTone] y aquí se resuelve con la paleta. El petróleo
- * termina en [Palette.petrol600] (antes #0E766E): el texto suave daba 4,19:1 abajo y ahora ≥ 5,5:1.
+ * termina en [Palette.petrol600] para que el texto suave dé ≥ 5,5:1 abajo.
  */
 object BwBackgrounds {
     private val petrol = listOf(Palette.petrol900, Palette.petrol600)

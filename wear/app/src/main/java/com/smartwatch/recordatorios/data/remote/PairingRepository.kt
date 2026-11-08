@@ -47,8 +47,8 @@ class PairingRepository
          * paciente anterior. Solo actúa al pasar de vinculado a desvinculado; el modo local no se toca.
          */
         suspend fun forgetWhenLost(paired: Flow<Boolean> = tokens.paired) {
-            // ponytail: si el proceso muere entre perder los tokens y limpiar, quedan alarmas hasta la
-            // próxima desvinculación; guardar un indicador «por limpiar» si se ve en la práctica.
+            // Límite: si el proceso muere entre perder los tokens y limpiar, quedan alarmas hasta la
+            // próxima desvinculación.
             var was: Boolean? = null
             paired.collect { now ->
                 if (was == true && !now) forget()

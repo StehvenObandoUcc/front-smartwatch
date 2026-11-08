@@ -20,7 +20,7 @@ function key(scheduleId: string, scheduledAt: string) {
   return `${scheduleId}@${new Date(scheduledAt).getTime()}`;
 }
 
-/** Registro del historial de cada dosis, por dosis. */
+/** Historial indexado por dosis (scheduleId + instante). */
 export type HistoryIndex = Map<string, DoseHistoryItem>;
 
 export function historyIndex(items: DoseHistoryItem[]): HistoryIndex {

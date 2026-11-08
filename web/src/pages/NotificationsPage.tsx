@@ -218,7 +218,6 @@ function PreferencesForm({ initial }: { initial: NotificationPreferences }) {
               </th>
               {(['email', 'telegram'] as const).map((channel) => (
                 <td key={channel} className="py-1">
-                  {/* La casilla en petróleo y con un área de toque de 44 px. */}
                   <label className="inline-flex min-h-touch min-w-touch cursor-pointer items-center justify-center">
                     <input
                       type="checkbox"
