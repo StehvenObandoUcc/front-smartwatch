@@ -4,9 +4,8 @@
 
     <uses-feature android:name="android.hardware.type.watch" />
 
-    <!-- Alarmas exactas: denegado por defecto en Android 14+, se guía al usuario desde Inicio. -->
-    <!-- App de recordatorios: alarma exacta concedida al instalar (API 33+). SCHEDULE_EXACT_ALARM
-         dependía de la pantalla «Alarmas y recordatorios», que en Galaxy Watch se queda vacía. -->
+    <!-- USE_EXACT_ALARM se concede al instalar; SCHEDULE_EXACT_ALARM dependía de una pantalla de
+         ajustes que en Galaxy Watch queda vacía. -->
     <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />

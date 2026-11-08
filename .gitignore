@@ -1,4 +1,4 @@
-# Herramientas locales de asistentes: no son parte del proyecto
+# Configuración local de herramientas de desarrollo
 .claude/
 .impeccable/
 
@@ -47,5 +47,9 @@ Thumbs.db
 # Volcados de la JVM
 hs_err_pid*.log
 replay_pid*.log
+
+# Contrato OpenAPI descargado (scripts/sync-contract.sh)
 .contract/
+
+# Binarios de wear/api
 wear/api/bin/

@@ -44,6 +44,9 @@ teléfono**:
 Los dos hablan con la API de [`back-smartwatch`](https://github.com/StehvenObandoUcc/back-smartwatch)
 (FastAPI, en otro repositorio). Están en **español o inglés**.
 
+El APK del reloj está en la [última release](https://github.com/StehvenObandoUcc/front-smartwatch/releases/latest)
+y se instala como se explica en [Reloj](#reloj).
+
 ## Cómo funciona
 
 ```mermaid
@@ -248,27 +251,27 @@ inglés) se recuerdan en el navegador.
 
 <p align="center"><img src="docs/assets/capturas/web/landing-escritorio-light-en.webp" width="600" alt="Landing" /> <img src="docs/assets/capturas/web/landing-movil-light-en.webp" width="210" alt="Landing" /></p>
 
-<p align="center"><img src="docs/assets/capturas/web/login-escritorio-light-en.webp" width="600" alt="Iniciar sesión" /> <img src="docs/assets/capturas/web/login-movil-light-en.webp" width="210" alt="Iniciar sesión" /></p>
+<p align="center"><img src="docs/assets/capturas/web/login-escritorio-light-en.webp" width="600" alt="Sign in" /> <img src="docs/assets/capturas/web/login-movil-light-en.webp" width="210" alt="Sign in" /></p>
 
-<p align="center"><img src="docs/assets/capturas/web/registro-escritorio-light-en.webp" width="600" alt="Crear cuenta" /> <img src="docs/assets/capturas/web/registro-movil-light-en.webp" width="210" alt="Crear cuenta" /></p>
+<p align="center"><img src="docs/assets/capturas/web/registro-escritorio-light-en.webp" width="600" alt="Create account" /> <img src="docs/assets/capturas/web/registro-movil-light-en.webp" width="210" alt="Create account" /></p>
 
-<p align="center"><img src="docs/assets/capturas/web/hoy-escritorio-light-en.webp" width="600" alt="Hoy" /> <img src="docs/assets/capturas/web/hoy-movil-light-en.webp" width="210" alt="Hoy" /></p>
+<p align="center"><img src="docs/assets/capturas/web/hoy-escritorio-light-en.webp" width="600" alt="Today" /> <img src="docs/assets/capturas/web/hoy-movil-light-en.webp" width="210" alt="Today" /></p>
 
-<p align="center"><img src="docs/assets/capturas/web/medicamentos-escritorio-light-en.webp" width="600" alt="Medicinas" /> <img src="docs/assets/capturas/web/medicamentos-movil-light-en.webp" width="210" alt="Medicinas" /></p>
+<p align="center"><img src="docs/assets/capturas/web/medicamentos-escritorio-light-en.webp" width="600" alt="Medicines" /> <img src="docs/assets/capturas/web/medicamentos-movil-light-en.webp" width="210" alt="Medicines" /></p>
 
-<p align="center"><img src="docs/assets/capturas/web/agenda-escritorio-light-en.webp" width="600" alt="Agenda" /> <img src="docs/assets/capturas/web/agenda-movil-light-en.webp" width="210" alt="Agenda" /></p>
+<p align="center"><img src="docs/assets/capturas/web/agenda-escritorio-light-en.webp" width="600" alt="Schedule" /> <img src="docs/assets/capturas/web/agenda-movil-light-en.webp" width="210" alt="Schedule" /></p>
 
-<p align="center"><img src="docs/assets/capturas/web/adherencia-escritorio-light-en.webp" width="600" alt="Historial" /> <img src="docs/assets/capturas/web/adherencia-movil-light-en.webp" width="210" alt="Historial" /></p>
+<p align="center"><img src="docs/assets/capturas/web/adherencia-escritorio-light-en.webp" width="600" alt="History" /> <img src="docs/assets/capturas/web/adherencia-movil-light-en.webp" width="210" alt="History" /></p>
 
-<p align="center"><img src="docs/assets/capturas/web/reportes-escritorio-light-en.webp" width="600" alt="Reportes" /> <img src="docs/assets/capturas/web/reportes-movil-light-en.webp" width="210" alt="Reportes" /></p>
+<p align="center"><img src="docs/assets/capturas/web/reportes-escritorio-light-en.webp" width="600" alt="Reports" /> <img src="docs/assets/capturas/web/reportes-movil-light-en.webp" width="210" alt="Reports" /></p>
 
-<p align="center"><img src="docs/assets/capturas/web/reporte-escritorio-light-en.webp" width="600" alt="Reporte" /> <img src="docs/assets/capturas/web/reporte-movil-light-en.webp" width="210" alt="Reporte" /></p>
+<p align="center"><img src="docs/assets/capturas/web/reporte-escritorio-light-en.webp" width="600" alt="Report" /> <img src="docs/assets/capturas/web/reporte-movil-light-en.webp" width="210" alt="Report" /></p>
 
-<p align="center"><img src="docs/assets/capturas/web/asistente-escritorio-light-en.webp" width="600" alt="Asistente" /> <img src="docs/assets/capturas/web/asistente-movil-light-en.webp" width="210" alt="Asistente" /></p>
+<p align="center"><img src="docs/assets/capturas/web/asistente-escritorio-light-en.webp" width="600" alt="Assistant" /> <img src="docs/assets/capturas/web/asistente-movil-light-en.webp" width="210" alt="Assistant" /></p>
 
-<p align="center"><img src="docs/assets/capturas/web/avisos-escritorio-light-en.webp" width="600" alt="Avisos" /> <img src="docs/assets/capturas/web/avisos-movil-light-en.webp" width="210" alt="Avisos" /></p>
+<p align="center"><img src="docs/assets/capturas/web/avisos-escritorio-light-en.webp" width="600" alt="Notifications" /> <img src="docs/assets/capturas/web/avisos-movil-light-en.webp" width="210" alt="Notifications" /></p>
 
-<p align="center"><img src="docs/assets/capturas/web/ajustes-escritorio-light-en.webp" width="600" alt="Ajustes" /> <img src="docs/assets/capturas/web/ajustes-movil-light-en.webp" width="210" alt="Ajustes" /></p>
+<p align="center"><img src="docs/assets/capturas/web/ajustes-escritorio-light-en.webp" width="600" alt="Settings" /> <img src="docs/assets/capturas/web/ajustes-movil-light-en.webp" width="210" alt="Settings" /></p>
 
 </details>
 
@@ -277,27 +280,27 @@ inglés) se recuerdan en el navegador.
 
 <p align="center"><img src="docs/assets/capturas/web/landing-escritorio-dark-en.webp" width="600" alt="Landing" /> <img src="docs/assets/capturas/web/landing-movil-dark-en.webp" width="210" alt="Landing" /></p>
 
-<p align="center"><img src="docs/assets/capturas/web/login-escritorio-dark-en.webp" width="600" alt="Iniciar sesión" /> <img src="docs/assets/capturas/web/login-movil-dark-en.webp" width="210" alt="Iniciar sesión" /></p>
+<p align="center"><img src="docs/assets/capturas/web/login-escritorio-dark-en.webp" width="600" alt="Sign in" /> <img src="docs/assets/capturas/web/login-movil-dark-en.webp" width="210" alt="Sign in" /></p>
 
-<p align="center"><img src="docs/assets/capturas/web/registro-escritorio-dark-en.webp" width="600" alt="Crear cuenta" /> <img src="docs/assets/capturas/web/registro-movil-dark-en.webp" width="210" alt="Crear cuenta" /></p>
+<p align="center"><img src="docs/assets/capturas/web/registro-escritorio-dark-en.webp" width="600" alt="Create account" /> <img src="docs/assets/capturas/web/registro-movil-dark-en.webp" width="210" alt="Create account" /></p>
 
-<p align="center"><img src="docs/assets/capturas/web/hoy-escritorio-dark-en.webp" width="600" alt="Hoy" /> <img src="docs/assets/capturas/web/hoy-movil-dark-en.webp" width="210" alt="Hoy" /></p>
+<p align="center"><img src="docs/assets/capturas/web/hoy-escritorio-dark-en.webp" width="600" alt="Today" /> <img src="docs/assets/capturas/web/hoy-movil-dark-en.webp" width="210" alt="Today" /></p>
 
-<p align="center"><img src="docs/assets/capturas/web/medicamentos-escritorio-dark-en.webp" width="600" alt="Medicinas" /> <img src="docs/assets/capturas/web/medicamentos-movil-dark-en.webp" width="210" alt="Medicinas" /></p>
+<p align="center"><img src="docs/assets/capturas/web/medicamentos-escritorio-dark-en.webp" width="600" alt="Medicines" /> <img src="docs/assets/capturas/web/medicamentos-movil-dark-en.webp" width="210" alt="Medicines" /></p>
 
-<p align="center"><img src="docs/assets/capturas/web/agenda-escritorio-dark-en.webp" width="600" alt="Agenda" /> <img src="docs/assets/capturas/web/agenda-movil-dark-en.webp" width="210" alt="Agenda" /></p>
+<p align="center"><img src="docs/assets/capturas/web/agenda-escritorio-dark-en.webp" width="600" alt="Schedule" /> <img src="docs/assets/capturas/web/agenda-movil-dark-en.webp" width="210" alt="Schedule" /></p>
 
-<p align="center"><img src="docs/assets/capturas/web/adherencia-escritorio-dark-en.webp" width="600" alt="Historial" /> <img src="docs/assets/capturas/web/adherencia-movil-dark-en.webp" width="210" alt="Historial" /></p>
+<p align="center"><img src="docs/assets/capturas/web/adherencia-escritorio-dark-en.webp" width="600" alt="History" /> <img src="docs/assets/capturas/web/adherencia-movil-dark-en.webp" width="210" alt="History" /></p>
 
-<p align="center"><img src="docs/assets/capturas/web/reportes-escritorio-dark-en.webp" width="600" alt="Reportes" /> <img src="docs/assets/capturas/web/reportes-movil-dark-en.webp" width="210" alt="Reportes" /></p>
+<p align="center"><img src="docs/assets/capturas/web/reportes-escritorio-dark-en.webp" width="600" alt="Reports" /> <img src="docs/assets/capturas/web/reportes-movil-dark-en.webp" width="210" alt="Reports" /></p>
 
-<p align="center"><img src="docs/assets/capturas/web/reporte-escritorio-dark-en.webp" width="600" alt="Reporte" /> <img src="docs/assets/capturas/web/reporte-movil-dark-en.webp" width="210" alt="Reporte" /></p>
+<p align="center"><img src="docs/assets/capturas/web/reporte-escritorio-dark-en.webp" width="600" alt="Report" /> <img src="docs/assets/capturas/web/reporte-movil-dark-en.webp" width="210" alt="Report" /></p>
 
-<p align="center"><img src="docs/assets/capturas/web/asistente-escritorio-dark-en.webp" width="600" alt="Asistente" /> <img src="docs/assets/capturas/web/asistente-movil-dark-en.webp" width="210" alt="Asistente" /></p>
+<p align="center"><img src="docs/assets/capturas/web/asistente-escritorio-dark-en.webp" width="600" alt="Assistant" /> <img src="docs/assets/capturas/web/asistente-movil-dark-en.webp" width="210" alt="Assistant" /></p>
 
-<p align="center"><img src="docs/assets/capturas/web/avisos-escritorio-dark-en.webp" width="600" alt="Avisos" /> <img src="docs/assets/capturas/web/avisos-movil-dark-en.webp" width="210" alt="Avisos" /></p>
+<p align="center"><img src="docs/assets/capturas/web/avisos-escritorio-dark-en.webp" width="600" alt="Notifications" /> <img src="docs/assets/capturas/web/avisos-movil-dark-en.webp" width="210" alt="Notifications" /></p>
 
-<p align="center"><img src="docs/assets/capturas/web/ajustes-escritorio-dark-en.webp" width="600" alt="Ajustes" /> <img src="docs/assets/capturas/web/ajustes-movil-dark-en.webp" width="210" alt="Ajustes" /></p>
+<p align="center"><img src="docs/assets/capturas/web/ajustes-escritorio-dark-en.webp" width="600" alt="Settings" /> <img src="docs/assets/capturas/web/ajustes-movil-dark-en.webp" width="210" alt="Settings" /></p>
 
 </details>
 
@@ -406,10 +409,12 @@ cd wear
 
 **Instalar en un reloj real por ADB inalámbrico:**
 
-1. En el reloj, activa *Opciones de desarrollador → Depuración inalámbrica* y vincúlalo con
+1. Descarga `recuerda-reloj.apk` de la [última release](https://github.com/StehvenObandoUcc/front-smartwatch/releases/latest)
+   o compílalo con `./gradlew assembleRelease`.
+2. En el reloj, activa *Opciones de desarrollador → Depuración inalámbrica* y vincúlalo con
    `adb pair`.
-2. Comprueba que aparece con `adb devices`.
-3. Instala:
+3. Comprueba que aparece con `adb devices`.
+4. Instala (cambia la ruta si usas el APK descargado):
    ```sh
    adb push app/build/outputs/apk/release/app-release.apk /data/local/tmp/app.apk
    adb shell pm install -r /data/local/tmp/app.apk
@@ -441,7 +446,8 @@ Usa la versión **release** para probar: la de depuración pesa unos 50 MB y va 
 - **Web**: Vercel, desde `main`. `web/vercel.json` reenvía `/auth/*` al backend, para que la cookie
   de sesión sea de primera parte. El resto de la API se llama directamente en Heroku.
 - **Backend**: Heroku, desde su propio repositorio.
-- **Reloj**: no se publica en Play Store; se instala como se explica arriba.
+- **Reloj**: no se publica en Play Store. Cada versión deja su APK en las
+  [releases](https://github.com/StehvenObandoUcc/front-smartwatch/releases) y se instala por ADB.
 
 ## Estructura
 
