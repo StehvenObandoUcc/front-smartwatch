@@ -130,6 +130,7 @@
     <string name="status_scheduled">Pending</string>
     <string name="status_missed">Not taken</string>
     <string name="all_done_today">All taken today</string>
+    <string name="day_done">Done for today</string>
     <string name="all_done_next">Tomorrow %1$s · %2$s</string>
     <string name="adherence_none_month">No doses due yet in %1$s</string>
     <string name="adherence_taken_month">taken in %1$s</string>

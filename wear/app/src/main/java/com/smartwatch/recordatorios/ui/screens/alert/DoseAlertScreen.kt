@@ -4,13 +4,13 @@ import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -37,12 +37,15 @@ import com.smartwatch.recordatorios.data.local.DoseStatus
 import com.smartwatch.recordatorios.ui.components.BwActionPill
 import com.smartwatch.recordatorios.ui.components.BwBanner
 import com.smartwatch.recordatorios.ui.components.BwButton
+import com.smartwatch.recordatorios.ui.components.BwEdgeButton
 import com.smartwatch.recordatorios.ui.components.BwIcon
 import com.smartwatch.recordatorios.ui.components.BwScreenScaffold
 import com.smartwatch.recordatorios.ui.components.BwSnoozeMark
 import com.smartwatch.recordatorios.ui.components.BwSuccessMark
 import com.smartwatch.recordatorios.ui.components.BwText
 import com.smartwatch.recordatorios.ui.components.MedicationLabel
+import com.smartwatch.recordatorios.ui.components.Tomi
+import com.smartwatch.recordatorios.ui.components.TomiMood
 import com.smartwatch.recordatorios.ui.components.doseStatusText
 import com.smartwatch.recordatorios.ui.components.edgeItem
 import com.smartwatch.recordatorios.ui.theme.BwTheme
@@ -53,10 +56,10 @@ import com.smartwatch.recordatorios.ui.theme.Spacing
 import com.smartwatch.recordatorios.ui.theme.timeText
 
 /**
- * Alerta a pantalla completa: Tomada, Posponer y Omitir (con confirmación). Todo centrado y sin
- * título aparte: el estado ("08:00 · Pendiente") hace de título para que «Tomada» quepa sin desplazarse.
- * Tras «Tomada» se muestra la marca de éxito y tras «Posponer» el resumen de pospuestas; quien aloja
- * la pantalla decide cuándo cerrarla.
+ * Alerta a pantalla completa, la única en coral: Tomi suena sobre el medicamento y «Tomada» va en el
+ * botón del borde, siempre a la vista. Posponer y Omitir (con confirmación) quedan debajo, al
+ * deslizar, para no tocarlos por error. Tras «Tomada», Tomi salta y se ve la marca de éxito; tras
+ * «Posponer», el resumen de pospuestas. Quien aloja la pantalla decide cuándo cerrarla.
  */
 @Composable
 fun DoseAlertScreen(
@@ -76,15 +79,24 @@ fun DoseAlertScreen(
     // desplazado para llegar a Omitir, la confirmación quedaría bajo la hora.
     LaunchedEffect(confirmingSkip, takenAt, snoozedAt) { listState.scrollToItem(0) }
     val pending = dose.status == DoseStatus.SCHEDULED
+    val asking = takenAt == null && snoozedAt == null && !confirmingSkip
+    val take = {
+        takenAt = System.currentTimeMillis()
+        onTake()
+    }
 
-    // Naranja rojizo mientras pide algo; verde cuando ya se tomó.
-    val tone = if (takenAt != null) BwTone.DONE else BwTone.ALERT
-    BwScreenScaffold(scrollState = listState, tone = tone) { contentPadding ->
+    // Coral solo mientras pide la toma; lo demás vuelve al fondo claro.
+    BwScreenScaffold(
+        scrollState = listState,
+        tone = if (asking) BwTone.ALERT else BwTone.PLAIN,
+        edgeButton = if (asking && pending) ({ TakeEdgeButton(onClick = take) }) else null,
+    ) { contentPadding ->
         TransformingLazyColumn(state = listState, contentPadding = contentPadding) {
             val taken = takenAt
             val snoozed = snoozedAt
             when {
                 taken != null -> {
+                    edgeItem { Tomi(mood = TomiMood.HAPPY, width = Sizes.tomiSmall) }
                     edgeItem {
                         BwSuccessMark(
                             // La última dosis del día cierra el día: lo dice, sin exclamaciones.
@@ -129,12 +141,8 @@ fun DoseAlertScreen(
                 else -> {
                     doseSummary(dose)
                     if (pending) {
-                        pendingActions(
+                        laterActions(
                             dose,
-                            onTake = {
-                                takenAt = System.currentTimeMillis()
-                                onTake()
-                            },
                             onSnooze = {
                                 snoozedAt = System.currentTimeMillis()
                                 onSnooze()
@@ -148,8 +156,21 @@ fun DoseAlertScreen(
     }
 }
 
+/** «Tomada» en el botón del borde: blanco sobre el coral, con el visto y una palabra. */
+@Composable
+private fun TakeEdgeButton(onClick: () -> Unit) {
+    BwEdgeButton(
+        label = stringResource(R.string.action_take),
+        icon = R.drawable.ic_check,
+        onClick = onClick,
+        container = BwTheme.colors.surface,
+        content = BwTheme.colors.ink,
+    )
+}
+
 private fun TransformingLazyColumnScope.doseSummary(dose: DoseEntity) {
     edgeItem { CenteredText(doseStatusText(dose), style = BwTheme.type.support) }
+    edgeItem { Tomi(mood = TomiMood.RINGING) }
     edgeItem {
         MedicationLabel(
             name = dose.medicationName,
@@ -160,85 +181,67 @@ private fun TransformingLazyColumnScope.doseSummary(dose: DoseEntity) {
     edgeItem { CenteredText(dose.doseLabel) }
 }
 
-private fun TransformingLazyColumnScope.pendingActions(
+/** Posponer y Omitir, bajo el pliegue. Omitir en grafito porque no se deshace (pide confirmación). */
+private fun TransformingLazyColumnScope.laterActions(
     dose: DoseEntity,
-    onTake: () -> Unit,
     onSnooze: () -> Unit,
     onAskSkip: () -> Unit,
 ) {
-    val canSnooze = SnoozePolicy.canSnooze(dose.snoozeCount)
-    if (!canSnooze) {
-        edgeItem {
-            BwText(
-                text = stringResource(R.string.snooze_limit),
-                style = BwTheme.type.support,
-                color = BwTheme.colors.contentSoft,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth(),
+    val minutes = SnoozePolicy.DELAY.toMinutes().toInt()
+    // Las opciones empiezan debajo del botón del borde: no asoman detrás de él al abrir la alerta.
+    edgeItem { Spacer(Modifier.height(Sizes.edgeButtonRoom)) }
+    if (SnoozePolicy.canSnooze(dose.snoozeCount)) {
+        edgeItem(container = true) {
+            AlertChip(
+                label = pluralStringResource(R.plurals.next_in_minutes, minutes, minutes),
+                icon = R.drawable.ic_snooze,
+                onClick = onSnooze,
             )
         }
+    } else {
+        edgeItem { CenteredText(stringResource(R.string.snooze_limit), style = BwTheme.type.support) }
     }
-    // Tres discos en una fila: Tomada, el grande y claro, en el centro; Omitir y Posponer, de vidrio,
-    // a los lados (Omitir pide confirmación). Sin más pospuestas, Posponer no aparece.
     edgeItem(container = true) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(Spacing.xs, Alignment.CenterHorizontally),
-            verticalAlignment = Alignment.Top,
-        ) {
-            ActionDisc(stringResource(R.string.action_skip), R.drawable.ic_close, onClick = onAskSkip)
-            ActionDisc(stringResource(R.string.action_take), R.drawable.ic_check, onClick = onTake, main = true)
-            if (canSnooze) {
-                ActionDisc(
-                    stringResource(R.string.snooze_short),
-                    R.drawable.ic_snooze,
-                    onClick = onSnooze,
-                    detail = stringResource(R.string.snooze_minutes, SnoozePolicy.DELAY.toMinutes()),
-                )
-            }
-        }
+        AlertChip(
+            label = stringResource(R.string.action_skip),
+            icon = R.drawable.ic_close,
+            onClick = onAskSkip,
+            destructive = true,
+        )
     }
 }
 
-/** Una acción como disco con su palabra debajo; disco y palabra son un solo botón para TalkBack. */
+/** Píldora con icono y una o dos palabras: blanca, o grafito para lo que no se deshace. */
 @Composable
-private fun ActionDisc(
+private fun AlertChip(
     label: String,
     @DrawableRes icon: Int,
     onClick: () -> Unit,
-    main: Boolean = false,
-    detail: String? = null,
+    destructive: Boolean = false,
 ) {
     val colors = BwTheme.colors
-    Column(
+    val container = if (destructive) colors.accent else colors.surface
+    val content = if (destructive) colors.onAccent else colors.ink
+    Row(
         modifier =
             Modifier
-                .clip(BwTheme.shapes.card)
+                .fillMaxWidth(if (destructive) NARROW_CHIP else 1f)
+                .heightIn(min = Sizes.buttonHeight)
+                .clip(BwTheme.shapes.pill)
+                .background(container)
                 .clickable(role = Role.Button, onClick = onClick)
                 .semantics(mergeDescendants = true) {}
-                .padding(vertical = Spacing.xs),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(Spacing.xs),
+                .padding(horizontal = Spacing.lg),
+        horizontalArrangement = Arrangement.spacedBy(Spacing.sm, Alignment.CenterHorizontally),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        Box(
-            modifier =
-                Modifier
-                    .size(if (main) Sizes.discMain else Sizes.discSecondary)
-                    .clip(CircleShape)
-                    .background(if (main) colors.primary else colors.surface),
-            contentAlignment = Alignment.Center,
-        ) {
-            BwIcon(
-                icon,
-                contentDescription = null,
-                color = if (main) colors.onPrimary else colors.content,
-                modifier = Modifier.size(Sizes.discIcon),
-            )
-        }
-        BwText(label, style = BwTheme.type.support, textAlign = TextAlign.Center, maxLines = 1)
-        detail?.let { BwText(it, style = BwTheme.type.support, color = colors.contentSoft, maxLines = 1) }
+        BwIcon(icon, contentDescription = null, color = content, modifier = Modifier.size(Sizes.icon))
+        BwText(label, style = BwTheme.type.label, color = content, maxLines = 1)
     }
 }
+
+/** Omitir es más estrecho que posponer: la acción que no se deshace ocupa menos. */
+private const val NARROW_CHIP = 0.82f
 
 /** Tras posponer: cuántas van, cuándo vuelve a sonar y cuántas quedan. */
 private fun TransformingLazyColumnScope.snoozedSummary(

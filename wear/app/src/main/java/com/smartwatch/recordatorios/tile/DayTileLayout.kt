@@ -17,7 +17,7 @@ import androidx.wear.protolayout.LayoutElementBuilders.Row
 import androidx.wear.protolayout.LayoutElementBuilders.Spacer
 import androidx.wear.protolayout.LayoutElementBuilders.Text
 import androidx.wear.protolayout.ModifiersBuilders
-import com.smartwatch.recordatorios.ui.theme.BwTheme
+import com.smartwatch.recordatorios.ui.theme.TileColors
 import com.smartwatch.recordatorios.ui.theme.medicationColor
 
 /**
@@ -30,13 +30,12 @@ fun dayTileLayout(
     texts: DayTileTexts,
     open: ActionBuilders.LaunchAction,
 ): LayoutElementBuilders.LayoutElement {
-    val colors = BwTheme.colors
     val content =
         Column
             .Builder()
             .setHorizontalAlignment(LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER)
-            .addContent(text(texts.count, HERO_SP, colors.content.toArgb(), bold = true))
-            .addContent(text(texts.takenToday, SUPPORT_SP, colors.contentSoft.toArgb(), bold = false))
+            .addContent(text(texts.count, HERO_SP, TileColors.content.toArgb(), bold = true))
+            .addContent(text(texts.takenToday, SUPPORT_SP, TileColors.contentSoft.toArgb(), bold = false))
     texts.next?.let { next ->
         content.addContent(Spacer.Builder().setHeight(dp(GAP_DP)).build())
         content.addContent(nextRow(next, state.next?.colorKey))
@@ -60,8 +59,8 @@ fun dayTileLayout(
                         .setContentDescription(texts.description)
                         .build(),
                 ).build(),
-        ).addContent(ring(FULL_TURN, colors.track.toArgb()))
-        .addContent(ring(FULL_TURN * state.progress, colors.stateTaken.toArgb()))
+        ).addContent(ring(FULL_TURN, TileColors.track.toArgb()))
+        .addContent(ring(FULL_TURN * state.progress, TileColors.taken.toArgb()))
         .addContent(content.build())
         .build()
 }
@@ -113,7 +112,7 @@ private fun nextRow(
         )
         row.addContent(Spacer.Builder().setWidth(dp(GAP_DP)).build())
     }
-    row.addContent(text(label, BODY_SP, BwTheme.colors.content.toArgb(), bold = true))
+    row.addContent(text(label, BODY_SP, TileColors.content.toArgb(), bold = true))
     return row.build()
 }
 

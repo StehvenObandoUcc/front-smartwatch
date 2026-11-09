@@ -37,6 +37,30 @@ private fun interTight(weight: Int) =
 
 val AppFont = FontFamily(interTight(REGULAR), interTight(MEDIUM), interTight(SEMI_BOLD), interTight(BOLD))
 
+/**
+ * Fraunces para la hora y los títulos: una serifa suave, como la etiqueta de una farmacia. Variable
+ * (OFL, licencia en assets) con el eje SOFT al máximo para que las serifas se redondeen.
+ */
+private fun fraunces(
+    weight: Int,
+    opticalSize: Float,
+) = Font(
+    R.font.fraunces,
+    FontWeight(weight),
+    variationSettings =
+        FontVariation.Settings(
+            FontVariation.weight(weight),
+            FontVariation.Setting("opsz", opticalSize),
+            FontVariation.Setting("SOFT", SOFT_MAX),
+        ),
+)
+
+val DisplayFont = FontFamily(fraunces(BOLD, OPSZ_DISPLAY))
+val TitleFont = FontFamily(fraunces(BOLD, OPSZ_TITLE))
+
+private const val SOFT_MAX = 100f
+private const val OPSZ_DISPLAY = 144f
+private const val OPSZ_TITLE = 48f
 private const val REGULAR = 400
 private const val MEDIUM = 500
 private const val BOLD = 700
@@ -46,22 +70,23 @@ private const val SEMI_BOLD = 600
 private val Base = TextStyle(fontFamily = AppFont, hyphens = Hyphens.None, lineBreak = LineBreak.Paragraph)
 
 object BwTypography {
-    /** Titulares cortos y apretados, como en el panel web. */
-    val title = Base.copy(fontSize = TypeScale.title, fontWeight = FontWeight.SemiBold, letterSpacing = TIGHT.em)
+    /** Títulos y nombres de medicamento, en Fraunces. */
+    val title = Base.copy(fontFamily = TitleFont, fontSize = TypeScale.title, fontWeight = FontWeight.Bold)
     val body = Base.copy(fontSize = TypeScale.body)
     val label = Base.copy(fontSize = TypeScale.body, fontWeight = FontWeight.SemiBold)
     val support = Base.copy(fontSize = TypeScale.support)
 
-    /** La cifra que se mira de un vistazo: grande, en peso medio y muy apretada. */
+    /** La hora o la cifra que se mira de un vistazo: Fraunces grande, con cifras de ancho fijo. */
     val display =
         Base.copy(
+            fontFamily = DisplayFont,
             fontSize = TypeScale.hero,
-            fontWeight = FontWeight.Medium,
+            fontWeight = FontWeight.Bold,
             letterSpacing = DISPLAY_TIGHT.em,
             fontFeatureSettings = "tnum",
         )
 
-    /** Para [display] con autoSize: de 44 sp hasta el tamaño de título si no cabe. */
+    /** Para [display] con autoSize: de 50 sp hasta el tamaño de título si no cabe. */
     val displayFit = TextAutoSize.StepBased(minFontSize = TypeScale.title, maxFontSize = TypeScale.hero)
 
     /** Para [title] con autoSize: un nombre de una sola palabra baja hasta 14 sp antes de partirse. */
@@ -85,5 +110,4 @@ fun RecordatoriosTheme(content: @Composable () -> Unit) {
     content()
 }
 
-private const val TIGHT = -0.02f
-private const val DISPLAY_TIGHT = -0.035f
+private const val DISPLAY_TIGHT = -0.02f

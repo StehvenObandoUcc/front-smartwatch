@@ -130,6 +130,7 @@
     <string name="status_scheduled">Pendiente</string>
     <string name="status_missed">No tomada</string>
     <string name="all_done_today">Todas tomadas hoy</string>
+    <string name="day_done">Listo por hoy</string>
     <string name="all_done_next">Mañana %1$s · %2$s</string>
     <string name="adherence_none_month">Aún sin dosis vencidas en %1$s</string>
     <string name="adherence_taken_month">tomadas en %1$s</string>

@@ -24,7 +24,7 @@ import com.smartwatch.recordatorios.ui.theme.Spacing
 private const val LIGHT_PLATE = 0.4f
 
 /** Tinta o blanco según el color de la placa, para que el pictograma se lea siempre. */
-fun onPlate(color: Color): Color = if (color.luminance() > LIGHT_PLATE) BwTheme.colors.ink else BwTheme.colors.content
+fun onPlate(color: Color): Color = if (color.luminance() > LIGHT_PLATE) BwTheme.colors.ink else BwTheme.colors.onDark
 
 /**
  * Placa de pictograma, la firma del sistema (la misma que en el panel web): cuadrada, esquina corta,

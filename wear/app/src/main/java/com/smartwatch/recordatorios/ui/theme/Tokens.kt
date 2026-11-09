@@ -6,35 +6,22 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 /**
- * Primitivos: la paleta de Recuerda, con los mismos nombres y valores que el panel web (`--p-*` en
- * web/src/design/tokens/tokens.css). Solo los leen los papeles de abajo ([AppColors],
- * [BwBackgrounds], [medicationColor]); ninguna pantalla ni componente usa un primitivo directamente.
- * Los que hacen falta en XML están repetidos en res/values/colors.xml y una prueba vigila que sigan
- * iguales.
+ * Primitivos: la paleta de Recuerda en el reloj. Solo los leen los papeles de abajo ([AppColors],
+ * [TileColors], [BwBackgrounds], [medicationColor]) y Tomi, que tiene sus colores fijos en cualquier
+ * fondo. Ninguna pantalla los usa directamente. Los que hacen falta en XML están repetidos en
+ * res/values/colors.xml y una prueba vigila que sigan iguales.
  */
 object Palette {
-    val petrol900 = Color(0xFF083B38)
-    val petrol600 = Color(0xFF0B605A)
-    val cream = Color(0xFFF7F2EC)
-    val sand = Color(0xFFE2D7CC)
-    val ink = Color(0xFF1B1613)
-    val aqua = Color(0xFF7FE0D4)
-    val mint = Color(0xFF8FE3B0)
-    val coralLight = Color(0xFFFFB08A)
-    val coral = Color(0xFFFF8A70)
-    val stone = Color(0xFFC9CFCD)
-
-    /** Degradado de la alarma y de «Tomada». */
-    val ember900 = Color(0xFF3F1408)
-    val ember500 = Color(0xFFB8401C)
-    val forest900 = Color(0xFF0D3A1F)
-    val forest500 = Color(0xFF2A7A35)
-
-    /** Brillos de franja (los de los paneles web). */
-    val glowMorning = Color(0xFFF6DE68)
-    val glowAfternoon = Color(0xFFF99654)
-    val glowNight = Color(0xFFDE96C8)
-    val glowComplete = Color(0xFF96CE96)
+    /** Fondo de la pantalla: salvia muy clara, como el papel de un pastillero. */
+    val screen = Color(0xFFE6EFE1)
+    val white = Color(0xFFFFFFFF)
+    val sage = Color(0xFFA8D49A)
+    val sageDeep = Color(0xFF3B6E33)
+    val ink = Color(0xFF1F2A1C)
+    val inkSoft = Color(0xFF3F4D37)
+    val coral = Color(0xFFF4B49E)
+    val graphite = Color(0xFF2B2F2A)
+    val stone = Color(0xFFC9D3C4)
 
     /** Tonos de medicamento: profundos, con el pictograma claro legible encima (≥ 3:1). */
     val medRed = Color(0xFFC62828)
@@ -47,23 +34,19 @@ object Palette {
     val medPink = Color(0xFFAD1457)
 }
 
-/** Opacidades del crema sobre petróleo: vidrio de superficies, contorno y vía de anillos y barras. */
-private const val GLASS_ALPHA = 0x29 / 255f
-private const val OUTLINE_ALPHA = 0x57 / 255f
-private const val TRACK_ALPHA = 0x47 / 255f
+/** Opacidades de la tinta sobre el fondo claro: contorno de botones secundarios y vía de anillos. */
+private const val OUTLINE_ALPHA = 0x2E / 255f
+private const val TRACK_ALPHA = 0x26 / 255f
 
 /**
- * Papeles de color del reloj: esferas a sangre con cuatro colores como máximo.
- * - Petróleo (principal): el fondo de casi todas las pantallas, en degradado tonal ([BwBackgrounds]).
- * - Aguamarina (su complemento claro): arcos, «ahora» y lo pendiente ([info]).
- * - Naranja rojizo: la alarma y lo que pide atención ([stateDue], [stateMissed]).
- * - Verde: Tomada ([stateTaken]).
- * Lo demás es neutro: el claro cálido de texto, la tinta para lo que va sobre rellenos claros y el
- * vidrio (claro translúcido) de superficies y botones secundarios. Ni negro ni blanco puros.
- * La acción principal es un relleno claro con tinta encima: contrasta sobre cualquier fondo.
- * Contrastes (WCAG): claro sobre el extremo claro de cada degradado ≥ 4,8:1 y texto suave ≥ 5,5:1
- * (≥ 4,69:1 con el brillo de cualquier franja); tinta sobre la acción principal 16:1, sobre
- * aguamarina 11,5:1, sobre verde claro 11,8:1, sobre naranja claro 10,1:1 y sobre rojo claro 7,8:1.
+ * Papeles de color del reloj, en tema claro:
+ * - Salvia: lo hecho («Tomada») y la acción principal ([primary], [stateTaken]).
+ * - Salvia profunda: lo que toca ahora ([info], [stateDue]).
+ * - Coral: solo la alarma ([BwTone.ALERT]).
+ * - Grafito: lo que no se deshace (omitir, desvincular) y los avisos ([accent], [stateMissed]).
+ * Texto en tinta; tarjetas y botones secundarios en blanco.
+ * Contrastes (WCAG): tinta sobre el fondo 12,7:1, sobre salvia 8,9:1 y sobre coral 8,4:1; texto suave
+ * sobre el fondo 7,6:1 y sobre coral 5,1:1; blanco sobre grafito 13,6:1 y sobre salvia profunda 6,1:1.
  */
 @Immutable
 data class BwColors(
@@ -88,74 +71,55 @@ data class BwColors(
     val stateSkipped: Color,
     /** Tinta para texto e iconos sobre los rellenos claros. */
     val ink: Color,
+    /** Texto e iconos sobre los rellenos oscuros (grafito, salvia profunda, colores de medicamento). */
+    val onDark: Color,
 )
 
 val AppColors =
     BwColors(
-        background = Palette.petrol900,
-        surface = Palette.cream.copy(alpha = GLASS_ALPHA),
-        outline = Palette.cream.copy(alpha = OUTLINE_ALPHA),
-        content = Palette.cream,
-        contentSoft = Palette.sand,
-        accent = Palette.coralLight,
-        onAccent = Palette.ink,
-        primary = Palette.cream,
+        background = Palette.screen,
+        surface = Palette.white,
+        outline = Palette.ink.copy(alpha = OUTLINE_ALPHA),
+        content = Palette.ink,
+        contentSoft = Palette.inkSoft,
+        accent = Palette.graphite,
+        onAccent = Palette.white,
+        primary = Palette.sage,
         onPrimary = Palette.ink,
-        info = Palette.aqua,
-        track = Palette.cream.copy(alpha = TRACK_ALPHA),
-        stateTaken = Palette.mint,
-        stateDue = Palette.coralLight,
-        stateMissed = Palette.coral,
+        info = Palette.sageDeep,
+        track = Palette.ink.copy(alpha = TRACK_ALPHA),
+        stateTaken = Palette.sage,
+        stateDue = Palette.sageDeep,
+        stateMissed = Palette.graphite,
         stateSkipped = Palette.stone,
         ink = Palette.ink,
+        onDark = Palette.white,
     )
 
-/** Papel de la pantalla: decide su fondo ([BwBackgrounds]). */
-enum class BwTone { PETROL, ALERT, DONE, MORNING, AFTERNOON, NIGHT, COMPLETE }
-
-/** La franja del momento: 5 a 12 mañana, 12 a 19 tarde, el resto noche (las mismas que el panel web). */
-fun bandTone(epochMillis: Long): BwTone {
-    val hour =
-        java.time.Instant
-            .ofEpochMilli(epochMillis)
-            .atZone(java.time.ZoneId.systemDefault())
-            .hour
-    return when (hour) {
-        in MORNING_START until AFTERNOON_START -> BwTone.MORNING
-        in AFTERNOON_START until NIGHT_START -> BwTone.AFTERNOON
-        else -> BwTone.NIGHT
-    }
+/**
+ * El Tile se pinta sobre el negro del sistema, no sobre el fondo de la app: texto claro y salvia.
+ * Claro sobre negro 17,8:1, salvia 12,5:1.
+ */
+object TileColors {
+    val content = Palette.screen
+    val contentSoft = Palette.sage
+    val track = Palette.screen.copy(alpha = TILE_TRACK_ALPHA)
+    val taken = Palette.sage
 }
 
-/** Fondo de una pantalla: degradado tonal de arriba a abajo y, en las franjas, su brillo. */
-@Immutable
-data class BwBackground(
-    val gradient: List<Color>,
-    val glow: Color? = null,
-)
+private const val TILE_TRACK_ALPHA = 0x47 / 255f
 
-/**
- * Papeles de fondo: el componente pide un [BwTone] y aquí se resuelve con la paleta. El petróleo
- * termina en [Palette.petrol600] para que el texto suave dé ≥ 5,5:1 abajo.
- */
+/** Papel de la pantalla: decide su fondo ([BwBackgrounds]). */
+enum class BwTone { PLAIN, ALERT }
+
+/** Fondo plano en todas las pantallas; la alarma es la única en coral. */
 object BwBackgrounds {
-    private val petrol = listOf(Palette.petrol900, Palette.petrol600)
-
-    fun of(tone: BwTone): BwBackground =
+    fun of(tone: BwTone): Color =
         when (tone) {
-            BwTone.PETROL -> BwBackground(petrol)
-            BwTone.ALERT -> BwBackground(listOf(Palette.ember900, Palette.ember500))
-            BwTone.DONE -> BwBackground(listOf(Palette.forest900, Palette.forest500))
-            BwTone.MORNING -> BwBackground(petrol, Palette.glowMorning)
-            BwTone.AFTERNOON -> BwBackground(petrol, Palette.glowAfternoon)
-            BwTone.NIGHT -> BwBackground(petrol, Palette.glowNight)
-            BwTone.COMPLETE -> BwBackground(petrol, Palette.glowComplete)
+            BwTone.PLAIN -> Palette.screen
+            BwTone.ALERT -> Palette.coral
         }
 }
-
-private const val MORNING_START = 5
-private const val AFTERNOON_START = 12
-private const val NIGHT_START = 19
 
 /** Claves de color de la API (las del panel web) y su tono de la paleta. */
 private val medicationPalette =
@@ -208,9 +172,9 @@ private const val BLUE_SECTOR = 4f
 private const val DEGREES_PER_SECTOR = 60f
 private const val FULL_CIRCLE = 360f
 
-/** Escala tipográfica: nada por debajo de 14 sp; el dato que se mira de un vistazo a 44 sp. */
+/** Escala tipográfica: nada por debajo de 14 sp; la hora que se mira de un vistazo a 50 sp. */
 object TypeScale {
-    val hero = 44.sp
+    val hero = 50.sp
     val title = 18.sp
     val body = 16.sp
     val support = 14.sp
@@ -258,7 +222,7 @@ object Sizes {
     val ringInset = 1.dp
     val ringStroke = 5.dp
     val progressStroke = 4.dp
-    val successMark = 64.dp
+    val successMark = 44.dp
 
     /** Discos de acción: el principal (Tomada) y los secundarios (Omitir, Posponer). */
     val discMain = 60.dp
@@ -282,4 +246,19 @@ object Sizes {
     val badgeIcon = 32.dp
     val barChart = 48.dp
     val bar = 5.dp
+
+    /** Pastillero: casilla de cada dosis del día, su esquina, el borde de la siguiente y el visto. */
+    val pillCell = 24.dp
+    val pillCellRadius = 7.dp
+    val pillNextStroke = 2.5.dp
+    val pillGap = 5.dp
+
+    /** Tomi: ancho de la cápsula (alto = 5/8) en la alarma y en las pantallas de estado. */
+    val tomi = 84.dp
+    val tomiSmall = 72.dp
+
+    /** Botón del borde: alto libre al final de la lista, alto del botón y esquina superior. */
+    val edgeButtonRoom = 64.dp
+    val edgeButton = 58.dp
+    val edgeButtonCorner = 22.dp
 }
