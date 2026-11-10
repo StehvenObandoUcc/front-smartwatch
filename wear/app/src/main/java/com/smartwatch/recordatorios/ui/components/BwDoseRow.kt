@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
@@ -22,9 +23,10 @@ import com.smartwatch.recordatorios.ui.theme.Sizes
 import com.smartwatch.recordatorios.ui.theme.Spacing
 
 /**
- * Fila de una dosis, la de Historial para todo el reloj: el medicamento con su placa y debajo la
- * hora (cifras tabulares, en tono suave); a la derecha, el círculo de su estado con icono (TalkBack lee
- * [stateLabel]). Sin caja ni borde; con [onClick] toda la fila se toca (48 dp de alto como mínimo).
+ * Fila de una dosis, la de Historial para todo el reloj: el medicamento con su punto de color y debajo
+ * la hora (cifras tabulares, en tono suave); a la derecha, el círculo de su estado con icono (TalkBack lee
+ * [stateLabel]). Va en una tarjeta blanca con margen interior: por debajo del centro el círculo de la
+ * pantalla se estrecha y así no corta el punto ni la hora. Con [onClick] toda la tarjeta se toca.
  */
 @Composable
 fun BwDoseRow(
@@ -39,10 +41,7 @@ fun BwDoseRow(
 ) {
     val tap =
         if (onClick != null) {
-            Modifier
-                .clip(
-                    BwTheme.shapes.card,
-                ).clickable(onClickLabel = onClickLabel, role = Role.Button, onClick = onClick)
+            Modifier.clickable(onClickLabel = onClickLabel, role = Role.Button, onClick = onClick)
         } else {
             Modifier
         }
@@ -51,7 +50,10 @@ fun BwDoseRow(
             modifier
                 .fillMaxWidth()
                 .heightIn(min = Sizes.touchMin)
+                .clip(BwTheme.shapes.card)
+                .background(BwTheme.colors.surface)
                 .then(tap)
+                .padding(horizontal = Spacing.lg, vertical = Spacing.sm)
                 .semantics(mergeDescendants = true) {},
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(Spacing.sm),

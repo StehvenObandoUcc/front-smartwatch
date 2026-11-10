@@ -1,6 +1,5 @@
 package com.smartwatch.recordatorios.ui.components
 
-import androidx.annotation.DrawableRes
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -22,6 +21,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
@@ -60,12 +61,16 @@ fun BwProgress(modifier: Modifier = Modifier) {
                 progressBarRangeInfo = ProgressBarRangeInfo.Indeterminate
             },
     ) {
+        // El trazo va centrado en el borde del arco: se mete medio grosor para que no se corte.
+        val stroke = Sizes.progressStroke.toPx()
         drawArc(
             color = color,
             startAngle = angle,
             sweepAngle = ARC_SWEEP,
             useCenter = false,
-            style = Stroke(width = Sizes.progressStroke.toPx(), cap = StrokeCap.Round),
+            topLeft = Offset(stroke / 2, stroke / 2),
+            size = Size(size.width - stroke, size.height - stroke),
+            style = Stroke(width = stroke, cap = StrokeCap.Round),
         )
     }
 }
@@ -154,26 +159,21 @@ private fun StatusMark(
 }
 
 /**
- * Estado vacío: icono, qué pasa y el siguiente paso, centrado. Nunca un texto suelto sin salida.
+ * Estado vacío: Tomi, qué pasa y el siguiente paso, centrado. Nunca un texto suelto sin salida.
  */
 @Composable
 fun BwEmptyState(
-    @DrawableRes icon: Int,
     title: String,
     body: String,
     modifier: Modifier = Modifier,
+    mood: TomiMood = TomiMood.NEUTRAL,
 ) {
     Column(
         modifier = modifier.padding(vertical = Spacing.lg).semantics(mergeDescendants = true) {},
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(Spacing.sm),
     ) {
-        BwIcon(
-            icon,
-            contentDescription = null,
-            color = BwTheme.colors.contentSoft,
-            modifier = Modifier.size(Sizes.badgeIcon),
-        )
+        Tomi(mood = mood, width = Sizes.tomiSmall)
         BwText(title, style = BwTheme.type.title, textAlign = TextAlign.Center)
         BwText(body, color = BwTheme.colors.contentSoft, textAlign = TextAlign.Center)
     }

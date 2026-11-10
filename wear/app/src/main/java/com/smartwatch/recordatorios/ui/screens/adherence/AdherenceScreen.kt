@@ -63,7 +63,6 @@ fun AdherenceScreen(
             if (summary == null) {
                 edgeItem {
                     BwEmptyState(
-                        icon = R.drawable.ic_chart,
                         title = stringResource(R.string.adherence_empty),
                         body = stringResource(R.string.adherence_empty_body),
                         modifier = Modifier.fillMaxWidth(),

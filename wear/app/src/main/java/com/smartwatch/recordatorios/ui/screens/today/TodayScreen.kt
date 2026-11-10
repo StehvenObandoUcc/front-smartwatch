@@ -65,7 +65,6 @@ fun TodayScreen(
                 doses.isEmpty() ->
                     edgeItem {
                         BwEmptyState(
-                            icon = R.drawable.ic_pill,
                             title = stringResource(R.string.today_empty),
                             body = stringResource(R.string.today_empty_body),
                             modifier = Modifier.fillMaxWidth(),

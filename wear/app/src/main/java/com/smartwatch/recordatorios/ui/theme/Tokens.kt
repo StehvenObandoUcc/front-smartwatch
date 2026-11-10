@@ -242,6 +242,10 @@ object Sizes {
     val pillNextStroke = 2.5.dp
     val pillGap = 5.dp
 
+    /** Punto de color del medicamento junto a su nombre, con borde de tinta. */
+    val medDot = 12.dp
+    val medDotBorder = 2.dp
+
     /** Tomi: ancho de la cápsula (alto = 5/8) en la alarma y en las pantallas de estado. */
     val tomi = 84.dp
     val tomiSmall = 72.dp
