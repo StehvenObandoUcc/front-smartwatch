@@ -169,7 +169,11 @@ private fun TakeEdgeButton(onClick: () -> Unit) {
 }
 
 private fun TransformingLazyColumnScope.doseSummary(dose: DoseEntity) {
-    edgeItem { CenteredText(doseStatusText(dose), style = BwTheme.type.support) }
+    // La hora ya la da el reloj de arriba: el estado solo se escribe si dice algo más (pospuesta,
+    // ya resuelta). Así en relojes pequeños la dosis queda por encima del botón del borde.
+    if (dose.status != DoseStatus.SCHEDULED || dose.snoozeCount > 0) {
+        edgeItem { CenteredText(doseStatusText(dose), style = BwTheme.type.support) }
+    }
     edgeItem { Tomi(mood = TomiMood.RINGING) }
     edgeItem {
         MedicationLabel(
