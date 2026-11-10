@@ -4,8 +4,6 @@
     <string name="app_name">Reminders</string>
 
     <string name="next_now">Now</string>
-    <string name="next_label">Next dose</string>
-    <string name="next_detail">%1$s · %2$s</string>
     <plurals name="next_in_minutes">
         <item quantity="one">In %1$d min</item>
         <item quantity="other">In %1$d min</item>
@@ -155,8 +153,6 @@
 
     <string name="action_take">Taken</string>
     <string name="snooze_for">Snooze %1$d min</string>
-    <string name="snooze_short">Snooze</string>
-    <string name="snooze_minutes">%1$d min</string>
     <string name="snooze_limit">No more snoozes</string>
     <string name="action_skip">Skip</string>
     <string name="skip_confirm_title">Skip %1$s?</string>

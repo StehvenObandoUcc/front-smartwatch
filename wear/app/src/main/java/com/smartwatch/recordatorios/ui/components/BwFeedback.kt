@@ -127,7 +127,7 @@ fun BwSnoozeMark(
     }
 }
 
-/** Insignia arriba, [label] grande (encoge si no cabe) y [details] en tono suave; TalkBack lo lee junto. */
+/** Insignia arriba, [label] como título (encoge si no cabe) y [details] en tono suave; TalkBack lo lee junto. */
 @Composable
 private fun StatusMark(
     label: String,
@@ -143,10 +143,10 @@ private fun StatusMark(
         Box(Modifier.clearAndSetSemantics {}) { badge() }
         BwText(
             label,
-            style = BwTheme.type.display,
+            style = BwTheme.type.title,
             textAlign = TextAlign.Center,
             maxLines = 1,
-            autoSize = BwTheme.type.displayFit,
+            autoSize = BwTheme.type.titleFit,
             modifier = Modifier.fillMaxWidth(),
         )
         details.forEach { BwText(it, color = BwTheme.colors.contentSoft, textAlign = TextAlign.Center) }

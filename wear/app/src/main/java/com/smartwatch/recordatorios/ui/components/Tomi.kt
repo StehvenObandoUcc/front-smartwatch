@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
@@ -66,16 +65,16 @@ fun Tomi(
         fun at(
             x: Float,
             y: Float,
-        ) = Offset((ORIGIN_X + x) * k, (ORIGIN_Y + anim.jump + y) * k)
+        ) = Offset((ORIGIN_X + x) * k, (ORIGIN_Y + anim.jump() + y) * k)
         scale(k, k, pivot = Offset.Zero) {
-            translate(ORIGIN_X, ORIGIN_Y + anim.jump) {
+            translate(ORIGIN_X, ORIGIN_Y + anim.jump()) {
                 if (mood == TomiMood.RINGING) {
-                    translate(-WAVE_AMPLITUDE * anim.wave, 0f) { strokes(wavesLeft) }
-                    translate(WAVE_AMPLITUDE * anim.wave, 0f) { strokes(wavesRight) }
+                    translate(-WAVE_AMPLITUDE * anim.wave(), 0f) { strokes(wavesLeft) }
+                    translate(WAVE_AMPLITUDE * anim.wave(), 0f) { strokes(wavesRight) }
                 }
-                rotate(anim.tilt, pivot = Offset(CENTER_X, CENTER_Y)) {
+                rotate(anim.tilt(), pivot = Offset(CENTER_X, CENTER_Y)) {
                     body()
-                    face(face, anim.blink)
+                    face(face, anim.blink())
                 }
             }
         }
@@ -83,13 +82,13 @@ fun Tomi(
             TomiMood.SLEEPING ->
                 drawText(
                     measurer.measure("z", glyph),
-                    topLeft = at(Z_X, Z_Y - Z_RISE * anim.drift),
-                    alpha = 1f - anim.drift,
+                    topLeft = at(Z_X, Z_Y - Z_RISE * anim.drift()),
+                    alpha = 1f - anim.drift(),
                 )
             TomiMood.LISTENING ->
-                scale(anim.pulse, pivot = at(BUBBLE_X, BUBBLE_BOTTOM)) {
+                scale(anim.pulse(), pivot = at(BUBBLE_X, BUBBLE_BOTTOM)) {
                     scale(k, k, pivot = Offset.Zero) {
-                        translate(ORIGIN_X, ORIGIN_Y + anim.jump) {
+                        translate(ORIGIN_X, ORIGIN_Y + anim.jump()) {
                             drawPath(bubble, Palette.white)
                             drawPath(bubble, Palette.ink, style = Stroke(BUBBLE_STROKE, join = StrokeJoin.Round))
                         }
@@ -190,43 +189,25 @@ private fun DrawScope.face(
 private fun DrawScope.strokes(path: Path) =
     drawPath(path, ink, style = Stroke(FACE_W, cap = StrokeCap.Round, join = StrokeJoin.Round))
 
+/**
+ * Valores de la animación como lecturas diferidas: el lienzo los lee al dibujar, así cada fotograma
+ * solo redibuja y no recompone.
+ */
 private class TomiAnimation(
-    val wave: Float = 0f,
-    val tilt: Float = 0f,
-    val jump: Float = 0f,
-    val drift: Float = STILL_DRIFT,
-    val pulse: Float = 1f,
-    val blink: Float = 1f,
+    val wave: () -> Float = { 0f },
+    val tilt: () -> Float = { 0f },
+    val jump: () -> Float = { 0f },
+    val drift: () -> Float = { STILL_DRIFT },
+    val pulse: () -> Float = { 1f },
+    val blink: () -> Float = { 1f },
 )
 
+/** Solo corre la animación del ánimo que se ve; sin movimiento, ninguna (ni pide fotogramas). */
 @Composable
 private fun rememberTomiAnimation(
     mood: TomiMood,
     motion: Boolean,
 ): TomiAnimation {
-    val loop = rememberInfiniteTransition(label = "tomi")
-    val wave by loop.animateFloat(-1f, 1f, reverse(WAVE_MS), label = "wave")
-    val tilt by loop.animateFloat(-TILT_DEG, TILT_DEG, reverse(TILT_MS), label = "tilt")
-    val pulse by loop.animateFloat(1f, PULSE_MAX, reverse(PULSE_MS), label = "pulse")
-    val drift by loop.animateFloat(
-        0f,
-        1f,
-        infiniteRepeatable(tween(DRIFT_MS, easing = LinearEasing), RepeatMode.Restart),
-        label = "drift",
-    )
-    val blink by loop.animateFloat(
-        1f,
-        1f,
-        infiniteRepeatable(
-            keyframes {
-                durationMillis = BLINK_CYCLE_MS
-                1f at BLINK_START_MS
-                BLINK_CLOSED at BLINK_START_MS + BLINK_HALF_MS
-                1f at BLINK_START_MS + 2 * BLINK_HALF_MS
-            },
-        ),
-        label = "blink",
-    )
     // Feliz: un salto al aparecer.
     val jump = remember(mood) { Animatable(0f) }
     LaunchedEffect(mood, motion) {
@@ -235,16 +216,53 @@ private fun rememberTomiAnimation(
             jump.animateTo(0f, spring(dampingRatio = Spring.DampingRatioMediumBouncy))
         }
     }
-    if (!motion) return TomiAnimation()
-    val ringing = mood == TomiMood.RINGING
-    return TomiAnimation(
-        wave = if (ringing) wave else 0f,
-        tilt = if (ringing) tilt else 0f,
-        jump = jump.value,
-        drift = drift,
-        pulse = pulse,
-        blink = if (mood == TomiMood.NEUTRAL || mood == TomiMood.WORRIED) blink else 1f,
-    )
+    if (!motion) return remember { TomiAnimation() }
+    return when (mood) {
+        TomiMood.HAPPY -> remember(jump) { TomiAnimation(jump = { jump.value }) }
+        TomiMood.RINGING -> {
+            val loop = rememberInfiniteTransition(label = "tomi")
+            val wave = loop.animateFloat(-1f, 1f, reverse(WAVE_MS), label = "wave")
+            val tilt = loop.animateFloat(-TILT_DEG, TILT_DEG, reverse(TILT_MS), label = "tilt")
+            remember(wave, tilt) { TomiAnimation(wave = { wave.value }, tilt = { tilt.value }) }
+        }
+        TomiMood.SLEEPING -> {
+            val drift =
+                rememberInfiniteTransition(label = "tomi").animateFloat(
+                    0f,
+                    1f,
+                    infiniteRepeatable(tween(DRIFT_MS, easing = LinearEasing), RepeatMode.Restart),
+                    label = "drift",
+                )
+            remember(drift) { TomiAnimation(drift = { drift.value }) }
+        }
+        TomiMood.LISTENING -> {
+            val pulse =
+                rememberInfiniteTransition(label = "tomi").animateFloat(
+                    1f,
+                    PULSE_MAX,
+                    reverse(PULSE_MS),
+                    label = "pulse",
+                )
+            remember(pulse) { TomiAnimation(pulse = { pulse.value }) }
+        }
+        TomiMood.NEUTRAL, TomiMood.WORRIED -> {
+            val blink =
+                rememberInfiniteTransition(label = "tomi").animateFloat(
+                    1f,
+                    1f,
+                    infiniteRepeatable(
+                        keyframes {
+                            durationMillis = BLINK_CYCLE_MS
+                            1f at BLINK_START_MS
+                            BLINK_CLOSED at BLINK_START_MS + BLINK_HALF_MS
+                            1f at BLINK_START_MS + 2 * BLINK_HALF_MS
+                        },
+                    ),
+                    label = "blink",
+                )
+            remember(blink) { TomiAnimation(blink = { blink.value }) }
+        }
+    }
 }
 
 private fun reverse(millis: Int) =

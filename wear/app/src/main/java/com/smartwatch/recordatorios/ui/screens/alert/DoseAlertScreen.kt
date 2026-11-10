@@ -96,7 +96,7 @@ fun DoseAlertScreen(
             val snoozed = snoozedAt
             when {
                 taken != null -> {
-                    edgeItem { Tomi(mood = TomiMood.HAPPY, width = Sizes.tomiSmall) }
+                    edgeItem { Tomi(mood = TomiMood.HAPPY) }
                     edgeItem {
                         BwSuccessMark(
                             // La última dosis del día cierra el día: lo dice, sin exclamaciones.

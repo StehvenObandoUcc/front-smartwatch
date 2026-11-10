@@ -215,19 +215,8 @@ object Sizes {
     val signBar = 32.dp
     val progress = 32.dp
 
-    /**
-     * Anillo del día por el borde: pegado al bisel para pasar por fuera de los puntos del deslizador
-     * de páginas (abajo); arriba deja hueco a la hora.
-     */
-    val ringInset = 1.dp
-    val ringStroke = 5.dp
     val progressStroke = 4.dp
     val successMark = 44.dp
-
-    /** Discos de acción: el principal (Tomada) y los secundarios (Omitir, Posponer). */
-    val discMain = 60.dp
-    val discSecondary = 48.dp
-    val discIcon = 26.dp
 
     /** Margen lateral del dato central para no pisar los números de la esfera. */
     val dialClearance = 30.dp

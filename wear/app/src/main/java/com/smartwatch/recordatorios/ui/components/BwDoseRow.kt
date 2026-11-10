@@ -86,6 +86,6 @@ private fun StateDot(
         modifier = Modifier.size(Sizes.historyIcon).clip(CircleShape).background(fill),
         contentAlignment = Alignment.Center,
     ) {
-        BwIcon(icon, contentDescription = label, color = colors.ink, modifier = Modifier.size(Sizes.calendarIcon))
+        BwIcon(icon, contentDescription = label, color = onPlate(fill), modifier = Modifier.size(Sizes.calendarIcon))
     }
 }
