@@ -120,7 +120,7 @@ fun HomeScreen(
                 edgeItem {
                     val taken = today.count { it.status == DoseStatus.TAKEN }
                     BwPillbox(
-                        states = pillStates(today),
+                        states = pillStates(today, next?.id),
                         description = stringResource(R.string.home_today_progress, taken, today.size),
                         modifier = Modifier.fillMaxWidth(),
                     )
