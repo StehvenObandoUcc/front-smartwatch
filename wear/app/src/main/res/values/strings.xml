@@ -12,6 +12,9 @@
         <item quantity="other">En %1$d h</item>
     </plurals>
     <string name="home_no_next">Sin dosis próximas</string>
+    <string name="home_missed_title">¿La tomaste?</string>
+    <string name="home_missed_body">%1$s · %2$s</string>
+    <string name="home_missed_action">Registrar</string>
     <string name="home_no_next_body">Agrega tus medicamentos en el panel web</string>
     <string name="today_title">Hoy</string>
     <string name="tile_label">Dosis de hoy</string>

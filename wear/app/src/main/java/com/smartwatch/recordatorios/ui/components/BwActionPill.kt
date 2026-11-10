@@ -28,7 +28,8 @@ private const val PRESSED_ALPHA = 0.8f
 /**
  * Acción secundaria (posponer, omitir): icono arriba y etiqueta debajo, con [detail] opcional
  * (p. ej. los minutos de posponer). Neutra: superficie rellena; [quiet] solo contorno, para lo que no
- * se deshace y no debe atraer el dedo. Alto mínimo 64 dp; TalkBack lee etiqueta y detalle juntos.
+ * debe atraer el dedo; [destructive] en grafito, para lo que no se deshace (desvincular). Alto mínimo
+ * 64 dp; TalkBack lee etiqueta y detalle juntos.
  */
 @Composable
 fun BwActionPill(
@@ -38,15 +39,17 @@ fun BwActionPill(
     modifier: Modifier = Modifier,
     detail: String? = null,
     quiet: Boolean = false,
+    destructive: Boolean = false,
 ) {
     val colors = BwTheme.colors
+    val ink = if (destructive) colors.onAccent else colors.content
     val interaction = remember { MutableInteractionSource() }
     val pressed by interaction.collectIsPressedAsState()
     val fill =
-        if (quiet) {
-            Modifier.border(Sizes.outline, colors.outline, BwTheme.shapes.card)
-        } else {
-            Modifier.background(colors.surface)
+        when {
+            destructive -> Modifier.background(colors.accent)
+            quiet -> Modifier.border(Sizes.outline, colors.outline, BwTheme.shapes.card)
+            else -> Modifier.background(colors.surface)
         }
     Column(
         modifier =
@@ -60,8 +63,8 @@ fun BwActionPill(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(Spacing.xs, Alignment.CenterVertically),
     ) {
-        BwIcon(icon, contentDescription = null, color = if (quiet) colors.contentSoft else colors.content)
-        BwText(label, style = BwTheme.type.label, textAlign = TextAlign.Center, maxLines = 1)
+        BwIcon(icon, contentDescription = null, color = if (quiet && !destructive) colors.contentSoft else ink)
+        BwText(label, style = BwTheme.type.label, color = ink, textAlign = TextAlign.Center, maxLines = 1)
         detail?.let {
             BwText(
                 it,

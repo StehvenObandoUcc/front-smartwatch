@@ -128,7 +128,7 @@ private fun TransformingLazyColumnScope.overview(
                 label = stringResource(R.string.watch_unpair),
                 icon = R.drawable.ic_close,
                 onClick = { onAsk(UNPAIR) },
-                quiet = true,
+                destructive = true,
                 modifier = Modifier.fillMaxWidth(),
             )
         } else {

@@ -13,6 +13,9 @@
         <item quantity="other">In %1$d h</item>
     </plurals>
     <string name="home_no_next">No upcoming doses</string>
+    <string name="home_missed_title">Did you take it?</string>
+    <string name="home_missed_body">%1$s · %2$s</string>
+    <string name="home_missed_action">Log it</string>
     <string name="home_no_next_body">Add your medications in the web panel</string>
     <string name="today_title">Today</string>
     <string name="tile_label">Today\'s doses</string>

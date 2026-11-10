@@ -106,6 +106,12 @@ fun HomeScreen(
                 }
             }
 
+            // Una toma que ya pasó y nadie respondió (la alarma no se atendió o no llegó): va antes que
+            // la próxima, con Tomi preocupado. Abre su alerta para marcarla tomada u omitirla.
+            missedDose(today, now)?.let { missed ->
+                edgeItem { MissedDose(missed, onClick = { onOpenDose(missed) }) }
+            }
+
             edgeItem {
                 HomeHero(
                     allDone = allDone,
