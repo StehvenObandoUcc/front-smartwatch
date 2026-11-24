@@ -12,11 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -42,6 +38,7 @@ import androidx.wear.compose.material3.lazy.transformedHeight
 import com.smartwatch.recordatorios.ui.theme.AppFont
 import com.smartwatch.recordatorios.ui.theme.BwTheme
 import com.smartwatch.recordatorios.ui.theme.BwTone
+import com.smartwatch.recordatorios.ui.theme.Sizes
 import com.smartwatch.recordatorios.ui.theme.TypeScale
 
 /**
@@ -132,90 +129,44 @@ fun TransformingLazyColumnScope.edgeItem(
 }
 
 /**
- * ScreenScaffold de Wear (indicador de scroll, rotary) sobre una esfera a sangre: el degradado tonal
- * de su [tone] y un [backdrop] opcional fijo detrás de la lista.
+ * ScreenScaffold de Wear (indicador de scroll, rotary) sobre el fondo plano de su [tone].
+ * [edgeButton] es la acción principal pegada al borde inferior, con la forma de la curva del reloj.
+ * Va fija, no con el scaffold de Wear (que la encoge hasta llegar al final de la lista): se ve
+ * siempre y la lista deja su alto libre al final.
  * Añade un margen lateral del 5,2 % del ancho (la guía de Wear OS) para que nada choque con el borde.
  */
 @Composable
 fun BwScreenScaffold(
     scrollState: TransformingLazyColumnState,
-    tone: BwTone = BwTone.PETROL,
-    backdrop: (@Composable BoxScope.() -> Unit)? = null,
+    tone: BwTone = BwTone.PLAIN,
+    edgeButton: (@Composable BoxScope.() -> Unit)? = null,
     content: @Composable BoxScope.(PaddingValues) -> Unit,
 ) {
     val colors = BwTheme.colors
     val side = (LocalConfiguration.current.screenWidthDp * EDGE_MARGIN).dp
-    val background = BwTheme.backgrounds.of(tone)
-    val glow = background.glow
-    Box(
-        Modifier
-            .fillMaxSize()
-            .background(Brush.verticalGradient(background.gradient))
-            .then(if (glow != null) Modifier.drawBehind { bandGlow(glow) } else Modifier),
-    ) {
-        backdrop?.invoke(this)
-        ScreenContent(scrollState, side, content)
+    val indicator: @Composable BoxScope.() -> Unit = {
+        ScrollIndicator(
+            state = scrollState,
+            colors = ScrollIndicatorDefaults.colors(indicatorColor = colors.content, trackColor = colors.track),
+        )
     }
-}
-
-@Composable
-private fun ScreenContent(
-    scrollState: TransformingLazyColumnState,
-    side: androidx.compose.ui.unit.Dp,
-    content: @Composable BoxScope.(PaddingValues) -> Unit,
-) {
-    val colors = BwTheme.colors
-    ScreenScaffold(
-        scrollState = scrollState,
-        scrollIndicator = {
-            ScrollIndicator(
-                state = scrollState,
-                colors = ScrollIndicatorDefaults.colors(indicatorColor = colors.content, trackColor = colors.track),
-            )
-        },
-    ) { padding ->
+    val padded: @Composable BoxScope.(PaddingValues) -> Unit = { padding ->
         val direction = LocalLayoutDirection.current
         content(
             PaddingValues(
                 start = maxOf(padding.calculateStartPadding(direction), side),
                 top = padding.calculateTopPadding(),
                 end = maxOf(padding.calculateEndPadding(direction), side),
-                bottom = padding.calculateBottomPadding(),
+                bottom = padding.calculateBottomPadding() + if (edgeButton != null) Sizes.edgeButtonRoom else 0.dp,
             ),
         )
+    }
+    Box(Modifier.fillMaxSize().background(BwTheme.backgrounds.of(tone))) {
+        ScreenScaffold(scrollState = scrollState, scrollIndicator = indicator, content = padded)
+        edgeButton?.let { button ->
+            Box(Modifier.align(Alignment.BottomCenter), content = button)
+        }
     }
 }
 
 private const val EDGE_MARGIN = 0.052f
-
-/**
- * Dos brillos radiales en el borde inferior (derecha e izquierda), la receta de los paneles web
- * llevada al círculo: brillan el bisel y las esquinas, no la zona de texto. Medido: el texto suave
- * queda en 4,69:1 o más en las cuatro franjas.
- */
-private fun DrawScope.bandGlow(color: Color) {
-    val w = size.width
-    val h = size.height
-    drawRect(
-        Brush.radialGradient(
-            listOf(color.copy(alpha = GLOW_STRONG), Color.Transparent),
-            center = Offset(w * GLOW_RIGHT_X, h * GLOW_RIGHT_Y),
-            radius = w * GLOW_RADIUS,
-        ),
-    )
-    drawRect(
-        Brush.radialGradient(
-            listOf(color.copy(alpha = GLOW_SOFT), Color.Transparent),
-            center = Offset(w * GLOW_LEFT_X, h * GLOW_LEFT_Y),
-            radius = w * GLOW_RADIUS,
-        ),
-    )
-}
-
-private const val GLOW_STRONG = 0.3f
-private const val GLOW_SOFT = 0.225f
-private const val GLOW_RADIUS = 0.5f
-private const val GLOW_RIGHT_X = 1f
-private const val GLOW_RIGHT_Y = 1f
-private const val GLOW_LEFT_X = 0.1f
-private const val GLOW_LEFT_Y = 1.15f

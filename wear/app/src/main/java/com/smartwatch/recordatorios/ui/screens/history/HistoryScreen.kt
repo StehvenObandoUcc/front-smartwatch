@@ -94,7 +94,6 @@ fun HistoryScreen(
                 entries.isEmpty() ->
                     edgeItem {
                         BwEmptyState(
-                            icon = R.drawable.ic_chart,
                             title = stringResource(R.string.history_empty),
                             body = stringResource(R.string.history_empty_body),
                             modifier = Modifier.fillMaxWidth(),

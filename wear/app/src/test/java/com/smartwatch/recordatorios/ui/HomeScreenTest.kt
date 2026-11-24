@@ -110,4 +110,41 @@ class HomeScreenTest {
 
         assertThat(retries).isEqualTo(1)
     }
+
+    @Test
+    fun `una toma que sonó sin respuesta pregunta si se tomó y abre su alerta`() {
+        val missed = next.copy(id = "pasada", medicationName = "Metformina")
+        val later =
+            next.copy(
+                id = "luego",
+                scheduledAt = next.scheduledAt + HOUR,
+                nextAlarmAt = next.nextAlarmAt + HOUR,
+            )
+        var opened: String? = null
+        compose.setContent {
+            RecordatoriosTheme {
+                HomeScreen(
+                    next = later,
+                    now = missed.nextAlarmAt + Duration.ofMinutes(5).toMillis(),
+                    planInfo = PlanInfo(PlanStatus.OK, 0),
+                    exactAlarmsAllowed = true,
+                    notificationsAllowed = true,
+                    onRequestExactAlarms = {},
+                    onRequestNotifications = {},
+                    onOpenDose = { opened = it.id },
+                    onRetryPlan = {},
+                    today = listOf(missed, later),
+                )
+            }
+        }
+
+        compose.onNodeWithText("¿La tomaste?").assertIsDisplayed()
+        compose.onNodeWithText("Registrar").performClick()
+
+        assertThat(opened).isEqualTo("pasada")
+    }
+
+    private companion object {
+        val HOUR = Duration.ofHours(1).toMillis()
+    }
 }

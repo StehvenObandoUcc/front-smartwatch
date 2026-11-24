@@ -3,8 +3,6 @@
     <string name="app_name">Recordatorios</string>
 
     <string name="next_now">Ahora</string>
-    <string name="next_label">Próxima toma</string>
-    <string name="next_detail">%1$s · %2$s</string>
     <plurals name="next_in_minutes">
         <item quantity="one">En %1$d min</item>
         <item quantity="other">En %1$d min</item>
@@ -14,6 +12,9 @@
         <item quantity="other">En %1$d h</item>
     </plurals>
     <string name="home_no_next">Sin dosis próximas</string>
+    <string name="home_missed_title">¿La tomaste?</string>
+    <string name="home_missed_body">%1$s · %2$s</string>
+    <string name="home_missed_action">Registrar</string>
     <string name="home_no_next_body">Agrega tus medicamentos en el panel web</string>
     <string name="today_title">Hoy</string>
     <string name="tile_label">Dosis de hoy</string>
@@ -130,6 +131,7 @@
     <string name="status_scheduled">Pendiente</string>
     <string name="status_missed">No tomada</string>
     <string name="all_done_today">Todas tomadas hoy</string>
+    <string name="day_done">Listo por hoy</string>
     <string name="all_done_next">Mañana %1$s · %2$s</string>
     <string name="adherence_none_month">Aún sin dosis vencidas en %1$s</string>
     <string name="adherence_taken_month">tomadas en %1$s</string>
@@ -154,8 +156,6 @@
 
     <string name="action_take">Tomada</string>
     <string name="snooze_for">Posponer %1$d min</string>
-    <string name="snooze_short">Posponer</string>
-    <string name="snooze_minutes">%1$d min</string>
     <string name="snooze_limit">Sin más pospuestas</string>
     <string name="action_skip">Omitir</string>
     <string name="skip_confirm_title">¿Omitir %1$s?</string>

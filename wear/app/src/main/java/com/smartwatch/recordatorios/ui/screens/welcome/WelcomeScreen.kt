@@ -13,8 +13,11 @@ import com.smartwatch.recordatorios.ui.components.BwButton
 import com.smartwatch.recordatorios.ui.components.BwHeader
 import com.smartwatch.recordatorios.ui.components.BwScreenScaffold
 import com.smartwatch.recordatorios.ui.components.BwText
+import com.smartwatch.recordatorios.ui.components.Tomi
+import com.smartwatch.recordatorios.ui.components.TomiMood
 import com.smartwatch.recordatorios.ui.components.edgeItem
 import com.smartwatch.recordatorios.ui.theme.BwTheme
+import com.smartwatch.recordatorios.ui.theme.Sizes
 import com.smartwatch.recordatorios.ui.theme.Spacing
 
 /**
@@ -33,6 +36,7 @@ fun WelcomeScreen(
             contentPadding = contentPadding,
             verticalArrangement = Arrangement.spacedBy(Spacing.sm),
         ) {
+            edgeItem { Tomi(mood = TomiMood.HAPPY, width = Sizes.tomiSmall) }
             edgeItem { BwHeader(stringResource(R.string.welcome_title)) }
             edgeItem(container = true) {
                 BwButton(

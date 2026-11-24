@@ -16,8 +16,11 @@ import com.smartwatch.recordatorios.ui.components.BwEmptyState
 import com.smartwatch.recordatorios.ui.components.BwHeader
 import com.smartwatch.recordatorios.ui.components.BwScreenScaffold
 import com.smartwatch.recordatorios.ui.components.BwText
+import com.smartwatch.recordatorios.ui.components.Tomi
+import com.smartwatch.recordatorios.ui.components.TomiMood
 import com.smartwatch.recordatorios.ui.components.edgeItem
 import com.smartwatch.recordatorios.ui.theme.BwTheme
+import com.smartwatch.recordatorios.ui.theme.Sizes
 
 /**
  * Pregunta por voz: la respuesta se muestra corta y se lee en voz alta. Si el asistente propone crear
@@ -41,6 +44,7 @@ fun ChatScreen(
                 unpaired(onPair)
                 return@TransformingLazyColumn
             }
+            edgeItem { Tomi(mood = mood(state), width = Sizes.tomiSmall) }
             edgeItem {
                 BwText(
                     text = body(state),
@@ -94,6 +98,14 @@ fun ChatScreen(
     }
 }
 
+/** Tomi escucha mientras se pregunta o se espera; responde contento y se preocupa si algo falla. */
+private fun mood(state: ChatState): TomiMood =
+    when (state) {
+        ChatState.Idle, ChatState.Thinking -> TomiMood.LISTENING
+        is ChatState.Reply -> TomiMood.HAPPY
+        is ChatState.Failure -> TomiMood.WORRIED
+    }
+
 @Composable
 private fun body(state: ChatState): String =
     when (state) {
@@ -118,7 +130,6 @@ private fun body(state: ChatState): String =
 private fun TransformingLazyColumnScope.unpaired(onPair: () -> Unit) {
     edgeItem {
         BwEmptyState(
-            icon = R.drawable.ic_mic,
             title = stringResource(R.string.chat_unpaired_title),
             body = stringResource(R.string.chat_unpaired_body),
             modifier = Modifier.fillMaxWidth(),

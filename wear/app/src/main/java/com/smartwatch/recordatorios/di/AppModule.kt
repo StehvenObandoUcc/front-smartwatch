@@ -41,7 +41,8 @@ object AppModule {
     ): AppDatabase =
         Room
             .databaseBuilder(context, AppDatabase::class.java, AppDatabase.NAME)
-            .fallbackToDestructiveMigration(true) // antes de publicar: el plan se vuelve a descargar
+            // Sin migración se borra la base: el plan se vuelve a descargar, los medicamentos del reloj no.
+            .fallbackToDestructiveMigration(true)
             .build()
 
     @Provides

@@ -39,7 +39,7 @@ export function AdherenceChart() {
   const { t } = useTranslation();
   const { patientId, timezone } = usePatient();
   const days = Array.from({ length: DAYS }, (_, i) => daysAgo(DAYS - 1 - i, timezone));
-  // ponytail: una sola página de 100 dosis cubre ~14 tomas diarias; si se supera, paginar con nextCursor.
+  // Una sola página de 100 dosis cubre ~14 tomas diarias; si se supera, paginar con nextCursor.
   const history = useListDoseHistory(patientId, {
     from: days[0],
     to: days[DAYS - 1],

@@ -55,8 +55,8 @@ fun PairingScreen(
                     edgeItem { BwProgress() }
                     edgeItem { Step(stringResource(R.string.pair_loading)) }
                 }
-                // El código primero (es lo que hay que copiar); debajo, dónde escribirlo, con la
-                // dirección del panel escrita: antes solo decía «el panel web».
+                // El código primero (es lo que se copia); debajo, dónde escribirlo, con la dirección
+                // del panel completa.
                 is PairingState.Code -> {
                     edgeItem { CodeBoxes(state.code) }
                     edgeItem { Step(stringResource(R.string.pair_step_open)) }

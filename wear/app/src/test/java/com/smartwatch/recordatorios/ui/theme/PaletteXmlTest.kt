@@ -16,16 +16,15 @@ class PaletteXmlTest {
 
     @Test
     fun `los colores del XML son los de la paleta`() {
-        assertThat(context.getColor(R.color.petrol_900)).isEqualTo(Palette.petrol900.toArgb())
-        assertThat(context.getColor(R.color.cream)).isEqualTo(Palette.cream.toArgb())
-        assertThat(context.getColor(R.color.sand)).isEqualTo(Palette.sand.toArgb())
-        assertThat(context.getColor(R.color.mint)).isEqualTo(Palette.mint.toArgb())
-        assertThat(context.getColor(R.color.track)).isEqualTo(BwTheme.colors.track.toArgb())
+        assertThat(context.getColor(R.color.screen)).isEqualTo(Palette.screen.toArgb())
+        assertThat(context.getColor(R.color.sage)).isEqualTo(Palette.sage.toArgb())
+        assertThat(context.getColor(R.color.ink)).isEqualTo(Palette.ink.toArgb())
+        assertThat(context.getColor(R.color.tile_track)).isEqualTo(TileColors.track.toArgb())
         assertThat(context.getColor(R.color.med_blue)).isEqualTo(Palette.medBlue.toArgb())
     }
 
     @Test
-    fun `el fondo de la app es el primitivo petróleo`() {
-        assertThat(BwTheme.colors.background).isEqualTo(Palette.petrol900)
+    fun `el fondo de la app es el primitivo de pantalla`() {
+        assertThat(BwTheme.colors.background).isEqualTo(Palette.screen)
     }
 }

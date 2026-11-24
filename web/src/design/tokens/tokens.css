@@ -117,7 +117,7 @@ html[data-theme='light'] {
   /* Contorno de campos y del botón secundario: ≥ 3:1 sobre fondo y tarjeta. */
   --border-strong: var(--p-graphite);
 
-  /* Placa de pictograma: aguamarina suave con el glifo aguamarina. */
+  /* Placa de pictograma: salvia suave con el glifo verde azulado. */
   --sign: var(--p-sage-100);
   --on-sign: var(--p-teal-700);
   --sign-muted: var(--p-graphite);

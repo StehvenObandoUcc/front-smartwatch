@@ -14,6 +14,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
@@ -25,19 +26,18 @@ import com.smartwatch.recordatorios.data.remote.PlanInfo
 import com.smartwatch.recordatorios.data.remote.PlanStatus
 import com.smartwatch.recordatorios.ui.components.BwBanner
 import com.smartwatch.recordatorios.ui.components.BwButton
-import com.smartwatch.recordatorios.ui.components.BwDayRing
-import com.smartwatch.recordatorios.ui.components.BwEmptyState
+import com.smartwatch.recordatorios.ui.components.BwPillbox
 import com.smartwatch.recordatorios.ui.components.BwScreenScaffold
-import com.smartwatch.recordatorios.ui.components.BwSuccessMark
 import com.smartwatch.recordatorios.ui.components.BwText
 import com.smartwatch.recordatorios.ui.components.MedicationLabel
+import com.smartwatch.recordatorios.ui.components.Tomi
+import com.smartwatch.recordatorios.ui.components.TomiMood
 import com.smartwatch.recordatorios.ui.components.edgeItem
+import com.smartwatch.recordatorios.ui.components.pillStates
 import com.smartwatch.recordatorios.ui.theme.BwTheme
-import com.smartwatch.recordatorios.ui.theme.BwTone
 import com.smartwatch.recordatorios.ui.theme.RecordatoriosTheme
 import com.smartwatch.recordatorios.ui.theme.Sizes
 import com.smartwatch.recordatorios.ui.theme.Spacing
-import com.smartwatch.recordatorios.ui.theme.bandTone
 import com.smartwatch.recordatorios.ui.theme.timeText
 import kotlinx.coroutines.delay
 import java.time.Duration
@@ -63,21 +63,9 @@ fun HomeScreen(
 ) {
     val listState = rememberTransformingLazyColumnState()
     val planStatus = planInfo?.let { planStatusText(it, now) }
-    // Ya no queda nada por tomar hoy: la página descansa en verde hasta mañana.
+    // Ya no queda nada por tomar hoy: Tomi se duerme hasta mañana.
     val allDone = today.isNotEmpty() && today.none { it.status == DoseStatus.SCHEDULED }
-    BwScreenScaffold(
-        scrollState = listState,
-        // El fondo sigue la franja del momento; con todo tomado, salvia (Completo).
-        tone = if (allDone) BwTone.COMPLETE else bandTone(now),
-        backdrop = {
-            val taken = today.count { it.status == DoseStatus.TAKEN }
-            BwDayRing(
-                taken = taken,
-                total = today.size,
-                description = stringResource(R.string.home_today_progress, taken, today.size),
-            )
-        },
-    ) { contentPadding ->
+    BwScreenScaffold(scrollState = listState) { contentPadding ->
         TransformingLazyColumn(
             state = listState,
             contentPadding = contentPadding,
@@ -118,6 +106,12 @@ fun HomeScreen(
                 }
             }
 
+            // Una toma que ya pasó y nadie respondió (la alarma no se atendió o no llegó): va antes que
+            // la próxima, con Tomi preocupado. Abre su alerta para marcarla tomada u omitirla.
+            missedDose(today, now)?.let { missed ->
+                edgeItem { MissedDose(missed, onClick = { onOpenDose(missed) }) }
+            }
+
             edgeItem {
                 HomeHero(
                     allDone = allDone,
@@ -126,6 +120,17 @@ fun HomeScreen(
                     localMode = onAddMedication != null,
                     onOpenDose = onOpenDose,
                 )
+            }
+
+            if (today.isNotEmpty()) {
+                edgeItem {
+                    val taken = today.count { it.status == DoseStatus.TAKEN }
+                    BwPillbox(
+                        states = pillStates(today, next?.id),
+                        description = stringResource(R.string.home_today_progress, taken, today.size),
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
             }
 
             onAddMedication?.let { add ->
@@ -164,23 +169,14 @@ private fun HomeHero(
     onOpenDose: (DoseEntity) -> Unit,
 ) {
     if (allDone) {
-        BwSuccessMark(
-            label = stringResource(R.string.all_done_today),
-            details =
-                listOfNotNull(
-                    next?.let {
-                        stringResource(
-                            R.string.all_done_next,
-                            timeText(it.nextAlarmAt),
-                            it.medicationName,
-                        )
-                    },
-                ),
-            modifier = Modifier.fillMaxWidth().padding(horizontal = Sizes.dialClearance),
+        TomiMessage(
+            mood = TomiMood.SLEEPING,
+            title = stringResource(R.string.day_done),
+            body = next?.let { stringResource(R.string.all_done_next, timeText(it.nextAlarmAt), it.medicationName) },
         )
     } else if (next == null) {
-        BwEmptyState(
-            icon = R.drawable.ic_pill,
+        TomiMessage(
+            mood = TomiMood.NEUTRAL,
             title = stringResource(R.string.home_no_next),
             body =
                 stringResource(
@@ -190,16 +186,33 @@ private fun HomeHero(
                         R.string.home_no_next_body
                     },
                 ),
-            modifier = Modifier.fillMaxWidth(),
         )
     } else {
         NextDose(dose = next, now = now, onClick = { onOpenDose(next) })
     }
 }
 
+/** Tomi con una frase: lo que pasa se entiende por su cara antes de leer. */
+@Composable
+private fun TomiMessage(
+    mood: TomiMood,
+    title: String,
+    body: String?,
+) {
+    Column(
+        modifier = Modifier.fillMaxWidth().semantics(mergeDescendants = true) {},
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(Spacing.xs),
+    ) {
+        Tomi(mood = mood, width = Sizes.tomiSmall)
+        BwText(title, style = BwTheme.type.title, textAlign = TextAlign.Center)
+        body?.let { BwText(it, color = BwTheme.colors.contentSoft, textAlign = TextAlign.Center) }
+    }
+}
+
 /**
- * La próxima toma sin caja, como protagonista: cuánto falta en grande (no la hora, para no competir
- * con el reloj de arriba), el medicamento con su color y la hora y la dosis en tono suave.
+ * La próxima toma sin caja, como protagonista: el medicamento con su color, la hora en grande y
+ * cuánto falta en tono suave. El pastillero de debajo dice cuál es entre las del día.
  */
 @Composable
 private fun NextDose(
@@ -217,25 +230,18 @@ private fun NextDose(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(Spacing.xs),
     ) {
+        MedicationLabel(name = dose.medicationName, colorKey = dose.colorKey)
         BwText(
-            stringResource(R.string.next_label),
-            style = BwTheme.type.support,
-            color = BwTheme.colors.contentSoft,
-            textAlign = TextAlign.Center,
-        )
-        BwText(
-            timeLeft(dose.nextAlarmAt, now),
+            timeText(dose.nextAlarmAt),
             style = BwTheme.type.display,
             textAlign = TextAlign.Center,
             maxLines = 1,
             autoSize = BwTheme.type.displayFit,
-            // Margen: la cifra ocupa todo el ancho y en la parte alta el círculo es más estrecho.
-            // y la escala de la esfera ocupa los lados: la cifra se achica antes que pisarla.
+            // La escala de la esfera ocupa los lados: la cifra se achica antes que pisarla.
             modifier = Modifier.fillMaxWidth().padding(horizontal = Sizes.dialClearance),
         )
-        MedicationLabel(name = dose.medicationName, colorKey = dose.colorKey)
         BwText(
-            text = stringResource(R.string.next_detail, timeText(dose.nextAlarmAt), dose.doseLabel),
+            text = timeLeft(dose.nextAlarmAt, now),
             color = BwTheme.colors.contentSoft,
             textAlign = TextAlign.Center,
         )

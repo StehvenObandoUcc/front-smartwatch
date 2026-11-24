@@ -33,7 +33,7 @@ class DoseAlertScreenTest {
     val compose = createComposeRule()
 
     private var takes = 0
-    private val snoozeMinutes = "${SnoozePolicy.DELAY.toMinutes()} min"
+    private val snoozeLabel = "En ${SnoozePolicy.DELAY.toMinutes()} min"
 
     private fun show(dose: DoseEntity) {
         compose.setContent {
@@ -68,11 +68,10 @@ class DoseAlertScreenTest {
     fun `posponer y el contador usan los números de SnoozePolicy`() {
         show(dose(snoozeCount = 1))
 
-        // El estado va arriba; Posponer, al desplazar (a 192 dp con letra grande queda bajo el pliegue).
+        // El estado va arriba; posponer, al desplazar (a 192 dp con letra grande queda bajo el pliegue).
         compose.onNodeWithText("Pospuesta 1 de ${SnoozePolicy.MAX_SNOOZES}", substring = true).assertExists()
-        compose.onNode(hasScrollAction()).performScrollToNode(hasText("Posponer"))
-        compose.onNodeWithText("Posponer").assertExists()
-        compose.onNodeWithText(snoozeMinutes).assertExists()
+        compose.onNode(hasScrollAction()).performScrollToNode(hasText(snoozeLabel))
+        compose.onNodeWithText(snoozeLabel).assertExists()
     }
 
     @Test
@@ -80,7 +79,7 @@ class DoseAlertScreenTest {
         show(dose(snoozeCount = SnoozePolicy.MAX_SNOOZES))
 
         compose.onNode(hasScrollAction()).performScrollToNode(hasText("Sin más pospuestas"))
-        compose.onNodeWithText("Posponer").assertDoesNotExist()
+        compose.onNodeWithText(snoozeLabel).assertDoesNotExist()
         compose.onNodeWithText("Sin más pospuestas").assertExists()
     }
 
@@ -101,8 +100,9 @@ class DoseAlertScreenTest {
     fun `posponer muestra cuántas van y cuántas quedan`() {
         show(dose(snoozeCount = 1))
 
-        compose.onNode(hasScrollAction()).performScrollToNode(hasText("Posponer"))
-        compose.onNodeWithText("Posponer").performClick()
+        // Hasta el final: así posponer queda por encima del botón del borde, no debajo.
+        compose.onNode(hasScrollAction()).performScrollToNode(hasText("Omitir"))
+        compose.onNodeWithText(snoozeLabel).performClick()
 
         compose.onNodeWithText("Pospuesta 2 de ${SnoozePolicy.MAX_SNOOZES}").assertExists()
         compose.onNodeWithText("Suena a las", substring = true).assertExists()

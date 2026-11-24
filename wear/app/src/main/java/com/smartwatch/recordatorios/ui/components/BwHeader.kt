@@ -27,7 +27,8 @@ fun BwHeader(
         modifier =
             modifier
                 .fillMaxWidth()
-                .padding(vertical = Spacing.xs)
+                // Arriba el círculo es más estrecho: el título parte en dos líneas antes que cortarse.
+                .padding(horizontal = Spacing.lg, vertical = Spacing.xs)
                 .semantics { heading() },
     )
 }

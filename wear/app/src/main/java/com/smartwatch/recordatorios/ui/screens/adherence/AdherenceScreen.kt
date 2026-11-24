@@ -14,6 +14,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
@@ -58,7 +63,6 @@ fun AdherenceScreen(
             if (summary == null) {
                 edgeItem {
                     BwEmptyState(
-                        icon = R.drawable.ic_chart,
                         title = stringResource(R.string.adherence_empty),
                         body = stringResource(R.string.adherence_empty_body),
                         modifier = Modifier.fillMaxWidth(),
@@ -145,24 +149,37 @@ private fun DayDot(
     isToday: Boolean,
 ) {
     val colors = BwTheme.colors
-    val (fill, icon, tint) =
-        when (result) {
-            DayResult.ALL_TAKEN -> Triple(colors.stateTaken, R.drawable.ic_check, colors.ink)
-            DayResult.SOME_MISSED -> Triple(colors.stateMissed, R.drawable.ic_close, colors.ink)
-            DayResult.NO_DOSES, null -> Triple(colors.surface, null, colors.content)
-        }
+    // El día incompleto lleva una raya, como la casilla omitida del pastillero: no un color de castigo.
+    val missed = result == DayResult.SOME_MISSED
+    val fill = if (result == DayResult.ALL_TAKEN) colors.stateTaken else colors.surface
+    val icon = if (result == DayResult.ALL_TAKEN) R.drawable.ic_check else null
     Box(
         modifier =
             Modifier
                 .size(Sizes.weekDot)
                 .clip(CircleShape)
                 .background(fill)
+                .then(if (missed) Modifier.drawBehind { slash(colors.stateMissed) } else Modifier)
                 .then(if (isToday) Modifier.border(Sizes.todayRing, colors.content, CircleShape) else Modifier),
         contentAlignment = Alignment.Center,
     ) {
-        icon?.let { BwIcon(it, contentDescription = null, color = tint, modifier = Modifier.size(Sizes.weekIcon)) }
+        icon?.let {
+            BwIcon(it, contentDescription = null, color = colors.ink, modifier = Modifier.size(Sizes.weekIcon))
+        }
     }
 }
+
+private fun DrawScope.slash(color: Color) =
+    drawLine(
+        color,
+        Offset(size.width * SLASH_IN, size.height * (1 - SLASH_IN)),
+        Offset(size.width * (1 - SLASH_IN), size.height * SLASH_IN),
+        size.width * SLASH_W,
+        cap = StrokeCap.Round,
+    )
+
+private const val SLASH_IN = 0.28f
+private const val SLASH_W = 0.12f
 
 private const val WEEK = 7
 

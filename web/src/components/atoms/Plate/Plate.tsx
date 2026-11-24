@@ -7,7 +7,7 @@ type Size = 'sm' | 'md' | 'lg';
 
 // La placa de pictograma: cada opción y categoría lleva la suya.
 const toneClass: Record<Tone, string> = {
-  // Aguamarina suave con el glifo aguamarina: secciones y bloques.
+  // Tono suave de la marca con el glifo en acento: secciones y bloques.
   sign: 'bg-sign text-on-sign',
   // Tarjeta blanca sobre un panel de franja.
   onSign: 'bg-surface-veil text-on-panel',
