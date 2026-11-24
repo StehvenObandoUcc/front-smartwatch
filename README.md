@@ -81,12 +81,12 @@ Sin internet el reloj sigue sonando: el plan y las alarmas son locales.
 
 ## El reloj (`wear/`)
 
-Capturas reales tomadas en un Galaxy Watch4 con `adb exec-out screencap`.
+Pantallas renderizadas desde el código actual con Robolectric (sin emulador), a 396 × 396 px como
+un Galaxy Watch4 de 40 mm.
 
-**Inicio.** Muestra en grande la próxima dosis («En 3 min», «En 1 h») y, por el borde, el anillo del
-día: un tramo por dosis, verde si se tomó, con un hueco arriba para la hora. El fondo toma el
-brillo de la franja del momento: mañana, tarde o noche. Las páginas se pasan deslizando hacia los
-lados.
+**Inicio.** La próxima dosis: el medicamento con su color, la hora en grande y cuánto falta («En
+2 min», «En 1 h»). Debajo, el pastillero del día: una casilla por dosis, con un visto si se tomó y
+el borde marcado en la siguiente. Las páginas se pasan deslizando hacia los lados.
 
 <p align="center"><img src="docs/assets/capturas/reloj/es-inicio.webp" width="200" alt="Inicio con la próxima dosis" /></p>
 
@@ -97,8 +97,8 @@ concede al instalar) y se reprograman tras reiniciar el reloj o actualizar la ap
 
 <p align="center"><img src="docs/assets/capturas/reloj/es-alerta.webp" width="200" alt="Alerta de dosis" /> <img src="docs/assets/capturas/reloj/en-alerta.webp" width="200" alt="Dose alert" /> <img src="docs/assets/capturas/reloj/en-tomada.webp" width="200" alt="Dose recorded as taken" /></p>
 
-**Hoy.** Las dosis del día agrupadas por franja, cada una con su estado: pendiente, tomada, omitida
-o más tarde.
+**Hoy.** Cuántas dosis van tomadas («2 de 5 tomadas») y las del día agrupadas por franja (mañana,
+tarde, noche), cada una con su estado: pendiente, tomada, omitida o más tarde.
 
 <p align="center"><img src="docs/assets/capturas/reloj/es-hoy.webp" width="200" alt="Hoy" /> <img src="docs/assets/capturas/reloj/es-hoy-2.webp" width="200" alt="Hoy, más abajo" /></p>
 
@@ -132,7 +132,7 @@ reloj no está vinculado, aquí se ven y se crean los medicamentos guardados en 
 
 **Además:**
 
-- un Tile «Anillo del día» y una complication «Próxima toma» para la esfera;
+- un Tile «Dosis de hoy» y una complication «Próxima toma» para la esfera;
 - **idioma** español (por defecto) o inglés, que se elige solo para la app en *Ajustes → Apps →
   Recordatorios → Idioma*.
 
