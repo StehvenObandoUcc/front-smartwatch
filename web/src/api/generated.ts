@@ -61,6 +61,14 @@
  *   batería del reloj y deshacer una toma registrada.
  *
  * Cambios por versión:
+ * - 0.14.0: el asistente conoce la adherencia (7 días, el mes, 30 días, por medicamento y día
+ *   por día) y las dosis de ayer, y explica cómo se usa la app. En el reloj también puede
+ *   proponer cambiar las horas de un medicamento (`pendingAction.type: update_schedule`), su
+ *   dosis (`update_dosage`) o dejar de recordarlo (`archive_medication`); al confirmar,
+ *   `actions[].type` es `schedule_updated`, `dosage_updated` o `medication_archived`, y
+ *   `actions[].scheduleId` es `null` si el cambio no toca horarios. Los valores nuevos de enum y
+ *   el `null` en las respuestas son un cambio acordado con el frontend
+ *   (`contracts/oasdiff-ignore.txt`).
  * - 0.13.0: `Locale` admite `en`. El asistente responde en el idioma en que le escriben;
  *   los textos que arma el servidor (resúmenes y confirmaciones del reloj) y los avisos por
  *   correo y Telegram siguen el `locale` de la cuenta. El valor nuevo de enum en las
@@ -72,7 +80,7 @@
  *   anterior a 0.12.0 no se cierra al recibirlos (`contracts/oasdiff-ignore.txt`).
  * - 0.11.0: `DELETE /users/me` (eliminar la cuenta).
  *
- * OpenAPI spec version: 0.13.0
+ * OpenAPI spec version: 0.14.0
  */
 import {
   useMutation,
@@ -983,6 +991,9 @@ export type PendingActionType = typeof PendingActionType[keyof typeof PendingAct
 export const PendingActionType = {
   create_medication: 'create_medication',
   add_schedule: 'add_schedule',
+  update_schedule: 'update_schedule',
+  update_dosage: 'update_dosage',
+  archive_medication: 'archive_medication',
 } as const;
 
 export interface PendingAction {
@@ -997,12 +1008,19 @@ export type ChatActionType = typeof ChatActionType[keyof typeof ChatActionType];
 export const ChatActionType = {
   medication_created: 'medication_created',
   schedule_added: 'schedule_added',
+  schedule_updated: 'schedule_updated',
+  dosage_updated: 'dosage_updated',
+  medication_archived: 'medication_archived',
 } as const;
 
 export interface ChatAction {
   type: ChatActionType;
   medicationId: string;
-  scheduleId: string;
+  /**
+     * Horario creado o cambiado; `null` si el cambio no toca horarios.
+     * @nullable
+     */
+  scheduleId: string | null;
 }
 
 export interface WatchChatReply {

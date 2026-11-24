@@ -25,7 +25,7 @@ import kotlinx.serialization.Contextual
  *
  * @param type 
  * @param medicationId 
- * @param scheduleId 
+ * @param scheduleId Horario creado o cambiado; `null` si el cambio no toca horarios.
  */
 @Serializable
 
@@ -37,20 +37,24 @@ data class ChatAction (
     @Contextual @SerialName(value = "medicationId")
     val medicationId: java.util.UUID,
 
+    /* Horario creado o cambiado; `null` si el cambio no toca horarios. */
     @Contextual @SerialName(value = "scheduleId")
-    val scheduleId: java.util.UUID
+    val scheduleId: java.util.UUID?
 
 ) {
 
     /**
      * 
      *
-     * Values: medication_created,schedule_added
+     * Values: medication_created,schedule_added,schedule_updated,dosage_updated,medication_archived
      */
     @Serializable
     enum class Type(val value: kotlin.String) {
         @SerialName(value = "medication_created") medication_created("medication_created"),
-        @SerialName(value = "schedule_added") schedule_added("schedule_added");
+        @SerialName(value = "schedule_added") schedule_added("schedule_added"),
+        @SerialName(value = "schedule_updated") schedule_updated("schedule_updated"),
+        @SerialName(value = "dosage_updated") dosage_updated("dosage_updated"),
+        @SerialName(value = "medication_archived") medication_archived("medication_archived");
     }
 
 }

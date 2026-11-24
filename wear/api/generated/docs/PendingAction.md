@@ -13,7 +13,7 @@
 ## Enum: type
 | Name | Value |
 | ---- | ----- |
-| type | create_medication, add_schedule |
+| type | create_medication, add_schedule, update_schedule, update_dosage, archive_medication |
 
 
 

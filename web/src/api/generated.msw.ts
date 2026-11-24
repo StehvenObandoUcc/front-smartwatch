@@ -61,6 +61,14 @@
  *   batería del reloj y deshacer una toma registrada.
  *
  * Cambios por versión:
+ * - 0.14.0: el asistente conoce la adherencia (7 días, el mes, 30 días, por medicamento y día
+ *   por día) y las dosis de ayer, y explica cómo se usa la app. En el reloj también puede
+ *   proponer cambiar las horas de un medicamento (`pendingAction.type: update_schedule`), su
+ *   dosis (`update_dosage`) o dejar de recordarlo (`archive_medication`); al confirmar,
+ *   `actions[].type` es `schedule_updated`, `dosage_updated` o `medication_archived`, y
+ *   `actions[].scheduleId` es `null` si el cambio no toca horarios. Los valores nuevos de enum y
+ *   el `null` en las respuestas son un cambio acordado con el frontend
+ *   (`contracts/oasdiff-ignore.txt`).
  * - 0.13.0: `Locale` admite `en`. El asistente responde en el idioma en que le escriben;
  *   los textos que arma el servidor (resúmenes y confirmaciones del reloj) y los avisos por
  *   correo y Telegram siguen el `locale` de la cuenta. El valor nuevo de enum en las
@@ -72,7 +80,7 @@
  *   anterior a 0.12.0 no se cierra al recibirlos (`contracts/oasdiff-ignore.txt`).
  * - 0.11.0: `DELETE /users/me` (eliminar la cuenta).
  *
- * OpenAPI spec version: 0.13.0
+ * OpenAPI spec version: 0.14.0
  */
 import {
   faker
@@ -243,9 +251,9 @@ export const getDownloadReportPdfResponseMock = (): Blob => (new Blob([new Uint8
 
 export const getSendChatMessageResponseMock = (): string => (faker.word.sample())
 
-export const getSendMyChatMessageResponsePendingActionMock = (overrideResponse: Partial<PendingAction> = {}): PendingAction => ({...{id: faker.string.uuid(), type: faker.helpers.arrayElement(['create_medication','add_schedule'] as const), summary: faker.string.alpha({length: {min: 10, max: 20}})}, ...overrideResponse});
+export const getSendMyChatMessageResponsePendingActionMock = (overrideResponse: Partial<PendingAction> = {}): PendingAction => ({...{id: faker.string.uuid(), type: faker.helpers.arrayElement(['create_medication','add_schedule','update_schedule','update_dosage','archive_medication'] as const), summary: faker.string.alpha({length: {min: 10, max: 20}})}, ...overrideResponse});
 
-export const getSendMyChatMessageResponseMock = (overrideResponse: Partial<Extract<WatchChatReply, object>> = {}): WatchChatReply => ({reply: faker.string.alpha({length: {min: 10, max: 20}}), remainingMessages: faker.number.int({min: 0}), pendingAction: faker.helpers.arrayElement([{...getSendMyChatMessageResponsePendingActionMock()},null,]), actions: faker.helpers.arrayElement([Array.from({ length: faker.number.int({min: 1, max: 10}) }, (_, i) => i + 1).map(() => ({type: faker.helpers.arrayElement(['medication_created','schedule_added'] as const), medicationId: faker.string.uuid(), scheduleId: faker.string.uuid()})), undefined]), ...overrideResponse})
+export const getSendMyChatMessageResponseMock = (overrideResponse: Partial<Extract<WatchChatReply, object>> = {}): WatchChatReply => ({reply: faker.string.alpha({length: {min: 10, max: 20}}), remainingMessages: faker.number.int({min: 0}), pendingAction: faker.helpers.arrayElement([{...getSendMyChatMessageResponsePendingActionMock()},null,]), actions: faker.helpers.arrayElement([Array.from({ length: faker.number.int({min: 1, max: 10}) }, (_, i) => i + 1).map(() => ({type: faker.helpers.arrayElement(['medication_created','schedule_added','schedule_updated','dosage_updated','medication_archived'] as const), medicationId: faker.string.uuid(), scheduleId: faker.helpers.arrayElement([faker.string.uuid(), null])})), undefined]), ...overrideResponse})
 
 
 export const getGetHealthMockHandler = (overrideResponse?: Health | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<Health> | Health), options?: RequestHandlerOptions) => {
